@@ -1,11 +1,11 @@
 # mongodb_tools
 
-Golang-based tools for the DCOS '[dcos-mongo](https://github.com/mesosphere/dcos-mongo)' framework
+Go-based tools for the DCOS 'percona-mongo' service
 
-- **mongodb-executor**: wrapper tool for 'mongod' and executing tasks on the local mongo container
+- **mongodb-executor**: wrapper tool for 'mongod' and executing tasks on the local mongod/mongos container
 - **mongodb-healthcheck**: tool for running DCOS health and readiness checks on a MongoDB task
-- **mongodb-initiator**: tool for initiating a replica set and adding users
-- **mongodb-watchdog**: daemon to monitor dcos pod status and mongodb replica set health/membership
+- **mongodb-initiator**: tool for initiating the replica set and adding system users
+- **mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
 
 ## Build
 
