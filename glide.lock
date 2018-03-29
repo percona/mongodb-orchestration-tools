@@ -1,0 +1,38 @@
+hash: 52ea3eca7dff13061f7f4901bbbbf50fbac0cb898b68ad94f3357d86c92a4bde
+updated: 2018-03-11T19:53:52.798902329+01:00
+imports:
+- name: github.com/alecthomas/kingpin
+  version: 2a5eb223fafee7c394892041bc175938a9592594
+- name: github.com/alecthomas/template
+  version: a0175ee3bccc567396460bf5acd36800cb10c49c
+  subpackages:
+  - parse
+- name: github.com/alecthomas/units
+  version: 2efee857e7cfd4f3d0138cc3cbb1b4966962b93a
+- name: github.com/Robpol86/logrus-custom-formatter
+  version: ba99911cd0e4ade6bf41bf080e923bde0ed46b98
+- name: github.com/sirupsen/logrus
+  version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
+- name: github.com/timvaillancourt/go-mongodb-config
+  version: 92d8836dc5f5a0c8d46b8c69534f6fefb3d4934f
+  subpackages:
+  - config
+- name: github.com/timvaillancourt/go-mongodb-replset
+  version: d5b53f0aeead5c2b8bce9ba32ae9bad1c569ee9f
+  subpackages:
+  - config
+  - status
+- name: golang.org/x/sys
+  version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
+  subpackages:
+  - unix
+- name: gopkg.in/mgo.v2
+  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
+  subpackages:
+  - bson
+  - internal/json
+  - internal/sasl
+  - internal/scram
+- name: gopkg.in/yaml.v2
+  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
+testImports: []

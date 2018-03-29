@@ -1,0 +1,36 @@
+package common
+
+const (
+	EnvFrameworkName = "FRAMEWORK_NAME"
+	EnvFrameworkHost = "FRAMEWORK_HOST"
+	EnvPodName       = "POD_NAME"
+	EnvTaskName      = "TASK_NAME"
+	EnvMesosSandbox  = "MESOS_SANDBOX"
+
+	EnvMongoDBPrimaryAddr            = "MONGODB_PRIMARY_ADDR"
+	EnvMongoDBPort                   = "MONGODB_PORT"
+	EnvMongoDBReplset                = "MONGODB_REPLSET"
+	EnvMongoDBMongodEndpointName     = "MONGODB_MONGOD_ENDPOINT_NAME"
+	EnvMongoDBBackupUser             = "MONGODB_BACKUP_USER"
+	EnvMongoDBBackupPassword         = "MONGODB_BACKUP_PASSWORD"
+	EnvMongoDBClusterAdminUser       = "MONGODB_CLUSTER_ADMIN_USER"
+	EnvMongoDBClusterAdminPassword   = "MONGODB_CLUSTER_ADMIN_PASSWORD"
+	EnvMongoDBClusterMonitorUser     = "MONGODB_CLUSTER_MONITOR_USER"
+	EnvMongoDBClusterMonitorPassword = "MONGODB_CLUSTER_MONITOR_PASSWORD"
+	EnvMongoDBUserAdminUser          = "MONGODB_USER_ADMIN_USER"
+	EnvMongoDBUserAdminPassword      = "MONGODB_USER_ADMIN_PASSWORD"
+	EnvMongoDBChangeUserDb           = "MONGODB_CHANGE_USER_DB"
+	EnvMongoDBChangeUserUsername     = "MONGODB_CHANGE_USER_USERNAME"
+	EnvMongoDBChangeUserNewPassword  = "MONGODB_CHANGE_USER_NEW_PASSWORD"
+
+	EnvPMMEnabled                    = "PMM_ENABLED"
+	EnvPMMEnableQueryAnalytics       = "PMM_ENABLE_QUERY_ANALYTICS"
+	EnvPMMServerAddress              = "PMM_SERVER_ADDRESS"
+	EnvPMMClientName                 = "PMM_CLIENT_NAME"
+	EnvPMMDelayStart                 = "PMM_DELAY_START"
+	EnvPMMServerSSL                  = "PMM_SERVER_SSL"
+	EnvPMMServerInsecureSSL          = "PMM_SERVER_INSECURE_SSL"
+	EnvPMMMongoDBClusterName         = "PMM_MONGODB_CLUSTER_NAME"
+	EnvPMMLinuxMetricsExporterPort   = "PMM_LINUX_METRICS_EXPORTER_PORT"
+	EnvPMMMongoDBMetricsExporterPort = "PMM_MONGODB_METRICS_EXPORTER_PORT"
+)

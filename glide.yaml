@@ -1,0 +1,21 @@
+package: github.com/mesosphere/dcos-mongo/mongodb_tools
+import:
+- package: github.com/sirupsen/logrus
+  version: ^v0.11.5
+- package: github.com/Robpol86/logrus-custom-formatter
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson
+- package: github.com/timvaillancourt/go-mongodb-replset
+  subpackages:
+  - config
+  - status
+- package: github.com/timvaillancourt/go-mongodb-config
+  subpackages:
+  - config
+- package: gopkg.in/yaml.v2
+- package: github.com/alecthomas/kingpin
+- package: github.com/alecthomas/template
+  subpackage:
+  - parse      
+- package: github.com/alecthomas/units
