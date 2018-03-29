@@ -1,4 +1,4 @@
-# mongodb_tools
+# dcos-mongo-tools
 
 Go-based tools for the DCOS 'percona-mongo' service
 
