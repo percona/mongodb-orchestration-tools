@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/controller"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/controller/user"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/controller"
+	"github.com/percona/dcos-mongo-tools/controller/user"
 	log "github.com/sirupsen/logrus"
 	rs_config "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"

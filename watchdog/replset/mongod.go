@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
 	"gopkg.in/mgo.v2"
 )
 

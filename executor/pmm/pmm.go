@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 )
 

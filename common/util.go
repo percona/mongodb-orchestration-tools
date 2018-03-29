@@ -3,7 +3,7 @@ package common
 import (
 	"fmt"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools"
+	"github.com/percona/dcos-mongo-tools"
 )
 
 func PrintVersion(progName string) {

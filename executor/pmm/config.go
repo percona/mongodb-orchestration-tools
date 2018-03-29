@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
+	"github.com/percona/dcos-mongo-tools/common"
 )
 
 var (

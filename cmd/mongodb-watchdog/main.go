@@ -4,10 +4,10 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common/api"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog"
-	config "github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/config"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/watchdog"
+	config "github.com/percona/dcos-mongo-tools/watchdog/config"
 )
 
 func main() {

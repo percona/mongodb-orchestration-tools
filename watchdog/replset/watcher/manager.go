@@ -1,8 +1,8 @@
 package watcher
 
 import (
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/config"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/replset"
+	"github.com/percona/dcos-mongo-tools/watchdog/config"
+	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
 )
 

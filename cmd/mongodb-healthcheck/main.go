@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/healthcheck"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/healthcheck"
 	log "github.com/sirupsen/logrus"
 )
 

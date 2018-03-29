@@ -1,7 +1,7 @@
 package healthcheck
 
 import (
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
+	"github.com/percona/dcos-mongo-tools/common"
 )
 
 type Config struct {

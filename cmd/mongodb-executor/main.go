@@ -4,9 +4,9 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/executor"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/executor/pmm"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/executor"
+	"github.com/percona/dcos-mongo-tools/executor/pmm"
 	log "github.com/sirupsen/logrus"
 )
 

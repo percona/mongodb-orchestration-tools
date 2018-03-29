@@ -1,7 +1,7 @@
 package replset
 
 import (
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/config"
+	"github.com/percona/dcos-mongo-tools/watchdog/config"
 )
 
 type Manager struct {

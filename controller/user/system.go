@@ -3,7 +3,7 @@ package user
 import (
 	"os"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
+	"github.com/percona/dcos-mongo-tools/common"
 	"gopkg.in/mgo.v2"
 )
 

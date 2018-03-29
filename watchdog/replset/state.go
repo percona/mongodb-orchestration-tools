@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 	rs_config "github.com/timvaillancourt/go-mongodb-replset/config"
 	rs_status "github.com/timvaillancourt/go-mongodb-replset/status"

@@ -3,7 +3,7 @@ package executor
 import (
 	"errors"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/executor/pmm"
+	"github.com/percona/dcos-mongo-tools/executor/pmm"
 	log "github.com/sirupsen/logrus"
 )
 

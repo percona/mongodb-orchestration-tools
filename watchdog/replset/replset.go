@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/config"
+	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"gopkg.in/mgo.v2"
 )
 

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common/api"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/controller"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/controller"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )

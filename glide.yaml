@@ -1,4 +1,4 @@
-package: github.com/mesosphere/dcos-mongo/mongodb_tools
+package: github.com/percona/dcos-mongo-tools
 import:
 - package: github.com/sirupsen/logrus
   version: ^v0.11.5

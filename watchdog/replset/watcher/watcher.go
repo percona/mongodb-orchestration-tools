@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/config"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/watchdog/replset"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/watchdog/config"
+	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
 	rs_config "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"

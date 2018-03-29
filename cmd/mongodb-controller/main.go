@@ -4,11 +4,11 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/common/api"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/controller"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/controller/replset"
-	"github.com/mesosphere/dcos-mongo/mongodb_tools/controller/user"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/controller"
+	"github.com/percona/dcos-mongo-tools/controller/replset"
+	"github.com/percona/dcos-mongo-tools/controller/user"
 	log "github.com/sirupsen/logrus"
 )
 
