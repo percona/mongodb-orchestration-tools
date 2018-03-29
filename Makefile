@@ -22,7 +22,7 @@ bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*
 	CGO_ENABLED=0 GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS) -o bin/mongodb-watchdog-$(PLATFORM) cmd/mongodb-watchdog/main.go
 
 build:
-	sh build.sh linux
+	sh build.sh $(PLATFORM)
 
 test: vendor
 	go test -v ./...
