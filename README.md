@@ -1,6 +1,6 @@
 # dcos-mongo-tools
 
-Go-based tools for the DC/OS 'percona-mongo' service
+Go-based tools for the [DC/OS 'percona-mongo' service](https://docs.mesosphere.com/services/percona-mongo/)
 
 - **mongodb-executor**: wrapper tool for 'mongod' and executing tasks on the local mongod/mongos container
 - **mongodb-healthcheck**: tool for running DC/OS health and readiness checks on a MongoDB task
