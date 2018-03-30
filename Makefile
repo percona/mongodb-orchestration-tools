@@ -21,9 +21,6 @@ bin/mongodb-executor-$(PLATFORM): vendor cmd/mongodb-executor/main.go executor/*
 bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*.go watchdog/*/*.go common/*.go common/api/*.go
 	CGO_ENABLED=0 GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS) -o bin/mongodb-watchdog-$(PLATFORM) cmd/mongodb-watchdog/main.go
 
-build:
-	sh build.sh $(PLATFORM)
-
 test: vendor
 	go test -v ./...
 
