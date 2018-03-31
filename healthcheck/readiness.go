@@ -6,10 +6,10 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-func ReadinessCheck(session *mgo.Session) (ExitCode, error) {
+func ReadinessCheck(session *mgo.Session) (State, error) {
 	err := session.Ping()
 	if err != nil {
-		return ExitCodeFailed, fmt.Errorf("Failed to get successful ping: %s", err)
+		return StateFailed, fmt.Errorf("Failed to get successful ping: %s", err)
 	}
-	return ExitCodeOk, nil
+	return StateOk, nil
 }

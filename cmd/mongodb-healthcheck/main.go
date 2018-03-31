@@ -40,20 +40,20 @@ func main() {
 	switch command {
 	case health.FullCommand():
 		log.Debug("Running health check")
-		exitCode, err := healthcheck.HealthCheck(session)
+		state, err := healthcheck.HealthCheck(session)
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
-			os.Exit(int(exitCode))
+			os.Exit(int(state))
 		}
 		log.Debug("Member passed health check")
 	case readiness.FullCommand():
 		log.Debug("Running readiness check")
-		exitCode, err := healthcheck.ReadinessCheck(session)
+		state, err := healthcheck.ReadinessCheck(session)
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
-			os.Exit(int(exitCode))
+			os.Exit(int(state))
 		}
 		log.Debug("Member passed readiness check")
 	}

@@ -1,8 +1,8 @@
 package healthcheck
 
-type ExitCode int
+type State int
 
 const (
-	ExitCodeOk     ExitCode = 0
-	ExitCodeFailed ExitCode = 1
+	StateOk State = iota
+	StateFailed
 )
