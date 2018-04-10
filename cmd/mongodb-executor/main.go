@@ -17,50 +17,11 @@ var (
 	DefaultDelayStart = "15s"
 )
 
-func main() {
-	dbConfig := common.NewDBConfig(
-		common.EnvMongoDBClusterMonitorUser,
-		common.EnvMongoDBClusterMonitorPassword,
-	)
-	cnf := &executor.Config{
-		DB: dbConfig,
-		PMM: &pmm.Config{
-			DB:      dbConfig,
-			MongoDB: &pmm.ConfigMongoDB{},
-		},
-		Metrics: metrics.NewConfig(dbConfig),
-		Tool:    common.NewToolConfig(os.Args[0]),
-	}
+func handleMetrics(cnf *executor.Config) {
 
-	kingpin.Flag(
-		"framework",
-		"dcos framework name, overridden by env var "+common.EnvFrameworkName,
-	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
-	kingpin.Flag(
-		"configDir",
-		"path to mongodb instance config file, defaults to $"+common.EnvMesosSandbox+" if available, otherwise "+executor.DefaultMongoConfigDirFallback,
-	).Default(executor.DefaultMongoConfigDirFallback).Envar(common.EnvMesosSandbox).StringVar(&cnf.ConfigDir)
-	kingpin.Flag(
-		"binDir",
-		"path to mongodb binary directory",
-	).Default(executor.DefaultBinDir).StringVar(&cnf.BinDir)
-	kingpin.Flag(
-		"tmpDir",
-		"path to mongodb temporary directory, defaults to $"+common.EnvMesosSandbox+"/tmp if available, otherwise "+executor.DefaultTmpDirFallback,
-	).Default(executor.MesosSandboxPathOrFallback(
-		"tmp",
-		executor.DefaultTmpDirFallback,
-	)).StringVar(&cnf.TmpDir)
-	kingpin.Flag(
-		"user",
-		"user to run mongodb instance as",
-	).Default(executor.DefaultUser).StringVar(&cnf.User)
-	kingpin.Flag(
-		"group",
-		"group to run mongodb instance as",
-	).Default(executor.DefaultGroup).StringVar(&cnf.Group)
+}
 
-	// pmm
+func handlePmm(cnf *executor.Config) {
 	kingpin.Flag(
 		"pmm.configDir",
 		"Directory containing the PMM client config file (pmm.yml), defaults to "+common.EnvMesosSandbox+" env var",
@@ -105,8 +66,56 @@ func main() {
 		"pmm.mongodb.clusterName",
 		"Percona PMM client mongodb cluster name, defaults to "+common.EnvFrameworkName+" env var",
 	).Envar(common.EnvFrameworkName).StringVar(&cnf.PMM.MongoDB.ClusterName)
+}
 
-	cnf.NodeType = kingpin.Parse()
+func main() {
+	dbConfig := common.NewDBConfig(
+		common.EnvMongoDBClusterMonitorUser,
+		common.EnvMongoDBClusterMonitorPassword,
+	)
+	cnf := &executor.Config{
+		DB: dbConfig,
+		Metrics: &metrics.Config{
+			DB: dbConfig,
+		},
+		PMM: &pmm.Config{
+			DB:      dbConfig,
+			MongoDB: &pmm.ConfigMongoDB{},
+		},
+		Tool: common.NewToolConfig(os.Args[0]),
+	}
+
+	kingpin.Flag(
+		"framework",
+		"dcos framework name, overridden by env var "+common.EnvFrameworkName,
+	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+	kingpin.Flag(
+		"configDir",
+		"path to mongodb instance config file, defaults to $"+common.EnvMesosSandbox+" if available, otherwise "+executor.DefaultMongoConfigDirFallback,
+	).Default(executor.DefaultMongoConfigDirFallback).Envar(common.EnvMesosSandbox).StringVar(&cnf.ConfigDir)
+	kingpin.Flag(
+		"binDir",
+		"path to mongodb binary directory",
+	).Default(executor.DefaultBinDir).StringVar(&cnf.BinDir)
+	kingpin.Flag(
+		"tmpDir",
+		"path to mongodb temporary directory, defaults to $"+common.EnvMesosSandbox+"/tmp if available, otherwise "+executor.DefaultTmpDirFallback,
+	).Default(executor.MesosSandboxPathOrFallback(
+		"tmp",
+		executor.DefaultTmpDirFallback,
+	)).StringVar(&cnf.TmpDir)
+	kingpin.Flag(
+		"user",
+		"user to run mongodb instance as",
+	).Default(executor.DefaultUser).StringVar(&cnf.User)
+	kingpin.Flag(
+		"group",
+		"group to run mongodb instance as",
+	).Default(executor.DefaultGroup).StringVar(&cnf.Group)
+
+	handleMetrics(cnf)
+	handlePmm(cnf)
+	nodeType := kingpin.Parse()
 
 	if cnf.Tool.PrintVersion {
 		cnf.Tool.PrintVersionAndExit()
@@ -114,9 +123,34 @@ func main() {
 
 	common.SetupLogger(cnf.Tool)
 
-	err := executor.New(cnf).Start()
-	if err != nil {
-		log.Fatalf("Failed with error: %s", err)
-		os.Exit(1)
+	// Percona PMM
+	if e.pmm.DoStart() {
+		go e.pmm.Start()
+	} else {
+		log.Info("Skipping Percona PMM client executor")
+	}
+
+	// DC/OS Metrics
+	if e.metrics.DoStart() {
+		go e.metrics.Start()
+	} else {
+		log.Info("Skipping DC/OS Metrics client executore")
+	}
+
+	switch nodeType {
+	case executor.NodeTypeMongod:
+		if e.mongod == nil {
+			errors.New("unsupported mongod config!")
+		}
+		err = e.mongod.Start()
+		if err != nil {
+			return err
+		}
+		e.mongod.Wait()
+		return nil
+	case executor.NodeTypeMongos:
+		return errors.New("mongos is not supported yet!")
+	default:
+		return errors.New("did not start anything, this is unexpected")
 	}
 }
