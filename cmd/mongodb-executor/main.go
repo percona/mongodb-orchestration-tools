@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	mongod            = kingpin.Command("mongod", "run a mongod instance")
-	mongos            = kingpin.Command("mongos", "run a mongos instance")
-	DefaultDelayStart = "15s"
+	mongod                    = kingpin.Command("mongod", "run a mongod instance")
+	mongos                    = kingpin.Command("mongos", "run a mongos instance")
+	DefaultDelayBackgroundJob = "15s"
 )
 
 func handleMetrics(cnf *executor.Config) {
@@ -42,10 +42,6 @@ func handlePmm(cnf *executor.Config) {
 		"pmm.clientName",
 		"Percona PMM client address, defaults to "+common.EnvTaskName+" env var",
 	).Envar(common.EnvTaskName).StringVar(&cnf.PMM.ClientName)
-	kingpin.Flag(
-		"pmm.delayStart",
-		"Amount of time to delay start/install of Percona PMM client, defaults to "+common.EnvPMMDelayStart+" env var",
-	).Default(DefaultDelayStart).Envar(common.EnvPMMDelayStart).DurationVar(&cnf.PMM.DelayStart)
 	kingpin.Flag(
 		"pmm.serverSSL",
 		"Enable SSL communication between Percona PMM client and server, defaults to "+common.EnvPMMServerSSL+" env var",
@@ -112,10 +108,24 @@ func main() {
 		"group",
 		"group to run mongodb instance as",
 	).Default(executor.DefaultGroup).StringVar(&cnf.Group)
+	kingpin.Flag(
+		"connectTries",
+		"number of times to retry the connection/ping to mongodb",
+	).Default(executor.DefaultConnectTries).UintVar(&cnf.ConnectTries)
+	kingpin.Flag(
+		"connectRetrySleep",
+		"duration to wait between retries of the connection/ping to mongodb",
+	).Default(executor.DefaultConnectRetrySleep).DurationVar(&cnf.ConnectRetrySleep)
+	kingpin.Flag(
+		"delayStart",
+		"Amount of time to delay start/install of Percona PMM client",
+	).Default(DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
 
 	handleMetrics(cnf)
 	handlePmm(cnf)
-	nodeType := kingpin.Parse()
+
+	cnf.NodeType = kingpin.Parse()
+	e := executor.New(cnf)
 
 	if cnf.Tool.PrintVersion {
 		cnf.Tool.PrintVersionAndExit()
@@ -123,34 +133,22 @@ func main() {
 
 	common.SetupLogger(cnf.Tool)
 
-	// Percona PMM
-	if e.pmm.DoStart() {
-		go e.pmm.Start()
-	} else {
-		log.Info("Skipping Percona PMM client executor")
-	}
-
-	// DC/OS Metrics
-	if e.metrics.DoStart() {
-		go e.metrics.Start()
-	} else {
-		log.Info("Skipping DC/OS Metrics client executore")
-	}
-
-	switch nodeType {
+	switch cnf.NodeType {
 	case executor.NodeTypeMongod:
-		if e.mongod == nil {
-			errors.New("unsupported mongod config!")
+		if e.Mongod == nil {
+			log.Error("Unsupported mongod config!")
+			return
 		}
-		err = e.mongod.Start()
+		err := e.RunMongod()
 		if err != nil {
-			return err
+			log.Errorf("Failed to start mongod: %s", err)
+			return
 		}
-		e.mongod.Wait()
-		return nil
 	case executor.NodeTypeMongos:
-		return errors.New("mongos is not supported yet!")
+		log.Error("mongos nodes are not supported yet!")
+		return
 	default:
-		return errors.New("did not start anything, this is unexpected")
+		log.Error("did not start anything, this is unexpected")
+		return
 	}
 }

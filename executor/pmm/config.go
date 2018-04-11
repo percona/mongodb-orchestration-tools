@@ -1,8 +1,6 @@
 package pmm
 
 import (
-	"time"
-
 	"github.com/percona/dcos-mongo-tools/common"
 )
 
@@ -20,7 +18,6 @@ type Config struct {
 	ServerSSL                  bool
 	ServerInsecureSSL          bool
 	MongoDB                    *ConfigMongoDB
-	DelayStart                 time.Duration
 	LinuxMetricsExporterPort   uint
 	MongoDBMetricsExporterPort uint
 }

@@ -27,7 +27,6 @@ const (
 	EnvPMMEnableQueryAnalytics       = "PMM_ENABLE_QUERY_ANALYTICS"
 	EnvPMMServerAddress              = "PMM_SERVER_ADDRESS"
 	EnvPMMClientName                 = "PMM_CLIENT_NAME"
-	EnvPMMDelayStart                 = "PMM_DELAY_START"
 	EnvPMMServerSSL                  = "PMM_SERVER_SSL"
 	EnvPMMServerInsecureSSL          = "PMM_SERVER_INSECURE_SSL"
 	EnvPMMMongoDBClusterName         = "PMM_MONGODB_CLUSTER_NAME"
