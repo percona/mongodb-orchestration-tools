@@ -18,7 +18,7 @@ const (
 	DefaultMongoConfigDirFallback = "/etc"
 	DefaultUser                   = "mongodb"
 	DefaultGroup                  = "root"
-	DefaultDelayBackgroundJob     = "10"
+	DefaultDelayBackgroundJob     = "15s"
 	DefaultConnectTries           = "3"
 	DefaultConnectRetrySleep      = "3s"
 )

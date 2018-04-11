@@ -36,7 +36,7 @@ func New(config *Config) *Executor {
 	}
 }
 
-func (e *Executor) WaitForSession() (*mgo.Session, error) {
+func (e *Executor) waitForSession() (*mgo.Session, error) {
 	return common.WaitForSession(
 		e.Config.DB,
 		e.Config.ConnectTries,
@@ -44,9 +44,26 @@ func (e *Executor) WaitForSession() (*mgo.Session, error) {
 	)
 }
 
-func (e *Executor) AddJob(job ExecutorJob) {
+func (e *Executor) addJob(job ExecutorJob) {
 	log.Debugf("Adding background job %s\n", job.Name())
 	e.jobs = append(e.jobs, job)
+}
+
+func (e *Executor) backgroundJobRunner() {
+	log.Info("Starting background job runner")
+
+	log.WithFields(log.Fields{
+		"delay": e.Config.DelayBackgroundJob,
+	}).Info("Delaying the start of the background job runner")
+	time.Sleep(e.Config.DelayBackgroundJob)
+
+	for _, job := range e.jobs {
+		log.Infof("Starting job %s\n", job.Name())
+		job.Run()
+		job.Close()
+	}
+
+	log.Info("Completed background job runner")
 }
 
 func (e *Executor) RunMongod() error {
@@ -54,14 +71,14 @@ func (e *Executor) RunMongod() error {
 
 	// Percona PMM
 	if e.PMM.DoRun() {
-		e.AddJob(e.PMM)
+		e.addJob(e.PMM)
 	} else {
 		log.Info("Skipping Percona PMM client executor")
 	}
 
 	// DC/OS Metrics
 	if e.Metrics.DoRun() {
-		e.AddJob(e.Metrics)
+		e.addJob(e.Metrics)
 	} else {
 		log.Info("Skipping DC/OS Metrics client executor")
 	}
@@ -73,7 +90,7 @@ func (e *Executor) RunMongod() error {
 
 	if len(e.jobs) > 0 {
 		log.Info("Waiting for MongoDB to become reachable")
-		session, err := e.WaitForSession()
+		session, err := e.waitForSession()
 		if err != nil {
 			log.Errorf("Could not get connection to mongodb: %s\n", err)
 			return err
@@ -81,25 +98,11 @@ func (e *Executor) RunMongod() error {
 		log.Info("Mongodb is now reachable")
 		session.Close()
 
-		log.Info("Starting background job runner")
-		go e.BackgroundJobRunner()
+		go e.backgroundJobRunner()
 	} else {
 		log.Info("Skipping start of background job runner, no jobs to run")
 	}
 
 	e.Mongod.Wait()
 	return nil
-}
-
-func (e *Executor) BackgroundJobRunner() {
-	log.WithFields(log.Fields{
-		"delay": e.Config.DelayBackgroundJob,
-	}).Info("Delaying the start of the background job runner")
-	time.Sleep(e.Config.DelayBackgroundJob)
-
-	for _, job := range e.jobs {
-		log.Infof("Starting job %s\n", job.Name())
-		job.Run()
-		job.Close()
-	}
 }
