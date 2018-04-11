@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,29 +12,33 @@ const (
 )
 
 type PMM struct {
-	config            *Config
-	configFile        string
-	frameworkName     string
-	connectTries      uint
-	connectRetrySleep time.Duration
-	maxRetries        uint
-	retrySleep        time.Duration
-	started           bool
+	config        *Config
+	configFile    string
+	frameworkName string
+	maxRetries    uint
+	retrySleep    time.Duration
+	running       bool
 }
 
 func New(config *Config, frameworkName string) *PMM {
 	return &PMM{
-		config:            config,
-		configFile:        filepath.Join(config.ConfigDir, "pmm.yml"),
-		frameworkName:     frameworkName,
-		connectTries:      10,
-		connectRetrySleep: time.Duration(5) * time.Second,
-		maxRetries:        5,
-		retrySleep:        time.Duration(5) * time.Second,
+		config:        config,
+		configFile:    filepath.Join(config.ConfigDir, "pmm.yml"),
+		frameworkName: frameworkName,
+		maxRetries:    5,
+		retrySleep:    time.Duration(5) * time.Second,
 	}
 }
 
-func (p *PMM) DoStart() bool {
+func (p *PMM) Name() string {
+	return "Percona PMM"
+}
+
+func (p *PMM) Close() {
+	return
+}
+
+func (p *PMM) DoRun() bool {
 	return p.config.Enabled
 }
 
@@ -43,8 +46,8 @@ func (p *PMM) DoStartQueryAnalytics() bool {
 	return p.config.EnableQueryAnalytics
 }
 
-func (p *PMM) IsStarted() bool {
-	return p.started
+func (p *PMM) IsRunning() bool {
+	return p.running
 }
 
 func (p *PMM) StartMetrics() error {
@@ -117,44 +120,18 @@ func (p *PMM) StartQueryAnalytics() error {
 	return service.AddWithRetry(p.maxRetries, p.retrySleep)
 }
 
-func (p *PMM) Wait() {
-	log.Info("Waiting to start Percona PMM client")
-	time.Sleep(p.config.DelayStart)
-}
-
-func (p *PMM) WaitForServer() error {
-	session, err := common.WaitForSession(
-		p.config.DB,
-		p.connectTries,
-		p.connectRetrySleep,
-	)
-	if err != nil {
-		return err
-	}
-	session.Close()
-	return nil
-}
-
-func (p *PMM) Start() {
-	if p.DoStart() == false {
+func (p *PMM) Run() {
+	if p.DoRun() == false {
 		log.Warn("PMM client executor disabled! Skipping start")
 		return
 	}
 
 	log.WithFields(log.Fields{
-		"config":      p.configFile,
-		"delay_start": p.config.DelayStart,
+		"config": p.configFile,
 	}).Info("Starting PMM client executor")
+	p.running = true
 
-	p.Wait()
-	err := p.WaitForServer()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	log.Info("MongoDB server is now reachable")
-
-	err = p.Repair()
+	err := p.Repair()
 	if err != nil {
 		log.Errorf("Error repairing PMM services: %s", err)
 		return
@@ -176,6 +153,6 @@ func (p *PMM) Start() {
 		log.Info("PMM Query Analytics (QAN) disabled, skipping")
 	}
 
+	p.running = false
 	log.Info("Completed PMM client executor")
-	p.started = true
 }
