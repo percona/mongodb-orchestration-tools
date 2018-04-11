@@ -117,8 +117,8 @@ func main() {
 		"duration to wait between retries of the connection/ping to mongodb",
 	).Default(executor.DefaultConnectRetrySleep).DurationVar(&cnf.ConnectRetrySleep)
 	kingpin.Flag(
-		"delayStart",
-		"Amount of time to delay start/install of Percona PMM client",
+		"delayBackgroundJobs",
+		"Amount of time to delay running of executor background jobs",
 	).Default(DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
 
 	handleMetrics(cnf)
