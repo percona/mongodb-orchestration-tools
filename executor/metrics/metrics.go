@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/command"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -40,7 +40,7 @@ func (m *Metrics) Run() error {
 		return nil
 	}
 
-	cmd, err := common.NewCommand(
+	cmd, err := command.New(
 		m.config.MgoStatsdBin,
 		[]string{
 			"-configUpdateInterval", mgoStatsdConfigUpdateInterval,

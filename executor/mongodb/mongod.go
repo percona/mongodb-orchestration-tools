@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/command"
 	log "github.com/sirupsen/logrus"
 	mongo_config "github.com/timvaillancourt/go-mongodb-config/config"
 )
@@ -19,7 +19,7 @@ type Mongod struct {
 	config     *Config
 	configFile string
 	commandBin string
-	command    *common.Command
+	command    *command.Command
 }
 
 func NewMongod(config *Config, nodeType string) *Mongod {
@@ -45,13 +45,13 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 }
 
 func (m *Mongod) Initiate() error {
-	uid, err := common.GetUserId(m.config.User)
+	uid, err := command.GetUserId(m.config.User)
 	if err != nil {
 		log.Errorf("Could not get user %s UID: %s\n", m.config.User, err)
 		return err
 	}
 
-	gid, err := common.GetGroupId(m.config.Group)
+	gid, err := command.GetGroupId(m.config.Group)
 	if err != nil {
 		log.Errorf("Could not get group %s GID: %s\n", m.config.Group, err)
 		return err
@@ -114,7 +114,7 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	m.command, err = common.NewCommand(
+	m.command, err = command.New(
 		m.commandBin,
 		[]string{"--config", m.configFile},
 		m.config.User,

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/command"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,7 +42,7 @@ func (s *Service) Add() error {
 	}
 	args = append(args, s.Args...)
 
-	cmd, err := common.NewCommand(
+	cmd, err := command.New(
 		pmmAdminCommand,
 		args,
 		pmmAdminRunUser,
@@ -81,7 +81,7 @@ func (s *Service) AddWithRetry(maxRetries uint, retrySleep time.Duration) error 
 func (p *PMM) Repair() error {
 	log.Info("Repairing all PMM client services")
 
-	cmd, err := common.NewCommand(
+	cmd, err := command.New(
 		pmmAdminCommand,
 		[]string{"repair", "--config-file=" + p.configFile},
 		pmmAdminRunUser,
