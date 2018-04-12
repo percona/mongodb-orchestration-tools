@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	NodeTypeMongod            = "mongod"
-	NodeTypeMongos            = "mongos"
-	DefaultDelayBackgroundJob = "15s"
-	DefaultConnectTries       = "3"
-	DefaultConnectRetrySleep  = "3s"
+	NodeTypeMongod             = "mongod"
+	NodeTypeMongos             = "mongos"
+	DefaultDelayBackgroundJob  = "15s"
+	DefaultConnectRetrySleep   = "5s"
+	DefaultMetricsIntervalSecs = "10"
 )
 
 type Config struct {
@@ -28,7 +28,6 @@ type Config struct {
 	NodeType           string
 	FrameworkName      string
 	DelayBackgroundJob time.Duration
-	ConnectTries       uint
 	ConnectRetrySleep  time.Duration
 }
 

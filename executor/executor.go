@@ -60,7 +60,7 @@ func New(config *Config) *Executor {
 func (e *Executor) waitForSession() (*mgo.Session, error) {
 	return common.WaitForSession(
 		e.Config.DB,
-		e.Config.ConnectTries,
+		0,
 		e.Config.ConnectRetrySleep,
 	)
 }

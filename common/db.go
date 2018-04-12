@@ -110,7 +110,7 @@ func GetSession(dbConfig *DBConfig) (*mgo.Session, error) {
 
 func WaitForSession(dbConfig *DBConfig, maxRetries uint, sleepDuration time.Duration) (*mgo.Session, error) {
 	var tries uint
-	for tries <= maxRetries {
+	for tries <= maxRetries || maxRetries == 0 {
 		session, err := GetSession(dbConfig)
 		if err == nil && session.Ping() == nil {
 			return session, err

@@ -14,10 +14,8 @@ import (
 )
 
 var (
-	mongod                     = kingpin.Command("mongod", "run a mongod instance")
-	mongos                     = kingpin.Command("mongos", "run a mongos instance")
-	DefaultDelayBackgroundJob  = "15s"
-	DefaultMetricsIntervalSecs = "10"
+	mongod = kingpin.Command("mongod", "run a mongod instance")
+	mongos = kingpin.Command("mongos", "run a mongos instance")
 )
 
 func handleMongoDB(cnf *executor.Config) {
@@ -54,7 +52,7 @@ func handleMetrics(cnf *executor.Config) {
 	kingpin.Flag(
 		"metrics.intervalSecs",
 		"The frequency (in seconds) to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsIntervalSecs+" env var",
-	).Default(DefaultMetricsIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
+	).Default(executor.DefaultMetricsIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
 	kingpin.Flag(
 		"metrics.mgoStatsdBin",
 		"Path to the mgo-statsd binary, defaults to $MESOS_SANDBOX/mgo-statsd, otherwise $GOPATH/bin/mgo-statsd",
@@ -137,17 +135,13 @@ func main() {
 		"dcos framework name, overridden by env var "+common.EnvFrameworkName,
 	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
 	kingpin.Flag(
-		"connectTries",
-		"number of times to retry the connection/ping to mongodb",
-	).Default(executor.DefaultConnectTries).UintVar(&cnf.ConnectTries)
-	kingpin.Flag(
 		"connectRetrySleep",
 		"duration to wait between retries of the connection/ping to mongodb",
 	).Default(executor.DefaultConnectRetrySleep).DurationVar(&cnf.ConnectRetrySleep)
 	kingpin.Flag(
 		"delayBackgroundJobs",
 		"Amount of time to delay running of executor background jobs",
-	).Default(DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
+	).Default(executor.DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
 
 	handleMongoDB(cnf)
 	handleMetrics(cnf)
