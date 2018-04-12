@@ -10,30 +10,51 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type ExecutorJob interface {
+// BackgroundJob is an interface for background backgroundJobs to be executed against the Daemon
+type BackgroundJob interface {
 	Name() string
 	DoRun() bool
 	IsRunning() bool
-	Run()
-	Close()
+	Run() error
+}
+
+// Daemon is an interface for the mongodb (mongod or mongos) daemon
+type Daemon interface {
+	IsStarted() bool
+	Start() error
+	Wait()
 }
 
 type Executor struct {
-	Config  *Config
-	Mongod  *Mongod
-	PMM     *pmm.PMM
-	Metrics *metrics.Metrics
-	jobs    []ExecutorJob
+	Config         *Config
+	PMM            *pmm.PMM
+	Metrics        *metrics.Metrics
+	backgroundJobs []BackgroundJob
 }
 
 func New(config *Config) *Executor {
-	return &Executor{
-		Config:  config,
-		Mongod:  NewMongod(config),
-		PMM:     pmm.New(config.PMM, config.FrameworkName),
-		Metrics: metrics.New(config.Metrics),
-		jobs:    make([]ExecutorJob, 0),
+	e := &Executor{
+		Config:         config,
+		PMM:            pmm.New(config.PMM, config.FrameworkName),
+		Metrics:        metrics.New(config.Metrics),
+		backgroundJobs: make([]BackgroundJob, 0),
 	}
+
+	// Percona PMM
+	if e.PMM.DoRun() {
+		e.addBackgroundJob(e.PMM)
+	} else {
+		log.Info("Skipping Percona PMM client executor")
+	}
+
+	// DC/OS Metrics
+	if e.Metrics.DoRun() {
+		e.addBackgroundJob(e.Metrics)
+	} else {
+		log.Info("Skipping DC/OS Metrics client executor")
+	}
+
+	return e
 }
 
 func (e *Executor) waitForSession() (*mgo.Session, error) {
@@ -44,9 +65,9 @@ func (e *Executor) waitForSession() (*mgo.Session, error) {
 	)
 }
 
-func (e *Executor) addJob(job ExecutorJob) {
+func (e *Executor) addBackgroundJob(job BackgroundJob) {
 	log.Debugf("Adding background job %s\n", job.Name())
-	e.jobs = append(e.jobs, job)
+	e.backgroundJobs = append(e.backgroundJobs, job)
 }
 
 func (e *Executor) backgroundJobRunner() {
@@ -57,52 +78,40 @@ func (e *Executor) backgroundJobRunner() {
 	}).Info("Delaying the start of the background job runner")
 	time.Sleep(e.Config.DelayBackgroundJob)
 
-	for _, job := range e.jobs {
+	for _, job := range e.backgroundJobs {
 		log.Infof("Starting job %s\n", job.Name())
-		job.Run()
-		job.Close()
+		err := job.Run()
+		if err != nil {
+			log.Errorf("Job %s failed: %s\n", job.Name(), err)
+		}
 	}
 
 	log.Info("Completed background job runner")
 }
 
-func (e *Executor) RunMongod() error {
-	log.Info("Running mongod daemon")
+func (e *Executor) Run(daemon Daemon) error {
+	log.Infof("Running %s daemon\n", e.Config.NodeType)
 
-	// Percona PMM
-	if e.PMM.DoRun() {
-		e.addJob(e.PMM)
-	} else {
-		log.Info("Skipping Percona PMM client executor")
-	}
-
-	// DC/OS Metrics
-	if e.Metrics.DoRun() {
-		e.addJob(e.Metrics)
-	} else {
-		log.Info("Skipping DC/OS Metrics client executor")
-	}
-
-	err := e.Mongod.Start()
-	if err != nil {
-		return err
-	}
-
-	if len(e.jobs) > 0 {
-		log.Info("Waiting for MongoDB to become reachable")
+	if len(e.backgroundJobs) > 0 {
+		log.Infof("Waiting for %s daemon to become reachable\n", e.Config.NodeType)
 		session, err := e.waitForSession()
 		if err != nil {
 			log.Errorf("Could not get connection to mongodb: %s\n", err)
 			return err
 		}
-		log.Info("Mongodb is now reachable")
+		log.Infof("Mongodb %s daemon is now reachable\n", e.Config.NodeType)
 		session.Close()
 
 		go e.backgroundJobRunner()
 	} else {
-		log.Info("Skipping start of background job runner, no jobs to run")
+		log.Info("Skipping start of background job runner, no backgroundJobs to run")
 	}
 
-	e.Mongod.Wait()
+	err := daemon.Start()
+	if err != nil {
+		return err
+	}
+
+	daemon.Wait()
 	return nil
 }

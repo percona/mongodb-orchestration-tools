@@ -34,20 +34,16 @@ func (p *PMM) Name() string {
 	return "Percona PMM"
 }
 
-func (p *PMM) Close() {
-	return
-}
-
 func (p *PMM) DoRun() bool {
 	return p.config.Enabled
 }
 
-func (p *PMM) DoStartQueryAnalytics() bool {
-	return p.config.EnableQueryAnalytics
-}
-
 func (p *PMM) IsRunning() bool {
 	return p.running
+}
+
+func (p *PMM) DoStartQueryAnalytics() bool {
+	return p.config.EnableQueryAnalytics
 }
 
 func (p *PMM) StartMetrics() error {
@@ -120,10 +116,10 @@ func (p *PMM) StartQueryAnalytics() error {
 	return service.AddWithRetry(p.maxRetries, p.retrySleep)
 }
 
-func (p *PMM) Run() {
+func (p *PMM) Run() error {
 	if p.DoRun() == false {
 		log.Warn("PMM client executor disabled! Skipping start")
-		return
+		return nil
 	}
 
 	log.WithFields(log.Fields{
@@ -134,20 +130,20 @@ func (p *PMM) Run() {
 	err := p.Repair()
 	if err != nil {
 		log.Errorf("Error repairing PMM services: %s", err)
-		return
+		return err
 	}
 
 	err = p.StartMetrics()
 	if err != nil {
 		log.Errorf("PMM metrics services did not start: %s", err)
-		return
+		return err
 	}
 
 	if p.DoStartQueryAnalytics() {
 		err = p.StartQueryAnalytics()
 		if err != nil {
 			log.Errorf("Could not enable PMM Query Analytics (QAN) agent service: %s", err)
-			return
+			return err
 		}
 	} else {
 		log.Info("PMM Query Analytics (QAN) disabled, skipping")
@@ -155,4 +151,6 @@ func (p *PMM) Run() {
 
 	p.running = false
 	log.Info("Completed PMM client executor")
+
+	return nil
 }

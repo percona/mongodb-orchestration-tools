@@ -135,11 +135,8 @@ func main() {
 
 	switch cnf.NodeType {
 	case executor.NodeTypeMongod:
-		if e.Mongod == nil {
-			log.Error("Unsupported mongod config!")
-			return
-		}
-		err := e.RunMongod()
+		mongod := executor.NewMongod(cnf)
+		err := e.Run(mongod)
 		if err != nil {
 			log.Errorf("Failed to start mongod: %s", err)
 			return
