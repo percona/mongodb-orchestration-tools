@@ -50,9 +50,17 @@ func handleMetrics(cnf *executor.Config) {
 		"Enable DC/OS Metrics monitoring for MongoDB, defaults to "+common.EnvMetricsEnabled+" env var",
 	).Envar(common.EnvMetricsEnabled).BoolVar(&cnf.Metrics.Enabled)
 	kingpin.Flag(
+		"metrics.user",
+		"The user to run the mgo-statsd process as",
+	).Default(metrics.DefaultUser).StringVar(&cnf.Metrics.User)
+	kingpin.Flag(
+		"metrics.group",
+		"The group to run the mgo-statsd process as",
+	).Default(metrics.DefaultGroup).StringVar(&cnf.Metrics.Group)
+	kingpin.Flag(
 		"metrics.intervalSecs",
 		"The frequency (in seconds) to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsIntervalSecs+" env var",
-	).Default(executor.DefaultMetricsIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
+	).Default(metrics.DefaultIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
 	kingpin.Flag(
 		"metrics.mgoStatsdBin",
 		"Path to the mgo-statsd binary, defaults to $MESOS_SANDBOX/mgo-statsd, otherwise $GOPATH/bin/mgo-statsd",

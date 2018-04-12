@@ -12,11 +12,10 @@ import (
 )
 
 const (
-	NodeTypeMongod             = "mongod"
-	NodeTypeMongos             = "mongos"
-	DefaultDelayBackgroundJob  = "15s"
-	DefaultConnectRetrySleep   = "5s"
-	DefaultMetricsIntervalSecs = "10"
+	NodeTypeMongod            = "mongod"
+	NodeTypeMongos            = "mongos"
+	DefaultDelayBackgroundJob = "15s"
+	DefaultConnectRetrySleep  = "5s"
 )
 
 type Config struct {
