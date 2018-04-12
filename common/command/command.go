@@ -1,4 +1,4 @@
-package common
+package command
 
 import (
 	"os"
@@ -40,7 +40,7 @@ func GetGroupId(groupName string) (int, error) {
 	return strconv.Atoi(g.Gid)
 }
 
-func NewCommand(bin string, args []string, user, group string) (*Command, error) {
+func New(bin string, args []string, user, group string) (*Command, error) {
 	c := &Command{
 		Bin:   bin,
 		Args:  args,
