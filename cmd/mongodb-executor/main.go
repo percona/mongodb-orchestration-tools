@@ -2,23 +2,73 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/executor"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
+	"github.com/percona/dcos-mongo-tools/executor/mongodb"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
-	mongod                    = kingpin.Command("mongod", "run a mongod instance")
-	mongos                    = kingpin.Command("mongos", "run a mongos instance")
-	DefaultDelayBackgroundJob = "15s"
+	mongod                     = kingpin.Command("mongod", "run a mongod instance")
+	mongos                     = kingpin.Command("mongos", "run a mongos instance")
+	DefaultDelayBackgroundJob  = "15s"
+	DefaultMetricsIntervalSecs = "10"
 )
 
-func handleMetrics(cnf *executor.Config) {
+func handleMongoDB(cnf *executor.Config) {
+	kingpin.Flag(
+		"mongodb.configDir",
+		"path to mongodb instance config file, defaults to $"+common.EnvMesosSandbox+" if available, otherwise "+mongodb.DefaultConfigDirFallback,
+	).Default(mongodb.DefaultConfigDirFallback).Envar(common.EnvMesosSandbox).StringVar(&cnf.MongoDB.ConfigDir)
+	kingpin.Flag(
+		"mongodb.binDir",
+		"path to mongodb binary directory",
+	).Default(mongodb.DefaultBinDir).StringVar(&cnf.MongoDB.BinDir)
+	kingpin.Flag(
+		"mongodb.tmpDir",
+		"path to mongodb temporary directory, defaults to $"+common.EnvMesosSandbox+"/tmp if available, otherwise "+mongodb.DefaultTmpDirFallback,
+	).Default(executor.MesosSandboxPathOrFallback(
+		"tmp",
+		mongodb.DefaultTmpDirFallback,
+	)).StringVar(&cnf.MongoDB.TmpDir)
+	kingpin.Flag(
+		"mongodb.user",
+		"user to run mongodb instance as",
+	).Default(mongodb.DefaultUser).StringVar(&cnf.MongoDB.User)
+	kingpin.Flag(
+		"mongodb.group",
+		"group to run mongodb instance as",
+	).Default(mongodb.DefaultGroup).StringVar(&cnf.MongoDB.Group)
+}
 
+func handleMetrics(cnf *executor.Config) {
+	kingpin.Flag(
+		"metrics.enable",
+		"Enable DC/OS Metrics monitoring for MongoDB, defaults to "+common.EnvMetricsEnabled+" env var",
+	).Envar(common.EnvMetricsEnabled).BoolVar(&cnf.Metrics.Enabled)
+	kingpin.Flag(
+		"metrics.intervalSecs",
+		"The frequency (in seconds) to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsIntervalSecs+" env var",
+	).Default(DefaultMetricsIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
+	kingpin.Flag(
+		"metrics.mgoStatsdBin",
+		"Path to the mgo-statsd binary, defaults to $MESOS_SANDBOX/mgo-statsd, otherwise $GOPATH/bin/mgo-statsd",
+	).Default(executor.MesosSandboxPathOrFallback(
+		"mgo-statsd",
+		filepath.Join(os.Getenv("GOPATH"), "bin", "mgo-statsd"),
+	)).StringVar(&cnf.Metrics.MgoStatsdBin)
+	kingpin.Flag(
+		"metrics.mgoStatsdConfigFile",
+		"Path to the mgo-statsd config file, defaults to $MESOS_SANDBOX/mgo-statsd.ini, otherwise ./mgo-statsd.ini",
+	).Default(executor.MesosSandboxPathOrFallback(
+		"mgo-statsd.ini",
+		"mgo-statsd.ini",
+	)).StringVar(&cnf.Metrics.MgoStatsdConfigFile)
 }
 
 func handlePmm(cnf *executor.Config) {
@@ -70,7 +120,8 @@ func main() {
 		common.EnvMongoDBClusterMonitorPassword,
 	)
 	cnf := &executor.Config{
-		DB: dbConfig,
+		DB:      dbConfig,
+		MongoDB: &mongodb.Config{},
 		Metrics: &metrics.Config{
 			DB: dbConfig,
 		},
@@ -86,29 +137,6 @@ func main() {
 		"dcos framework name, overridden by env var "+common.EnvFrameworkName,
 	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
 	kingpin.Flag(
-		"configDir",
-		"path to mongodb instance config file, defaults to $"+common.EnvMesosSandbox+" if available, otherwise "+executor.DefaultMongoConfigDirFallback,
-	).Default(executor.DefaultMongoConfigDirFallback).Envar(common.EnvMesosSandbox).StringVar(&cnf.ConfigDir)
-	kingpin.Flag(
-		"binDir",
-		"path to mongodb binary directory",
-	).Default(executor.DefaultBinDir).StringVar(&cnf.BinDir)
-	kingpin.Flag(
-		"tmpDir",
-		"path to mongodb temporary directory, defaults to $"+common.EnvMesosSandbox+"/tmp if available, otherwise "+executor.DefaultTmpDirFallback,
-	).Default(executor.MesosSandboxPathOrFallback(
-		"tmp",
-		executor.DefaultTmpDirFallback,
-	)).StringVar(&cnf.TmpDir)
-	kingpin.Flag(
-		"user",
-		"user to run mongodb instance as",
-	).Default(executor.DefaultUser).StringVar(&cnf.User)
-	kingpin.Flag(
-		"group",
-		"group to run mongodb instance as",
-	).Default(executor.DefaultGroup).StringVar(&cnf.Group)
-	kingpin.Flag(
 		"connectTries",
 		"number of times to retry the connection/ping to mongodb",
 	).Default(executor.DefaultConnectTries).UintVar(&cnf.ConnectTries)
@@ -121,21 +149,21 @@ func main() {
 		"Amount of time to delay running of executor background jobs",
 	).Default(DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
 
+	handleMongoDB(cnf)
 	handleMetrics(cnf)
 	handlePmm(cnf)
 
 	cnf.NodeType = kingpin.Parse()
+	common.SetupLogger(cnf.Tool)
 	e := executor.New(cnf)
 
 	if cnf.Tool.PrintVersion {
 		cnf.Tool.PrintVersionAndExit()
 	}
 
-	common.SetupLogger(cnf.Tool)
-
 	switch cnf.NodeType {
 	case executor.NodeTypeMongod:
-		mongod := executor.NewMongod(cnf)
+		mongod := mongodb.NewMongod(cnf.MongoDB, cnf.NodeType)
 		err := e.Run(mongod)
 		if err != nil {
 			log.Errorf("Failed to start mongod: %s", err)

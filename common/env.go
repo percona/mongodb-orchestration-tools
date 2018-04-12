@@ -32,4 +32,7 @@ const (
 	EnvPMMMongoDBClusterName         = "PMM_MONGODB_CLUSTER_NAME"
 	EnvPMMLinuxMetricsExporterPort   = "PMM_LINUX_METRICS_EXPORTER_PORT"
 	EnvPMMMongoDBMetricsExporterPort = "PMM_MONGODB_METRICS_EXPORTER_PORT"
+
+	EnvMetricsEnabled      = "DCOS_METRICS_ENABLED"
+	EnvMetricsIntervalSecs = "DCOS_METRICS_INTERVAL_SECS"
 )

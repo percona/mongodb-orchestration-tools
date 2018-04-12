@@ -66,7 +66,7 @@ func (e *Executor) waitForSession() (*mgo.Session, error) {
 }
 
 func (e *Executor) addBackgroundJob(job BackgroundJob) {
-	log.Debugf("Adding background job %s\n", job.Name())
+	log.Debugf("Adding background job %s", job.Name())
 	e.backgroundJobs = append(e.backgroundJobs, job)
 }
 
@@ -78,11 +78,20 @@ func (e *Executor) backgroundJobRunner() {
 	}).Info("Delaying the start of the background job runner")
 	time.Sleep(e.Config.DelayBackgroundJob)
 
+	log.Infof("Waiting for %s daemon to become reachable", e.Config.NodeType)
+	session, err := e.waitForSession()
+	if err != nil {
+		log.Errorf("Could not get connection to mongodb: %s", err)
+		return
+	}
+	log.Infof("Mongodb %s daemon is now reachable", e.Config.NodeType)
+	session.Close()
+
 	for _, job := range e.backgroundJobs {
-		log.Infof("Starting job %s\n", job.Name())
+		log.Infof("Starting background job: %s", job.Name())
 		err := job.Run()
 		if err != nil {
-			log.Errorf("Job %s failed: %s\n", job.Name(), err)
+			log.Errorf("Background job %s failed: %s", job.Name(), err)
 		}
 	}
 
@@ -90,21 +99,12 @@ func (e *Executor) backgroundJobRunner() {
 }
 
 func (e *Executor) Run(daemon Daemon) error {
-	log.Infof("Running %s daemon\n", e.Config.NodeType)
+	log.Infof("Running %s daemon", e.Config.NodeType)
 
 	if len(e.backgroundJobs) > 0 {
-		log.Infof("Waiting for %s daemon to become reachable\n", e.Config.NodeType)
-		session, err := e.waitForSession()
-		if err != nil {
-			log.Errorf("Could not get connection to mongodb: %s\n", err)
-			return err
-		}
-		log.Infof("Mongodb %s daemon is now reachable\n", e.Config.NodeType)
-		session.Close()
-
 		go e.backgroundJobRunner()
 	} else {
-		log.Info("Skipping start of background job runner, no backgroundJobs to run")
+		log.Info("Skipping start of background job runner, no jobs to run")
 	}
 
 	err := daemon.Start()

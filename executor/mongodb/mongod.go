@@ -1,14 +1,11 @@
-package executor
+package mongodb
 
 import (
 	"errors"
 	"os"
-	"os/exec"
-	"os/user"
 	"path/filepath"
-	"strconv"
-	"syscall"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 	mongo_config "github.com/timvaillancourt/go-mongodb-config/config"
 )
@@ -22,17 +19,14 @@ type Mongod struct {
 	config     *Config
 	configFile string
 	commandBin string
-	command    *exec.Cmd
-	uid        int
-	gid        int
-	started    bool
+	command    *common.Command
 }
 
-func NewMongod(config *Config) *Mongod {
+func NewMongod(config *Config, nodeType string) *Mongod {
 	return &Mongod{
 		config:     config,
-		configFile: filepath.Join(config.ConfigDir, config.NodeType+".conf"),
-		commandBin: filepath.Join(config.BinDir, config.NodeType),
+		configFile: filepath.Join(config.ConfigDir, nodeType+".conf"),
+		commandBin: filepath.Join(config.BinDir, nodeType),
 	}
 }
 
@@ -50,34 +44,16 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 	return nil
 }
 
-func (m *Mongod) getUidAndGid() (int, int, error) {
-	u, err := user.Lookup(m.config.User)
-	if err != nil {
-		return -1, -1, err
-	}
-	uid, err := strconv.Atoi(u.Uid)
-	if err != nil {
-		return -1, -1, err
-	}
-
-	g, err := user.LookupGroup(m.config.Group)
-	if err != nil {
-		return -1, -1, err
-	}
-	gid, err := strconv.Atoi(g.Gid)
-	if err != nil {
-		return -1, -1, err
-	}
-
-	return uid, gid, nil
-}
-
 func (m *Mongod) Initiate() error {
-	var err error
-
-	m.uid, m.gid, err = m.getUidAndGid()
+	uid, err := common.GetUserId(m.config.User)
 	if err != nil {
-		log.Errorf("Error finding configured 'user' or 'group' on this host: %s", err)
+		log.Errorf("Could not get user %s UID: %s\n", m.config.User, err)
+		return err
+	}
+
+	gid, err := common.GetGroupId(m.config.Group)
+	if err != nil {
+		log.Errorf("Could not get group %s GID: %s\n", m.config.Group, err)
 		return err
 	}
 
@@ -96,7 +72,7 @@ func (m *Mongod) Initiate() error {
 	log.WithFields(log.Fields{
 		"tmpDir": m.config.TmpDir,
 	}).Info("Initiating the mongod tmp dir")
-	err = mkdir(m.config.TmpDir, m.uid, m.gid, DefaultDirMode)
+	err = mkdir(m.config.TmpDir, uid, gid, DefaultDirMode)
 	if err != nil {
 		return err
 	}
@@ -104,7 +80,7 @@ func (m *Mongod) Initiate() error {
 	log.WithFields(log.Fields{
 		"keyFile": config.Security.KeyFile,
 	}).Info("Initiating the mongod keyFile")
-	err = os.Chown(config.Security.KeyFile, m.uid, m.gid)
+	err = os.Chown(config.Security.KeyFile, uid, gid)
 	if err != nil {
 		return err
 	}
@@ -116,7 +92,7 @@ func (m *Mongod) Initiate() error {
 	log.WithFields(log.Fields{
 		"dbPath": config.Storage.DbPath,
 	}).Info("Initiating the mongod dbPath")
-	err = mkdir(config.Storage.DbPath, m.uid, m.gid, DefaultDirMode)
+	err = mkdir(config.Storage.DbPath, uid, gid, DefaultDirMode)
 	if err != nil {
 		return err
 	}
@@ -125,7 +101,10 @@ func (m *Mongod) Initiate() error {
 }
 
 func (m *Mongod) IsStarted() bool {
-	return m.started
+	if m.command != nil {
+		return m.command.IsRunning()
+	}
+	return false
 }
 
 func (m *Mongod) Start() error {
@@ -135,37 +114,21 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	log.WithFields(log.Fields{
-		"bin":    m.commandBin,
-		"config": m.configFile,
-		"group":  m.config.Group,
-		"user":   m.config.User,
-	}).Info("Starting mongod daemon")
-
-	m.command = exec.Command(
+	m.command, err = common.NewCommand(
 		m.commandBin,
-		"--config", m.configFile,
+		[]string{"--config", m.configFile},
+		m.config.User,
+		m.config.Group,
 	)
-	m.command.SysProcAttr = &syscall.SysProcAttr{
-		Credential: &syscall.Credential{
-			Uid: uint32(m.uid),
-			Gid: uint32(m.gid),
-		},
-	}
-	m.command.Stdout = os.Stdout
-	m.command.Stderr = os.Stderr
-
-	err = m.command.Start()
 	if err != nil {
 		return err
 	}
-	m.started = true
 
-	return nil
+	return m.command.Start()
 }
 
 func (m *Mongod) Wait() {
-	if m.command != nil && m.IsStarted() {
+	if m.command != nil && m.command.IsRunning() {
 		m.command.Wait()
 	}
 }

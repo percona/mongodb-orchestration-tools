@@ -5,7 +5,9 @@ import (
 )
 
 type Config struct {
-	DB           *common.DBConfig
-	Enabled      bool
-	IntervalSecs uint
+	DB                  *common.DBConfig
+	Enabled             bool
+	IntervalSecs        uint
+	MgoStatsdBin        string
+	MgoStatsdConfigFile string
 }
