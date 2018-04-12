@@ -6,8 +6,6 @@ import (
 )
 
 const (
-	mgoStatsdRunUser              = "root"
-	mgoStatsdRunGroup             = "root"
 	mgoStatsdConfigUpdateInterval = "0"
 )
 
@@ -46,8 +44,8 @@ func (m *Metrics) Run() error {
 			"-configUpdateInterval", mgoStatsdConfigUpdateInterval,
 			"-config", m.config.MgoStatsdConfigFile,
 		},
-		mgoStatsdRunUser,
-		mgoStatsdRunGroup,
+		m.config.User,
+		m.config.Group,
 	)
 	if err != nil {
 		return err
