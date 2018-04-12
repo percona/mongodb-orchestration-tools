@@ -19,10 +19,6 @@ func (m *Metrics) Name() string {
 	return "DC/OS Metrics"
 }
 
-func (m *Metrics) Close() {
-	return
-}
-
 func (m *Metrics) DoRun() bool {
 	return m.config.Enabled
 }
@@ -31,10 +27,10 @@ func (m *Metrics) IsRunning() bool {
 	return m.running
 }
 
-func (m *Metrics) Run() {
+func (m *Metrics) Run() error {
 	if m.DoRun() == false {
 		log.Warn("DC/OS Metrics client executor disabled! Skipping start")
-		return
+		return nil
 	}
 
 	log.Info("Starting DC/OS Metrics client executor")
@@ -44,4 +40,6 @@ func (m *Metrics) Run() {
 
 	m.running = false
 	log.Info("Completed DC/OS Metrics client executor")
+
+	return nil
 }
