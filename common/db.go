@@ -1,7 +1,6 @@
 package common
 
 import (
-	"errors"
 	"strings"
 	"time"
 
@@ -18,7 +17,6 @@ var (
 	DefaultMongoDBTimeoutDuration = time.Duration(5) * time.Second
 
 	ErrMsgAuthFailedStr string = "server returned error on SASL authentication step: Authentication failed."
-	ErrCouldNotConnect         = errors.New("could not connect!")
 )
 
 type DBConfig struct {
@@ -109,6 +107,7 @@ func GetSession(dbConfig *DBConfig) (*mgo.Session, error) {
 }
 
 func WaitForSession(dbConfig *DBConfig, maxRetries uint, sleepDuration time.Duration) (*mgo.Session, error) {
+	var err error
 	var tries uint
 	for tries <= maxRetries || maxRetries == 0 {
 		session, err := GetSession(dbConfig)
@@ -118,5 +117,5 @@ func WaitForSession(dbConfig *DBConfig, maxRetries uint, sleepDuration time.Dura
 		time.Sleep(sleepDuration)
 		tries += 1
 	}
-	return nil, ErrCouldNotConnect
+	return nil, err
 }
