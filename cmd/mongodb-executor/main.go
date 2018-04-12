@@ -12,13 +12,21 @@ import (
 )
 
 var (
-	mongod                    = kingpin.Command("mongod", "run a mongod instance")
-	mongos                    = kingpin.Command("mongos", "run a mongos instance")
-	DefaultDelayBackgroundJob = "15s"
+	mongod                     = kingpin.Command("mongod", "run a mongod instance")
+	mongos                     = kingpin.Command("mongos", "run a mongos instance")
+	DefaultDelayBackgroundJob  = "15s"
+	DefaultMetricsIntervalSecs = "10"
 )
 
 func handleMetrics(cnf *executor.Config) {
-
+	kingpin.Flag(
+		"metrics.enable",
+		"Enable DC/OS Metrics monitoring for MongoDB, defaults to "+common.EnvMetricsEnabled+" env var",
+	).Envar(common.EnvMetricsEnabled).BoolVar(&cnf.Metrics.Enabled)
+	kingpin.Flag(
+		"metrics.intervalSecs",
+		"The frequency (in seconds) to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsIntervalSecs+" env var",
+	).Default(DefaultMetricsIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
 }
 
 func handlePmm(cnf *executor.Config) {
