@@ -110,11 +110,18 @@ func (c *Command) CombinedOutput() ([]byte, error) {
 }
 
 func (c *Command) Run() error {
+	log.WithFields(log.Fields{
+		"command": c.Bin,
+		"args":    c.Args,
+		"user":    c.User,
+		"group":   c.Group,
+	}).Debug("Running command")
+
 	return c.command.Run()
 }
 
 func (c *Command) Wait() {
-	if c.command != nil && c.IsRunning() {
+	if c.IsRunning() {
 		c.command.Wait()
 		c.running = false
 	}
