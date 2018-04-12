@@ -1,13 +1,18 @@
 package pmm
 
 import (
-	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	pmmAdminCommand  = "pmm-admin"
+	pmmAdminRunUser  = "root"
+	pmmAdminRunGroup = "root"
 )
 
 type Service struct {
@@ -37,7 +42,16 @@ func (s *Service) Add() error {
 	}
 	args = append(args, s.Args...)
 
-	cmd := exec.Command("pmm-admin", args...)
+	cmd, err := common.NewCommand(
+		pmmAdminCommand,
+		args,
+		pmmAdminRunUser,
+		pmmAdminRunGroup,
+	)
+	if err != nil {
+		return err
+	}
+
 	out, err := cmd.CombinedOutput()
 	trimmed := strings.TrimSpace(string(out))
 	if err != nil {
@@ -66,7 +80,16 @@ func (s *Service) AddWithRetry(maxRetries uint, retrySleep time.Duration) error 
 
 func (p *PMM) Repair() error {
 	log.Info("Repairing all PMM client services")
-	cmd := exec.Command("pmm-admin", "repair", "--config-file="+p.configFile)
-	cmd.Stderr = os.Stderr
+
+	cmd, err := common.NewCommand(
+		pmmAdminCommand,
+		[]string{"repair", "--config-file=" + p.configFile},
+		pmmAdminRunUser,
+		pmmAdminRunGroup,
+	)
+	if err != nil {
+		return err
+	}
+
 	return cmd.Run()
 }
