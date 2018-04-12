@@ -7,34 +7,26 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
+	"github.com/percona/dcos-mongo-tools/executor/mongodb"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
 )
 
 const (
-	NodeTypeMongod                = "mongod"
-	NodeTypeMongos                = "mongos"
-	DefaultBinDir                 = "/usr/bin"
-	DefaultTmpDirFallback         = "/tmp"
-	DefaultMongoConfigDirFallback = "/etc"
-	DefaultUser                   = "mongodb"
-	DefaultGroup                  = "root"
-	DefaultDelayBackgroundJob     = "15s"
-	DefaultConnectTries           = "3"
-	DefaultConnectRetrySleep      = "3s"
+	NodeTypeMongod            = "mongod"
+	NodeTypeMongos            = "mongos"
+	DefaultDelayBackgroundJob = "15s"
+	DefaultConnectTries       = "3"
+	DefaultConnectRetrySleep  = "3s"
 )
 
 type Config struct {
 	DB                 *common.DBConfig
+	MongoDB            *mongodb.Config
 	PMM                *pmm.Config
 	Metrics            *metrics.Config
 	Tool               *common.ToolConfig
 	NodeType           string
 	FrameworkName      string
-	ConfigDir          string
-	BinDir             string
-	TmpDir             string
-	User               string
-	Group              string
 	DelayBackgroundJob time.Duration
 	ConnectTries       uint
 	ConnectRetrySleep  time.Duration

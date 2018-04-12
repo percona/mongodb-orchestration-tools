@@ -1,4 +1,4 @@
-package executor
+package mongodb
 
 import (
 	"errors"
@@ -22,11 +22,11 @@ type Mongod struct {
 	command    *common.Command
 }
 
-func NewMongod(config *Config) *Mongod {
+func NewMongod(config *Config, nodeType string) *Mongod {
 	return &Mongod{
 		config:     config,
-		configFile: filepath.Join(config.ConfigDir, config.NodeType+".conf"),
-		commandBin: filepath.Join(config.BinDir, config.NodeType),
+		configFile: filepath.Join(config.ConfigDir, nodeType+".conf"),
+		commandBin: filepath.Join(config.BinDir, nodeType),
 	}
 }
 

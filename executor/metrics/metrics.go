@@ -1,7 +1,14 @@
 package metrics
 
 import (
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	mgoStatsdRunUser              = "root"
+	mgoStatsdRunGroup             = "root"
+	mgoStatsdConfigUpdateInterval = "0"
 )
 
 type Metrics struct {
@@ -33,12 +40,31 @@ func (m *Metrics) Run() error {
 		return nil
 	}
 
-	log.Info("Starting DC/OS Metrics client executor")
+	cmd, err := common.NewCommand(
+		m.config.MgoStatsdBin,
+		[]string{
+			"-configUpdateInterval", mgoStatsdConfigUpdateInterval,
+			"-config", m.config.MgoStatsdConfigFile,
+		},
+		mgoStatsdRunUser,
+		mgoStatsdRunGroup,
+	)
+	if err != nil {
+		return err
+	}
+
+	log.WithFields(log.Fields{
+		"binary": m.config.MgoStatsdBin,
+		"config": m.config.MgoStatsdConfigFile,
+	}).Info("Starting DC/OS Metrics client executor")
+
 	m.running = true
+	err = cmd.Start()
+	if err != nil {
+		m.running = false
+		return err
+	}
 
-	log.Warn("Do something here!")
-
-	m.running = false
 	log.Info("Completed DC/OS Metrics client executor")
 
 	return nil
