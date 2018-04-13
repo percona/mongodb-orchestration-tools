@@ -8,7 +8,10 @@ import (
 )
 
 const (
-	qanServiceName = "mongodb:queries"
+	pmmAdminCommand  = "pmm-admin"
+	pmmAdminRunUser  = "root"
+	pmmAdminRunGroup = "root"
+	qanServiceName   = "mongodb:queries"
 )
 
 type PMM struct {

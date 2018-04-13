@@ -2,17 +2,15 @@ package pmm
 
 import (
 	"encoding/json"
-	"errors"
-	"os"
-	"os/exec"
+	"fmt"
 	"strings"
 
+	"github.com/percona/dcos-mongo-tools/common/command"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
-	ErrListServicesFailed = errors.New("Server-side error when listing PMM services!")
-	ErrMsgNoServices      = "No services under monitoring."
+	ErrMsgNoServices = "No services under monitoring."
 )
 
 type ListClientService struct {
@@ -30,14 +28,19 @@ type ListClient struct {
 	ClientName    string               `json:"ClientName"`
 	ServerAddress string               `json:"ServerAddress"`
 	Services      []*ListClientService `json:"Services"`
-	Error         string               `json:"Err,omitempty"`
+	serverErr     string               `json:"Err,omitempty"`
+}
+
+func (pl *ListClient) Error() error {
+	if pl.serverErr != "" {
+		return fmt.Errorf("PMM error: %s\n", strings.TrimSpace(pl.serverErr))
+	}
+	return nil
 }
 
 func (pl *ListClient) HasError() bool {
-	if pl.Error != "" && strings.TrimSpace(pl.Error) != ErrMsgNoServices {
-		return true
-	}
-	return false
+	err := pl.Error()
+	return err != nil && err.Error() != ErrMsgNoServices
 }
 
 func (pl *ListClient) HasService(serviceName string) bool {
@@ -51,9 +54,18 @@ func (pl *ListClient) HasService(serviceName string) bool {
 
 func (p *PMM) List() (*ListClient, error) {
 	log.Info("Listing PMM services")
-	cmd := exec.Command("pmm-admin", "list", "--json", "--config-file="+p.configFile)
-	cmd.Stderr = os.Stderr
-	bytes, err := cmd.Output()
+
+	cmd, err := command.New(
+		pmmAdminCommand,
+		[]string{"list", "--json", "--config-file=" + p.configFile},
+		pmmAdminRunUser,
+		pmmAdminRunGroup,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +76,7 @@ func (p *PMM) List() (*ListClient, error) {
 		return nil, err
 	}
 	if list.HasError() {
-		return nil, ErrListServicesFailed
+		return nil, list.Error()
 	}
 
 	return list, nil
