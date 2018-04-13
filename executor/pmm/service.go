@@ -9,12 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	pmmAdminCommand  = "pmm-admin"
-	pmmAdminRunUser  = "root"
-	pmmAdminRunGroup = "root"
-)
-
 type Service struct {
 	ConfigFile string
 	Name       string
