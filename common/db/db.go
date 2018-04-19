@@ -28,6 +28,7 @@ var (
 func GetSession(cnf *Config) (*mgo.Session, error) {
 	log.WithFields(log.Fields{
 		"hosts": cnf.DialInfo.Addrs,
+		"ssl":   cnf.SSL.Enabled,
 	}).Debug("Connecting to mongodb")
 
 	if cnf.DialInfo.Username != "" && cnf.DialInfo.Password != "" {
@@ -35,6 +36,14 @@ func GetSession(cnf *Config) (*mgo.Session, error) {
 			"user":   cnf.DialInfo.Username,
 			"source": cnf.DialInfo.Source,
 		}).Debug("Enabling authentication for session")
+	}
+
+	if cnf.SSL.Enabled {
+		err := configureSSLDialInfo(cnf)
+		if err != nil {
+			log.Errorf("Failed to configure SSL/TLS: %s", err)
+			return nil, err
+		}
 	}
 
 	session, err := mgo.DialWithInfo(cnf.DialInfo)
