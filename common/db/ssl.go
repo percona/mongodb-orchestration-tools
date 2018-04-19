@@ -38,8 +38,8 @@ type SSLConfig struct {
 	HostnameValidation bool
 }
 
-func loadCaFrom(pemFile string) (*x509.CertPool, error) {
-	caCert, err := ioutil.ReadFile(pemFile)
+func (cnf *Config) loadCaCertificate() (*x509.CertPool, error) {
+	caCert, err := ioutil.ReadFile(cnf.SSL.CAFile)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func loadCaFrom(pemFile string) (*x509.CertPool, error) {
 	return certificates, nil
 }
 
-func configureSSLDialInfo(cnf *Config) error {
+func (cnf *Config) configureSSLDialInfo() error {
 	config := &tls.Config{
 		InsecureSkipVerify: !cnf.SSL.HostnameValidation,
 	}
@@ -67,7 +67,7 @@ func configureSSLDialInfo(cnf *Config) error {
 	}
 	if len(cnf.SSL.CAFile) > 0 {
 		log.Debugf("Loading SSL/TLS Certificate Authority: %s", cnf.SSL.PEMKeyFile)
-		ca, err := loadCaFrom(cnf.SSL.CAFile)
+		ca, err := cnf.loadCaCertificate()
 		if err != nil {
 			return fmt.Errorf("Couldn't load client CAs from %s. Got: %s", cnf.SSL.CAFile, err)
 		}

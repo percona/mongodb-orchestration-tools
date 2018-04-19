@@ -39,7 +39,7 @@ func GetSession(cnf *Config) (*mgo.Session, error) {
 	}
 
 	if cnf.SSL.Enabled {
-		err := configureSSLDialInfo(cnf)
+		err := cnf.configureSSLDialInfo()
 		if err != nil {
 			log.Errorf("Failed to configure SSL/TLS: %s", err)
 			return nil, err
