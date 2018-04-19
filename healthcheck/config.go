@@ -16,9 +16,10 @@ package healthcheck
 
 import (
 	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 )
 
 type Config struct {
 	Tool *common.ToolConfig
-	DB   *common.DBConfig
+	DB   *db.Config
 }

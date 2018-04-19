@@ -19,6 +19,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/healthcheck"
 	log "github.com/sirupsen/logrus"
 )
@@ -31,7 +32,7 @@ var (
 func main() {
 	config := &healthcheck.Config{
 		Tool: common.NewToolConfig(os.Args[0]),
-		DB: common.NewDBConfig(
+		DB: db.NewConfig(
 			common.EnvMongoDBClusterMonitorUser,
 			common.EnvMongoDBClusterMonitorPassword,
 		),
@@ -44,7 +45,7 @@ func main() {
 
 	common.SetupLogger(config.Tool)
 
-	session, err := common.GetSession(config.DB)
+	session, err := db.GetSession(config.DB)
 	if err != nil {
 		log.Fatalf("Error connecting to mongodb: %s", err)
 		return

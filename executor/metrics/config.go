@@ -15,7 +15,7 @@
 package metrics
 
 import (
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 )
 
 type Config struct {
-	DB                  *common.DBConfig
+	DB                  *db.Config
 	Enabled             bool
 	User                string
 	Group               string

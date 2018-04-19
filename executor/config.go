@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/mongodb"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
@@ -33,7 +34,7 @@ const (
 )
 
 type Config struct {
-	DB                 *common.DBConfig
+	DB                 *db.Config
 	MongoDB            *mongodb.Config
 	PMM                *pmm.Config
 	Metrics            *metrics.Config

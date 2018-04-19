@@ -15,7 +15,7 @@
 package pmm
 
 import (
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 )
 
 type ConfigMongoDB struct {
@@ -23,7 +23,7 @@ type ConfigMongoDB struct {
 }
 
 type Config struct {
-	DB                         *common.DBConfig
+	DB                         *db.Config
 	ConfigDir                  string
 	Enabled                    bool
 	EnableQueryAnalytics       bool

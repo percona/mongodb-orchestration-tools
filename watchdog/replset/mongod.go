@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"gopkg.in/mgo.v2"
 )
 
@@ -66,13 +66,13 @@ func (m *Mongod) IsBackupNode() bool {
 	return strings.HasPrefix(m.PodName, backupPodNamePrefix)
 }
 
-func (m *Mongod) DBConfig() *common.DBConfig {
-	return &common.DBConfig{
+func (m *Mongod) DBConfig() *db.Config {
+	return &db.Config{
 		DialInfo: &mgo.DialInfo{
 			Addrs:    []string{m.Host + ":" + strconv.Itoa(m.Port)},
 			Direct:   true,
 			FailFast: true,
-			Timeout:  common.DefaultMongoDBTimeoutDuration,
+			Timeout:  db.DefaultMongoDBTimeoutDuration,
 		},
 	}
 }
