@@ -39,7 +39,6 @@ type Config struct {
 func NewConfig(envUser string, envPassword string) *Config {
 	db := &Config{
 		DialInfo: &mgo.DialInfo{},
-		SSL:      &SSLConfig{},
 	}
 	kingpin.Flag(
 		"address",
@@ -66,22 +65,6 @@ func NewConfig(envUser string, envPassword string) *Config {
 		"mongodb auth database",
 	).Default(DefaultMongoDBAuthDB).StringVar(&db.DialInfo.Source)
 	kingpin.Flag(
-		"ssl",
-		"enable SSL secured mongodb connection, overridden by env var "+common.EnvMongoDBNetSSLEnabled,
-	).Envar(common.EnvMongoDBNetSSLEnabled).BoolVar(&db.SSL.Enabled)
-	kingpin.Flag(
-		"sslPEMKeyFile",
-		"path to client SSL Certificate file (including key, in PEM format), overriden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
-	).Envar(common.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&db.SSL.PEMKeyFile)
-	kingpin.Flag(
-		"sslCAFile",
-		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+common.EnvMongoDBNetSSLCAFile,
-	).Envar(common.EnvMongoDBNetSSLCAFile).ExistingFileVar(&db.SSL.CAFile)
-	kingpin.Flag(
-		"sslInsecure",
-		"skip validation of the SSL certificate and hostname, overridden by env var "+common.EnvMongoDBNetSSLInsecure,
-	).Envar(common.EnvMongoDBNetSSLInsecure).BoolVar(&db.SSL.Insecure)
-	kingpin.Flag(
 		"useDirectConnection",
 		"enable direct connection",
 	).Default("true").BoolVar(&db.DialInfo.Direct)
@@ -89,15 +72,30 @@ func NewConfig(envUser string, envPassword string) *Config {
 		"useFailFastConnection",
 		"enable fail-fast connection",
 	).Default("true").BoolVar(&db.DialInfo.FailFast)
+
+	db.SSL = NewSSLConfig()
 	return db
 }
 
-func (cnf *Config) IsLocalhostSession() bool {
-	if cnf.DialInfo != nil && cnf.DialInfo.Direct && len(cnf.DialInfo.Addrs) == 1 {
-		split := strings.SplitN(cnf.DialInfo.Addrs[0], ":", 2)
-		return split[0] == "localhost"
-	}
-	return false
+func NewSSLConfig() *SSLConfig {
+	ssl := &SSLConfig{}
+	kingpin.Flag(
+		"ssl",
+		"enable SSL secured mongodb connection, overridden by env var "+common.EnvMongoDBNetSSLEnabled,
+	).Envar(common.EnvMongoDBNetSSLEnabled).BoolVar(&ssl.Enabled)
+	kingpin.Flag(
+		"sslPEMKeyFile",
+		"path to client SSL Certificate file (including key, in PEM format), overriden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
+	).Envar(common.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&ssl.PEMKeyFile)
+	kingpin.Flag(
+		"sslCAFile",
+		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+common.EnvMongoDBNetSSLCAFile,
+	).Envar(common.EnvMongoDBNetSSLCAFile).ExistingFileVar(&ssl.CAFile)
+	kingpin.Flag(
+		"sslInsecure",
+		"skip validation of the SSL certificate and hostname, overridden by env var "+common.EnvMongoDBNetSSLInsecure,
+	).Envar(common.EnvMongoDBNetSSLInsecure).BoolVar(&ssl.Insecure)
+	return ssl
 }
 
 func (cnf *Config) Uri() string {

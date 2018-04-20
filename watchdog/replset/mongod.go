@@ -66,7 +66,7 @@ func (m *Mongod) IsBackupNode() bool {
 	return strings.HasPrefix(m.PodName, backupPodNamePrefix)
 }
 
-func (m *Mongod) DBConfig() *db.Config {
+func (m *Mongod) DBConfig(sslCnf *db.SSLConfig) *db.Config {
 	return &db.Config{
 		DialInfo: &mgo.DialInfo{
 			Addrs:    []string{m.Host + ":" + strconv.Itoa(m.Port)},
@@ -74,5 +74,6 @@ func (m *Mongod) DBConfig() *db.Config {
 			FailFast: true,
 			Timeout:  db.DefaultMongoDBTimeoutDuration,
 		},
+		SSL: sslCnf,
 	}
 }

@@ -128,7 +128,7 @@ func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rs_config.Member {
 
 func (rw *Watcher) waitForAvailable(mongod *replset.Mongod) error {
 	session, err := db.WaitForSession(
-		mongod.DBConfig(),
+		mongod.DBConfig(rw.config.SSL),
 		waitForMongodAvailableRetries,
 		rw.config.ReplsetPoll,
 	)

@@ -19,6 +19,7 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/db"
 )
 
 var (
@@ -37,6 +38,7 @@ type Config struct {
 	FrameworkName         string
 	API                   *api.Config
 	APIPoll               time.Duration
+	SSL                   *db.SSLConfig
 	ReplsetPoll           time.Duration
 	ReplsetTimeout        time.Duration
 	ReplsetConfUpdatePoll time.Duration
