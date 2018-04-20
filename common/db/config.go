@@ -67,15 +67,15 @@ func NewConfig(envUser string, envPassword string) *Config {
 	).Default(DefaultMongoDBAuthDB).StringVar(&db.DialInfo.Source)
 	kingpin.Flag(
 		"ssl",
-		"enable SSL secured mongodb connection",
+		"enable SSL secured mongodb connection, overridden by env var "+common.EnvMongoDBNetSSLEnabled,
 	).Envar(common.EnvMongoDBNetSSLEnabled).BoolVar(&db.SSL.Enabled)
 	kingpin.Flag(
 		"sslPEMKeyFile",
-		"path to client SSL Certificate file (including key, in PEM format)",
+		"path to client SSL Certificate file (including key, in PEM format), overriden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
 	).Envar(common.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&db.SSL.PEMKeyFile)
 	kingpin.Flag(
 		"sslCAFile",
-		"path to SSL Certificate Authority file (in PEM format)",
+		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+common.EnvMongoDBNetSSLCAFile,
 	).Envar(common.EnvMongoDBNetSSLCAFile).ExistingFileVar(&db.SSL.CAFile)
 	kingpin.Flag(
 		"useDirectConnection",
