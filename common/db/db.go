@@ -27,8 +27,9 @@ var (
 
 func GetSession(cnf *Config) (*mgo.Session, error) {
 	log.WithFields(log.Fields{
-		"hosts": cnf.DialInfo.Addrs,
-		"ssl":   cnf.SSL.Enabled,
+		"hosts":      cnf.DialInfo.Addrs,
+		"ssl":        cnf.SSL.Enabled,
+		"ssl_secure": !cnf.SSL.Insecure,
 	}).Debug("Connecting to mongodb")
 
 	if cnf.DialInfo.Username != "" && cnf.DialInfo.Password != "" {

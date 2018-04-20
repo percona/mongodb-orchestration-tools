@@ -20,6 +20,7 @@ import (
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog"
 	config "github.com/percona/dcos-mongo-tools/watchdog/config"
 )
@@ -73,6 +74,8 @@ func main() {
 		"apiHostSuffix",
 		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
 	).Default(api.DefaultHostSuffix).StringVar(&cnf.API.HostSuffix)
+
+	cnf.SSL = db.NewSSLConfig()
 	kingpin.Parse()
 
 	if cnf.Tool.PrintVersion {

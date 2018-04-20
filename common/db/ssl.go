@@ -26,11 +26,6 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-const (
-	dialMongodbTimeout = 3 * time.Second
-	syncMongodbTimeout = 1 * time.Minute
-)
-
 type SSLConfig struct {
 	Enabled    bool
 	PEMKeyFile string
@@ -38,8 +33,8 @@ type SSLConfig struct {
 	Insecure   bool
 }
 
-func (cnf *Config) loadCaCertificate() (*x509.CertPool, error) {
-	caCert, err := ioutil.ReadFile(cnf.SSL.CAFile)
+func (sc *SSLConfig) loadCaCertificate() (*x509.CertPool, error) {
+	caCert, err := ioutil.ReadFile(sc.CAFile)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +62,7 @@ func (cnf *Config) configureSSLDialInfo() error {
 	}
 	if len(cnf.SSL.CAFile) > 0 {
 		log.Debugf("Loading SSL/TLS Certificate Authority: %s", cnf.SSL.PEMKeyFile)
-		ca, err := cnf.loadCaCertificate()
+		ca, err := cnf.SSL.loadCaCertificate()
 		if err != nil {
 			return fmt.Errorf("Couldn't load client CAs from %s. Got: %s", cnf.SSL.CAFile, err)
 		}
