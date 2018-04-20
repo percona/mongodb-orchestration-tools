@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
 	log "github.com/sirupsen/logrus"
@@ -142,13 +142,13 @@ func (i *Initiator) Run() error {
 	time.Sleep(i.config.ReplsetInit.Delay)
 
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
-	localhostNoAuthSession, err := common.WaitForSession(
-		&common.DBConfig{
+	localhostNoAuthSession, err := db.WaitForSession(
+		&db.Config{
 			DialInfo: &mgo.DialInfo{
 				Addrs:    []string{"localhost:" + split[1]},
 				Direct:   true,
 				FailFast: true,
-				Timeout:  common.DefaultMongoDBTimeoutDuration,
+				Timeout:  db.DefaultMongoDBTimeoutDuration,
 			},
 		},
 		i.config.ReplsetInit.MaxConnectTries,
@@ -177,8 +177,8 @@ func (i *Initiator) Run() error {
 	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
 	localhostNoAuthSession.Close()
 
-	replsetAuthSession, err := common.WaitForSession(
-		&common.DBConfig{
+	replsetAuthSession, err := db.WaitForSession(
+		&db.Config{
 			DialInfo: &mgo.DialInfo{
 				Addrs:          []string{i.config.ReplsetInit.PrimaryAddr},
 				Username:       i.config.UserAdminUser,
@@ -186,7 +186,7 @@ func (i *Initiator) Run() error {
 				ReplicaSetName: i.config.Replset,
 				Direct:         false,
 				FailFast:       true,
-				Timeout:        common.DefaultMongoDBTimeoutDuration,
+				Timeout:        db.DefaultMongoDBTimeoutDuration,
 			},
 		},
 		i.config.ReplsetInit.MaxConnectTries,

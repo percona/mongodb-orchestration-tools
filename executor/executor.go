@@ -17,7 +17,7 @@ package executor
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
 	log "github.com/sirupsen/logrus"
@@ -72,7 +72,7 @@ func New(config *Config) *Executor {
 }
 
 func (e *Executor) waitForSession() (*mgo.Session, error) {
-	return common.WaitForSession(
+	return db.WaitForSession(
 		e.Config.DB,
 		0,
 		e.Config.ConnectRetrySleep,

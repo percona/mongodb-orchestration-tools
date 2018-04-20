@@ -18,8 +18,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
@@ -34,7 +34,7 @@ var (
 )
 
 type UserController struct {
-	dbConfig        *common.DBConfig
+	dbConfig        *db.Config
 	session         *mgo.Session
 	config          *controller.Config
 	maxConnectTries uint
@@ -59,7 +59,7 @@ func NewUserController(config *controller.Config) (*UserController, error) {
 	return uc, nil
 }
 
-func (uc *UserController) getDBConfig() (*common.DBConfig, error) {
+func (uc *UserController) getDBConfig() (*db.Config, error) {
 	log.Infof("Gathering MongoDB seed list from endpoint %s", uc.config.User.EndpointName)
 
 	sdk := api.New(uc.config.FrameworkName, uc.config.User.API)
@@ -68,7 +68,7 @@ func (uc *UserController) getDBConfig() (*common.DBConfig, error) {
 		log.Errorf("Error fetching MongoDB seed list from endpoint %s: %s", uc.config.User.EndpointName, err)
 		return nil, err
 	}
-	return &common.DBConfig{
+	return &db.Config{
 		DialInfo: &mgo.DialInfo{
 			Addrs:          mongodService.Hosts(),
 			Username:       uc.config.UserAdminUser,
@@ -81,7 +81,7 @@ func (uc *UserController) getDBConfig() (*common.DBConfig, error) {
 }
 
 func (uc *UserController) getSession() (*mgo.Session, error) {
-	session, err := common.WaitForSession(uc.dbConfig, uc.maxConnectTries, uc.retrySleep)
+	session, err := db.WaitForSession(uc.dbConfig, uc.maxConnectTries, uc.retrySleep)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"hosts": uc.dbConfig.DialInfo.Addrs,

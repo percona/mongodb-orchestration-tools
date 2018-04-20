@@ -19,6 +19,7 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/db"
 )
 
 var (
@@ -52,7 +53,7 @@ type ConfigUser struct {
 }
 
 type Config struct {
-	DB                *common.DBConfig
+	DB                *db.Config
 	Tool              *common.ToolConfig
 	FrameworkName     string
 	Replset           string

@@ -20,6 +20,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/executor"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/mongodb"
@@ -135,7 +136,7 @@ func handlePmm(cnf *executor.Config) {
 }
 
 func main() {
-	dbConfig := common.NewDBConfig(
+	dbConfig := db.NewConfig(
 		common.EnvMongoDBClusterMonitorUser,
 		common.EnvMongoDBClusterMonitorPassword,
 	)
