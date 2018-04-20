@@ -78,6 +78,10 @@ func NewConfig(envUser string, envPassword string) *Config {
 		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+common.EnvMongoDBNetSSLCAFile,
 	).Envar(common.EnvMongoDBNetSSLCAFile).ExistingFileVar(&db.SSL.CAFile)
 	kingpin.Flag(
+		"sslInsecure",
+		"skip validation of the SSL certificate and hostname, overridden by env var "+common.EnvMongoDBNetSSLInsecure,
+	).Envar(common.EnvMongoDBNetSSLInsecure).BoolVar(&db.SSL.Insecure)
+	kingpin.Flag(
 		"useDirectConnection",
 		"enable direct connection",
 	).Default("true").BoolVar(&db.DialInfo.Direct)

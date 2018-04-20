@@ -32,10 +32,10 @@ const (
 )
 
 type SSLConfig struct {
-	Enabled            bool
-	PEMKeyFile         string
-	CAFile             string
-	HostnameValidation bool
+	Enabled    bool
+	PEMKeyFile string
+	CAFile     string
+	Insecure   bool
 }
 
 func (cnf *Config) loadCaCertificate() (*x509.CertPool, error) {
@@ -50,7 +50,7 @@ func (cnf *Config) loadCaCertificate() (*x509.CertPool, error) {
 
 func (cnf *Config) configureSSLDialInfo() error {
 	config := &tls.Config{
-		InsecureSkipVerify: !cnf.SSL.HostnameValidation,
+		InsecureSkipVerify: cnf.SSL.Insecure,
 	}
 	if len(cnf.SSL.PEMKeyFile) > 0 {
 		log.Debugf("Loading SSL/TLS PEM certificate: %s", cnf.SSL.PEMKeyFile)
@@ -79,7 +79,7 @@ func (cnf *Config) configureSSLDialInfo() error {
 			log.Errorf("Could not connect to %v. Got: %v", addr, err)
 			return nil, err
 		}
-		if config.InsecureSkipVerify {
+		if !config.InsecureSkipVerify {
 			err = validateConnection(conn, config)
 			if err != nil {
 				log.Errorf("Could not disable hostname validation. Got: %v", err)

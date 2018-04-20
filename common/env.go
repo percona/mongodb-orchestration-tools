@@ -25,6 +25,7 @@ const (
 	EnvMongoDBPort                   = "MONGODB_PORT"
 	EnvMongoDBReplset                = "MONGODB_REPLSET"
 	EnvMongoDBNetSSLEnabled          = "MONGODB_NET_SSL_ENABLED"
+	EnvMongoDBNetSSLInsecure         = "MONGODB_NET_SSL_INSECURE"
 	EnvMongoDBNetSSLPEMKeyFile       = "MONGODB_NET_SSL_PEM_KEY_FILE"
 	EnvMongoDBNetSSLCAFile           = "MONGODB_NET_SSL_CA_FILE"
 	EnvMongoDBMongodEndpointName     = "MONGODB_MONGOD_ENDPOINT_NAME"
