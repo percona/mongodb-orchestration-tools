@@ -40,7 +40,7 @@ func getSelfMemberState(rs_status *status.Status) *status.MemberState {
 
 // isStateOk checks if a replication member state matches one of the acceptable member states in 'OkStates'
 func isStateOk(memberState *status.MemberState) bool {
-	for _, state := range okStates {
+	for _, state := range OkStates {
 		if *memberState == state {
 			return true
 		}
