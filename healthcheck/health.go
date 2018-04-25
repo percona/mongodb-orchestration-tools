@@ -21,15 +21,15 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var (
-	okStates = []status.MemberState{
-		status.MemberStatePrimary,
-		status.MemberStateSecondary,
-		status.MemberStateRecovering,
-		status.MemberStateStartup2,
-	}
-)
+// OkStates is a slice of acceptable replication member states
+var OkStates = []status.MemberState{
+	status.MemberStatePrimary,
+	status.MemberStateSecondary,
+	status.MemberStateRecovering,
+	status.MemberStateStartup2,
+}
 
+// getSelfMemberState returns the replication state of the local MongoDB member
 func getSelfMemberState(rs_status *status.Status) *status.MemberState {
 	member := rs_status.GetSelf()
 	if member == nil || member.Health != status.MemberHealthUp {
@@ -38,6 +38,7 @@ func getSelfMemberState(rs_status *status.Status) *status.MemberState {
 	return &member.State
 }
 
+// isStateOk checks if a replication member state matches one of the acceptable member states in 'OkStates'
 func isStateOk(memberState *status.MemberState) bool {
 	for _, state := range okStates {
 		if *memberState == state {
@@ -47,6 +48,7 @@ func isStateOk(memberState *status.MemberState) bool {
 	return false
 }
 
+// HealthCheck checks the replication member state of the local MongoDB member
 func HealthCheck(session *mgo.Session) (State, error) {
 	rs_status, err := status.New(session)
 	if err != nil {
