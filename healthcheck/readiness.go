@@ -20,6 +20,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+// ReadinessCheck runs a ping on a mgo.Session to check server readiness
 func ReadinessCheck(session *mgo.Session) (State, error) {
 	err := session.Ping()
 	if err != nil {

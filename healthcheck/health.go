@@ -21,31 +21,47 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var (
-	okStates = []status.MemberState{
-		status.MemberStatePrimary,
-		status.MemberStateSecondary,
-		status.MemberStateRecovering,
-		status.MemberStateStartup2,
-	}
-)
+// OkStates is a slice of acceptable replication member states
+var OkStates = []status.MemberState{
+	status.MemberStatePrimary,
+	status.MemberStateSecondary,
+	status.MemberStateRecovering,
+	status.MemberStateStartup2,
+}
 
+// getSelfMemberState returns the replication state of the local MongoDB member
+func getSelfMemberState(rs_status *status.Status) *status.MemberState {
+	member := rs_status.GetSelf()
+	if member == nil || member.Health != status.MemberHealthUp {
+		return nil
+	}
+	return &member.State
+}
+
+// isStateOk checks if a replication member state matches one of the acceptable member states in 'OkStates'
+func isStateOk(memberState *status.MemberState) bool {
+	for _, state := range okStates {
+		if *memberState == state {
+			return true
+		}
+	}
+	return false
+}
+
+// HealthCheck checks the replication member state of the local MongoDB member
 func HealthCheck(session *mgo.Session) (State, error) {
 	rs_status, err := status.New(session)
 	if err != nil {
 		return StateFailed, fmt.Errorf("Error getting replica set status: %s", err)
 	}
 
-	member := rs_status.GetSelf()
-	if member == nil || member.Health != status.MemberHealthUp {
-		return StateFailed, fmt.Errorf("Member is not healthy")
+	state := getSelfMemberState(rs_status)
+	if state == nil {
+		return StateFailed, fmt.Errorf("Found no member state for self in replica set status")
+	}
+	if isStateOk(state) {
+		return StateOk, nil
 	}
 
-	for _, state := range okStates {
-		if member.State == state {
-			return StateOk, nil
-		}
-	}
-
-	return StateFailed, fmt.Errorf("Member has bad state: %d", member.State)
+	return StateFailed, fmt.Errorf("Member has bad state: %d", state)
 }
