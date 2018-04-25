@@ -30,22 +30,36 @@ var (
 	}
 )
 
+func getSelfMemberState(rs_status *status.Status) *status.MemberState {
+	member := rs_status.GetSelf()
+	if member == nil || member.Health != status.MemberHealthUp {
+		return nil
+	}
+	return &member.State
+}
+
+func isStateOk(memberState *status.MemberState) bool {
+	for _, state := range okStates {
+		if *memberState == state {
+			return true
+		}
+	}
+	return false
+}
+
 func HealthCheck(session *mgo.Session) (State, error) {
 	rs_status, err := status.New(session)
 	if err != nil {
 		return StateFailed, fmt.Errorf("Error getting replica set status: %s", err)
 	}
 
-	member := rs_status.GetSelf()
-	if member == nil || member.Health != status.MemberHealthUp {
-		return StateFailed, fmt.Errorf("Member is not healthy")
+	state := getSelfMemberState(rs_status)
+	if state == nil {
+		return StateFailed, fmt.Errorf("Found no member state for self in replica set status")
+	}
+	if isStateOk(state) {
+		return StateOk, nil
 	}
 
-	for _, state := range okStates {
-		if member.State == state {
-			return StateOk, nil
-		}
-	}
-
-	return StateFailed, fmt.Errorf("Member has bad state: %d", member.State)
+	return StateFailed, fmt.Errorf("Member has bad state: %d", state)
 }
