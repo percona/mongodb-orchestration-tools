@@ -1,5 +1,5 @@
 hash: 274f15ccc0bc89d420bef7bbe32d834cccc095944a595cd94c3c26e1bb636cdd
-updated: 2018-04-25T15:50:37.975213669+02:00
+updated: 2018-04-26T18:08:38.955482612+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -14,16 +14,16 @@ imports:
 - name: github.com/sirupsen/logrus
   version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
 - name: github.com/timvaillancourt/go-mongodb-config
-  version: 2d5f877440ff0ec11e1ba1368372a7003cd2f06d
+  version: 618519223de5eb03913441986d3873d382745704
   subpackages:
   - config
 - name: github.com/timvaillancourt/go-mongodb-replset
-  version: c7de4ac6fc86129b66a1de48cf622011e4b836d8
+  version: 15c5729cc4d23dc892a7f5956e9648363a4b6cc7
   subpackages:
   - config
   - status
 - name: golang.org/x/sys
-  version: 79b0c6888797020a994db17c8510466c72fe75d9
+  version: bb9c189858d91f42db229b04d45a4c3d23a7662a
   subpackages:
   - unix
 - name: gopkg.in/mgo.v2

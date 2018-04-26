@@ -86,7 +86,7 @@ func (s *State) updateConfig() error {
 		"replset":        s.Replset,
 		"config_version": config.Version,
 	}).Info("Writing new replset config")
-	fmt.Println(config.ToString())
+	fmt.Println(config)
 
 	err := s.configManager.Save()
 	if err != nil {

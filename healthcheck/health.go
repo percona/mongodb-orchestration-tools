@@ -49,19 +49,19 @@ func isStateOk(memberState *status.MemberState) bool {
 }
 
 // HealthCheck checks the replication member state of the local MongoDB member
-func HealthCheck(session *mgo.Session) (State, error) {
+func HealthCheck(session *mgo.Session) (State, *status.MemberState, error) {
 	rs_status, err := status.New(session)
 	if err != nil {
-		return StateFailed, fmt.Errorf("Error getting replica set status: %s", err)
+		return StateFailed, nil, fmt.Errorf("Error getting replica set status: %s", err)
 	}
 
 	state := getSelfMemberState(rs_status)
 	if state == nil {
-		return StateFailed, fmt.Errorf("Found no member state for self in replica set status")
+		return StateFailed, state, fmt.Errorf("Found no member state for self in replica set status")
 	}
 	if isStateOk(state) {
-		return StateOk, nil
+		return StateOk, state, nil
 	}
 
-	return StateFailed, fmt.Errorf("Member has bad state: %d", state)
+	return StateFailed, state, fmt.Errorf("Member has unhealthy replication state: %s", state)
 }

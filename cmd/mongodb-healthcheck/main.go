@@ -55,13 +55,13 @@ func main() {
 	switch command {
 	case health.FullCommand():
 		log.Debug("Running health check")
-		state, err := healthcheck.HealthCheck(session)
+		state, memberState, err := healthcheck.HealthCheck(session)
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
 			os.Exit(int(state))
 		}
-		log.Debug("Member passed health check")
+		log.Debugf("Member passed health check with replication state: %s", memberState)
 	case readiness.FullCommand():
 		log.Debug("Running readiness check")
 		state, err := healthcheck.ReadinessCheck(session)
