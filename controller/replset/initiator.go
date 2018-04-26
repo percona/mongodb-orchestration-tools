@@ -61,7 +61,7 @@ func (i *Initiator) InitReplset(session *mgo.Session) error {
 	rsCnfMan.Set(config)
 
 	log.Info("Initiating replset")
-	fmt.Println(config.ToString())
+	fmt.Println(config)
 
 	for i.replInitTries <= i.config.ReplsetInit.MaxReplTries {
 		err := rsCnfMan.Initiate()
