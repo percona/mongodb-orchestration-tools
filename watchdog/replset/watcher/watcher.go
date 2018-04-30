@@ -18,7 +18,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
@@ -52,16 +51,6 @@ func New(rs *replset.Replset, config *config.Config, stop chan bool) *Watcher {
 		mongodRemoveQueue: make(chan []*rs_config.Member),
 		stop:              stop,
 	}
-}
-
-func (rw *Watcher) doStop() bool {
-	if common.DoStop(&rw.stop) == true {
-		log.WithFields(log.Fields{
-			"replset": rw.replset.Name,
-		}).Info("Stopping watcher for replset")
-		return true
-	}
-	return false
 }
 
 func (rw *Watcher) getReplsetSession() (*mgo.Session, error) {
@@ -178,26 +167,33 @@ func (rw *Watcher) Run() {
 	go rw.replsetConfigAdder(rw.mongodAddQueue)
 	go rw.replsetConfigRemover(rw.mongodRemoveQueue)
 
-	for !rw.doStop() {
-		if rw.state == nil {
-			session, err := rw.getReplsetSession()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"replset": rw.replset.Name,
-					"error":   err,
-				}).Error("Error getting mongodb session to replset")
-			} else {
-				rw.state = replset.NewState(session, rw.replset.Name)
-				go rw.state.StartFetcher(rw.stop, rw.config.ReplsetPoll)
+	ticker := time.NewTicker(rw.config.ReplsetPoll)
+	for {
+		select {
+		case <-ticker.C:
+			if rw.state == nil {
+				session, err := rw.getReplsetSession()
+				if err != nil {
+					log.WithFields(log.Fields{
+						"replset": rw.replset.Name,
+						"error":   err,
+					}).Error("Error getting mongodb session to replset")
+				} else {
+					rw.state = replset.NewState(session, rw.replset.Name)
+					go rw.state.StartFetcher(rw.stop, rw.config.ReplsetPoll)
+				}
 			}
-		}
 
-		if rw.state != nil && rw.state.Status != nil {
-			rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
-			rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
-			rw.logState()
+			if rw.state != nil && rw.state.Status != nil {
+				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
+				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
+				rw.logState()
+			}
+		case <-rw.stop:
+			log.WithFields(log.Fields{
+				"replset": rw.replset.Name,
+			}).Info("Stopping watcher for replset")
+			return
 		}
-
-		time.Sleep(rw.config.ReplsetPoll)
 	}
 }
