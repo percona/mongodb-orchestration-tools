@@ -2,6 +2,8 @@
 
 set -x
 
+env
+
 tries=1
 max_tries=10
 sleep_secs=5
@@ -9,14 +11,14 @@ sleep_secs=5
 sleep $sleep_secs
 while [ $tries -lt $max_tries ]; do
 	/usr/bin/mongo --quiet \
-		--port 65017 \
+		--port ${TEST_PRIMARY_PORT} \
 		--eval 'rs.initiate({
-			_id: "rs",
+			_id: "'${TEST_RS_NAME}'",
 			version: 1,
 			members: [
-				{ _id: 0, host: "127.0.0.1:65017", priority: 2 },
-				{ _id: 1, host: "127.0.0.1:65018" },
-				{ _id: 2, host: "127.0.0.1:65019" }
+				{ _id: 0, host: "127.0.0.1:'${TEST_PRIMARY_PORT}'", priority: 2 },
+				{ _id: 1, host: "127.0.0.1:'${TEST_SECONDARY1_PORT}'" },
+				{ _id: 2, host: "127.0.0.1:'${TEST_SECONDARY2_PORT}'" }
 			]})'
 	[ $? == 0 ] && break
 	echo "# INFO: retrying in $sleep_secs secs (try $tries/$max_tries)"
@@ -29,10 +31,10 @@ if [ $tries -ge $max_tries ]; then
 fi
 
 sleep $sleep_secs
-tries=0
+tries=1
 while [ $tries -lt $max_tries ]; do
 	ISMASTER=$(/usr/bin/mongo --quiet \
-		--port 65017 \
+		--port ${TEST_PRIMARY_PORT} \
 		--eval 'printjson(db.isMaster().ismaster)' 2>/dev/null)
 	[ "$ISMASTER" == "true" ] && break
 	echo "# INFO: retrying isMaster check in $sleep_secs secs (try $tries/$max_tries)"

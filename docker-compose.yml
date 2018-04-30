@@ -1,24 +1,29 @@
 ---
 version: '3'
 services:
-  mongodb-0:
+  mongo0:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
-    command: --replSet=rs --port=65017
-  mongodb-1:
+    command: --replSet=${TEST_RS_NAME:-rs} --port=${TEST_PRIMARY_PORT:-65217}
+  mongo1:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
-    command: --replSet=rs --port=65018
-  mongodb-2:
+    command: --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY1_PORT:-65218}
+  mongo2:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
-    command: --replSet=rs --port=65019
+    command: --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY2_PORT:-65219}
   init:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
     entrypoint: /bin/bash
     command: /init-test-replset.sh
+    environment:
+      - TEST_RS_NAME=${TEST_RS_NAME:-rs}
+      - TEST_PRIMARY_PORT=${TEST_PRIMARY_PORT:-65217}
+      - TEST_SECONDARY1_PORT=${TEST_SECONDARY1_PORT:-65218}
+      - TEST_SECONDARY2_PORT=${TEST_SECONDARY2_PORT:-65219}
     volumes:
       - ./scripts/init-test-replset.sh:/init-test-replset.sh:ro 
     depends_on:
-      - mongodb-0
+      - mongo0
