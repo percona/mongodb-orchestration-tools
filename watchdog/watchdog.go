@@ -49,7 +49,7 @@ func (w *Watchdog) runtimeDuration() time.Duration {
 	return time.Since(w.startTime)
 }
 
-func (w *Watchdog) startWatchers() {
+func (w *Watchdog) ensureWatchers() {
 	if w.runtimeDuration() < w.config.DelayWatcher {
 		return
 	}
@@ -127,32 +127,32 @@ func (w *Watchdog) Run() {
 	updateMongod := make(chan *replset.Mongod)
 	go w.mongodUpdater(updateMongod)
 
+	ticker := time.NewTicker(w.config.APIPoll)
 	for {
-		log.WithFields(log.Fields{
-			"url": w.api.GetPodUrl(),
-		}).Info("Getting pods from url")
-		pods, err := w.api.GetPods()
-		if err != nil {
+		select {
+		case <-ticker.C:
 			log.WithFields(log.Fields{
-				"url":   w.api.GetPodUrl(),
-				"error": err,
-			}).Error("Error fetching DCOS pod list")
-			time.Sleep(w.config.APIPoll)
-			continue
-		}
+				"url": w.api.GetPodUrl(),
+			}).Info("Getting pods from url")
 
-		var wg sync.WaitGroup
-		wg.Add(len(*pods))
-		for _, podName := range *pods {
-			go w.podMongodFetcher(podName, &wg, updateMongod)
-		}
-		wg.Wait()
-		w.startWatchers()
+			pods, err := w.api.GetPods()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"url":   w.api.GetPodUrl(),
+					"error": err,
+				}).Error("Error fetching DCOS pod list")
+				continue
+			}
 
-		log.WithFields(log.Fields{
-			"sleep": w.config.APIPoll,
-		}).Info("Waiting to refresh pod info")
-		time.Sleep(w.config.APIPoll)
+			var wg sync.WaitGroup
+			wg.Add(len(*pods))
+			for _, podName := range *pods {
+				go w.podMongodFetcher(podName, &wg, updateMongod)
+			}
+			wg.Wait()
+
+			w.ensureWatchers()
+		}
 	}
 
 	log.Info("Stopping watchers")
