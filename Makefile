@@ -24,5 +24,11 @@ bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*
 test: vendor
 	go test -v ./...
 
+test-full: vendor
+	sudo docker-compose up -d
+	scripts/init-test-replset-wait.sh
+	ENABLE_MONGODB_TESTS=true go test -v ./...
+	sudo docker-compose down
+
 clean:
 	rm -rf bin vendor 2>/dev/null || true
