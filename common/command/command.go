@@ -140,3 +140,10 @@ func (c *Command) Wait() {
 		c.running = false
 	}
 }
+
+func (c *Command) Kill() error {
+	if c.command.Process == nil {
+		return nil
+	}
+	return c.command.Process.Kill()
+}

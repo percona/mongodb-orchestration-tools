@@ -15,8 +15,12 @@
 package executor
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
@@ -29,7 +33,7 @@ type BackgroundJob interface {
 	Name() string
 	DoRun() bool
 	IsRunning() bool
-	Run() error
+	Run(quit *chan bool) error
 }
 
 // Daemon is an interface for the mongodb (mongod or mongos) daemon
@@ -37,38 +41,23 @@ type Daemon interface {
 	IsStarted() bool
 	Start() error
 	Wait()
+	Kill() error
 }
 
 type Executor struct {
 	Config         *Config
-	PMM            *pmm.PMM
-	Metrics        *metrics.Metrics
 	backgroundJobs []BackgroundJob
+	signals        chan os.Signal
+	quit           chan bool
 }
 
 func New(config *Config) *Executor {
-	e := &Executor{
+	return &Executor{
 		Config:         config,
-		PMM:            pmm.New(config.PMM, config.FrameworkName),
-		Metrics:        metrics.New(config.Metrics),
 		backgroundJobs: make([]BackgroundJob, 0),
+		signals:        make(chan os.Signal),
+		quit:           make(chan bool),
 	}
-
-	// Percona PMM
-	if e.PMM.DoRun() {
-		e.addBackgroundJob(e.PMM)
-	} else {
-		log.Info("Skipping Percona PMM client executor")
-	}
-
-	// DC/OS Metrics
-	if e.Metrics.DoRun() {
-		e.addBackgroundJob(e.Metrics)
-	} else {
-		log.Info("Skipping DC/OS Metrics client executor")
-	}
-
-	return e
 }
 
 func (e *Executor) waitForSession() (*mgo.Session, error) {
@@ -92,6 +81,10 @@ func (e *Executor) backgroundJobRunner() {
 	}).Info("Delaying the start of the background job runner")
 	time.Sleep(e.Config.DelayBackgroundJob)
 
+	if common.DoStop(&e.quit) {
+		return
+	}
+
 	log.Infof("Waiting for %s daemon to become reachable", e.Config.NodeType)
 	session, err := e.waitForSession()
 	if err != nil {
@@ -99,33 +92,45 @@ func (e *Executor) backgroundJobRunner() {
 		return
 	}
 	log.Infof("Mongodb %s daemon is now reachable", e.Config.NodeType)
+
+	// DC/OS Metrics
+	if e.Config.Metrics.Enabled {
+		e.addBackgroundJob(metrics.New(e.Config.Metrics, session.Copy()))
+	} else {
+		log.Info("Skipping DC/OS Metrics client executor")
+	}
+
+	// Percona PMM
+	if e.Config.PMM.Enabled {
+		e.addBackgroundJob(pmm.New(e.Config.PMM, e.Config.FrameworkName))
+	} else {
+		log.Info("Skipping Percona PMM client executor")
+	}
+
 	session.Close()
 
 	for _, job := range e.backgroundJobs {
 		log.Infof("Starting background job: %s", job.Name())
-		err := job.Run()
-		if err != nil {
-			log.Errorf("Background job %s failed: %s", job.Name(), err)
-		}
+		go job.Run(&e.quit)
 	}
 
 	log.Info("Completed background job runner")
 }
 
 func (e *Executor) Run(daemon Daemon) error {
+	go e.backgroundJobRunner()
+
 	log.Infof("Running %s daemon", e.Config.NodeType)
-
-	if len(e.backgroundJobs) > 0 {
-		go e.backgroundJobRunner()
-	} else {
-		log.Info("Skipping start of background job runner, no jobs to run")
-	}
-
 	err := daemon.Start()
 	if err != nil {
+		daemon.Kill()
 		return err
 	}
 
-	daemon.Wait()
-	return nil
+	signal.Notify(e.signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	sig := <-e.signals
+	log.Infof("Received %s signal, killing %s daemon and jobs", sig, e.Config.NodeType)
+
+	e.quit <- true
+	return daemon.Kill()
 }

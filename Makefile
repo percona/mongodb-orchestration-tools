@@ -7,7 +7,7 @@ $(GOPATH)/bin/glide:
 	go get github.com/Masterminds/glide
 
 vendor: $(GOPATH)/bin/glide glide.yaml glide.lock
-	$(GOPATH)/bin/glide install
+	$(GOPATH)/bin/glide install --strip-vendor
 
 bin/mongodb-healthcheck-$(PLATFORM): vendor cmd/mongodb-healthcheck/main.go healthcheck/*.go common/*.go common/*/*.go
 	CGO_ENABLED=0 GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS) -o bin/mongodb-healthcheck-$(PLATFORM) cmd/mongodb-healthcheck/main.go

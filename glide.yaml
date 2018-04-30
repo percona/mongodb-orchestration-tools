@@ -19,3 +19,8 @@ import:
   subpackage:
   - parse      
 - package: github.com/alecthomas/units
+- package: github.com/scullxbones/mgo-statsd
+- package: github.com/cactus/go-statsd-client/statsd
+- package: github.com/kr/pretty
+- package: github.com/kr/text
+- package: github.com/vharitonsky/iniflags

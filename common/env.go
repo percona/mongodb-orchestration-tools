@@ -51,6 +51,8 @@ const (
 	EnvPMMLinuxMetricsExporterPort   = "PMM_LINUX_METRICS_EXPORTER_PORT"
 	EnvPMMMongoDBMetricsExporterPort = "PMM_MONGODB_METRICS_EXPORTER_PORT"
 
-	EnvMetricsEnabled      = "DCOS_METRICS_ENABLED"
-	EnvMetricsIntervalSecs = "DCOS_METRICS_INTERVAL_SECS"
+	EnvMetricsEnabled    = "DCOS_METRICS_ENABLED"
+	EnvMetricsInterval   = "DCOS_METRICS_INTERVAL"
+	EnvMetricsStatsdHost = "STATSD_UDP_HOST"
+	EnvMetricsStatsdPort = "STATSD_UDP_PORT"
 )

@@ -146,3 +146,10 @@ func (m *Mongod) Wait() {
 		m.command.Wait()
 	}
 }
+
+func (m *Mongod) Kill() error {
+	if m.command == nil {
+		return nil
+	}
+	return m.command.Kill()
+}

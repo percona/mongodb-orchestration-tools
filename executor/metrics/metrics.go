@@ -15,22 +15,23 @@
 package metrics
 
 import (
-	"github.com/percona/dcos-mongo-tools/common/command"
-	log "github.com/sirupsen/logrus"
-)
+	"time"
 
-const (
-	mgoStatsdConfigUpdateInterval = "0"
+	mgostatsd "github.com/scullxbones/mgo-statsd"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/mgo.v2"
 )
 
 type Metrics struct {
 	config  *Config
 	running bool
+	session *mgo.Session
 }
 
-func New(config *Config) *Metrics {
+func New(config *Config, session *mgo.Session) *Metrics {
 	return &Metrics{
-		config: config,
+		config:  config,
+		session: session,
 	}
 }
 
@@ -46,38 +47,49 @@ func (m *Metrics) IsRunning() bool {
 	return m.running
 }
 
-func (m *Metrics) Run() error {
+func (m *Metrics) Run(quit *chan bool) error {
 	if m.DoRun() == false {
 		log.Warn("DC/OS Metrics client executor disabled! Skipping start")
 		return nil
 	}
 
-	cmd, err := command.New(
-		m.config.MgoStatsdBin,
-		[]string{
-			"-configUpdateInterval", mgoStatsdConfigUpdateInterval,
-			"-config", m.config.MgoStatsdConfigFile,
-		},
-		m.config.User,
-		m.config.Group,
-	)
-	if err != nil {
-		return err
-	}
-
 	log.WithFields(log.Fields{
-		"binary": m.config.MgoStatsdBin,
-		"config": m.config.MgoStatsdConfigFile,
-	}).Info("Starting DC/OS Metrics client executor")
+		"interval":    m.config.Interval,
+		"statsd_host": m.config.StatsdHost,
+		"statsd_port": m.config.StatsdPort,
+	}).Info("Starting DC/OS Metrics pusher")
+
+	ticker := time.NewTicker(m.config.Interval)
+	statsdCnf := mgostatsd.Statsd{
+		Host: m.config.StatsdHost,
+		Port: m.config.StatsdPort,
+	}
 
 	m.running = true
-	err = cmd.Start()
-	if err != nil {
-		m.running = false
-		return err
-	}
+	for {
+		select {
+		case <-ticker.C:
+			status := mgostatsd.GetServerStatus(m.session)
+			if status == nil {
+				continue
+			}
 
-	log.Info("Completed DC/OS Metrics client executor")
+			log.WithFields(log.Fields{
+				"statsd_host": m.config.StatsdHost,
+				"statsd_port": m.config.StatsdPort,
+			}).Info("Pushing DC/OS Metrics")
+
+			err := mgostatsd.PushStats(statsdCnf, status, false)
+			if err != nil {
+				log.Errorf("DC/OS Metrics push error: %s\n")
+			}
+		case <-*quit:
+			log.Info("Stopping DC/OS Metrics pusher")
+			m.running = false
+			ticker.Stop()
+			return nil
+		}
+	}
 
 	return nil
 }

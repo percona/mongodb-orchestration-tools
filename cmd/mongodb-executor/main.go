@@ -16,7 +16,6 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
@@ -65,31 +64,17 @@ func handleMetrics(cnf *executor.Config) {
 		"Enable DC/OS Metrics monitoring for MongoDB, defaults to "+common.EnvMetricsEnabled+" env var",
 	).Envar(common.EnvMetricsEnabled).BoolVar(&cnf.Metrics.Enabled)
 	kingpin.Flag(
-		"metrics.user",
-		"The user to run the mgo-statsd process as",
-	).Default(metrics.DefaultUser).StringVar(&cnf.Metrics.User)
+		"metrics.interval",
+		"The frequency to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsInterval+" env var",
+	).Default(metrics.DefaultInterval).Envar(common.EnvMetricsInterval).DurationVar(&cnf.Metrics.Interval)
 	kingpin.Flag(
-		"metrics.group",
-		"The group to run the mgo-statsd process as",
-	).Default(metrics.DefaultGroup).StringVar(&cnf.Metrics.Group)
+		"metrics.statsd_host",
+		"The frequency to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsStatsdHost+" env var",
+	).Envar(common.EnvMetricsStatsdHost).StringVar(&cnf.Metrics.StatsdHost)
 	kingpin.Flag(
-		"metrics.intervalSecs",
-		"The frequency (in seconds) to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsIntervalSecs+" env var",
-	).Default(metrics.DefaultIntervalSecs).Envar(common.EnvMetricsIntervalSecs).UintVar(&cnf.Metrics.IntervalSecs)
-	kingpin.Flag(
-		"metrics.mgoStatsdBin",
-		"Path to the mgo-statsd binary, defaults to $MESOS_SANDBOX/mgo-statsd, otherwise $GOPATH/bin/mgo-statsd",
-	).Default(executor.MesosSandboxPathOrFallback(
-		"mgo-statsd",
-		filepath.Join(os.Getenv("GOPATH"), "bin", "mgo-statsd"),
-	)).StringVar(&cnf.Metrics.MgoStatsdBin)
-	kingpin.Flag(
-		"metrics.mgoStatsdConfigFile",
-		"Path to the mgo-statsd config file, defaults to $MESOS_SANDBOX/mgo-statsd.ini, otherwise ./mgo-statsd.ini",
-	).Default(executor.MesosSandboxPathOrFallback(
-		"mgo-statsd.ini",
-		"mgo-statsd.ini",
-	)).StringVar(&cnf.Metrics.MgoStatsdConfigFile)
+		"metrics.statsd_port",
+		"The frequency to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsStatsdPort+" env var",
+	).Envar(common.EnvMetricsStatsdPort).IntVar(&cnf.Metrics.StatsdPort)
 }
 
 func handlePmm(cnf *executor.Config) {
