@@ -133,9 +133,14 @@ func (p *PMM) StartQueryAnalytics() error {
 	return service.AddWithRetry(p.maxRetries, p.retrySleep)
 }
 
-func (p *PMM) Run() error {
+func (p *PMM) Run(quit *chan bool) error {
 	if p.DoRun() == false {
 		log.Warn("PMM client executor disabled! Skipping start")
+		return nil
+	}
+
+	select {
+	case <-*quit:
 		return nil
 	}
 

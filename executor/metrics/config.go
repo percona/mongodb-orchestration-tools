@@ -15,21 +15,19 @@
 package metrics
 
 import (
+	"time"
+
 	"github.com/percona/dcos-mongo-tools/common/db"
 )
 
 const (
-	DefaultUser         = "nobody"
-	DefaultGroup        = "nogroup"
-	DefaultIntervalSecs = "10"
+	DefaultInterval = "10s"
 )
 
 type Config struct {
-	DB                  *db.Config
-	Enabled             bool
-	User                string
-	Group               string
-	IntervalSecs        uint
-	MgoStatsdBin        string
-	MgoStatsdConfigFile string
+	DB         *db.Config
+	Enabled    bool
+	StatsdHost string
+	StatsdPort int
+	Interval   time.Duration
 }
