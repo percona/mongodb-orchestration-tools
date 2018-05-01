@@ -44,4 +44,25 @@ if [ $tries -ge $max_tries ]; then
 	exit 1
 fi
 
+tries=1
+while [ $tries -lt $max_tries ]; do
+	/usr/bin/mongo --quiet \
+		--port ${TEST_PRIMARY_PORT} \
+		--eval 'db.getSiblingDB("admin").createUser({
+				user: "'${ADMIN_USER:-admin}'",
+				pwd: "'${ADMIN_PASSWORD:-1232456}'",
+				roles: [
+					{ db: "admin", role: "root" },
+				]
+			})'
+	[ $? == 0 ] && break
+	echo "# INFO: retrying db.createUser() in $sleep_secs secs (try $tries/$max_tries)"
+	sleep $sleep_secs
+	tries=$(($tries + 1))
+done
+if [ $tries -ge $max_tries ]; then
+	echo "# ERROR: reached max tries $max_tries, exiting"
+	exit 1
+fi
+
 echo "# INFO: done init"

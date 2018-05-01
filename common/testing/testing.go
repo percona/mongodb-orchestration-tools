@@ -21,7 +21,7 @@ import (
 
 const (
 	EnvEnableDBTests = "ENABLE_MONGODB_TESTS"
-	MongoDBUri       = "mongodb://localhost:27017"
+	MongoDBUri       = "mongodb://admin:123456@localhost:65217/admin?replicaSet=rs"
 )
 
 func DoSkipTest(t *gotesting.T) {

@@ -4,15 +4,21 @@ services:
   mongo0:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
-    command: --replSet=${TEST_RS_NAME:-rs} --port=${TEST_PRIMARY_PORT:-65217}
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_PRIMARY_PORT:-65217}
+    volumes:
+      - ./test-mongod.key:/mongod.key:ro
   mongo1:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
-    command: --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY1_PORT:-65218}
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY1_PORT:-65218}
+    volumes:
+      - ./test-mongod.key:/mongod.key:ro
   mongo2:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
-    command: --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY2_PORT:-65219}
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY2_PORT:-65219}
+    volumes:
+      - ./test-mongod.key:/mongod.key:ro
   init:
     network_mode: host
     image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}

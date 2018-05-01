@@ -5,8 +5,5 @@ go:
   - "1.10.x"
 services:
   - docker
-before_script:
-  - docker-compose up -d
-  - scripts/init-test-replset-wait.sh
 script:
-  - make ENABLE_MONGODB_TESTS=true test
+  - make test-full

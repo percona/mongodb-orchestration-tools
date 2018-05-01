@@ -1,6 +1,7 @@
 PLATFORM?=linux
 GO_LDFLAGS?="-s -w"
 ENABLE_MONGODB_TESTS?=false
+MONGODB_DOCKER_UID?=1001
 
 all: bin/mongodb-healthcheck-$(PLATFORM) bin/mongodb-controller-$(PLATFORM) bin/mongodb-executor-$(PLATFORM) bin/mongodb-watchdog-$(PLATFORM)
 
@@ -25,5 +26,15 @@ bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*
 test: vendor
 	ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v ./...
 
+test-mongod.key:
+	openssl rand -base64 512 >test-mongod.key
+	chown $(MONGODB_DOCKER_UID):0 test-mongod.key
+	chmod 0600 test-mongod.key
+
+test-full: test-mongod.key
+	docker-compose up -d
+	scripts/init-test-replset-wait.sh
+	ENABLE_MONGODB_TESTS=true go test -v ./...
+
 clean:
-	rm -rf bin vendor 2>/dev/null || true
+	rm -rf bin test-mongod.key vendor 2>/dev/null || true
