@@ -79,7 +79,7 @@ func handleUserCmd(cnf *controller.Config) {
 	).Default(api.DefaultHostSuffix).StringVar(&cnf.User.API.HostSuffix)
 	cmdUser.Flag(
 		"apiTimeout",
-		"DC/OS SDK API timeout, overriden by env var",
+		"DC/OS SDK API timeout, overridden by env var",
 	).Default(api.DefaultTimeout).DurationVar(&cnf.User.API.Timeout)
 	cmdUser.Flag(
 		"maxConnectTries",

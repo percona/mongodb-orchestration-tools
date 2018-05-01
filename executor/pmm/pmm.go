@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -139,8 +140,7 @@ func (p *PMM) Run(quit *chan bool) error {
 		return nil
 	}
 
-	select {
-	case <-*quit:
+	if common.DoStop(quit) {
 		return nil
 	}
 

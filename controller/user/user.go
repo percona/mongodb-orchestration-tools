@@ -32,7 +32,7 @@ const (
 )
 
 type UserChangeData struct {
-	Users []*mgo.User `bson:users"`
+	Users []*mgo.User `bson:"users"`
 }
 
 func UpdateUser(session *mgo.Session, user *mgo.User, dbName string) error {

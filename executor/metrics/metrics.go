@@ -81,15 +81,15 @@ func (m *Metrics) Run(quit *chan bool) error {
 
 			err := mgostatsd.PushStats(statsdCnf, status, false)
 			if err != nil {
-				log.Errorf("DC/OS Metrics push error: %s\n")
+				log.Errorf("DC/OS Metrics push error: %s", err)
 			}
 		case <-*quit:
 			log.Info("Stopping DC/OS Metrics pusher")
-			m.running = false
 			ticker.Stop()
-			return nil
+			break
 		}
 	}
 
+	m.running = false
 	return nil
 }
