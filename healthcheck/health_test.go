@@ -67,22 +67,23 @@ func TestHealthCheck(t *gotesting.T) {
 
 	dialInfo := testing.PrimaryDialInfo()
 	if dialInfo == nil {
-		t.Error("Could not build dial info for Primary")
-		return
+		t.Fatal("Could not build dial info for Primary")
 	}
 
 	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
-		t.Errorf("Database connection error: %s", err)
+		t.Fatalf("Database connection error: %s", err)
 	}
 	defer session.Close()
 
 	state, memberState, err := HealthCheck(session)
 	if err != nil {
-		t.Error("healthcheck.HealthCheck() returned an error: %s", err)
-	} else if state != StateOk {
+		t.Fatalf("healthcheck.HealthCheck() returned an error: %s", err)
+	}
+	if state != StateOk {
 		t.Errorf("healthcheck.HealthCheck() returned non-ok state: %v", state)
-	} else if *memberState != status.MemberStatePrimary {
+	}
+	if *memberState != status.MemberStatePrimary {
 		t.Errorf("healthcheck.HealthCheck() returned non-primary member state: %v", memberState)
 	}
 }
