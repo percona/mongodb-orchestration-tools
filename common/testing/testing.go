@@ -24,17 +24,17 @@ import (
 
 const (
 	envEnableDBTests        = "ENABLE_MONGODB_TESTS"
-	envmongodbPrimaryPort   = "TEST_PRIMARY_PORT"
-	envmongodbAdminUser     = "TEST_ADMIN_USER"
-	envmongodbAdminPassword = "TEST_ADMIN_PASSWORD"
+	envMongoDBPrimaryPort   = "TEST_PRIMARY_PORT"
+	envMongoDBAdminUser     = "TEST_ADMIN_USER"
+	envMongoDBAdminPassword = "TEST_ADMIN_PASSWORD"
 	mongodbPrimaryHost      = "127.0.0.1"
 )
 
 var (
 	enableDBTests        = os.Getenv(envEnableDBTests)
-	mongodbPrimaryPort   = os.Getenv(envmongodbPrimaryPort)
-	mongodbAdminUser     = os.Getenv(envmongodbAdminUser)
-	mongodbAdminPassword = os.Getenv(envmongodbAdminPassword)
+	mongodbPrimaryPort   = os.Getenv(envMongoDBPrimaryPort)
+	mongodbAdminUser     = os.Getenv(envMongoDBAdminUser)
+	mongodbAdminPassword = os.Getenv(envMongoDBAdminPassword)
 	mongodbTimeout       = time.Duration(10) * time.Second
 )
 
@@ -47,11 +47,11 @@ func Enabled() bool {
 func PrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
 	if Enabled() {
 		if mongodbPrimaryPort == "" {
-			t.Fatalf("Primary port env var %s is not set", envmongodbPrimaryPort)
+			t.Fatalf("Primary port env var %s is not set", envMongoDBPrimaryPort)
 		} else if mongodbAdminUser == "" {
-			t.Fatalf("Admin user env var %s is not set", envmongodbAdminUser)
+			t.Fatalf("Admin user env var %s is not set", envMongoDBAdminUser)
 		} else if mongodbAdminPassword == "" {
-			t.Fatalf("Admin password env var %s is not set", envmongodbAdminPassword)
+			t.Fatalf("Admin password env var %s is not set", envMongoDBAdminPassword)
 		}
 		return &mgo.DialInfo{
 			Addrs:    []string{mongodbPrimaryHost + ":" + mongodbPrimaryPort},
