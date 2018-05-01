@@ -38,7 +38,7 @@ func Enabled() bool {
 }
 
 func PrimaryDialInfo() *mgo.DialInfo {
-	if MongoDBPrimaryPort != "" {
+	if Enabled() && MongoDBPrimaryPort != "" {
 		return &mgo.DialInfo{
 			Addrs:   []string{MongoDBPrimaryHost + ":" + MongoDBPrimaryPort},
 			Direct:  true,
