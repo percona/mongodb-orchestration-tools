@@ -126,7 +126,7 @@ func (uc *UserController) UpdateUsers() error {
 	}
 
 	for _, user := range payload.Users {
-		if IsSystemUser(user.Username, uc.config.User.Database) {
+		if isSystemUser(user.Username, uc.config.User.Database) {
 			log.Errorf("Cannot change system user %s in database %s", uc.config.User.Username, uc.config.User.Database)
 			return ErrCannotChgSysUser
 		}
@@ -145,12 +145,12 @@ func (uc *UserController) RemoveUser() error {
 		return ErrNoUserProvided
 	} else if uc.config.User.Database == "" {
 		return ErrNoDbProvided
-	} else if IsSystemUser(uc.config.User.Username, uc.config.User.Database) {
+	} else if isSystemUser(uc.config.User.Username, uc.config.User.Database) {
 		log.Errorf("Cannot change system user %s in database %s", uc.config.User.Username, uc.config.User.Database)
 		return ErrCannotChgSysUser
 	}
 
-	err := RemoveUser(uc.session, uc.config.User.Username, uc.config.User.Database)
+	err := removeUser(uc.session, uc.config.User.Username, uc.config.User.Database)
 	if err != nil {
 		return err
 	}

@@ -22,41 +22,41 @@ import (
 )
 
 var (
-	ClusterAdminUsername   = os.Getenv(common.EnvMongoDBClusterAdminUser)
-	ClusterAdminPassword   = os.Getenv(common.EnvMongoDBClusterAdminPassword)
-	ClusterMonitorUsername = os.Getenv(common.EnvMongoDBClusterMonitorUser)
-	ClusterMonitorPassword = os.Getenv(common.EnvMongoDBClusterMonitorPassword)
-	BackupUsername         = os.Getenv(common.EnvMongoDBBackupUser)
-	BackupPassword         = os.Getenv(common.EnvMongoDBBackupPassword)
-	UserAdminUsername      = os.Getenv(common.EnvMongoDBUserAdminUser)
-	UserAdminPassword      = os.Getenv(common.EnvMongoDBUserAdminPassword)
+	clusterAdminUsername   = os.Getenv(common.EnvMongoDBClusterAdminUser)
+	clusterAdminPassword   = os.Getenv(common.EnvMongoDBClusterAdminPassword)
+	clusterMonitorUsername = os.Getenv(common.EnvMongoDBClusterMonitorUser)
+	clusterMonitorPassword = os.Getenv(common.EnvMongoDBClusterMonitorPassword)
+	backupUsername         = os.Getenv(common.EnvMongoDBBackupUser)
+	backupPassword         = os.Getenv(common.EnvMongoDBBackupPassword)
+	userAdminUsername      = os.Getenv(common.EnvMongoDBUserAdminUser)
+	userAdminPassword      = os.Getenv(common.EnvMongoDBUserAdminPassword)
 
 	SystemUserDatabase = "admin"
 	UserAdmin          = &mgo.User{
-		Username: UserAdminUsername,
-		Password: UserAdminPassword,
+		Username: userAdminUsername,
+		Password: userAdminPassword,
 		Roles: []mgo.Role{
 			RoleUserAdminAny,
 		},
 	}
 	SystemUsers = []*mgo.User{
-		&mgo.User{
-			Username: ClusterAdminUsername,
-			Password: ClusterAdminPassword,
+		{
+			Username: clusterAdminUsername,
+			Password: clusterAdminPassword,
 			Roles: []mgo.Role{
 				RoleClusterAdmin,
 			},
 		},
-		&mgo.User{
-			Username: ClusterMonitorUsername,
-			Password: ClusterMonitorPassword,
+		{
+			Username: clusterMonitorUsername,
+			Password: clusterMonitorPassword,
 			Roles: []mgo.Role{
 				RoleClusterMonitor,
 			},
 		},
-		&mgo.User{
-			Username: BackupUsername,
-			Password: BackupPassword,
+		{
+			Username: backupUsername,
+			Password: backupPassword,
 			Roles: []mgo.Role{
 				RoleBackup,
 				RoleClusterMonitor,
@@ -64,9 +64,9 @@ var (
 		},
 	}
 	SystemUsernames = []string{
-		UserAdminUsername,
-		ClusterAdminUsername,
-		ClusterMonitorUsername,
-		BackupUsername,
+		userAdminUsername,
+		clusterAdminUsername,
+		clusterMonitorUsername,
+		backupUsername,
 	}
 )
