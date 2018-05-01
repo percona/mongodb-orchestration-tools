@@ -1,7 +1,13 @@
 PLATFORM?=linux
 GO_LDFLAGS?="-s -w"
 ENABLE_MONGODB_TESTS?=false
-MONGODB_DOCKER_UID?=1001
+
+TEST_MONGODB_DOCKER_UID?=1001
+TEST_ADMIN_USER?=admin
+TEST_ADMIN_PASSWORD?=123456
+TEST_PRIMARY_PORT?=65217
+TEST_SECONDARY1_PORT?=65218
+TEST_SECONDARY2_PORT?=65219
 
 all: bin/mongodb-healthcheck-$(PLATFORM) bin/mongodb-controller-$(PLATFORM) bin/mongodb-executor-$(PLATFORM) bin/mongodb-watchdog-$(PLATFORM)
 
@@ -28,10 +34,15 @@ test: vendor
 
 test-mongod.key:
 	openssl rand -base64 512 >test-mongod.key
-	chown $(MONGODB_DOCKER_UID):0 test-mongod.key
+	chown $(TEST_MONGODB_DOCKER_UID):0 test-mongod.key
 	chmod 0600 test-mongod.key
 
 test-full: test-mongod.key
+	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
+	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
+	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
+	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
+	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	docker-compose up -d
 	scripts/init-test-replset-wait.sh
 	ENABLE_MONGODB_TESTS=true go test -v ./...

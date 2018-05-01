@@ -49,8 +49,8 @@ while [ $tries -lt $max_tries ]; do
 	/usr/bin/mongo --quiet \
 		--port ${TEST_PRIMARY_PORT} \
 		--eval 'db.getSiblingDB("admin").createUser({
-				user: "'${ADMIN_USER:-admin}'",
-				pwd: "'${ADMIN_PASSWORD:-1232456}'",
+				user: "'${TEST_ADMIN_USER}'",
+				pwd: "'${TEST_ADMIN_PASSWORD}'",
 				roles: [
 					{ db: "admin", role: "root" },
 				]

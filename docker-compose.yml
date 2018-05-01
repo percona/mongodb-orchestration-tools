@@ -25,6 +25,8 @@ services:
     entrypoint: /bin/bash
     command: /init-test-replset.sh
     environment:
+      - TEST_ADMIN_USER=${TEST_ADMIN_USER:-admin}
+      - TEST_ADMIN_PASSWORD=${TEST_ADMIN_PASSWORD:-123456}
       - TEST_RS_NAME=${TEST_RS_NAME:-rs}
       - TEST_PRIMARY_PORT=${TEST_PRIMARY_PORT:-65217}
       - TEST_SECONDARY1_PORT=${TEST_SECONDARY1_PORT:-65218}
