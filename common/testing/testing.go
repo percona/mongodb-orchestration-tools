@@ -17,15 +17,39 @@ package testing
 import (
 	"os"
 	gotesting "testing"
+	"time"
+
+	"gopkg.in/mgo.v2"
+)
+
+var (
+	EnvEnableDBTests   = "ENABLE_MONGODB_TESTS"
+	EnableDBTests      = os.Getenv(EnvEnableDBTests)
+	MongoDBPrimaryPort = os.Getenv("TEST_PRIMARY_PORT")
 )
 
 const (
-	EnvEnableDBTests = "ENABLE_MONGODB_TESTS"
-	MongoDBUri       = "mongodb://admin:123456@localhost:65217/admin?replicaSet=rs"
+	MongoDBPrimaryHost = "127.0.0.1"
+	MongoDBTimeout     = time.Duration(10) * time.Second
 )
 
+func Enabled() bool {
+	return EnableDBTests == "true"
+}
+
+func PrimaryDialInfo() *mgo.DialInfo {
+	if MongoDBPrimaryPort != "" {
+		return &mgo.DialInfo{
+			Addrs:   []string{MongoDBPrimaryHost + ":" + MongoDBPrimaryPort},
+			Direct:  true,
+			Timeout: MongoDBTimeout,
+		}
+	}
+	return nil
+}
+
 func DoSkipTest(t *gotesting.T) {
-	if os.Getenv(EnvEnableDBTests) != "true" {
+	if !Enabled() {
 		t.Skipf("Skipping test, env var %s is not 'true'", EnvEnableDBTests)
 	}
 }

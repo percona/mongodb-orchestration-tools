@@ -15,9 +15,11 @@
 package healthcheck
 
 import (
-	"testing"
+	gotesting "testing"
 
+	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
+	"gopkg.in/mgo.v2"
 )
 
 var (
@@ -39,14 +41,14 @@ var (
 	}
 )
 
-func TestGetSelfMemberState(t *testing.T) {
+func TestGetSelfMemberState(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
 	if *state != testMember.State {
 		t.Errorf("healthcheck.getSelfMemberState() returned %s instead of %s", *state, testMember.State)
 	}
 }
 
-func TestIsMemberStateOk(t *testing.T) {
+func TestIsMemberStateOk(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
 	if !isStateOk(state) {
 		t.Errorf("healthcheck.isStateOk(\"%s\") returned false", *state)
@@ -57,5 +59,30 @@ func TestIsMemberStateOk(t *testing.T) {
 	stateFail := getSelfMemberState(testStatusFail)
 	if isStateOk(stateFail) {
 		t.Errorf("healthcheck.isStateOk(\"%s\") returned true", *stateFail)
+	}
+}
+
+func TestHealthCheck(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	dialInfo := testing.PrimaryDialInfo()
+	if dialInfo == nil {
+		t.Error("Could not build dial info for Primary")
+		return
+	}
+
+	session, err := mgo.DialWithInfo(dialInfo)
+	if err != nil {
+		t.Errorf("Database connection error: %s", err)
+	}
+	defer session.Close()
+
+	state, memberState, err := HealthCheck(session)
+	if err != nil {
+		t.Error("healthcheck.HealthCheck() returned an error: %s", err)
+	} else if state != StateOk {
+		t.Errorf("healthcheck.HealthCheck() returned non-ok state: %v", state)
+	} else if *memberState != status.MemberStatePrimary {
+		t.Errorf("healthcheck.HealthCheck() returned non-primary member state: %v", memberState)
 	}
 }

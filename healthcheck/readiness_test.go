@@ -15,17 +15,22 @@
 package healthcheck
 
 import (
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	gotesting "testing"
 
+	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"gopkg.in/mgo.v2"
 )
 
-// ReadinessCheck runs a ping on a mgo.Session to check server readiness
 func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	session, err := mgo.Dial(testing.MongoDBUri)
+	dialInfo := testing.PrimaryDialInfo()
+	if dialInfo == nil {
+		t.Error("Could not build dial info for Primary")
+		return
+	}
+
+	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
 		t.Errorf("Database connection error: %s", err)
 	}
