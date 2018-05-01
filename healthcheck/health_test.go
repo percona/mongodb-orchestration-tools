@@ -65,7 +65,7 @@ func TestIsMemberStateOk(t *gotesting.T) {
 func TestHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	dialInfo := testing.PrimaryDialInfo()
+	dialInfo := testing.PrimaryDialInfo(t)
 	if dialInfo == nil {
 		t.Fatal("Could not build dial info for Primary")
 	}
