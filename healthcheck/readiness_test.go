@@ -24,27 +24,27 @@ import (
 func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	dialInfo := testing.PrimaryDialInfo()
+	dialInfo := testing.PrimaryDialInfo(t)
 	if dialInfo == nil {
-		t.Error("Could not build dial info for Primary")
-		return
+		t.Fatal("Could not build dial info for Primary")
 	}
 
 	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
-		t.Errorf("Database connection error: %s", err)
+		t.Fatalf("Database connection error: %s", err)
 	}
 	defer session.Close()
 
 	err = session.Ping()
 	if err != nil {
-		t.Error("Database ping failed")
+		t.Fatalf("Database ping error: %s", err)
 	}
 
 	state, err := ReadinessCheck(session)
 	if err != nil {
-		t.Error("healthcheck.ReadinessCheck() returned an error: %s", err)
-	} else if state != StateOk {
+		t.Fatalf("healthcheck.ReadinessCheck() returned an error: %s", err)
+	}
+	if state != StateOk {
 		t.Errorf("healthcheck.ReadinessCheck() returned non-ok state: %v", state)
 	}
 }

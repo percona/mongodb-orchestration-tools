@@ -22,34 +22,51 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var (
-	EnvEnableDBTests   = "ENABLE_MONGODB_TESTS"
-	EnableDBTests      = os.Getenv(EnvEnableDBTests)
-	MongoDBPrimaryPort = os.Getenv("TEST_PRIMARY_PORT")
-)
-
 const (
-	MongoDBPrimaryHost = "127.0.0.1"
-	MongoDBTimeout     = time.Duration(10) * time.Second
+	envEnableDBTests        = "ENABLE_MONGODB_TESTS"
+	envMongoDBPrimaryPort   = "TEST_PRIMARY_PORT"
+	envMongoDBAdminUser     = "TEST_ADMIN_USER"
+	envMongoDBAdminPassword = "TEST_ADMIN_PASSWORD"
+	mongodbPrimaryHost      = "127.0.0.1"
 )
 
+var (
+	enableDBTests        = os.Getenv(envEnableDBTests)
+	mongodbPrimaryPort   = os.Getenv(envMongoDBPrimaryPort)
+	mongodbAdminUser     = os.Getenv(envMongoDBAdminUser)
+	mongodbAdminPassword = os.Getenv(envMongoDBAdminPassword)
+	mongodbTimeout       = time.Duration(10) * time.Second
+)
+
+// Enabled returns a boolean reflecting whether testing against mongodb should occur
 func Enabled() bool {
-	return EnableDBTests == "true"
+	return enableDBTests == "true"
 }
 
-func PrimaryDialInfo() *mgo.DialInfo {
-	if Enabled() && MongoDBPrimaryPort != "" {
+// PrimaryDialInfo returns a *mgo.DialInfo configured for testing against a mongodb Primary
+func PrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
+	if Enabled() {
+		if mongodbPrimaryPort == "" {
+			t.Fatalf("Primary port env var %s is not set", envMongoDBPrimaryPort)
+		} else if mongodbAdminUser == "" {
+			t.Fatalf("Admin user env var %s is not set", envMongoDBAdminUser)
+		} else if mongodbAdminPassword == "" {
+			t.Fatalf("Admin password env var %s is not set", envMongoDBAdminPassword)
+		}
 		return &mgo.DialInfo{
-			Addrs:   []string{MongoDBPrimaryHost + ":" + MongoDBPrimaryPort},
-			Direct:  true,
-			Timeout: MongoDBTimeout,
+			Addrs:    []string{mongodbPrimaryHost + ":" + mongodbPrimaryPort},
+			Direct:   true,
+			Timeout:  mongodbTimeout,
+			Username: mongodbAdminUser,
+			Password: mongodbAdminPassword,
 		}
 	}
 	return nil
 }
 
+// DoSkipTest handles the conditional skipping of tests, based on the output of .Enabled()
 func DoSkipTest(t *gotesting.T) {
 	if !Enabled() {
-		t.Skipf("Skipping test, env var %s is not 'true'", EnvEnableDBTests)
+		t.Skipf("Skipping test, env var %s is not 'true'", envEnableDBTests)
 	}
 }
