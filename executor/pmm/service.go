@@ -39,7 +39,7 @@ func NewService(configFile string, name string, port uint, args []string) *Servi
 	}
 }
 
-func (s *Service) Add() error {
+func (s *Service) add() error {
 	args := append(
 		[]string{"add"},
 		s.Name,
@@ -71,11 +71,11 @@ func (s *Service) Add() error {
 	return nil
 }
 
-func (s *Service) AddWithRetry(maxRetries uint, retrySleep time.Duration) error {
+func (s *Service) addWithRetry(maxRetries uint, retrySleep time.Duration) error {
 	var err error
 	var tries uint
 	for tries <= maxRetries {
-		err = s.Add()
+		err = s.add()
 		if err == nil {
 			return nil
 		}
@@ -86,7 +86,7 @@ func (s *Service) AddWithRetry(maxRetries uint, retrySleep time.Duration) error 
 	return err
 }
 
-func (p *PMM) Repair() error {
+func (p *PMM) repair() error {
 	log.Info("Repairing all PMM client services")
 
 	cmd, err := command.New(

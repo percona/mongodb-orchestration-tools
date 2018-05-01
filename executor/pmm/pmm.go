@@ -60,12 +60,12 @@ func (p *PMM) IsRunning() bool {
 	return p.running
 }
 
-func (p *PMM) DoStartQueryAnalytics() bool {
+func (p *PMM) doStartQueryAnalytics() bool {
 	return p.config.EnableQueryAnalytics
 }
 
-func (p *PMM) StartMetrics() error {
-	list, err := p.List()
+func (p *PMM) startMetrics() error {
+	list, err := p.list()
 	if err != nil {
 		log.Error("Got error listing PMM services: %s", err)
 		return err
@@ -96,11 +96,11 @@ func (p *PMM) StartMetrics() error {
 	}
 
 	for _, service := range services {
-		if list != nil && list.HasService(service.Name) {
+		if list != nil && list.hasService(service.Name) {
 			log.Warnf("Service %s already added! Skipping", service.Name)
 			continue
 		}
-		err := service.AddWithRetry(p.maxRetries, p.retrySleep)
+		err := service.addWithRetry(p.maxRetries, p.retrySleep)
 		if err != nil {
 			log.Errorf("Could not add PMM service %s after %d retries: %s", service.Name, p.maxRetries, err)
 		}
@@ -109,13 +109,13 @@ func (p *PMM) StartMetrics() error {
 	return nil
 }
 
-func (p *PMM) StartQueryAnalytics() error {
-	list, err := p.List()
+func (p *PMM) startQueryAnalytics() error {
+	list, err := p.list()
 	if err != nil {
 		log.Errorf("Got error listing PMM services: %s", err)
 		return err
 	}
-	if list != nil && list.HasService(qanServiceName) {
+	if list != nil && list.hasService(qanServiceName) {
 		log.Warnf("Service %s already added! Skipping", qanServiceName)
 		return nil
 	}
@@ -131,7 +131,7 @@ func (p *PMM) StartQueryAnalytics() error {
 		"max_retries": p.maxRetries,
 	}).Info("Starting PMM Query Analytics (QAN) agent service")
 
-	return service.AddWithRetry(p.maxRetries, p.retrySleep)
+	return service.addWithRetry(p.maxRetries, p.retrySleep)
 }
 
 func (p *PMM) Run(quit *chan bool) error {
@@ -149,20 +149,20 @@ func (p *PMM) Run(quit *chan bool) error {
 	}).Info("Starting PMM client executor")
 	p.running = true
 
-	err := p.Repair()
+	err := p.repair()
 	if err != nil {
 		log.Errorf("Error repairing PMM services: %s", err)
 		return err
 	}
 
-	err = p.StartMetrics()
+	err = p.startMetrics()
 	if err != nil {
 		log.Errorf("PMM metrics services did not start: %s", err)
 		return err
 	}
 
-	if p.DoStartQueryAnalytics() {
-		err = p.StartQueryAnalytics()
+	if p.doStartQueryAnalytics() {
+		err = p.startQueryAnalytics()
 		if err != nil {
 			log.Errorf("Could not enable PMM Query Analytics (QAN) agent service: %s", err)
 			return err

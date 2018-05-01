@@ -62,7 +62,7 @@ func UpdateUsers(session *mgo.Session, users []*mgo.User, dbName string) error {
 	return nil
 }
 
-func RemoveUser(session *mgo.Session, username, db string) error {
+func removeUser(session *mgo.Session, username, db string) error {
 	log.Infof("Removing user %s from db %s", username, db)
 	err := session.DB(db).RemoveUser(username)
 	if err == mgo.ErrNotFound {
@@ -92,7 +92,7 @@ func loadFromBase64BSONFile(file string) (*UserChangeData, error) {
 	return payload, err
 }
 
-func IsSystemUser(username, db string) bool {
+func isSystemUser(username, db string) bool {
 	if db != SystemUserDatabase {
 		return false
 	}

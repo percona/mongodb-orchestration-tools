@@ -45,19 +45,19 @@ type ListClient struct {
 	Err           string               `json:"Err,omitempty"`
 }
 
-func (pl *ListClient) Error() error {
+func (pl *ListClient) getError() error {
 	if pl.Err != "" {
 		return fmt.Errorf("PMM error: %s\n", strings.TrimSpace(pl.Err))
 	}
 	return nil
 }
 
-func (pl *ListClient) HasError() bool {
-	err := pl.Error()
+func (pl *ListClient) hasError() bool {
+	err := pl.getError()
 	return err != nil && err.Error() != ErrMsgNoServices
 }
 
-func (pl *ListClient) HasService(serviceName string) bool {
+func (pl *ListClient) hasService(serviceName string) bool {
 	for _, service := range pl.Services {
 		if service.Type == serviceName && service.Running {
 			return true
@@ -66,7 +66,7 @@ func (pl *ListClient) HasService(serviceName string) bool {
 	return false
 }
 
-func (p *PMM) List() (*ListClient, error) {
+func (p *PMM) list() (*ListClient, error) {
 	log.Info("Listing PMM services")
 
 	cmd, err := command.New(
@@ -89,8 +89,8 @@ func (p *PMM) List() (*ListClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	if list.HasError() {
-		return nil, list.Error()
+	if list.hasError() {
+		return nil, list.getError()
 	}
 
 	return list, nil
