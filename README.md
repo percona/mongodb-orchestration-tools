@@ -1,7 +1,14 @@
 # dcos-mongo-tools
 
-Go-based tools for the [DC/OS 'percona-mongo' service](https://docs.mesosphere.com/services/percona-mongo/)
+[![](https://godoc.org/github.com/percona/dcos-mongo-tools?status.svg)](http://godoc.org/github.com/percona/dcos-mongo-tools)
+[![Build Status](https://travis-ci.org/percona/dcos-mongo-tools.svg?branch=master)](https://travis-ci.org/percona/dcos-mongo-tools)
+[![Go Report Card](https://goreportcard.com/badge/github.com/percona/dcos-mongo-tools)](https://goreportcard.com/report/github.com/percona/dcos-mongo-tools)
 
+Go-based tools for the [DC/OS 'percona-mongo' service](https://docs.mesosphere.com/services/percona-mongo/).
+
+*Note: This code is intended for a specific integration/use case, therefore it is unlikely Issues or Pull Requests will be accepted from the public. Please fork if this is a concern.*
+
+Tools:
 - **mongodb-executor**: tool for executing tasks on the local mongod/mongos container
 - **mongodb-controller**: tool for controlling the replica set initiation and adding system MongoDB users
 - **mongodb-healthcheck**: tool for running DC/OS health and readiness checks on a MongoDB task
