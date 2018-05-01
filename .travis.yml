@@ -7,4 +7,5 @@ go:
 services:
   - docker
 script:
+  - sudo make test-full-prepare
   - make test-full

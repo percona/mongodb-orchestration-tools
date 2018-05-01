@@ -2,6 +2,7 @@ PLATFORM?=linux
 GO_LDFLAGS?="-s -w"
 
 ENABLE_MONGODB_TESTS?=false
+TEST_PSMDB_VERSION?=latest
 TEST_MONGODB_DOCKER_UID?=1001
 TEST_ADMIN_USER?=admin
 TEST_ADMIN_PASSWORD?=123456
@@ -37,7 +38,8 @@ test-mongod.key:
 	chown $(TEST_MONGODB_DOCKER_UID):0 test-mongod.key
 	chmod 0600 test-mongod.key
 
-test-full: test-mongod.key
+test-full-prepare: test-mongod.key
+	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
@@ -45,6 +47,8 @@ test-full: test-mongod.key
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	docker-compose up -d
 	scripts/init-test-replset-wait.sh
+
+test-full: vendor
 	ENABLE_MONGODB_TESTS=true go test -v ./...
 
 clean:
