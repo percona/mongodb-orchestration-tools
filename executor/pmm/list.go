@@ -42,12 +42,12 @@ type ListClient struct {
 	ClientName    string               `json:"ClientName"`
 	ServerAddress string               `json:"ServerAddress"`
 	Services      []*ListClientService `json:"Services"`
-	serverErr     string               `json:"Err,omitempty"`
+	Err           string               `json:"Err,omitempty"`
 }
 
 func (pl *ListClient) Error() error {
-	if pl.serverErr != "" {
-		return fmt.Errorf("PMM error: %s\n", strings.TrimSpace(pl.serverErr))
+	if pl.Err != "" {
+		return fmt.Errorf("PMM error: %s\n", strings.TrimSpace(pl.Err))
 	}
 	return nil
 }

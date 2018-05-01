@@ -85,7 +85,7 @@ func NewSSLConfig() *SSLConfig {
 	).Envar(common.EnvMongoDBNetSSLEnabled).BoolVar(&ssl.Enabled)
 	kingpin.Flag(
 		"sslPEMKeyFile",
-		"path to client SSL Certificate file (including key, in PEM format), overriden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
+		"path to client SSL Certificate file (including key, in PEM format), overridden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
 	).Envar(common.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&ssl.PEMKeyFile)
 	kingpin.Flag(
 		"sslCAFile",

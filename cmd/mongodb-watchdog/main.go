@@ -44,11 +44,11 @@ func main() {
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
 	kingpin.Flag(
 		"apiPoll",
-		"Frequency of DC/OS SDK API polls, overriden by env var WATCHDOG_API_POLL",
+		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
 	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.APIPoll)
 	kingpin.Flag(
 		"apiTimeout",
-		"DC/OS SDK API timeout, overriden by env var WATCHDOG_API_TIMEOUT",
+		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
 	).Default(api.DefaultTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
 	kingpin.Flag(
 		"replsetPoll",
@@ -56,15 +56,15 @@ func main() {
 	).Default(config.DefaultReplsetPoll).Envar("WATCHDOG_REPLSET_POLL").DurationVar(&cnf.ReplsetPoll)
 	kingpin.Flag(
 		"replsetTimeout",
-		"MongoDB connect timeout, should be less than 'replsetPoll', overriden by env var WATCHDOG_REPLSET_TIMEOUT",
+		"MongoDB connect timeout, should be less than 'replsetPoll', overridden by env var WATCHDOG_REPLSET_TIMEOUT",
 	).Default(config.DefaultReplsetTimeout).Envar("WATCHDOG_REPLSET_TIMEOUT").DurationVar(&cnf.ReplsetTimeout)
 	kingpin.Flag(
 		"replsetConfUpdatePoll",
-		"Frequency of replica set config state updates, overriden by env var WATCHDOG_REPLSET_CONF_UPDATE_POLL",
+		"Frequency of replica set config state updates, overridden by env var WATCHDOG_REPLSET_CONF_UPDATE_POLL",
 	).Default(config.DefaultReplsetConfUpdatePoll).Envar("WATCHDOG_REPLSET_CONF_UPDATE_POLL").DurationVar(&cnf.ReplsetConfUpdatePoll)
 	kingpin.Flag(
 		"delayWatcherStart",
-		"Amount of time to delay the start of replset watchers, overriden by env var WATCHDOG_DELAY_WATCHER_START",
+		"Amount of time to delay the start of replset watchers, overridden by env var WATCHDOG_DELAY_WATCHER_START",
 	).Default(config.DefaultDelayWatcher).Envar("WATCHDOG_DELAY_WATCHER_START").DurationVar(&cnf.DelayWatcher)
 	kingpin.Flag(
 		"apiHostPrefix",
