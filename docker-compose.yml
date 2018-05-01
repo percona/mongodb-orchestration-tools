@@ -1,0 +1,37 @@
+---
+version: '3'
+services:
+  mongo0:
+    network_mode: host
+    image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_PRIMARY_PORT:-65217}
+    volumes:
+      - ./test-mongod.key:/mongod.key:ro
+  mongo1:
+    network_mode: host
+    image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY1_PORT:-65218}
+    volumes:
+      - ./test-mongod.key:/mongod.key:ro
+  mongo2:
+    network_mode: host
+    image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY2_PORT:-65219}
+    volumes:
+      - ./test-mongod.key:/mongod.key:ro
+  init:
+    network_mode: host
+    image: ${MONGODB_IMAGE:-percona/percona-server-mongodb}
+    entrypoint: /bin/bash
+    command: /init-test-replset.sh
+    environment:
+      - TEST_ADMIN_USER=${TEST_ADMIN_USER:-admin}
+      - TEST_ADMIN_PASSWORD=${TEST_ADMIN_PASSWORD:-123456}
+      - TEST_RS_NAME=${TEST_RS_NAME:-rs}
+      - TEST_PRIMARY_PORT=${TEST_PRIMARY_PORT:-65217}
+      - TEST_SECONDARY1_PORT=${TEST_SECONDARY1_PORT:-65218}
+      - TEST_SECONDARY2_PORT=${TEST_SECONDARY2_PORT:-65219}
+    volumes:
+      - ./scripts/init-test-replset.sh:/init-test-replset.sh:ro 
+    depends_on:
+      - mongo0
