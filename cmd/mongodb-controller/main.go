@@ -15,7 +15,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/alecthomas/kingpin"
@@ -141,7 +140,6 @@ func main() {
 	).Envar(common.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
 
 	cnf.SSL = db.NewSSLConfig()
-	fmt.Println(cnf.SSL)
 
 	handleReplsetCmd(cnf)
 	handleUserCmd(cnf)
