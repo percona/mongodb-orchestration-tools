@@ -35,3 +35,5 @@ services:
       - ./scripts/init-test-replset.sh:/init-test-replset.sh:ro 
     depends_on:
       - mongo0
+      - mongo1
+      - mongo2

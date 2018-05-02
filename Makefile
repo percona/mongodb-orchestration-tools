@@ -49,7 +49,11 @@ test-full-prepare: test-mongod.key
 	scripts/init-test-replset-wait.sh
 
 test-full: vendor
-	ENABLE_MONGODB_TESTS=true go test -v ./...
+	ENABLE_MONGODB_TESTS=true \
+	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
+	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
+	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
+	go test -v ./...
 
 clean:
 	rm -rf bin test-mongod.key vendor 2>/dev/null || true
