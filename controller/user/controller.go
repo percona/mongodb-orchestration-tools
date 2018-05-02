@@ -77,7 +77,7 @@ func (uc *UserController) getDBConfig() (*db.Config, error) {
 			Direct:         true,
 			FailFast:       true,
 		},
-		SSL: uc.config.DB.SSL,
+		SSL: uc.config.SSL,
 	}, nil
 }
 
