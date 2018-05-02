@@ -1,4 +1,9 @@
 package: github.com/percona/dcos-mongo-tools
+ignore:
+- github.com/kr/text/mc
+- github.com/cactus/go-statsd-client/test-client
+- github.com/sirupsen/logrus/examples
+- gopkg.in/mgo.v2/dbtest
 import:
 - package: github.com/sirupsen/logrus
   version: ^v0.11.5
@@ -20,7 +25,9 @@ import:
   - parse      
 - package: github.com/alecthomas/units
 - package: github.com/scullxbones/mgo-statsd
-- package: github.com/cactus/go-statsd-client/statsd
+- package: github.com/cactus/go-statsd-client
+  subpackage:
+  - statsd
 - package: github.com/kr/pretty
 - package: github.com/kr/text
 - package: github.com/vharitonsky/iniflags
