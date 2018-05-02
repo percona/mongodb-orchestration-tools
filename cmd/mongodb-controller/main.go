@@ -20,6 +20,7 @@ import (
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/replset"
 	"github.com/percona/dcos-mongo-tools/controller/user"
@@ -53,10 +54,6 @@ func handleReplsetCmd(cnf *controller.Config) {
 		"maxReplTries",
 		"number of times to retry initiating mongodb replica set, overridden by env var INIT_MAX_INIT_REPLSET_TRIES",
 	).Default(controller.DefaultInitMaxReplTries).Envar("INIT_MAX_INIT_REPLSET_TRIES").UintVar(&cnf.ReplsetInit.MaxReplTries)
-	cmdInit.Flag(
-		"maxAddUsersTries",
-		"number of times to retry adding mongodb users at init time, overridden by env var INIT_MAX_ADD_USERS_TRIES",
-	).Default(controller.DefaultInitMaxAddUsersTries).Envar("INIT_MAX_ADD_USERS_TRIES").UintVar(&cnf.ReplsetInit.MaxAddUsersTries)
 	cmdInit.Flag(
 		"retrySleep",
 		"amount of time to wait between retries, overridden by env var INIT_RETRY_SLEEP",
@@ -141,6 +138,8 @@ func main() {
 		"userAdminPassword",
 		"mongodb userAdmin username, overridden by env var "+common.EnvMongoDBUserAdminPassword,
 	).Envar(common.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
+
+	cnf.SSL = db.NewSSLConfig()
 
 	handleReplsetCmd(cnf)
 	handleUserCmd(cnf)

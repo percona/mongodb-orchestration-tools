@@ -15,14 +15,18 @@
 package db
 
 import (
+	"errors"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var (
 	ErrMsgAuthFailedStr string = "server returned error on SASL authentication step: Authentication failed."
+	ErrSessionTimeout          = errors.New("timed out waiting for mongodb connection")
+	ErrPrimaryTimeout          = errors.New("timed out waiting for host to become primary")
 )
 
 func GetSession(cnf *Config) (*mgo.Session, error) {
@@ -73,5 +77,29 @@ func WaitForSession(cnf *Config, maxRetries uint, sleepDuration time.Duration) (
 		time.Sleep(sleepDuration)
 		tries += 1
 	}
+	if err == nil {
+		return nil, ErrSessionTimeout
+	}
 	return nil, err
+}
+
+func WaitForPrimary(session *mgo.Session, maxRetries uint, sleepDuration time.Duration) error {
+	resp := struct {
+		IsMaster bool `bson:"ismaster"`
+		ReadOnly bool `bson:"readOnly"`
+	}{}
+	var err error
+	var tries uint
+	for tries <= maxRetries {
+		err = session.Run(bson.D{{"isMaster", "1"}}, &resp)
+		if err == nil && resp.IsMaster && !resp.ReadOnly {
+			return nil
+		}
+		time.Sleep(sleepDuration)
+		tries += 1
+	}
+	if err == nil {
+		return ErrPrimaryTimeout
+	}
+	return err
 }

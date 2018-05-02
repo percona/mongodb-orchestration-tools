@@ -23,22 +23,20 @@ import (
 )
 
 var (
-	DefaultPodName              = "mongo"
-	DefaultInitDelay            = "15s"
-	DefaultRetrySleep           = "3s"
-	DefaultMaxConnectTries      = "30"
-	DefaultInitMaxReplTries     = "60"
-	DefaultInitMaxAddUsersTries = "60"
+	DefaultPodName          = "mongo"
+	DefaultInitDelay        = "15s"
+	DefaultRetrySleep       = "3s"
+	DefaultMaxConnectTries  = "30"
+	DefaultInitMaxReplTries = "60"
 )
 
 type ConfigReplsetInit struct {
-	PrimaryAddr      string
-	MongoDBPort      string
-	Delay            time.Duration
-	MaxConnectTries  uint
-	MaxReplTries     uint
-	MaxAddUsersTries uint
-	RetrySleep       time.Duration
+	PrimaryAddr     string
+	MongoDBPort     string
+	Delay           time.Duration
+	MaxConnectTries uint
+	MaxReplTries    uint
+	RetrySleep      time.Duration
 }
 
 type ConfigUser struct {
@@ -53,8 +51,8 @@ type ConfigUser struct {
 }
 
 type Config struct {
-	DB                *db.Config
 	Tool              *common.ToolConfig
+	SSL               *db.SSLConfig
 	FrameworkName     string
 	Replset           string
 	UserAdminUser     string
