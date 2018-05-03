@@ -11,6 +11,7 @@ install:
 before_script:
   - docker --version
   - docker-compose --version
-  - sudo make test-full-prepare
+  - sudo make test-mongod.key
+  - make test-full-prepare
 script:
   - make test-full
