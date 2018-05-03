@@ -2,8 +2,11 @@ dist: trusty
 sudo: required
 language: go
 go:
-  - "1.8"
-  - "1.10.x"
+  - 1.10.x
+  - master
+matrix:
+  allow_failures:
+    - go: master
 services:
   - docker
 install:
@@ -14,4 +17,6 @@ before_script:
   - sudo make test-mongod.key
   - make test-full-prepare
 script:
-  - make test-full
+  - make TEST_CODECOV=true test-full
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
