@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func TestDoStopTrue(t *testing.T) {
+func TestDoStop(t *testing.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
