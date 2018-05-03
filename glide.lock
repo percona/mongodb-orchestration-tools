@@ -1,8 +1,8 @@
-hash: 688bcfc006f2206d8c01d5cef0a3590009504644857dad72f298bb398475365d
-updated: 2018-05-03T12:22:48.783766425+02:00
+hash: 6db0e1a94c290071ff7cf504c1f244b91cc6464f4ea894b7f0bda6c8673782f1
+updated: 2018-05-03T14:35:00.332632551+02:00
 imports:
 - name: github.com/alecthomas/kingpin
-  version: a39589180ebd6bbf43076e514b55f20a95d43086
+  version: 947dcec5ba9c011838740e680966fd7087a71d0d
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
   subpackages:
@@ -22,22 +22,27 @@ imports:
 - name: github.com/scullxbones/mgo-statsd
   version: c065086a899e3a62053c6d8db3b4ec2841c6e213
 - name: github.com/sirupsen/logrus
-  version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
+  version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
 - name: github.com/timvaillancourt/go-mongodb-config
   version: 618519223de5eb03913441986d3873d382745704
   subpackages:
   - config
 - name: github.com/timvaillancourt/go-mongodb-replset
-  version: 15c5729cc4d23dc892a7f5956e9648363a4b6cc7
+  version: d553262ca5c7198180af9181a3164330bc045372
   subpackages:
   - config
   - status
 - name: github.com/vharitonsky/iniflags
   version: e2b4a6da96d46d6660e977fe22eda5ea0f2b35d2
+- name: golang.org/x/crypto
+  version: 8b1d31080a7692e075c4681cb2458454a1fe0706
+  subpackages:
+  - ssh/terminal
 - name: golang.org/x/sys
-  version: bb9c189858d91f42db229b04d45a4c3d23a7662a
+  version: 78d5f264b493f125018180c204871ecf58a2dce1
   subpackages:
   - unix
+  - windows
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

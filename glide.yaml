@@ -1,7 +1,6 @@
 package: github.com/percona/dcos-mongo-tools
 import:
 - package: github.com/sirupsen/logrus
-  version: ^v0.11.5
 - package: github.com/Robpol86/logrus-custom-formatter
 - package: gopkg.in/mgo.v2
   subpackages:
@@ -15,14 +14,5 @@ import:
   - config
 - package: gopkg.in/yaml.v2
 - package: github.com/alecthomas/kingpin
-- package: github.com/alecthomas/template
-  subpackage:
-  - parse      
-- package: github.com/alecthomas/units
+  version: ^2.2.6
 - package: github.com/scullxbones/mgo-statsd
-- package: github.com/cactus/go-statsd-client
-  subpackage:
-  - statsd
-- package: github.com/kr/pretty
-- package: github.com/kr/text
-- package: github.com/vharitonsky/iniflags
