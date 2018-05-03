@@ -6,6 +6,12 @@ go:
   - "1.10.x"
 services:
   - docker
+install:
+  - rm -rf vendor
+before_script:
+  - docker --version
+  - docker-compose --version
+  - sudo make test-mongod.key
+  - make test-full-prepare
 script:
-  - sudo make test-full-prepare
   - make test-full
