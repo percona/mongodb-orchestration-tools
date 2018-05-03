@@ -2,6 +2,7 @@ package: github.com/percona/dcos-mongo-tools
 import:
 - package: github.com/sirupsen/logrus
 - package: github.com/Robpol86/logrus-custom-formatter
+  repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - package: gopkg.in/mgo.v2
   subpackages:
   - bson
