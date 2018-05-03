@@ -1,9 +1,4 @@
 package: github.com/percona/dcos-mongo-tools
-ignore:
-- github.com/kr/text/mc
-- github.com/cactus/go-statsd-client/test-client
-- github.com/sirupsen/logrus/examples
-- gopkg.in/mgo.v2/dbtest
 import:
 - package: github.com/sirupsen/logrus
   version: ^v0.11.5

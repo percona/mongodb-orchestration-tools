@@ -6,6 +6,11 @@ go:
   - "1.10.x"
 services:
   - docker
-script:
+install:
+  - rm -rf vendor
+before_script:
+  - docker --version
+  - docker-compose --version
   - sudo make test-full-prepare
+script:
   - make test-full
