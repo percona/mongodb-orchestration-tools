@@ -18,18 +18,12 @@ import (
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
-	"gopkg.in/mgo.v2"
 )
 
 func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	dialInfo := testing.PrimaryDialInfo(t)
-	if dialInfo == nil {
-		t.Fatal("Could not build dial info for Primary")
-	}
-
-	session, err := mgo.DialWithInfo(dialInfo)
+	session, err := testing.GetPrimarySession(t)
 	if err != nil {
 		t.Fatalf("Database connection error: %s", err)
 	}

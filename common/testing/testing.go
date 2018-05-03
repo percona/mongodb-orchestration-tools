@@ -43,8 +43,8 @@ func Enabled() bool {
 	return enableDBTests == "true"
 }
 
-// PrimaryDialInfo returns a *mgo.DialInfo configured for testing against a mongodb Primary
-func PrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
+// getPrimaryDialInfo returns a *mgo.DialInfo configured for testing against a mongodb Primary
+func getPrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
 	if Enabled() {
 		if mongodbPrimaryPort == "" {
 			t.Fatalf("Primary port env var %s is not set", envMongoDBPrimaryPort)
@@ -62,6 +62,14 @@ func PrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
 		}
 	}
 	return nil
+}
+
+func GetPrimarySession(t *gotesting.T) (*mgo.Session, error) {
+	dialInfo := getPrimaryDialInfo(t)
+	if dialInfo == nil {
+		t.Fatal("Could not build dial info for Primary")
+	}
+	return mgo.DialWithInfo(dialInfo)
 }
 
 // DoSkipTest handles the conditional skipping of tests, based on the output of .Enabled()
