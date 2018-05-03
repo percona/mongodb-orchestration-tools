@@ -63,4 +63,4 @@ test-full: vendor
 	go test -v $(TEST_GO_EXTRA) ./...
 
 clean:
-	rm -rf bin on test-mongod.key vendor 2>/dev/null || true
+	rm -rf bin coverage.txt on test-mongod.key vendor 2>/dev/null || true
