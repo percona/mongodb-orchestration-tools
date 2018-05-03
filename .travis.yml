@@ -18,3 +18,5 @@ before_script:
   - make test-full-prepare
 script:
   - make test-full
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
