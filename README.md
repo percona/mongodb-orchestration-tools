@@ -8,15 +8,14 @@ Go-based tools for the [DC/OS 'percona-mongo' service](https://docs.mesosphere.c
 
 *Note: This code is intended for a specific integration/use case, therefore it is unlikely Issues or Pull Requests will be accepted from the public. Please fork if this is a concern.*
 
-Tools:
+**Tools**:
 - **mongodb-executor**: tool for executing tasks on the local mongod/mongos container
 - **mongodb-controller**: tool for controlling the replica set initiation and adding system MongoDB users
 - **mongodb-healthcheck**: tool for running DC/OS health and readiness checks on a MongoDB task
 - **mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
 
 ## Build
-
-1. Install go1.8+ and 'make'
+1. Install go1.10+ and 'make'
 2. Run 'make' in git directory
 3. Find binaries in 'bin' directory
 

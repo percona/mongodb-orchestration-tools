@@ -57,4 +57,4 @@ test-full: vendor
 	go test -v ./...
 
 clean:
-	rm -rf bin test-mongod.key vendor 2>/dev/null || true
+	rm -rf bin on test-mongod.key vendor 2>/dev/null || true

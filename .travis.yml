@@ -2,8 +2,11 @@ dist: trusty
 sudo: required
 language: go
 go:
-  - "1.8"
-  - "1.10.x"
+  - 1.10.x
+  - master
+matrix:
+  allow_failures:
+    - go: master
 services:
   - docker
 install:
