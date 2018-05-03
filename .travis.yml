@@ -17,6 +17,6 @@ before_script:
   - sudo make test-mongod.key
   - make test-full-prepare
 script:
-  - make test-full
+  - make TEST_CODECOV=true test-full
 after_success:
   - bash <(curl -s https://codecov.io/bash)
