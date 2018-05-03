@@ -22,7 +22,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
-	rs_config "github.com/timvaillancourt/go-mongodb-replset/config"
+	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
 )
 
@@ -37,7 +37,7 @@ type Watcher struct {
 	masterSession     *mgo.Session
 	masterSessionLock sync.Mutex
 	mongodAddQueue    chan []*replset.Mongod
-	mongodRemoveQueue chan []*rs_config.Member
+	mongodRemoveQueue chan []*rsConfig.Member
 	replset           *replset.Replset
 	state             *replset.State
 	stop              chan bool
@@ -48,7 +48,7 @@ func New(rs *replset.Replset, config *config.Config, stop chan bool) *Watcher {
 		config:            config,
 		replset:           rs,
 		mongodAddQueue:    make(chan []*replset.Mongod),
-		mongodRemoveQueue: make(chan []*rs_config.Member),
+		mongodRemoveQueue: make(chan []*rsConfig.Member),
 		stop:              stop,
 	}
 }
@@ -103,8 +103,8 @@ func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
 	return notInReplset
 }
 
-func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rs_config.Member {
-	orphanedMembers := make([]*rs_config.Member, 0)
+func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
+	orphanedMembers := make([]*rsConfig.Member, 0)
 	if rw.state != nil && rw.state.Config != nil {
 		for _, member := range rw.state.Config.Members {
 			if rw.replset.HasMember(member.Host) != true {
@@ -150,7 +150,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 	}
 }
 
-func (rw *Watcher) replsetConfigRemover(remove <-chan []*rs_config.Member) {
+func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 	for members := range remove {
 		if rw.state == nil {
 			continue
