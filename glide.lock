@@ -1,5 +1,5 @@
 hash: ee16320ab617746653c43d52ec0a0ece031aafc4377308254f4ea26e24763d79
-updated: 2018-05-03T14:40:32.954306735+02:00
+updated: 2018-05-03T14:55:52.308135655+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -18,7 +18,7 @@ imports:
 - name: github.com/kr/text
   version: 7cafcd837844e784b526369c9bce262804aebc60
 - name: github.com/Robpol86/logrus-custom-formatter
-  version: 1bf69d45faaf87641ddee22565b8e8d87e03b946
+  version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - name: github.com/scullxbones/mgo-statsd
   version: c065086a899e3a62053c6d8db3b4ec2841c6e213
