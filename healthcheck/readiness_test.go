@@ -23,9 +23,7 @@ import (
 
 func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	assert.NoError(t, session.Ping(), "Database ping error")
 

@@ -82,7 +82,7 @@ func main() {
 		cnf.Tool.PrintVersionAndExit()
 	}
 
-	common.SetupLogger(cnf.Tool)
+	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
 	watchdog.New(cnf).Run()
 }

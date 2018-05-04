@@ -30,7 +30,7 @@ var (
 )
 
 func main() {
-	config := &healthcheck.Config{
+	cnf := &healthcheck.Config{
 		Tool: common.NewToolConfig(os.Args[0]),
 		DB: db.NewConfig(
 			common.EnvMongoDBClusterMonitorUser,
@@ -39,13 +39,13 @@ func main() {
 	}
 	command := kingpin.Parse()
 
-	if config.Tool.PrintVersion {
-		config.Tool.PrintVersionAndExit()
+	if cnf.Tool.PrintVersion {
+		cnf.Tool.PrintVersionAndExit()
 	}
 
-	common.SetupLogger(config.Tool)
+	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
-	session, err := db.GetSession(config.DB)
+	session, err := db.GetSession(cnf.DB)
 	if err != nil {
 		log.Fatalf("Error connecting to mongodb: %s", err)
 		return

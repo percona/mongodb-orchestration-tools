@@ -156,7 +156,7 @@ func main() {
 	handlePmm(cnf)
 
 	cnf.NodeType = kingpin.Parse()
-	common.SetupLogger(cnf.Tool)
+	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 	e := executor.New(cnf)
 
 	if cnf.Tool.PrintVersion {

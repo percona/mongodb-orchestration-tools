@@ -63,9 +63,9 @@ func (a *Api) GetPods() (*Pods, error) {
 	return pods, err
 }
 
-func (a *Api) GetPodTasks(podName string) ([]*PodTask, error) {
+func (a *Api) GetPodTasks(podName string) ([]PodTask, error) {
 	podUrl := a.GetPodUrl() + "/" + podName + "/info"
-	var tasks []*PodTask
+	var tasks []PodTask
 	err := a.Get(podUrl, &tasks)
 	return tasks, err
 }
