@@ -18,6 +18,7 @@ import (
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/stretchr/testify/assert"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
 )
 
@@ -42,60 +43,41 @@ var (
 
 func TestGetSelfMemberState(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
-	if *state != testMember.State {
-		t.Errorf("healthcheck.getSelfMemberState() returned %s instead of %s", *state, testMember.State)
-	}
+	assert.Equalf(t, *state, testMember.State, "healthcheck.getSelfMemberState() returned wrong result")
 }
 
 func TestIsMemberStateOk(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
-	if !isStateOk(state, OkMemberStates) {
-		t.Errorf("healthcheck.isStateOk(\"%s\") returned false", *state)
-	}
+	assert.Truef(t, isStateOk(state, OkMemberStates), "healthcheck.isStateOk(\"%s\") returned false", *state)
 
 	testStatusFail := testStatus
 	testStatusFail.Members[0].State = status.MemberStateRemoved
 	stateFail := getSelfMemberState(testStatusFail)
-	if isStateOk(stateFail, OkMemberStates) {
-		t.Errorf("healthcheck.isStateOk(\"%s\") returned true", *stateFail)
-	}
+	assert.Falsef(t, isStateOk(stateFail, OkMemberStates), "healthcheck.isStateOk(\"%s\") returned true", *stateFail)
 }
 
 func TestHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	session, err := testing.GetPrimarySession(t)
-	if err != nil {
-		t.Fatalf("Database connection error: %s", err)
-	}
+	session := testing.GetPrimarySession(t)
 	defer session.Close()
 
 	state, memberState, err := HealthCheck(session, OkMemberStates)
-	if err != nil {
-		t.Fatalf("healthcheck.HealthCheck() returned an error: %s", err)
-	}
-	if state != StateOk {
-		t.Errorf("healthcheck.HealthCheck() returned non-ok state: %v", state)
-	}
-	if *memberState != status.MemberStatePrimary {
-		t.Errorf("healthcheck.HealthCheck() returned non-primary member state: %v", memberState)
-	}
+	assert.NoError(t, err, "healthcheck.HealthCheck() returned an error")
+	assert.Equal(t, state, StateOk, "healthcheck.HealthCheck() returned non-ok state")
+	assert.Equal(t, *memberState, status.MemberStatePrimary, "healthcheck.HealthCheck() returned non-primary member state")
 }
 
 func TestHealthCheckFalse(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	session, err := testing.GetPrimarySession(t)
-	if err != nil {
-		t.Fatalf("Database connection error: %s", err)
-	}
+	session := testing.GetPrimarySession(t)
 	defer session.Close()
 
 	state, _, err := HealthCheck(session, []status.MemberState{status.MemberStateRemoved})
-	if err.Error() != "Member has unhealthy replication state: "+status.MemberStatePrimary.String() {
-		t.Fatalf("healthcheck.HealthCheck() returned an expected error: %s", err)
-	}
-	if state == StateOk {
-		t.Errorf("healthcheck.HealthCheck() returned an unexpected ok state for member state: %v", status.MemberStateRemoved)
-	}
+	assert.EqualError(t, err,
+		"Member has unhealthy replication state: "+status.MemberStatePrimary.String(),
+		"healthcheck.HealthCheck() returned an expected error",
+	)
+	assert.NotEqual(t, state, StateOk, "healthcheck.HealthCheck() returned an unexpected ok state")
 }

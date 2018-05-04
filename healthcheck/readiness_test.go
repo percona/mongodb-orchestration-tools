@@ -18,27 +18,18 @@ import (
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	session, err := testing.GetPrimarySession(t)
-	if err != nil {
-		t.Fatalf("Database connection error: %s", err)
-	}
+	session := testing.GetPrimarySession(t)
 	defer session.Close()
 
-	err = session.Ping()
-	if err != nil {
-		t.Fatalf("Database ping error: %s", err)
-	}
+	assert.NoError(t, session.Ping(), "Database ping error")
 
 	state, err := ReadinessCheck(session)
-	if err != nil {
-		t.Fatalf("healthcheck.ReadinessCheck() returned an error: %s", err)
-	}
-	if state != StateOk {
-		t.Errorf("healthcheck.ReadinessCheck() returned non-ok state: %v", state)
-	}
+	assert.NoError(t, err, "healthcheck.ReadinessCheck() returned an error")
+	assert.Equal(t, state, StateOk, "healthcheck.ReadinessCheck() returned incorrect state")
 }
