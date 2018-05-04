@@ -12,8 +12,6 @@ env:
   - TEST_PSMDB_VERSION=3.6
 services:
   - docker
-install:
-  - rm -rf vendor
 before_script:
   - docker --version
   - docker-compose --version
