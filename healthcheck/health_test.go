@@ -19,7 +19,6 @@ import (
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
-	"gopkg.in/mgo.v2"
 )
 
 var (
@@ -50,14 +49,14 @@ func TestGetSelfMemberState(t *gotesting.T) {
 
 func TestIsMemberStateOk(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
-	if !isStateOk(state) {
+	if !isStateOk(state, OkMemberStates) {
 		t.Errorf("healthcheck.isStateOk(\"%s\") returned false", *state)
 	}
 
 	testStatusFail := testStatus
 	testStatusFail.Members[0].State = status.MemberStateRemoved
 	stateFail := getSelfMemberState(testStatusFail)
-	if isStateOk(stateFail) {
+	if isStateOk(stateFail, OkMemberStates) {
 		t.Errorf("healthcheck.isStateOk(\"%s\") returned true", *stateFail)
 	}
 }
@@ -65,18 +64,13 @@ func TestIsMemberStateOk(t *gotesting.T) {
 func TestHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	dialInfo := testing.PrimaryDialInfo(t)
-	if dialInfo == nil {
-		t.Fatal("Could not build dial info for Primary")
-	}
-
-	session, err := mgo.DialWithInfo(dialInfo)
+	session, err := testing.GetPrimarySession(t)
 	if err != nil {
 		t.Fatalf("Database connection error: %s", err)
 	}
 	defer session.Close()
 
-	state, memberState, err := HealthCheck(session)
+	state, memberState, err := HealthCheck(session, OkMemberStates)
 	if err != nil {
 		t.Fatalf("healthcheck.HealthCheck() returned an error: %s", err)
 	}
@@ -85,5 +79,23 @@ func TestHealthCheck(t *gotesting.T) {
 	}
 	if *memberState != status.MemberStatePrimary {
 		t.Errorf("healthcheck.HealthCheck() returned non-primary member state: %v", memberState)
+	}
+}
+
+func TestHealthCheckFalse(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	session, err := testing.GetPrimarySession(t)
+	if err != nil {
+		t.Fatalf("Database connection error: %s", err)
+	}
+	defer session.Close()
+
+	state, _, err := HealthCheck(session, []status.MemberState{status.MemberStateRemoved})
+	if err.Error() != "Member has unhealthy replication state: "+status.MemberStatePrimary.String() {
+		t.Fatalf("healthcheck.HealthCheck() returned an expected error: %s", err)
+	}
+	if state == StateOk {
+		t.Errorf("healthcheck.HealthCheck() returned an unexpected ok state for member state: %v", status.MemberStateRemoved)
 	}
 }

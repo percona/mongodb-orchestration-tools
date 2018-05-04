@@ -1,9 +1,10 @@
 PLATFORM?=linux
 GO_LDFLAGS?="-s -w"
-GOCACHE?=on
+GOCACHE?=
 
 ENABLE_MONGODB_TESTS?=false
 TEST_PSMDB_VERSION?=latest
+TEST_RS_NAME?=rs
 TEST_MONGODB_DOCKER_UID?=1001
 TEST_ADMIN_USER?=admin
 TEST_ADMIN_PASSWORD?=123456
@@ -38,7 +39,7 @@ bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS) -o bin/mongodb-watchdog-$(PLATFORM) cmd/mongodb-watchdog/main.go
 
 test: vendor
-	ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v $(TEST_GO_EXTRA) ./...
+	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v $(TEST_GO_EXTRA) ./...
 
 test-mongod.key:
 	openssl rand -base64 512 >test-mongod.key
@@ -46,6 +47,7 @@ test-mongod.key:
 	chmod 0600 test-mongod.key
 
 test-full-prepare: test-mongod.key
+	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
@@ -57,10 +59,11 @@ test-full-prepare: test-mongod.key
 
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
+	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
-	go test -v $(TEST_GO_EXTRA) ./...
+	GOCACHE=$(GOCACHE) go test -v $(TEST_GO_EXTRA) ./...
 
 clean:
-	rm -rf bin coverage.txt on test-mongod.key vendor 2>/dev/null || true
+	rm -rf bin coverage.txt test-mongod.key vendor 2>/dev/null || true

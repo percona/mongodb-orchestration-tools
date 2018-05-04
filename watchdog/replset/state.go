@@ -21,17 +21,17 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
-	rs_config "github.com/timvaillancourt/go-mongodb-replset/config"
-	rs_status "github.com/timvaillancourt/go-mongodb-replset/status"
+	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
+	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
 	"gopkg.in/mgo.v2"
 )
 
 type State struct {
 	sync.Mutex
 	Replset       string
-	Config        *rs_config.Config
-	Status        *rs_status.Status
-	configManager *rs_config.ConfigManager
+	Config        *rsConfig.Config
+	Status        *rsStatus.Status
+	configManager *rsConfig.ConfigManager
 	session       *mgo.Session
 	doUpdate      bool
 }
@@ -39,7 +39,7 @@ type State struct {
 func NewState(session *mgo.Session, replset string) *State {
 	return &State{
 		Replset:       replset,
-		configManager: rs_config.New(session),
+		configManager: rsConfig.New(session),
 		session:       session,
 	}
 }
@@ -54,7 +54,7 @@ func (s *State) fetchConfig() error {
 }
 
 func (s *State) fetchStatus() error {
-	status, err := rs_status.New(s.session)
+	status, err := rsStatus.New(s.session)
 	if err != nil {
 		return err
 	}
@@ -112,14 +112,14 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 	}
 
 	for _, mongod := range mongods {
-		member := rs_config.NewMember(mongod.Name())
-		member.Tags = &rs_config.ReplsetTags{
+		member := rsConfig.NewMember(mongod.Name())
+		member.Tags = &rsConfig.ReplsetTags{
 			"dcosFramework": mongod.FrameworkName,
 		}
 		if mongod.IsBackupNode() {
 			member.Hidden = true
 			member.Priority = 0
-			member.Tags = &rs_config.ReplsetTags{
+			member.Tags = &rsConfig.ReplsetTags{
 				"backup":        "true",
 				"dcosFramework": mongod.FrameworkName,
 			}
@@ -131,7 +131,7 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 	s.updateConfig()
 }
 
-func (s *State) RemoveConfigMembers(members []*rs_config.Member) {
+func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	if len(members) == 0 {
 		return
 	}

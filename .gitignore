@@ -1,5 +1,4 @@
 bin
 coverage.txt
-on
 test-mongod.key
 vendor

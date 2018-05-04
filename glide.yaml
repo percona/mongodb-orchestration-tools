@@ -13,7 +13,6 @@ import:
 - package: github.com/timvaillancourt/go-mongodb-config
   subpackages:
   - config
-- package: gopkg.in/yaml.v2
 - package: github.com/alecthomas/kingpin
   version: ^2.2.6
 - package: github.com/scullxbones/mgo-statsd

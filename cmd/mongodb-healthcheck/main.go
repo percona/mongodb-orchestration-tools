@@ -55,7 +55,7 @@ func main() {
 	switch command {
 	case health.FullCommand():
 		log.Debug("Running health check")
-		state, memberState, err := healthcheck.HealthCheck(session)
+		state, memberState, err := healthcheck.HealthCheck(session, healthcheck.OkMemberStates)
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()

@@ -21,8 +21,8 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-// OkStates is a slice of acceptable replication member states
-var OkStates = []status.MemberState{
+// OkMemberStates is a slice of acceptable replication member states
+var OkMemberStates = []status.MemberState{
 	status.MemberStatePrimary,
 	status.MemberStateSecondary,
 	status.MemberStateRecovering,
@@ -30,17 +30,17 @@ var OkStates = []status.MemberState{
 }
 
 // getSelfMemberState returns the replication state of the local MongoDB member
-func getSelfMemberState(rs_status *status.Status) *status.MemberState {
-	member := rs_status.GetSelf()
+func getSelfMemberState(rsStatus *status.Status) *status.MemberState {
+	member := rsStatus.GetSelf()
 	if member == nil || member.Health != status.MemberHealthUp {
 		return nil
 	}
 	return &member.State
 }
 
-// isStateOk checks if a replication member state matches one of the acceptable member states in 'OkStates'
-func isStateOk(memberState *status.MemberState) bool {
-	for _, state := range OkStates {
+// isStateOk checks if a replication member state matches one of the acceptable member states in 'OkMemberStates'
+func isStateOk(memberState *status.MemberState, okMemberStates []status.MemberState) bool {
+	for _, state := range okMemberStates {
 		if *memberState == state {
 			return true
 		}
@@ -49,17 +49,17 @@ func isStateOk(memberState *status.MemberState) bool {
 }
 
 // HealthCheck checks the replication member state of the local MongoDB member
-func HealthCheck(session *mgo.Session) (State, *status.MemberState, error) {
-	rs_status, err := status.New(session)
+func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (State, *status.MemberState, error) {
+	rsStatus, err := status.New(session)
 	if err != nil {
 		return StateFailed, nil, fmt.Errorf("Error getting replica set status: %s", err)
 	}
 
-	state := getSelfMemberState(rs_status)
+	state := getSelfMemberState(rsStatus)
 	if state == nil {
 		return StateFailed, state, fmt.Errorf("Found no member state for self in replica set status")
 	}
-	if isStateOk(state) {
+	if isStateOk(state, okMemberStates) {
 		return StateOk, state, nil
 	}
 
