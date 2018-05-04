@@ -58,9 +58,7 @@ func TestIsMemberStateOk(t *gotesting.T) {
 
 func TestHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	state, memberState, err := HealthCheck(session, OkMemberStates)
 	assert.NoError(t, err, "healthcheck.HealthCheck() returned an error")
@@ -70,9 +68,7 @@ func TestHealthCheck(t *gotesting.T) {
 
 func TestHealthCheckFalse(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	state, _, err := HealthCheck(session, []status.MemberState{status.MemberStateRemoved})
 	assert.EqualError(t, err,

@@ -33,10 +33,10 @@ type Mongod struct {
 	Replset       string
 	FrameworkName string
 	PodName       string
-	Task          *api.PodTask
+	Task          api.PodTask
 }
 
-func NewMongod(task *api.PodTask, frameworkName string, podName string) (*Mongod, error) {
+func NewMongod(task api.PodTask, frameworkName string, podName string) (*Mongod, error) {
 	var err error
 	mongod := &Mongod{
 		FrameworkName: frameworkName,

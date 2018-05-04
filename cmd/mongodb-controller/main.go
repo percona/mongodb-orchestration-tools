@@ -147,7 +147,7 @@ func main() {
 	if cnf.Tool.PrintVersion {
 		cnf.Tool.PrintVersionAndExit()
 	}
-	common.SetupLogger(cnf.Tool)
+	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
 	switch kingpin.Parse() {
 	case cmdInit.FullCommand():

@@ -15,16 +15,22 @@
 package common
 
 import (
-	"os"
+	"io"
 
 	lcf "github.com/Robpol86/logrus-custom-formatter"
 	log "github.com/sirupsen/logrus"
 )
 
-func SetupLogger(config *ToolConfig) {
-	template := "%[ascTime]s %-5[process]d " + config.ProgName + "  %-7[levelName]s %[message]s %[fields]s\n"
-	log.SetOutput(os.Stdout)
-	log.SetFormatter(lcf.NewFormatter(template, nil))
+// GetLogFormatter returns a configured logrus.Formatter for logging
+func GetLogFormatter(progName string) log.Formatter {
+	template := "%[ascTime]s %-5[process]d " + progName + "  %-7[levelName]s %[message]s %[fields]s\n"
+	return lcf.NewFormatter(template, nil)
+}
+
+// SetupLogger configures github.com/srupsen/logrus for logging
+func SetupLogger(config *ToolConfig, formatter log.Formatter, out io.Writer) {
+	log.SetOutput(out)
+	log.SetFormatter(formatter)
 	log.SetLevel(log.InfoLevel)
 	if config.Verbose {
 		log.SetLevel(log.DebugLevel)

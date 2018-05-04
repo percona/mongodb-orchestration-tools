@@ -35,33 +35,38 @@ var (
 	PodTaskStateUnknown  PodTaskState = "UNKNOWN"
 )
 
-func (task *PodTask) Name() string {
+type PodTaskHttp struct {
+	Info   *PodTaskInfo   `json:"info"`
+	Status *PodTaskStatus `json:"status"`
+}
+
+func (task *PodTaskHttp) Name() string {
 	return task.Info.Name
 }
 
-func (task *PodTask) HasState() bool {
+func (task *PodTaskHttp) HasState() bool {
 	return task.Status != nil && task.Status.State != nil
 }
 
-func (task *PodTask) State() PodTaskState {
+func (task *PodTaskHttp) State() PodTaskState {
 	if task.HasState() {
 		return *task.Status.State
 	}
 	return PodTaskStateUnknown
 }
 
-func (task *PodTask) IsRunning() bool {
+func (task *PodTaskHttp) IsRunning() bool {
 	return task.State() == PodTaskStateRunning
 }
 
-func (task *PodTask) IsMongodTask() bool {
+func (task *PodTaskHttp) IsMongodTask() bool {
 	if strings.HasSuffix(task.Info.Name, "-mongod") {
 		return strings.Contains(task.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
 }
 
-func (task *PodTask) IsMongosTask() bool {
+func (task *PodTaskHttp) IsMongosTask() bool {
 	if strings.HasSuffix(task.Info.Name, "-mongos") {
 		return strings.Contains(task.Info.Command.Value, "mongodb-executor-")
 	}
@@ -70,15 +75,15 @@ func (task *PodTask) IsMongosTask() bool {
 
 // Asking for a better way to detect a removed task here: https://github.com/mesosphere/dcos-mongo/issues/112
 // for now we will use the lack of a task state to determine a task is intentionally removed (for scale-down, etc)
-func (task *PodTask) IsRemovedMongod() bool {
+func (task *PodTaskHttp) IsRemovedMongod() bool {
 	return task.IsMongodTask() && task.HasState() == false
 }
 
-func (task *PodTask) GetMongoHostname(frameworkName string) string {
+func (task *PodTaskHttp) GetMongoHostname(frameworkName string) string {
 	return task.Info.Name + "." + frameworkName + "." + autoIpDnsSuffix
 }
 
-func (task *PodTask) GetEnvVar(variableName string) (string, error) {
+func (task *PodTaskHttp) GetEnvVar(variableName string) (string, error) {
 	if task.Info.Command != nil && task.Info.Command.Environment != nil {
 		for _, variable := range task.Info.Command.Environment.Variables {
 			if variable.Name == variableName {
@@ -89,7 +94,7 @@ func (task *PodTask) GetEnvVar(variableName string) (string, error) {
 	return "", errors.New("Could not find env variable: " + variableName)
 }
 
-func (task *PodTask) GetMongoPort() (int, error) {
+func (task *PodTaskHttp) GetMongoPort() (int, error) {
 	portStr, err := task.GetEnvVar(common.EnvMongoDBPort)
 	if err != nil {
 		return 0, err
@@ -97,6 +102,6 @@ func (task *PodTask) GetMongoPort() (int, error) {
 	return strconv.Atoi(portStr)
 }
 
-func (task *PodTask) GetMongoReplsetName() (string, error) {
+func (task *PodTaskHttp) GetMongoReplsetName() (string, error) {
 	return task.GetEnvVar(common.EnvMongoDBReplset)
 }

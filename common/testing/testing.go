@@ -39,6 +39,7 @@ var (
 	MongodbAdminUser     = os.Getenv(envMongoDBAdminUser)
 	MongodbAdminPassword = os.Getenv(envMongoDBAdminPassword)
 	MongodbTimeout       = time.Duration(10) * time.Second
+	dbSession            *mgo.Session
 )
 
 // Enabled returns a boolean reflecting whether testing against Mongodb should occur
@@ -46,15 +47,16 @@ func Enabled() bool {
 	return enableDBTests == "true"
 }
 
-// getPrimaryDialInfo returns a *mgo.DialInfo configured for testing against a Mongodb Primary
-func getPrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
+// getPrimaryDialInfo returns a *mgo.DialInfo configured for testing
+func getDialInfo(t *gotesting.T, host, port string) *mgo.DialInfo {
 	if Enabled() {
+		assert.NotEmpty(t, port, "Port arguement is not set")
+		assert.NotEmpty(t, host, "Host arguement is not set")
 		assert.NotEmpty(t, MongodbReplsetName, "Replica set name env var is not set")
-		assert.NotEmpty(t, MongodbPrimaryPort, "Primary port env var is not set")
 		assert.NotEmpty(t, MongodbAdminUser, "Admin user env var is not set")
 		assert.NotEmpty(t, MongodbAdminPassword, "Admin password env var is not set")
 		return &mgo.DialInfo{
-			Addrs:          []string{MongodbPrimaryHost + ":" + MongodbPrimaryPort},
+			Addrs:          []string{host + ":" + port},
 			Direct:         true,
 			Timeout:        MongodbTimeout,
 			Username:       MongodbAdminUser,
@@ -65,12 +67,30 @@ func getPrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
 	return nil
 }
 
+// GetPrimarySession returns a *mgo.Session configured for testing against a MongoDB Primary
 func GetPrimarySession(t *gotesting.T) *mgo.Session {
-	dialInfo := getPrimaryDialInfo(t)
+	if dbSession != nil {
+		return dbSession
+	}
+
+	dialInfo := getDialInfo(t, MongodbPrimaryHost, MongodbPrimaryPort)
 	assert.NotNil(t, dialInfo, "Could not build dial info for Primary")
 	session, err := mgo.DialWithInfo(dialInfo)
-	assert.NoErrorf(t, err, "Database connection error: %s", err)
-	return session
+	assert.NoError(t, err, "Database connection error")
+
+	buildInfo, err := session.BuildInfo()
+	assert.NoError(t, err, "Error getting database build info")
+
+	t.Logf("Connected to PSMDB version: %s", buildInfo.Version)
+	dbSession = session
+	return dbSession
+}
+
+// Close closes the database session if it exists
+func Close() {
+	if dbSession != nil {
+		dbSession.Close()
+	}
 }
 
 // DoSkipTest handles the conditional skipping of tests, based on the output of .Enabled()

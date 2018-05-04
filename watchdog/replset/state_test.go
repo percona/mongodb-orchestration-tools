@@ -33,9 +33,7 @@ func TestNewState(t *gotesting.T) {
 
 func TestFetchConfig(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	state := NewState(session, testing.MongodbReplsetName)
 	assert.NoError(t, state.fetchConfig(), "state.fetchConfig() failed with error")
@@ -47,9 +45,7 @@ func TestFetchConfig(t *gotesting.T) {
 
 func TestFetchStatus(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	state := NewState(session, testing.MongodbReplsetName)
 	assert.NoError(t, state.fetchStatus(), "state.fetchStatus() failed with error")
@@ -61,9 +57,7 @@ func TestFetchStatus(t *gotesting.T) {
 
 func TestFetch(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	state := NewState(session, testing.MongodbReplsetName)
 	assert.NoError(t, state.Fetch(), "state.Fetch() failed with error")
@@ -71,9 +65,7 @@ func TestFetch(t *gotesting.T) {
 
 func TestRemoveAddConfigMembers(t *gotesting.T) {
 	testing.DoSkipTest(t)
-
 	session := testing.GetPrimarySession(t)
-	defer session.Close()
 
 	state := NewState(session, testing.MongodbReplsetName)
 	assert.NoError(t, state.Fetch(), "state.Fetch() failed with error")
