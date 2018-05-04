@@ -7,6 +7,9 @@ go:
 matrix:
   allow_failures:
     - go: master
+env:
+  - TEST_PSMDB_VERSION=3.4
+  - TEST_PSMDB_VERSION=3.6
 services:
   - docker
 install:
@@ -15,7 +18,7 @@ before_script:
   - docker --version
   - docker-compose --version
   - sudo make test-mongod.key
-  - make test-full-prepare
+  - make TEST_PSMDB_VERSION=${TEST_PSMDB_VERSION} test-full-prepare
 script:
   - make TEST_CODECOV=true test-full
 after_success:
