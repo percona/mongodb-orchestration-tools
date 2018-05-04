@@ -1,5 +1,5 @@
-hash: 34701ca0bbf9b4ed0445c415853c0009d27091877c321744ec8a42e04052e3fe
-updated: 2018-05-03T20:50:22.713822445+02:00
+hash: cc97cd987326ca0bcab91aac299c9881566c26f73b5dc7ddd46e7f0ae32d9248
+updated: 2018-05-04T13:08:14.169179062+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -53,4 +53,16 @@ imports:
   - internal/scram
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
+  subpackages:
+  - assert

@@ -19,6 +19,7 @@ import (
 	gotesting "testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
@@ -48,15 +49,10 @@ func Enabled() bool {
 // getPrimaryDialInfo returns a *mgo.DialInfo configured for testing against a Mongodb Primary
 func getPrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
 	if Enabled() {
-		if MongodbReplsetName == "" {
-			t.Fatalf("Replica set name env var %s is not set", MongodbReplsetName)
-		} else if MongodbPrimaryPort == "" {
-			t.Fatalf("Primary port env var %s is not set", envMongoDBPrimaryPort)
-		} else if MongodbAdminUser == "" {
-			t.Fatalf("Admin user env var %s is not set", envMongoDBAdminUser)
-		} else if MongodbAdminPassword == "" {
-			t.Fatalf("Admin password env var %s is not set", envMongoDBAdminPassword)
-		}
+		assert.NotEmpty(t, MongodbReplsetName, "Replica set name env var is not set")
+		assert.NotEmpty(t, MongodbPrimaryPort, "Primary port env var is not set")
+		assert.NotEmpty(t, MongodbAdminUser, "Admin user env var is not set")
+		assert.NotEmpty(t, MongodbAdminPassword, "Admin password env var is not set")
 		return &mgo.DialInfo{
 			Addrs:          []string{MongodbPrimaryHost + ":" + MongodbPrimaryPort},
 			Direct:         true,
@@ -69,12 +65,12 @@ func getPrimaryDialInfo(t *gotesting.T) *mgo.DialInfo {
 	return nil
 }
 
-func GetPrimarySession(t *gotesting.T) (*mgo.Session, error) {
+func GetPrimarySession(t *gotesting.T) *mgo.Session {
 	dialInfo := getPrimaryDialInfo(t)
-	if dialInfo == nil {
-		t.Fatal("Could not build dial info for Primary")
-	}
-	return mgo.DialWithInfo(dialInfo)
+	assert.NotNil(t, dialInfo, "Could not build dial info for Primary")
+	session, err := mgo.DialWithInfo(dialInfo)
+	assert.NoErrorf(t, err, "Database connection error: %s", err)
+	return session
 }
 
 // DoSkipTest handles the conditional skipping of tests, based on the output of .Enabled()
