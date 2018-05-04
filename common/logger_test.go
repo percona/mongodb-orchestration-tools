@@ -42,10 +42,10 @@ func TestLogInfo(t *gotesting.T) {
 	formatter := GetLogFormatter(toolConfig.ProgName)
 	SetupLogger(toolConfig, formatter, buf)
 	log.Info("test123")
+
 	infoStr := strings.ToUpper(log.InfoLevel.String())
 	expected := " " + toolConfig.ProgName + "  " + infoStr + "    test123 \n"
 	logged := buf.String()
-	t.Logf("%v %v", logged, expected)
 	assert.Truef(t,
 		strings.HasSuffix(logged, expected),
 		"log not equal got '%v' and expected '%v'",
