@@ -32,20 +32,20 @@ func (at *MockApiTask) GetMongoHostname(frameworkName string) string {
 	return "localhost." + frameworkName
 }
 
-func (at *MockApiTask) GetMongoPort() (int, error) {
-	return testing.MongodbPrimaryPort, nil
-}
+//func (at *MockApiTask) GetMongoPort() (int, error) {
+//	return testing.MongodbPrimaryPort, nil
+//}
 
 func (at *MockApiTask) GetMongoReplsetName() (string, error) {
 	return testing.MongodbReplsetName, nil
 }
 
-func TestNewMongod(t *gotesting.T) {
-	testing.DoSkipTest(t)
-	apiTask := new(MockApiTask)
-	mongod, err := NewMongod(apiTask, "frameworkNameHere", "mongo-"+testing.MongodbReplsetName)
-	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
-}
+//func TestNewMongod(t *gotesting.T) {
+//	testing.DoSkipTest(t)
+//	apiTask := new(MockApiTask)
+//	mongod, err := NewMongod(apiTask, "frameworkNameHere", "mongo-"+testing.MongodbReplsetName)
+//	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
+//}
 
 func TestMongodName(t *gotesting.T) {
 	mongod := &Mongod{
