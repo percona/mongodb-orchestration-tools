@@ -84,5 +84,5 @@ func main() {
 
 	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
-	watchdog.New(cnf).Run()
+	watchdog.New(cnf, api.New(cnf.FrameworkName, cnf.API)).Run()
 }

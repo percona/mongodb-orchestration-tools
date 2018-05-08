@@ -30,16 +30,16 @@ import (
 type Watchdog struct {
 	startTime      time.Time
 	config         *config.Config
-	api            *api.Api
+	api            api.Api
 	replsetManager *replset.Manager
 	watcherManager *watcher.Manager
 }
 
-func New(config *config.Config) *Watchdog {
+func New(config *config.Config, dcosApi api.Api) *Watchdog {
 	return &Watchdog{
 		config:         config,
 		startTime:      time.Now(),
-		api:            api.New(config.FrameworkName, config.API),
+		api:            dcosApi,
 		replsetManager: replset.NewManager(config),
 		watcherManager: watcher.NewManager(config),
 	}
