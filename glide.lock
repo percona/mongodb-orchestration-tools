@@ -1,5 +1,5 @@
-hash: 5bcc2beca70dc3969d0952c426eba3a8cf02026dfaa4489774453dcc19787d26
-updated: 2018-05-08T14:56:12.463233521+02:00
+hash: 54dfbcdd5687b209a141d26a7b3f7168d909ba2c7ff2fe607dd6185fda8305bc
+updated: 2018-05-08T14:58:46.34674489+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -32,13 +32,10 @@ imports:
   version: 21064290616f41350e6cb55e412f5ed938957ae2
 - name: github.com/sirupsen/logrus
   version: 778f2e774c725116edbc3d039dc0dfc1cc62aae8
-- name: github.com/stretchr/objx
-  version: a5cfa15c000af5f09784e5355969ba7eb66ef0de
 - name: github.com/stretchr/testify
   version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
   subpackages:
   - assert
-  - mock
 - name: github.com/timvaillancourt/go-mongodb-config
   version: 618519223de5eb03913441986d3873d382745704
   subpackages:
