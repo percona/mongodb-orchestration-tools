@@ -88,9 +88,8 @@ func main() {
 
 	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
-	dcosApi := api.New(
+	watchdog.New(cnf, api.New(
 		cnf.FrameworkName,
 		cnf.API,
-	)
-	watchdog.New(cnf, dcosApi).Run()
+	)).Run()
 }
