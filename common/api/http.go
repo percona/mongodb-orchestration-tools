@@ -26,10 +26,21 @@ var (
 	DefaultTimeout    = "5s"
 )
 
+type HttpScheme string
+
+const (
+	HttpSchemePlain  HttpScheme = "http://"
+	HttpSchemeSecure HttpScheme = "https://"
+)
+
+func (s HttpScheme) String() string {
+	return string(s)
+}
+
 type ApiHttp struct {
 	FrameworkName string
 	config        *Config
-	scheme        ApiScheme
+	scheme        HttpScheme
 	client        *http.Client
 }
 
@@ -37,13 +48,13 @@ func New(frameworkName string, config *Config) *ApiHttp {
 	a := &ApiHttp{
 		FrameworkName: frameworkName,
 		config:        config,
-		scheme:        ApiSchemePlain,
+		scheme:        HttpSchemePlain,
 		client: &http.Client{
 			Timeout: config.Timeout,
 		},
 	}
 	if config.Secure {
-		a.scheme = ApiSchemeSecure
+		a.scheme = HttpSchemeSecure
 	}
 	return a
 }

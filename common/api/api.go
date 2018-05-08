@@ -18,17 +18,6 @@ import (
 	"time"
 )
 
-type ApiScheme string
-
-const (
-	ApiSchemePlain  ApiScheme = "http://"
-	ApiSchemeSecure ApiScheme = "https://"
-)
-
-func (s ApiScheme) String() string {
-	return string(s)
-}
-
 type Config struct {
 	HostPrefix string
 	HostSuffix string
