@@ -1,5 +1,5 @@
-hash: 54dfbcdd5687b209a141d26a7b3f7168d909ba2c7ff2fe607dd6185fda8305bc
-updated: 2018-05-08T14:58:46.34674489+02:00
+hash: 27f9b9aa8ab6f6e873c5f07f79e9ca612713d530917927d03ff5950ed695624e
+updated: 2018-05-08T16:27:13.48189858+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -17,10 +17,6 @@ imports:
   version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
   subpackages:
   - spew
-- name: github.com/kr/pretty
-  version: 73f6ac0b30a98e433b289500d779f50c1a6f0712
-- name: github.com/kr/text
-  version: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -29,7 +25,10 @@ imports:
   version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - name: github.com/scullxbones/mgo-statsd
-  version: 21064290616f41350e6cb55e412f5ed938957ae2
+  version: 26baadc68b3fd018724bd09d751dd6ce94785dcc
+  repo: https://github.com/timvaillancourt/mgo-statsd
+  subpackages:
+  - .
 - name: github.com/sirupsen/logrus
   version: 778f2e774c725116edbc3d039dc0dfc1cc62aae8
 - name: github.com/stretchr/testify
