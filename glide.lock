@@ -1,8 +1,8 @@
-hash: ecdeee43956d44bb27def14df04b50967ac9b59c0730c39aa2b90e6584af3a6c
-updated: 2018-05-04T19:10:51.432605782+02:00
+hash: 5bcc2beca70dc3969d0952c426eba3a8cf02026dfaa4489774453dcc19787d26
+updated: 2018-05-08T14:56:12.463233521+02:00
 imports:
 - name: github.com/alecthomas/kingpin
-  version: 947dcec5ba9c011838740e680966fd7087a71d0d
+  version: a39589180ebd6bbf43076e514b55f20a95d43086
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
   subpackages:
@@ -18,9 +18,9 @@ imports:
   subpackages:
   - spew
 - name: github.com/kr/pretty
-  version: cfb55aafdaf3ec08f0db22699ab822c50091b1c4
+  version: 73f6ac0b30a98e433b289500d779f50c1a6f0712
 - name: github.com/kr/text
-  version: 7cafcd837844e784b526369c9bce262804aebc60
+  version: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -29,13 +29,13 @@ imports:
   version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - name: github.com/scullxbones/mgo-statsd
-  version: c065086a899e3a62053c6d8db3b4ec2841c6e213
+  version: 21064290616f41350e6cb55e412f5ed938957ae2
 - name: github.com/sirupsen/logrus
-  version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
+  version: 778f2e774c725116edbc3d039dc0dfc1cc62aae8
 - name: github.com/stretchr/objx
   version: a5cfa15c000af5f09784e5355969ba7eb66ef0de
 - name: github.com/stretchr/testify
-  version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
+  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
   subpackages:
   - assert
   - mock
@@ -51,11 +51,11 @@ imports:
 - name: github.com/vharitonsky/iniflags
   version: e2b4a6da96d46d6660e977fe22eda5ea0f2b35d2
 - name: golang.org/x/crypto
-  version: 8b1d31080a7692e075c4681cb2458454a1fe0706
+  version: 4ec37c66abab2c7e02ae775328b2ff001c3f025a
   subpackages:
   - ssh/terminal
 - name: golang.org/x/sys
-  version: 78d5f264b493f125018180c204871ecf58a2dce1
+  version: 7db1c3b1a98089d0071c84f646ff5c96aad43682
   subpackages:
   - unix
   - windows
