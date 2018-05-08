@@ -15,22 +15,22 @@
 package api
 
 import (
-	"time"
+	gotesting "testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-type Config struct {
-	HostPrefix string
-	HostSuffix string
-	Timeout    time.Duration
-	Secure     bool
+var (
+	testEndpoint = &Endpoint{
+		Address: []string{"127.0.0.1"},
+		Dns:     []string{"mongo1.example.com"},
+	}
+)
+
+func TestApiEndpointAddresses(t *gotesting.T) {
+	assert.Equal(t, testEndpoint.Addresses(), testEndpoint.Address, "&Endpoint{} struct .Addresses() is incorrect")
 }
 
-type Api interface {
-	GetBaseUrl() string
-	GetPodUrl() string
-	GetPods() (*Pods, error)
-	GetPodTasks(podName string) ([]PodTask, error)
-	GetEndpointsUrl() string
-	GetEndpoints() (*Endpoints, error)
-	GetEndpoint(endpointName string) (*Endpoint, error)
+func TestApiEndpointHosts(t *gotesting.T) {
+	assert.Equal(t, testEndpoint.Hosts(), testEndpoint.Dns, "&Endpoint{} struct .Hosts() is incorrect")
 }

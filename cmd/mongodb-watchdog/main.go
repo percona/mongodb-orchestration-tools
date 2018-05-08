@@ -74,6 +74,10 @@ func main() {
 		"apiHostSuffix",
 		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
 	).Default(api.DefaultHostSuffix).StringVar(&cnf.API.HostSuffix)
+	kingpin.Flag(
+		"apiSecure",
+		"Use secure connections to DC/OS SDK API",
+	).BoolVar(&cnf.API.Secure)
 
 	cnf.SSL = db.NewSSLConfig()
 	kingpin.Parse()
@@ -84,5 +88,8 @@ func main() {
 
 	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
-	watchdog.New(cnf).Run()
+	watchdog.New(cnf, api.New(
+		cnf.FrameworkName,
+		cnf.API,
+	)).Run()
 }

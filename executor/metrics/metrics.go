@@ -69,8 +69,9 @@ func (m *Metrics) Run(quit *chan bool) error {
 	for {
 		select {
 		case <-ticker.C:
-			status := mgostatsd.GetServerStatus(m.session)
-			if status == nil {
+			status, err := mgostatsd.GetServerStatus(m.session)
+			if err != nil {
+				log.Warnf("Failed to get serverStatus for DC/OS Metrics: %s", err)
 				continue
 			}
 
@@ -79,7 +80,7 @@ func (m *Metrics) Run(quit *chan bool) error {
 				"statsd_port": m.config.StatsdPort,
 			}).Info("Pushing DC/OS Metrics")
 
-			err := mgostatsd.PushStats(statsdCnf, status, false)
+			err = mgostatsd.PushStats(statsdCnf, status, false)
 			if err != nil {
 				log.Errorf("DC/OS Metrics push error: %s", err)
 			}
