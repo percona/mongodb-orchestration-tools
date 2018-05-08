@@ -1,8 +1,8 @@
-hash: cc97cd987326ca0bcab91aac299c9881566c26f73b5dc7ddd46e7f0ae32d9248
-updated: 2018-05-04T13:08:14.169179062+02:00
+hash: 54dfbcdd5687b209a141d26a7b3f7168d909ba2c7ff2fe607dd6185fda8305bc
+updated: 2018-05-08T14:58:46.34674489+02:00
 imports:
 - name: github.com/alecthomas/kingpin
-  version: 947dcec5ba9c011838740e680966fd7087a71d0d
+  version: a39589180ebd6bbf43076e514b55f20a95d43086
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
   subpackages:
@@ -13,17 +13,29 @@ imports:
   version: bda05cec1b810da33da77c2d833fe7ab8338acd6
   subpackages:
   - statsd
+- name: github.com/davecgh/go-spew
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
+  subpackages:
+  - spew
 - name: github.com/kr/pretty
-  version: cfb55aafdaf3ec08f0db22699ab822c50091b1c4
+  version: 73f6ac0b30a98e433b289500d779f50c1a6f0712
 - name: github.com/kr/text
-  version: 7cafcd837844e784b526369c9bce262804aebc60
+  version: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
 - name: github.com/Robpol86/logrus-custom-formatter
   version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - name: github.com/scullxbones/mgo-statsd
-  version: c065086a899e3a62053c6d8db3b4ec2841c6e213
+  version: 21064290616f41350e6cb55e412f5ed938957ae2
 - name: github.com/sirupsen/logrus
-  version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
+  version: 778f2e774c725116edbc3d039dc0dfc1cc62aae8
+- name: github.com/stretchr/testify
+  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
+  subpackages:
+  - assert
 - name: github.com/timvaillancourt/go-mongodb-config
   version: 618519223de5eb03913441986d3873d382745704
   subpackages:
@@ -36,11 +48,11 @@ imports:
 - name: github.com/vharitonsky/iniflags
   version: e2b4a6da96d46d6660e977fe22eda5ea0f2b35d2
 - name: golang.org/x/crypto
-  version: 8b1d31080a7692e075c4681cb2458454a1fe0706
+  version: 4ec37c66abab2c7e02ae775328b2ff001c3f025a
   subpackages:
   - ssh/terminal
 - name: golang.org/x/sys
-  version: 78d5f264b493f125018180c204871ecf58a2dce1
+  version: 7db1c3b1a98089d0071c84f646ff5c96aad43682
   subpackages:
   - unix
   - windows
@@ -53,16 +65,4 @@ imports:
   - internal/scram
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
-testImports:
-- name: github.com/davecgh/go-spew
-  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
-  subpackages:
-  - spew
-- name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
-  subpackages:
-  - difflib
-- name: github.com/stretchr/testify
-  version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
-  subpackages:
-  - assert
+testImports: []

@@ -88,4 +88,8 @@ func TestRemoveAddConfigMembers(t *gotesting.T) {
 	state.AddConfigMembers([]*Mongod{addMongod})
 	assert.Falsef(t, state.doUpdate, "state.doUpdate is true after state.AddConfigMembers()")
 	assert.Len(t, state.Config.Members, memberCount, "state.Config.Members count did not increase")
+
+	member := state.Config.GetMember(removeMember.Host)
+	assert.NotNil(t, member, "state.Config.HasMember() returned no member")
+	assert.True(t, member.Tags.HasMatch(frameworkTagName, "test"), "member has missing replica set tag")
 }

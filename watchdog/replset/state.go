@@ -26,6 +26,8 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+const frameworkTagName = "dcosFramework"
+
 type State struct {
 	sync.Mutex
 	Replset       string
@@ -114,14 +116,14 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 	for _, mongod := range mongods {
 		member := rsConfig.NewMember(mongod.Name())
 		member.Tags = &rsConfig.ReplsetTags{
-			"dcosFramework": mongod.FrameworkName,
+			frameworkTagName: mongod.FrameworkName,
 		}
 		if mongod.IsBackupNode() {
 			member.Hidden = true
 			member.Priority = 0
 			member.Tags = &rsConfig.ReplsetTags{
-				"backup":        "true",
-				"dcosFramework": mongod.FrameworkName,
+				"backup":         "true",
+				frameworkTagName: mongod.FrameworkName,
 			}
 			member.Votes = 0
 		}
