@@ -1,4 +1,5 @@
 bin
 coverage.txt
 test-mongod.key
+test-mongod.pem
 vendor

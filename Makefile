@@ -46,7 +46,12 @@ test-mongod.key:
 	chown $(TEST_MONGODB_DOCKER_UID):0 test-mongod.key
 	chmod 0600 test-mongod.key
 
-test-full-prepare: test-mongod.key
+test-mongod.pem:
+	cp test/mongodb.pem test-mongod.pem
+	chown $(TEST_MONGODB_DOCKER_UID):0 test-mongod.pem
+	chmod 0600 test-mongod.pem
+
+test-full-prepare: test-mongod.key test-mongod.pem
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
@@ -55,7 +60,7 @@ test-full-prepare: test-mongod.key
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	docker-compose up -d
-	scripts/init-test-replset-wait.sh
+	test/init-test-replset-wait.sh
 
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
@@ -66,4 +71,4 @@ test-full: vendor
 	GOCACHE=$(GOCACHE) go test -v $(TEST_GO_EXTRA) ./...
 
 clean:
-	rm -rf bin coverage.txt test-mongod.key vendor 2>/dev/null || true
+	rm -rf bin coverage.txt test-mongod.key test-mongod.pem vendor 2>/dev/null || true
