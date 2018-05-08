@@ -78,6 +78,10 @@ func handleUserCmd(cnf *controller.Config) {
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var",
 	).Default(api.DefaultTimeout).DurationVar(&cnf.User.API.Timeout)
+	kingpin.Flag(
+		"apiSecure",
+		"Use secure connections to DC/OS SDK API",
+	).BoolVar(&cnf.User.API.Secure)
 	cmdUser.Flag(
 		"maxConnectTries",
 		"number of times to retry connecting to mongodb",

@@ -27,10 +27,22 @@ var (
 	DefaultTimeout    = "5s"
 )
 
+type ApiScheme string
+
+const (
+	ApiSchemePlain  ApiScheme = "http://"
+	ApiSchemeSecure ApiScheme = "https://"
+)
+
+func (s ApiScheme) String() string {
+	return string(s)
+}
+
 type Config struct {
 	HostPrefix string
 	HostSuffix string
 	Timeout    time.Duration
+	Secure     bool
 }
 
 type Api interface {
@@ -46,17 +58,23 @@ type Api interface {
 type ApiHttp struct {
 	FrameworkName string
 	config        *Config
+	scheme        ApiScheme
 	client        *http.Client
 }
 
 func New(frameworkName string, config *Config) *ApiHttp {
-	return &ApiHttp{
+	a := &ApiHttp{
 		FrameworkName: frameworkName,
 		config:        config,
+		scheme:        ApiSchemePlain,
 		client: &http.Client{
 			Timeout: config.Timeout,
 		},
 	}
+	if config.Secure {
+		a.scheme = ApiSchemeSecure
+	}
+	return a
 }
 
 func (a *ApiHttp) GetBaseUrl() string {
@@ -64,7 +82,7 @@ func (a *ApiHttp) GetBaseUrl() string {
 }
 
 func (a *ApiHttp) GetPodUrl() string {
-	return "http://" + a.GetBaseUrl() + "/v1/pod"
+	return a.scheme.String() + a.GetBaseUrl() + "/v1/pod"
 }
 
 func (a *ApiHttp) GetPods() (*Pods, error) {
@@ -81,7 +99,7 @@ func (a *ApiHttp) GetPodTasks(podName string) ([]PodTask, error) {
 }
 
 func (a *ApiHttp) GetEndpointsUrl() string {
-	return "http://" + a.GetBaseUrl() + "/v1/endpoints"
+	return a.scheme.String() + a.GetBaseUrl() + "/v1/endpoints"
 }
 
 func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {
