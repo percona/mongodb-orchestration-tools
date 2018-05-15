@@ -15,7 +15,6 @@ import:
     - config
   - package: github.com/alecthomas/kingpin
   - package: github.com/scullxbones/mgo-statsd
-    repo: https://github.com/timvaillancourt/mgo-statsd
     subpackages:
     - .
 testImport:

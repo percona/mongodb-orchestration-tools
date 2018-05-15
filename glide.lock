@@ -1,5 +1,5 @@
-hash: 27f9b9aa8ab6f6e873c5f07f79e9ca612713d530917927d03ff5950ed695624e
-updated: 2018-05-08T16:27:13.48189858+02:00
+hash: ae123fa487e2d34cb0963b529ef207ad8dc4673e3c5cefe204c6a55c494bed11
+updated: 2018-05-15T12:58:00.72948254+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -25,33 +25,32 @@ imports:
   version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - name: github.com/scullxbones/mgo-statsd
-  version: 26baadc68b3fd018724bd09d751dd6ce94785dcc
-  repo: https://github.com/timvaillancourt/mgo-statsd
+  version: 90a5ff292d282d1663a6085b1992193254fd1e56
   subpackages:
   - .
 - name: github.com/sirupsen/logrus
-  version: 778f2e774c725116edbc3d039dc0dfc1cc62aae8
+  version: bde08903c767a7f835dfbe69f769f4b3225f8b1b
 - name: github.com/stretchr/testify
   version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
   subpackages:
   - assert
 - name: github.com/timvaillancourt/go-mongodb-config
-  version: 618519223de5eb03913441986d3873d382745704
+  version: 35160f1fd66597e2cc988e89c3679900bd60d788
   subpackages:
   - config
 - name: github.com/timvaillancourt/go-mongodb-replset
-  version: d553262ca5c7198180af9181a3164330bc045372
+  version: 4c99f9eb6337944070d85acd506ce11141b65051
   subpackages:
   - config
   - status
 - name: github.com/vharitonsky/iniflags
-  version: e2b4a6da96d46d6660e977fe22eda5ea0f2b35d2
+  version: a33cd0b5f3de9ef5e89c90ab2f1ebe3f71ad1ece
 - name: golang.org/x/crypto
-  version: 4ec37c66abab2c7e02ae775328b2ff001c3f025a
+  version: 1a580b3eff7814fc9b40602fd35256c63b50f491
   subpackages:
   - ssh/terminal
 - name: golang.org/x/sys
-  version: 7db1c3b1a98089d0071c84f646ff5c96aad43682
+  version: 7c87d13f8e835d2fb3a70a2912c811ed0c1d241b
   subpackages:
   - unix
   - windows
