@@ -25,7 +25,6 @@ func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	assert.NoError(t, testDBSession.Ping(), "Database ping error")
-
 	state, err := ReadinessCheck(testDBSession)
 	assert.NoError(t, err, "healthcheck.ReadinessCheck() returned an error")
 	assert.Equal(t, state, StateOk, "healthcheck.ReadinessCheck() returned incorrect state")
