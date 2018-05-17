@@ -62,6 +62,9 @@ test-full-prepare: test-mongod.key test-mongod.pem
 	docker-compose up -d
 	test/init-test-replset-wait.sh
 
+test-full-clean:
+	docker-compose down
+
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
 	TEST_RS_NAME=$(TEST_RS_NAME) \

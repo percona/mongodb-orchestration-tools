@@ -12,20 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package db
 
 import (
+	"bytes"
+	"os"
 	gotesting "testing"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
-	"github.com/stretchr/testify/assert"
+	"gopkg.in/mgo.v2"
 )
 
-func TestReadinessCheck(t *gotesting.T) {
-	testing.DoSkipTest(t)
+var (
+	testPrimarySession  *mgo.Session
+	testLogBuffer       = new(bytes.Buffer)
+	testPrimaryDbConfig = &Config{
+		DialInfo: &mgo.DialInfo{
+			Addrs:   []string{testing.MongodbPrimaryHost + ":" + testing.MongodbPrimaryPort},
+			Direct:  true,
+			Timeout: testing.MongodbTimeout,
+		},
+		SSL: &SSLConfig{},
+	}
+)
 
-	assert.NoError(t, testDBSession.Ping(), "Database ping error")
-	state, err := ReadinessCheck(testDBSession)
-	assert.NoError(t, err, "healthcheck.ReadinessCheck() returned an error")
-	assert.Equal(t, state, StateOk, "healthcheck.ReadinessCheck() returned incorrect state")
+func TestMain(m *gotesting.M) {
+	common.SetupLogger(&common.ToolConfig{}, common.GetLogFormatter("test"), testLogBuffer)
+	exit := m.Run()
+	if testPrimarySession != nil {
+		testPrimarySession.Close()
+	}
+	os.Exit(exit)
 }

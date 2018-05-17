@@ -44,6 +44,11 @@ var (
 func TestGetSelfMemberState(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
 	assert.Equalf(t, *state, testMember.State, "healthcheck.getSelfMemberState() returned wrong result")
+
+	testStatus.Members[0].Health = status.MemberHealthDown
+	state = getSelfMemberState(testStatus)
+	assert.Nil(t, state, "healthcheck.getSelfMemberState() should return nil")
+	testStatus.Members[0].Health = status.MemberHealthUp
 }
 
 func TestIsMemberStateOk(t *gotesting.T) {
