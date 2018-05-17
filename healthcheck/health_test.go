@@ -58,9 +58,8 @@ func TestIsMemberStateOk(t *gotesting.T) {
 
 func TestHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
-	session := testing.GetPrimarySession(t)
 
-	state, memberState, err := HealthCheck(session, OkMemberStates)
+	state, memberState, err := HealthCheck(testDBSession, OkMemberStates)
 	assert.NoError(t, err, "healthcheck.HealthCheck() returned an error")
 	assert.Equal(t, state, StateOk, "healthcheck.HealthCheck() returned non-ok state")
 	assert.Equal(t, *memberState, status.MemberStatePrimary, "healthcheck.HealthCheck() returned non-primary member state")
@@ -68,9 +67,8 @@ func TestHealthCheck(t *gotesting.T) {
 
 func TestHealthCheckFalse(t *gotesting.T) {
 	testing.DoSkipTest(t)
-	session := testing.GetPrimarySession(t)
 
-	state, _, err := HealthCheck(session, []status.MemberState{status.MemberStateRemoved})
+	state, _, err := HealthCheck(testDBSession, []status.MemberState{status.MemberStateRemoved})
 	assert.EqualError(t, err,
 		"Member has unhealthy replication state: "+status.MemberStatePrimary.String(),
 		"healthcheck.HealthCheck() returned an expected error",
