@@ -12,21 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package replset
 
 import (
+	"os"
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
-	"github.com/stretchr/testify/assert"
+	"gopkg.in/mgo.v2"
 )
 
-func TestReadinessCheck(t *gotesting.T) {
-	testing.DoSkipTest(t)
+var testDBSession *mgo.Session
 
-	assert.NoError(t, testDBSession.Ping(), "Database ping error")
-
-	state, err := ReadinessCheck(testDBSession)
-	assert.NoError(t, err, "healthcheck.ReadinessCheck() returned an error")
-	assert.Equal(t, state, StateOk, "healthcheck.ReadinessCheck() returned incorrect state")
+func TestMain(m *gotesting.M) {
+	if testing.Enabled() {
+		var err error
+		testDBSession, err = testing.GetPrimarySession()
+		if err != nil {
+			panic(err)
+		}
+	}
+	exit := m.Run()
+	if testDBSession != nil {
+		testDBSession.Close()
+	}
+	os.Exit(exit)
 }

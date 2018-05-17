@@ -45,13 +45,13 @@ func TestApiNew(t *gotesting.T) {
 }
 
 func TestApiGetBaseUrl(t *gotesting.T) {
-	assert.Equal(t, testApi.GetBaseUrl(), "api.percona-mongo.test.com", "api.GetBaseUrl() is incorrect")
+	assert.Equal(t, testApi.getBaseUrl(), "api.percona-mongo.test.com", "api.getBaseUrl() is incorrect")
 }
 
 func TestApiGetPodUrl(t *gotesting.T) {
-	assert.Equal(t, testApi.GetPodUrl(), "http://"+testApi.GetBaseUrl()+"/v1/pod", "api.GetPodUrl() is incorrect")
+	assert.Equal(t, testApi.GetPodUrl(), testApi.scheme.String()+testApi.getBaseUrl()+"/v1/pod", "api.GetPodUrl() is incorrect")
 }
 
 func TestApiGetEndpointsUrl(t *gotesting.T) {
-	assert.Equal(t, testApi.GetEndpointsUrl(), "http://"+testApi.GetBaseUrl()+"/v1/endpoints", "api.GetEndpointsUrl() is incorrect")
+	assert.Equal(t, testApi.GetEndpointsUrl(), testApi.scheme.String()+testApi.getBaseUrl()+"/v1/endpoints", "api.GetEndpointsUrl() is incorrect")
 }

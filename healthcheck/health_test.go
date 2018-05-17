@@ -15,14 +15,17 @@
 package healthcheck
 
 import (
+	//"os"
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
+	//"gopkg.in/mgo.v2"
 )
 
 var (
+	//testDBSession *mgo.Session
 	testMember = &status.Member{
 		Id:       0,
 		Name:     "localhost:27017",
@@ -41,6 +44,20 @@ var (
 	}
 )
 
+//func TestMain(m *gotesting.M) {
+//	if testing.Enabled() {
+//		testDBSession, err := testing.GetPrimarySession()
+//		if err != nil {
+//			panic(err)
+//		}
+//	}
+//	exit := m.Run()
+//	if testDBSession != nil {
+//		testDBSession.Close()
+//	}
+//	os.Exit(exit)
+//}
+
 func TestGetSelfMemberState(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
 	assert.Equalf(t, *state, testMember.State, "healthcheck.getSelfMemberState() returned wrong result")
@@ -58,9 +75,8 @@ func TestIsMemberStateOk(t *gotesting.T) {
 
 func TestHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
-	session := testing.GetPrimarySession(t)
 
-	state, memberState, err := HealthCheck(session, OkMemberStates)
+	state, memberState, err := HealthCheck(testDBSession, OkMemberStates)
 	assert.NoError(t, err, "healthcheck.HealthCheck() returned an error")
 	assert.Equal(t, state, StateOk, "healthcheck.HealthCheck() returned non-ok state")
 	assert.Equal(t, *memberState, status.MemberStatePrimary, "healthcheck.HealthCheck() returned non-primary member state")
@@ -68,9 +84,8 @@ func TestHealthCheck(t *gotesting.T) {
 
 func TestHealthCheckFalse(t *gotesting.T) {
 	testing.DoSkipTest(t)
-	session := testing.GetPrimarySession(t)
 
-	state, _, err := HealthCheck(session, []status.MemberState{status.MemberStateRemoved})
+	state, _, err := HealthCheck(testDBSession, []status.MemberState{status.MemberStateRemoved})
 	assert.EqualError(t, err,
 		"Member has unhealthy replication state: "+status.MemberStatePrimary.String(),
 		"healthcheck.HealthCheck() returned an expected error",
