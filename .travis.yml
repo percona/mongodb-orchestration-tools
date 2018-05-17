@@ -22,3 +22,5 @@ script:
   - make TEST_CODECOV=true test-full
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+after_script:
+  - make test-full-clean
