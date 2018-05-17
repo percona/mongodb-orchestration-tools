@@ -59,12 +59,12 @@ func New(frameworkName string, config *Config) *ApiHttp {
 	return a
 }
 
-func (a *ApiHttp) GetBaseUrl() string {
+func (a *ApiHttp) getBaseUrl() string {
 	return a.config.HostPrefix + "." + a.FrameworkName + "." + a.config.HostSuffix
 }
 
 func (a *ApiHttp) GetPodUrl() string {
-	return a.scheme.String() + a.GetBaseUrl() + "/v1/pod"
+	return a.scheme.String() + a.getBaseUrl() + "/v1/pod"
 }
 
 func (a *ApiHttp) GetPods() (*Pods, error) {
@@ -81,7 +81,7 @@ func (a *ApiHttp) GetPodTasks(podName string) ([]PodTask, error) {
 }
 
 func (a *ApiHttp) GetEndpointsUrl() string {
-	return a.scheme.String() + a.GetBaseUrl() + "/v1/endpoints"
+	return a.scheme.String() + a.getBaseUrl() + "/v1/endpoints"
 }
 
 func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {
