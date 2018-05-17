@@ -15,7 +15,6 @@
 package db
 
 import (
-	"os"
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
@@ -24,28 +23,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var (
-	testPrimarySession  *mgo.Session = nil
-	testPrimaryDbConfig              = &Config{
-		DialInfo: &mgo.DialInfo{
-			Addrs:   []string{testing.MongodbPrimaryHost + ":" + testing.MongodbPrimaryPort},
-			Direct:  true,
-			Timeout: testing.MongodbTimeout,
-		},
-		SSL: &SSLConfig{},
-	}
-)
-
-func TestMain(m *gotesting.M) {
-	exit := m.Run()
-	if testPrimarySession != nil {
-		testPrimarySession.Close()
-	}
-	os.Exit(exit)
-}
-
 func TestGetSession(t *gotesting.T) {
 	testing.DoSkipTest(t)
+
+	assert.False(t, testPrimaryDbConfig.SSL.Enabled, "SSL should be disabled")
 
 	// no auth
 	testPrimarySession, err := GetSession(testPrimaryDbConfig)

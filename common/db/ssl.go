@@ -26,6 +26,8 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+var lastSSLErr error
+
 type SSLConfig struct {
 	Enabled    bool
 	PEMKeyFile string
@@ -41,6 +43,10 @@ func (sc *SSLConfig) loadCaCertificate() (*x509.CertPool, error) {
 	certificates := x509.NewCertPool()
 	certificates.AppendCertsFromPEM(caCert)
 	return certificates, nil
+}
+
+func LastSSLError() error {
+	return lastSSLErr
 }
 
 func (cnf *Config) configureSSLDialInfo() error {
@@ -72,6 +78,7 @@ func (cnf *Config) configureSSLDialInfo() error {
 		conn, err := tls.Dial("tcp", addr.String(), config)
 		if err != nil {
 			log.Errorf("Could not connect to %v. Got: %v", addr, err)
+			lastSSLErr = err
 			return nil, err
 		}
 		if !config.InsecureSkipVerify {
