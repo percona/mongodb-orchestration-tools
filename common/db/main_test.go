@@ -15,16 +15,19 @@
 package db
 
 import (
+	"bytes"
 	"os"
 	gotesting "testing"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"gopkg.in/mgo.v2"
 )
 
 var (
-	testPrimarySession  *mgo.Session = nil
-	testPrimaryDbConfig              = &Config{
+	testPrimarySession  *mgo.Session
+	testLogBuffer       = new(bytes.Buffer)
+	testPrimaryDbConfig = &Config{
 		DialInfo: &mgo.DialInfo{
 			Addrs:   []string{testing.MongodbPrimaryHost + ":" + testing.MongodbPrimaryPort},
 			Direct:  true,
@@ -35,6 +38,7 @@ var (
 )
 
 func TestMain(m *gotesting.M) {
+	common.SetupLogger(&common.ToolConfig{}, common.GetLogFormatter("test"), testLogBuffer)
 	exit := m.Run()
 	if testPrimarySession != nil {
 		testPrimarySession.Close()

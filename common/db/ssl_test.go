@@ -55,12 +55,14 @@ func TestGetSessionSSL(t *gotesting.T) {
 	}
 
 	// intentionally test for SSL error (due to self-signed SSL certs) in secure mode
+	testLogBuffer.Reset()
 	assert.Nil(t, LastSSLError(), ".LastSSLError() should be nil")
 	testPrimaryDbConfigSSL.DialInfo.Timeout = 100 * time.Millisecond
 	_, err := GetSession(testPrimaryDbConfigSSL)
 	assert.Error(t, err, ".GetSession() should return an error due to self-signed certificates")
 	assert.Error(t, LastSSLError(), ".LastSSLError() should not be nil")
 	assert.Regexp(t, "^x509: cannot validate certificate for", LastSSLError().Error(), ".LastSSLError() has unexpected error message")
+	assert.Contains(t, testLogBuffer.String(), "x509: cannot validate certificate for", ".GetSession() log output should contain ssl error")
 
 	// enable insecure mode (due to self-signed certs) and connect
 	testPrimaryDbConfigSSL.DialInfo.Timeout = testing.MongodbTimeout

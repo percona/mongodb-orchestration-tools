@@ -15,16 +15,22 @@
 package replset
 
 import (
+	"bytes"
 	"os"
 	gotesting "testing"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"gopkg.in/mgo.v2"
 )
 
-var testDBSession *mgo.Session
+var (
+	testDBSession *mgo.Session
+	testLogBuffer = new(bytes.Buffer)
+)
 
 func TestMain(m *gotesting.M) {
+	common.SetupLogger(&common.ToolConfig{}, common.GetLogFormatter("test"), testLogBuffer)
 	if testing.Enabled() {
 		var err error
 		testDBSession, err = testing.GetPrimarySession()
