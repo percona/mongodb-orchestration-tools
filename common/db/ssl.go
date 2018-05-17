@@ -45,6 +45,7 @@ func (sc *SSLConfig) loadCaCertificate() (*x509.CertPool, error) {
 	return certificates, nil
 }
 
+// LastSSLError returns the last error related to the DB connection SSL handshake
 func LastSSLError() error {
 	return lastSSLErr
 }
