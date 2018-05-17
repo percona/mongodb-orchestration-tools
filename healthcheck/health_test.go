@@ -15,17 +15,14 @@
 package healthcheck
 
 import (
-	//"os"
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
-	//"gopkg.in/mgo.v2"
 )
 
 var (
-	//testDBSession *mgo.Session
 	testMember = &status.Member{
 		Id:       0,
 		Name:     "localhost:27017",
@@ -43,20 +40,6 @@ var (
 		},
 	}
 )
-
-//func TestMain(m *gotesting.M) {
-//	if testing.Enabled() {
-//		testDBSession, err := testing.GetPrimarySession()
-//		if err != nil {
-//			panic(err)
-//		}
-//	}
-//	exit := m.Run()
-//	if testDBSession != nil {
-//		testDBSession.Close()
-//	}
-//	os.Exit(exit)
-//}
 
 func TestGetSelfMemberState(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
