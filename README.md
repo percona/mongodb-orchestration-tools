@@ -3,6 +3,7 @@
 [![](https://godoc.org/github.com/percona/dcos-mongo-tools?status.svg)](http://godoc.org/github.com/percona/dcos-mongo-tools)
 [![Build Status](https://travis-ci.org/percona/dcos-mongo-tools.svg?branch=master)](https://travis-ci.org/percona/dcos-mongo-tools)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/dcos-mongo-tools)](https://goreportcard.com/report/github.com/percona/dcos-mongo-tools)
+[![codecov](https://codecov.io/gh/percona/dcos-mongo-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/percona/dcos-mongo-tools)
 
 Go-based tools for the [DC/OS 'percona-mongo' service](https://docs.mesosphere.com/services/percona-mongo/).
 
