@@ -1,5 +1,8 @@
 PLATFORM?=linux
-GO_LDFLAGS?="-s -w"
+GIT_COMMIT?=$(shell git rev-parse HEAD)
+GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
+GIT_REPO?=$(shell git remote -v | grep -oP 'github.com/\S+/\S+' | head -1)
+GO_LDFLAGS?="-s -w -X main.GitCommit=${GIT_COMMIT} -X main.GitBranch=${GIT_BRANCH} -X main.GitRepo=${GIT_REPO}"
 GOCACHE?=
 
 ENABLE_MONGODB_TESTS?=false

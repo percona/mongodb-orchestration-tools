@@ -17,16 +17,10 @@ package common
 import (
 	"fmt"
 
-	"github.com/percona/dcos-mongo-tools"
+	"github.com/alecthomas/kingpin"
 )
 
-func PrintVersion(progName string) {
-	fmt.Printf("%s, tools version %s\n",
-		progName,
-		tools.Version,
-	)
-}
-
+// DoStop checks if a goroutine should stop, based on a boolean channel
 func DoStop(stop *chan bool) bool {
 	select {
 	case doStop := <-*stop:
@@ -34,4 +28,12 @@ func DoStop(stop *chan bool) bool {
 	default:
 		return false
 	}
+}
+
+// HandleAppVersion sets up a version handler for a kingpin.Application
+func HandleAppVersion(app *kingpin.Application, commit, branch string) {
+	if app == nil {
+		return
+	}
+	app.Version(fmt.Sprintf("%s, git commit %s, branch %s", app.Name, commit, branch))
 }

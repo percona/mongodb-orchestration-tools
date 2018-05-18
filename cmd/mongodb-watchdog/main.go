@@ -23,70 +23,78 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog"
 	config "github.com/percona/dcos-mongo-tools/watchdog/config"
+	log "github.com/sirupsen/logrus"
+)
+
+var (
+	GitCommit string
+	GitBranch string
 )
 
 func main() {
+	app := kingpin.New("mongodb-watchdog", "A daemon for watching the DC/OS SDK API for MongoDB tasks and updating the MongoDB replica set state on changes")
+	common.HandleAppVersion(app, GitCommit, GitBranch)
+
 	cnf := &config.Config{
-		API:  &api.Config{},
-		Tool: common.NewToolConfig(os.Args[0]),
+		API: &api.Config{},
 	}
-	kingpin.Flag(
+	app.Flag(
 		"framework",
 		"API framework name, this flag or env var "+common.EnvFrameworkName+" is required",
 	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
-	kingpin.Flag(
+	app.Flag(
 		"username",
 		"MongoDB clusterAdmin username, this flag or env var "+common.EnvMongoDBClusterAdminUser+" is required",
 	).Envar(common.EnvMongoDBClusterAdminUser).Required().StringVar(&cnf.Username)
-	kingpin.Flag(
+	app.Flag(
 		"password",
 		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
-	kingpin.Flag(
+	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
 	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.APIPoll)
-	kingpin.Flag(
+	app.Flag(
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
 	).Default(api.DefaultTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
-	kingpin.Flag(
+	app.Flag(
 		"replsetPoll",
 		"Frequency of replset state polls, overridden by env var WATCHDOG_REPLSET_POLL",
 	).Default(config.DefaultReplsetPoll).Envar("WATCHDOG_REPLSET_POLL").DurationVar(&cnf.ReplsetPoll)
-	kingpin.Flag(
+	app.Flag(
 		"replsetTimeout",
 		"MongoDB connect timeout, should be less than 'replsetPoll', overridden by env var WATCHDOG_REPLSET_TIMEOUT",
 	).Default(config.DefaultReplsetTimeout).Envar("WATCHDOG_REPLSET_TIMEOUT").DurationVar(&cnf.ReplsetTimeout)
-	kingpin.Flag(
+	app.Flag(
 		"replsetConfUpdatePoll",
 		"Frequency of replica set config state updates, overridden by env var WATCHDOG_REPLSET_CONF_UPDATE_POLL",
 	).Default(config.DefaultReplsetConfUpdatePoll).Envar("WATCHDOG_REPLSET_CONF_UPDATE_POLL").DurationVar(&cnf.ReplsetConfUpdatePoll)
-	kingpin.Flag(
+	app.Flag(
 		"delayWatcherStart",
 		"Amount of time to delay the start of replset watchers, overridden by env var WATCHDOG_DELAY_WATCHER_START",
 	).Default(config.DefaultDelayWatcher).Envar("WATCHDOG_DELAY_WATCHER_START").DurationVar(&cnf.DelayWatcher)
-	kingpin.Flag(
+	app.Flag(
 		"apiHostPrefix",
 		"DC/OS SDK API hostname prefix, used to construct the DCOS API hostname",
 	).Default(api.DefaultHostPrefix).StringVar(&cnf.API.HostPrefix)
-	kingpin.Flag(
+	app.Flag(
 		"apiHostSuffix",
 		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
 	).Default(api.DefaultHostSuffix).StringVar(&cnf.API.HostSuffix)
-	kingpin.Flag(
+	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
 	).BoolVar(&cnf.API.Secure)
 
-	cnf.SSL = db.NewSSLConfig()
-	kingpin.Parse()
+	cnf.SSL = db.NewSSLConfig(app)
 
-	if cnf.Tool.PrintVersion {
-		cnf.Tool.PrintVersionAndExit()
+	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
+
+	_, err := app.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Cannot parse command line: %s", err)
 	}
-
-	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
 	watchdog.New(cnf, api.New(
 		cnf.FrameworkName,

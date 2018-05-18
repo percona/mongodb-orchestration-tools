@@ -25,25 +25,29 @@ import (
 )
 
 var (
-	health    = kingpin.Command("health", "Run DCOS health check")
-	readiness = kingpin.Command("readiness", "Run DCOS readiness check").Default()
+	GitCommit string
+	GitBranch string
 )
 
 func main() {
+	app := kingpin.New("mongodb-healthcheck", "Performs DC/OS health and readiness checks for MongoDB")
+	common.HandleAppVersion(app, GitCommit, GitBranch)
+
+	health := app.Command("health", "Run DCOS health check")
+	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
 	cnf := &healthcheck.Config{
-		Tool: common.NewToolConfig(os.Args[0]),
 		DB: db.NewConfig(
+			app,
 			common.EnvMongoDBClusterMonitorUser,
 			common.EnvMongoDBClusterMonitorPassword,
 		),
 	}
-	command := kingpin.Parse()
+	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
 
-	if cnf.Tool.PrintVersion {
-		cnf.Tool.PrintVersionAndExit()
+	command, err := app.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Cannot parse command line: %s", err)
 	}
-
-	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
 
 	session, err := db.GetSession(cnf.DB)
 	if err != nil {

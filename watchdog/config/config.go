@@ -17,7 +17,6 @@ package config
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
 )
@@ -32,7 +31,6 @@ var (
 
 // Watchdog Configuration
 type Config struct {
-	Tool                  *common.ToolConfig
 	Username              string
 	Password              string
 	FrameworkName         string

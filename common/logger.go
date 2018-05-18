@@ -18,6 +18,7 @@ import (
 	"io"
 
 	lcf "github.com/Robpol86/logrus-custom-formatter"
+	"github.com/alecthomas/kingpin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,12 +28,18 @@ func GetLogFormatter(progName string) log.Formatter {
 	return lcf.NewFormatter(template, nil)
 }
 
+// SetVerboseLogging enables verbose logging
+func SetVerboseLogging(ctx *kingpin.ParseContext) error {
+	log.SetLevel(log.DebugLevel)
+	return nil
+}
+
 // SetupLogger configures github.com/srupsen/logrus for logging
-func SetupLogger(config *ToolConfig, formatter log.Formatter, out io.Writer) {
+func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Writer) {
 	log.SetOutput(out)
 	log.SetFormatter(formatter)
 	log.SetLevel(log.InfoLevel)
-	if config.Verbose {
-		log.SetLevel(log.DebugLevel)
+	if app != nil {
+		app.Flag("verbose", "enable verbose logging").Action(SetVerboseLogging).Bool()
 	}
 }

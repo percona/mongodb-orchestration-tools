@@ -38,7 +38,7 @@ var (
 )
 
 func TestMain(m *gotesting.M) {
-	common.SetupLogger(&common.ToolConfig{}, common.GetLogFormatter("test"), testLogBuffer)
+	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
 	exit := m.Run()
 	if testPrimarySession != nil {
 		testPrimarySession.Close()
