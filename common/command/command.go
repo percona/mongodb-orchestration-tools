@@ -17,8 +17,6 @@ package command
 import (
 	"os"
 	"os/exec"
-	"os/user"
-	"strconv"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
@@ -34,24 +32,6 @@ type Command struct {
 	uid     int
 	gid     int
 	running bool
-}
-
-// GetUserId returns the numeric ID of a system user
-func GetUserId(userName string) (int, error) {
-	u, err := user.Lookup(userName)
-	if err != nil {
-		return -1, err
-	}
-	return strconv.Atoi(u.Uid)
-}
-
-// GetGroupID returns the numeric ID of a system group
-func GetGroupId(groupName string) (int, error) {
-	g, err := user.LookupGroup(groupName)
-	if err != nil {
-		return -1, err
-	}
-	return strconv.Atoi(g.Gid)
 }
 
 func New(bin string, args []string, user, group string) (*Command, error) {
