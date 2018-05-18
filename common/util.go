@@ -32,8 +32,5 @@ func DoStop(stop *chan bool) bool {
 
 // HandleAppVersion sets up a version handler for a kingpin.Application
 func HandleAppVersion(app *kingpin.Application, commit, branch string) {
-	if app == nil {
-		return
-	}
 	app.Version(fmt.Sprintf("%s, git commit %s, branch %s", app.Name, commit, branch))
 }
