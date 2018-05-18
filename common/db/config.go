@@ -99,10 +99,17 @@ func NewSSLConfig() *SSLConfig {
 }
 
 func (cnf *Config) Uri() string {
-	extra := ""
+	options := []string{}
 	if cnf.DialInfo.ReplicaSetName != "" {
-		extra = "?replicaSet=" + cnf.DialInfo.ReplicaSetName
+		options = append(options, "replicaSet="+cnf.DialInfo.ReplicaSetName)
+	}
+	if cnf.SSL.Enabled {
+		options = append(options, "ssl=true")
 	}
 	hosts := strings.Join(cnf.DialInfo.Addrs, ",")
-	return "mongodb://" + cnf.DialInfo.Username + ":" + cnf.DialInfo.Password + "@" + hosts + extra
+	uri := "mongodb://" + cnf.DialInfo.Username + ":" + cnf.DialInfo.Password + "@" + hosts
+	if len(options) > 0 {
+		uri = uri + "?" + strings.Join(options, "&")
+	}
+	return uri
 }

@@ -27,7 +27,7 @@ var testDBSession *mgo.Session
 func TestMain(m *gotesting.M) {
 	if testing.Enabled() {
 		var err error
-		testDBSession, err = testing.GetPrimarySession()
+		testDBSession, err = testing.GetSession(testing.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}

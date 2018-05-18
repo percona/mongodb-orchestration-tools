@@ -15,33 +15,28 @@
 package db
 
 import (
-	"bytes"
-	"os"
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
-var (
-	testPrimarySession  *mgo.Session
-	testLogBuffer       = new(bytes.Buffer)
-	testPrimaryDbConfig = &Config{
+func TestUri(t *gotesting.T) {
+	config := &Config{
 		DialInfo: &mgo.DialInfo{
-			Addrs:   []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-			Direct:  true,
-			Timeout: testing.MongodbTimeout,
+			Addrs:    []string{"test:1234"},
+			Username: "admin",
+			Password: "123456",
 		},
-		SSL: &SSLConfig{},
+		SSL: &SSLConfig{
+			Enabled: false,
+		},
 	}
-)
+	assert.Equal(t, "mongodb://admin:123456@test:1234", config.Uri(), ".Uri() returned invalid uri")
 
-func TestMain(m *gotesting.M) {
-	common.SetupLogger(&common.ToolConfig{}, common.GetLogFormatter("test"), testLogBuffer)
-	exit := m.Run()
-	if testPrimarySession != nil {
-		testPrimarySession.Close()
-	}
-	os.Exit(exit)
+	config.SSL.Enabled = true
+	assert.Equal(t, "mongodb://admin:123456@test:1234?ssl=true", config.Uri(), ".Uri() returned invalid uri")
+
+	config.DialInfo.ReplicaSetName = "test"
+	assert.Equal(t, "mongodb://admin:123456@test:1234?replicaSet=test&ssl=true", config.Uri(), ".Uri() returned invalid uri")
 }
