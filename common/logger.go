@@ -28,8 +28,8 @@ func GetLogFormatter(progName string) log.Formatter {
 	return lcf.NewFormatter(template, nil)
 }
 
-// SetVerboseLogging enables verbose logging
-func SetVerboseLogging(ctx *kingpin.ParseContext) error {
+// EnableVerboseLogging enables verbose logging
+func EnableVerboseLogging(ctx *kingpin.ParseContext) error {
 	log.SetLevel(log.DebugLevel)
 	return nil
 }
@@ -40,6 +40,6 @@ func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Write
 	log.SetFormatter(formatter)
 	log.SetLevel(log.InfoLevel)
 	if app != nil {
-		app.Flag("verbose", "enable verbose logging").Action(SetVerboseLogging).Bool()
+		app.Flag("verbose", "enable verbose logging").Action(EnableVerboseLogging).Bool()
 	}
 }
