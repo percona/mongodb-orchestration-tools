@@ -1,6 +1,4 @@
 bin
-coverage.txt
-test-mongod.key
-test-mongod.pem
-test-rootCA.crt
+cover.out
+test/test-*.*
 vendor
