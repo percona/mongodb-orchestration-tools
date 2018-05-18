@@ -27,6 +27,7 @@ const (
 	envEnableDBTests        = "ENABLE_MONGODB_TESTS"
 	envMongoDBReplsetName   = "TEST_RS_NAME"
 	envMongoDBPrimaryPort   = "TEST_PRIMARY_PORT"
+	envMongoDBSecondaryPort = "TEST_SECONDARY1_PORT"
 	envMongoDBAdminUser     = "TEST_ADMIN_USER"
 	envMongoDBAdminPassword = "TEST_ADMIN_PASSWORD"
 )
@@ -34,8 +35,9 @@ const (
 var (
 	enableDBTests        = os.Getenv(envEnableDBTests)
 	MongodbReplsetName   = os.Getenv(envMongoDBReplsetName)
-	MongodbPrimaryHost   = "127.0.0.1"
+	MongodbHost          = "127.0.0.1"
 	MongodbPrimaryPort   = os.Getenv(envMongoDBPrimaryPort)
+	MongodbSecondaryPort = os.Getenv(envMongoDBSecondaryPort)
 	MongodbAdminUser     = os.Getenv(envMongoDBAdminUser)
 	MongodbAdminPassword = os.Getenv(envMongoDBAdminPassword)
 	MongodbTimeout       = time.Duration(10) * time.Second
@@ -72,9 +74,9 @@ func getDialInfo(host, port string) (*mgo.DialInfo, error) {
 	}, nil
 }
 
-// GetPrimarySession returns a *mgo.Session configured for testing against a MongoDB Primary
-func GetPrimarySession() (*mgo.Session, error) {
-	dialInfo, err := getDialInfo(MongodbPrimaryHost, MongodbPrimaryPort)
+// GetSession returns a *mgo.Session configured for testing against a MongoDB Primary
+func GetSession(port string) (*mgo.Session, error) {
+	dialInfo, err := getDialInfo(MongodbHost, port)
 	if err != nil {
 		return nil, err
 	}

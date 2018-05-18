@@ -30,8 +30,9 @@ func TestGetSession(t *gotesting.T) {
 	assert.False(t, testPrimaryDbConfig.SSL.Enabled, "SSL should be disabled")
 
 	// no auth
-	testPrimarySession, err := GetSession(testPrimaryDbConfig)
-	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testing.MongodbPrimaryHost, testing.MongodbPrimaryPort, err)
+	var err error
+	testPrimarySession, err = GetSession(testPrimaryDbConfig)
+	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testing.MongodbHost, testing.MongodbPrimaryPort, err)
 	assert.NotNil(t, testPrimarySession, ".GetSession() should not return a nil testPrimarySession")
 	assert.Equal(t, mgo.Monotonic, testPrimarySession.Mode(), ".GetSession() must return a *mgo.Session with 'Monotonic' mode set")
 	assert.Len(t, testPrimarySession.LiveServers(), 1, ".GetSession() must return a *mgo.Session that is a direct connection")
@@ -41,7 +42,7 @@ func TestGetSession(t *gotesting.T) {
 	testPrimaryDbConfig.DialInfo.Username = testing.MongodbAdminUser
 	testPrimaryDbConfig.DialInfo.Password = testing.MongodbAdminPassword
 	testPrimarySession, err = GetSession(testPrimaryDbConfig)
-	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testing.MongodbPrimaryHost, testing.MongodbPrimaryPort, err)
+	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testing.MongodbHost, testing.MongodbPrimaryPort, err)
 	assert.NotNil(t, testPrimarySession, ".GetSession() should not return a nil testPrimarySession")
 
 	// test auth was setup correctly by running a 'usersInfo' server command for self
@@ -77,6 +78,22 @@ func TestWaitForSession(t *gotesting.T) {
 	session, err = WaitForSession(testPrimaryDbConfig, 3, time.Second)
 	assert.NoError(t, err, ".WaitForSession() should not return an error")
 	assert.NotNil(t, session, ".WaitForSession() should not return a nil session")
+	defer session.Close()
 	assert.NoError(t, session.Ping(), ".WaitForSession() should return a ping-able session")
-	session.Close()
+}
+
+func TestWaitForPrimary(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	assert.NoError(t, WaitForPrimary(testPrimarySession, 1, time.Second), ".WaitForPrimary() should return no error for primary")
+
+	secondarySession, err := testing.GetSession(testing.MongodbSecondaryPort)
+	assert.NoError(t, err, "could not get secondary-host session for testing .WaitForPrimary()")
+	assert.NotNil(t, secondarySession)
+	defer secondarySession.Close()
+	secondarySession.SetMode(mgo.Eventual, true)
+
+	err = WaitForPrimary(secondarySession, 1, time.Second)
+	assert.Error(t, err, ".WaitForPrimary() should return an error for secondary")
+	assert.Equal(t, err, ErrPrimaryTimeout, ".WaitForPrimary() should return a ErrPrimaryTimeout error on timeout")
 }

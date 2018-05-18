@@ -29,7 +29,7 @@ var (
 	testLogBuffer       = new(bytes.Buffer)
 	testPrimaryDbConfig = &Config{
 		DialInfo: &mgo.DialInfo{
-			Addrs:   []string{testing.MongodbPrimaryHost + ":" + testing.MongodbPrimaryPort},
+			Addrs:   []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
 			Direct:  true,
 			Timeout: testing.MongodbTimeout,
 		},
