@@ -16,6 +16,7 @@ package db
 
 import (
 	gotesting "testing"
+	"time"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
@@ -56,4 +57,26 @@ func TestGetSession(t *gotesting.T) {
 	assert.Equal(t, resp.Ok, 1, "got 'ok' code that is not 1")
 	assert.Len(t, resp.Users, 1, "got 'users' slice that is not length 1")
 	assert.Equal(t, "admin", resp.Users[0].User, "'user' field of 'usersInfo' response is not correct")
+}
+
+func TestWaitForSession(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	failConfig := &Config{
+		DialInfo: &mgo.DialInfo{
+			Addrs:    []string{"thisshouldfail:27017"},
+			FailFast: true,
+			Timeout:  time.Second,
+		},
+		SSL: &SSLConfig{},
+	}
+	session, err := WaitForSession(failConfig, 1, time.Second)
+	assert.Error(t, err, ".WaitForSession() should fail due to bad dial info")
+	assert.Nil(t, session, ".WaitForSession() should return a nil *mgo.Session on failure")
+
+	session, err = WaitForSession(testPrimaryDbConfig, 3, time.Second)
+	assert.NoError(t, err, ".WaitForSession() should not return an error")
+	assert.NotNil(t, session, ".WaitForSession() should not return a nil session")
+	assert.NoError(t, session.Ping(), ".WaitForSession() should return a ping-able session")
+	session.Close()
 }
