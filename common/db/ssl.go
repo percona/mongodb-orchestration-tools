@@ -68,7 +68,7 @@ func (cnf *Config) configureSSLDialInfo() error {
 		config.Certificates = []tls.Certificate{certificates}
 	}
 	if len(cnf.SSL.CAFile) > 0 {
-		log.Debugf("Loading SSL/TLS Certificate Authority: %s", cnf.SSL.PEMKeyFile)
+		log.Debugf("Loading SSL/TLS Certificate Authority: %s", cnf.SSL.CAFile)
 		ca, err := cnf.SSL.loadCaCertificate()
 		if err != nil {
 			return fmt.Errorf("Couldn't load client CAs from %s. Got: %s", cnf.SSL.CAFile, err)

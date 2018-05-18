@@ -38,7 +38,6 @@ type Config struct {
 	MongoDB            *mongodb.Config
 	PMM                *pmm.Config
 	Metrics            *metrics.Config
-	Tool               *common.ToolConfig
 	NodeType           string
 	FrameworkName      string
 	DelayBackgroundJob time.Duration

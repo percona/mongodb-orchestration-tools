@@ -28,15 +28,20 @@ import (
 )
 
 var (
-	cmdReplset       = kingpin.Command("replset", "Control MongoDB replsets")
-	cmdInit          = cmdReplset.Command("init", "Initiate a MongoDB replica set")
-	cmdUser          = kingpin.Command("user", "Control MongoDB users")
-	cmdUserRemove    = cmdUser.Command("remove", "Remove a MongoDB user")
-	cmdUserUpdate    = cmdUser.Command("update", "Add/update a MongoDB user")
-	cmdUserReloadSys = cmdUser.Command("reload-system", "Reload the DCOS Framework MongoDB system users")
+	GitCommit        string
+	GitBranch        string
+	cmdInit          *kingpin.CmdClause
+	cmdReplset       *kingpin.CmdClause
+	cmdUser          *kingpin.CmdClause
+	cmdUserUpdate    *kingpin.CmdClause
+	cmdUserRemove    *kingpin.CmdClause
+	cmdUserReloadSys *kingpin.CmdClause
 )
 
-func handleReplsetCmd(cnf *controller.Config) {
+func handleReplsetCmd(app *kingpin.Application, cnf *controller.Config) {
+	cmdReplset = app.Command("replset", "Control MongoDB replsets")
+	cmdInit = cmdReplset.Command("init", "Initiate a MongoDB replica set")
+
 	// replset init
 	cmdInit.Flag(
 		"primaryAddr",
@@ -60,7 +65,12 @@ func handleReplsetCmd(cnf *controller.Config) {
 	).Default(controller.DefaultRetrySleep).Envar("INIT_RETRY_SLEEP").DurationVar(&cnf.ReplsetInit.RetrySleep)
 }
 
-func handleUserCmd(cnf *controller.Config) {
+func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
+	cmdUser = app.Command("user", "Control MongoDB users")
+	cmdUserRemove = cmdUser.Command("remove", "Remove a MongoDB user")
+	cmdUserUpdate = cmdUser.Command("update", "Add/update a MongoDB user")
+	cmdUserReloadSys = cmdUser.Command("reload-system", "Reload the DCOS Framework MongoDB system users")
+
 	// user
 	cmdUser.Flag(
 		"endpoint",
@@ -78,7 +88,7 @@ func handleUserCmd(cnf *controller.Config) {
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var",
 	).Default(api.DefaultTimeout).DurationVar(&cnf.User.API.Timeout)
-	kingpin.Flag(
+	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
 	).BoolVar(&cnf.User.API.Secure)
@@ -118,42 +128,45 @@ func handleFailed(err error) {
 }
 
 func main() {
+	app := kingpin.New("mongodb-controller", "Performs administrative tasks for MongoDB on behalf of DC/OS")
+	common.NewApp(app, GitCommit, GitBranch)
+
 	cnf := &controller.Config{
-		Tool:        common.NewToolConfig(os.Args[0]),
 		ReplsetInit: &controller.ConfigReplsetInit{},
 		User: &controller.ConfigUser{
 			API: &api.Config{},
 		},
 	}
 
-	kingpin.Flag(
+	app.Flag(
 		"framework",
 		"DC/OS SDK framework/service name, overridden by env var "+common.EnvFrameworkName,
 	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
-	kingpin.Flag(
+	app.Flag(
 		"replset",
 		"mongodb replica set name, this flag or env var "+common.EnvMongoDBReplset+" is required",
 	).Envar(common.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)
-	kingpin.Flag(
+	app.Flag(
 		"userAdminUser",
 		"mongodb userAdmin username, overridden by env var "+common.EnvMongoDBUserAdminUser,
 	).Envar(common.EnvMongoDBUserAdminUser).Required().StringVar(&cnf.UserAdminUser)
-	kingpin.Flag(
+	app.Flag(
 		"userAdminPassword",
 		"mongodb userAdmin username, overridden by env var "+common.EnvMongoDBUserAdminPassword,
 	).Envar(common.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
 
-	cnf.SSL = db.NewSSLConfig()
+	cnf.SSL = db.NewSSLConfig(app)
 
-	handleReplsetCmd(cnf)
-	handleUserCmd(cnf)
+	handleReplsetCmd(app, cnf)
+	handleUserCmd(app, cnf)
 
-	if cnf.Tool.PrintVersion {
-		cnf.Tool.PrintVersionAndExit()
+	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
+
+	command, err := app.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	common.SetupLogger(cnf.Tool, common.GetLogFormatter(cnf.Tool.ProgName), os.Stdout)
-
-	switch kingpin.Parse() {
+	switch command {
 	case cmdInit.FullCommand():
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {

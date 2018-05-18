@@ -16,17 +16,22 @@ package common
 
 import (
 	"fmt"
+	"runtime"
 
-	"github.com/percona/dcos-mongo-tools"
+	"github.com/alecthomas/kingpin"
+	dcosmongotools "github.com/percona/dcos-mongo-tools"
 )
 
-func PrintVersion(progName string) {
-	fmt.Printf("%s, tools version %s\n",
-		progName,
-		tools.Version,
-	)
+// NewApp sets up a kingpin.Application
+func NewApp(app *kingpin.Application, commit, branch string) {
+	app.Version(fmt.Sprintf(
+		"%s version %s\ngit commit %s, branch %s\ngo version %s",
+		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
+	))
+	app.Author("Percona LLC.")
 }
 
+// DoStop checks if a goroutine should stop, based on a boolean channel
 func DoStop(stop *chan bool) bool {
 	select {
 	case doStop := <-*stop:

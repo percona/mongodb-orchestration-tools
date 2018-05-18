@@ -24,27 +24,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var toolConfig = &ToolConfig{
-	ProgName: "test",
-	Verbose:  true,
-}
-
 func TestSetupLogger(t *gotesting.T) {
 	assert.Equal(t, log.InfoLevel, log.GetLevel(), "logrus.GetLevel() should return info level")
-	formatter := GetLogFormatter(toolConfig.ProgName)
-	SetupLogger(toolConfig, formatter, os.Stdout)
-	assert.Equal(t, log.DebugLevel, log.GetLevel(), "logrus.GetLevel() should return debug level")
+	formatter := GetLogFormatter("test")
+	SetupLogger(nil, formatter, os.Stdout)
 	assert.Equal(t, formatter, formatter, "logrus.StandarLogger().Formatter is incorrect")
 }
 
 func TestLogInfo(t *gotesting.T) {
 	buf := new(bytes.Buffer)
-	formatter := GetLogFormatter(toolConfig.ProgName)
-	SetupLogger(toolConfig, formatter, buf)
+	formatter := GetLogFormatter("test")
+	SetupLogger(nil, formatter, buf)
 	log.Info("test123")
 
 	infoStr := strings.ToUpper(log.InfoLevel.String())
-	expected := " " + toolConfig.ProgName + "  " + infoStr + "    test123 \n"
+	expected := " test  " + infoStr + "    test123 \n"
 	logged := buf.String()
 	assert.Truef(t,
 		strings.HasSuffix(logged, expected),

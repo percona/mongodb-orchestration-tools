@@ -30,7 +30,7 @@ var (
 )
 
 func TestMain(m *gotesting.M) {
-	common.SetupLogger(&common.ToolConfig{}, common.GetLogFormatter("test"), testLogBuffer)
+	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
 	if testing.Enabled() {
 		var err error
 		testDBSession, err = testing.GetSession(testing.MongodbPrimaryPort)

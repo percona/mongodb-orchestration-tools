@@ -17,7 +17,6 @@ package controller
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
 )
@@ -51,7 +50,6 @@ type ConfigUser struct {
 }
 
 type Config struct {
-	Tool              *common.ToolConfig
 	SSL               *db.SSLConfig
 	FrameworkName     string
 	Replset           string

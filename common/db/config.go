@@ -36,62 +36,62 @@ type Config struct {
 	SSL      *SSLConfig
 }
 
-func NewConfig(envUser string, envPassword string) *Config {
+func NewConfig(app *kingpin.Application, envUser string, envPassword string) *Config {
 	db := &Config{
 		DialInfo: &mgo.DialInfo{},
 	}
-	kingpin.Flag(
+	app.Flag(
 		"address",
 		"mongodb server address (hostname:port)",
 	).Default(DefaultMongoDBHost + ":" + DefaultMongoDBPort).StringsVar(&db.DialInfo.Addrs)
-	kingpin.Flag(
+	app.Flag(
 		"replset",
 		"mongodb replica set name, overridden by env var "+common.EnvMongoDBReplset,
 	).Envar(common.EnvMongoDBReplset).StringVar(&db.DialInfo.ReplicaSetName)
-	kingpin.Flag(
+	app.Flag(
 		"timeout",
 		"mongodb server timeout",
 	).Default(DefaultMongoDBTimeout).DurationVar(&db.DialInfo.Timeout)
-	kingpin.Flag(
+	app.Flag(
 		"username",
 		"mongodb auth username, this flag or env var "+envUser+" is required",
 	).Envar(envUser).Required().StringVar(&db.DialInfo.Username)
-	kingpin.Flag(
+	app.Flag(
 		"password",
 		"mongodb auth password, this flag or env var "+envPassword+" is required",
 	).Envar(envPassword).Required().StringVar(&db.DialInfo.Password)
-	kingpin.Flag(
+	app.Flag(
 		"authDb",
 		"mongodb auth database",
 	).Default(DefaultMongoDBAuthDB).StringVar(&db.DialInfo.Source)
-	kingpin.Flag(
+	app.Flag(
 		"useDirectConnection",
 		"enable direct connection",
 	).Default("true").BoolVar(&db.DialInfo.Direct)
-	kingpin.Flag(
+	app.Flag(
 		"useFailFastConnection",
 		"enable fail-fast connection",
 	).Default("true").BoolVar(&db.DialInfo.FailFast)
 
-	db.SSL = NewSSLConfig()
+	db.SSL = NewSSLConfig(app)
 	return db
 }
 
-func NewSSLConfig() *SSLConfig {
+func NewSSLConfig(app *kingpin.Application) *SSLConfig {
 	ssl := &SSLConfig{}
-	kingpin.Flag(
+	app.Flag(
 		"ssl",
 		"enable SSL secured mongodb connection, overridden by env var "+common.EnvMongoDBNetSSLEnabled,
 	).Envar(common.EnvMongoDBNetSSLEnabled).BoolVar(&ssl.Enabled)
-	kingpin.Flag(
+	app.Flag(
 		"sslPEMKeyFile",
 		"path to client SSL Certificate file (including key, in PEM format), overridden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
 	).Envar(common.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&ssl.PEMKeyFile)
-	kingpin.Flag(
+	app.Flag(
 		"sslCAFile",
 		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+common.EnvMongoDBNetSSLCAFile,
 	).Envar(common.EnvMongoDBNetSSLCAFile).ExistingFileVar(&ssl.CAFile)
-	kingpin.Flag(
+	app.Flag(
 		"sslInsecure",
 		"skip validation of the SSL certificate and hostname, overridden by env var "+common.EnvMongoDBNetSSLInsecure,
 	).Envar(common.EnvMongoDBNetSSLInsecure).BoolVar(&ssl.Insecure)
