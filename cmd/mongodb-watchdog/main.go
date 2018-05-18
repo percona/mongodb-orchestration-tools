@@ -17,7 +17,6 @@ package main
 import (
 	"os"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
@@ -32,9 +31,10 @@ var (
 )
 
 func main() {
-	app := kingpin.New("mongodb-watchdog", "A daemon for watching the DC/OS SDK API for MongoDB tasks and updating the MongoDB replica set state on changes")
-	common.NewApp(app, GitCommit, GitBranch)
-
+	app := common.NewApp(
+		"A daemon for watching the DC/OS SDK API for MongoDB tasks and updating the MongoDB replica set state on changes",
+		GitCommit, GitBranch,
+	)
 	cnf := &config.Config{
 		API: &api.Config{},
 	}

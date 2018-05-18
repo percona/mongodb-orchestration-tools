@@ -70,9 +70,8 @@ func TestDoStopFalse(t *gotesting.T) {
 }
 
 func TestNewApp(t *gotesting.T) {
-	testApp := kingpin.New("testApp", "testApp help")
-	NewApp(testApp, "commit", "branchName")
+	testApp := NewApp("testApp", "testApp help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
-	assert.Contains(t, appModel.Version, "testApp version "+dcosmongotools.Version+"\ngit commit commit, branch branchName", "kingpin.Application version is unexpected")
+	assert.Contains(t, appModel.Version, "testApp version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here", "kingpin.Application version is unexpected")
 	assert.Equal(t, appAuthor, appModel.Author, "kingpin.Application author is unexpected")
 }

@@ -16,6 +16,7 @@ package common
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 
 	"github.com/alecthomas/kingpin"
@@ -24,13 +25,15 @@ import (
 
 const appAuthor = "Percona LLC."
 
-// NewApp sets up a kingpin.Application
-func NewApp(app *kingpin.Application, commit, branch string) {
+// NewApp sets up a new kingpin.Application
+func NewApp(help string, commit, branch string) *kingpin.Application {
+	app := kingpin.New(os.Args[0], help)
+	app.Author(appAuthor)
 	app.Version(fmt.Sprintf(
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
 		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
 	))
-	app.Author(appAuthor)
+	return app
 }
 
 // DoStop checks if a goroutine should stop, based on a boolean channel

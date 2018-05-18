@@ -121,8 +121,7 @@ func handlePmm(app *kingpin.Application, cnf *executor.Config) {
 }
 
 func main() {
-	app := kingpin.New("mongodb-executor", "Handles running MongoDB instances and various in-container background tasks")
-	common.NewApp(app, GitCommit, GitBranch)
+	app := common.NewApp("Handles running MongoDB instances and various in-container background tasks", GitCommit, GitBranch)
 	app.Command("mongod", "run a mongod instance")
 	app.Command("mongos", "run a mongos instance")
 

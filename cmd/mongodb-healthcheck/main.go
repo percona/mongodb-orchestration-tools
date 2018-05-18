@@ -17,7 +17,6 @@ package main
 import (
 	"os"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/healthcheck"
@@ -30,8 +29,7 @@ var (
 )
 
 func main() {
-	app := kingpin.New("mongodb-healthcheck", "Performs DC/OS health and readiness checks for MongoDB")
-	common.NewApp(app, GitCommit, GitBranch)
+	app := common.NewApp("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
