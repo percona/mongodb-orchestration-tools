@@ -43,7 +43,7 @@ func findTestSSLDir() string {
 }
 
 var (
-	sslCertFile = filepath.Join(findTestSSLDir(), "mongodb.pem")
+	sslCertFile = filepath.Join(findTestSSLDir(), "client.pem")
 	sslCAFile   = filepath.Join(findTestSSLDir(), "rootCA.crt")
 )
 
