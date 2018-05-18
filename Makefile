@@ -2,7 +2,7 @@ PLATFORM?=linux
 GIT_COMMIT?=$(shell git rev-parse HEAD)
 GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 GO_LDFLAGS?=-s -w
-GO_LDFLAGS_FULL?="${GO_LDFLAGS} -X main.GitCommit=${GIT_COMMIT} -X main.GitBranch=${GIT_BRANCH}"
+GO_LDFLAGS_FULL="${GO_LDFLAGS} -X main.GitCommit=${GIT_COMMIT} -X main.GitBranch=${GIT_BRANCH}"
 GOCACHE?=
 
 ENABLE_MONGODB_TESTS?=false
