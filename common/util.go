@@ -22,13 +22,15 @@ import (
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
 )
 
+const appAuthor = "Percona LLC."
+
 // NewApp sets up a kingpin.Application
 func NewApp(app *kingpin.Application, commit, branch string) {
 	app.Version(fmt.Sprintf(
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
 		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
 	))
-	app.Author("Percona LLC.")
+	app.Author(appAuthor)
 }
 
 // DoStop checks if a goroutine should stop, based on a boolean channel
