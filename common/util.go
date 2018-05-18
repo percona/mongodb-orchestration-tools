@@ -22,6 +22,15 @@ import (
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
 )
 
+// NewApp sets up a kingpin.Application
+func NewApp(app *kingpin.Application, commit, branch string) {
+	app.Version(fmt.Sprintf(
+		"%s version %s\ngit commit %s, branch %s\ngo version %s",
+		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
+	))
+	app.Author("Percona LLC.")
+}
+
 // DoStop checks if a goroutine should stop, based on a boolean channel
 func DoStop(stop *chan bool) bool {
 	select {
@@ -30,13 +39,4 @@ func DoStop(stop *chan bool) bool {
 	default:
 		return false
 	}
-}
-
-// HandleApp sets up a kingpin.Application
-func HandleApp(app *kingpin.Application, commit, branch string) {
-	app.Version(fmt.Sprintf(
-		"%s version %s\ngit commit %s, branch %s\ngo version %s",
-		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
-	))
-	app.Author("Percona LLC.")
 }

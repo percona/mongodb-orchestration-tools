@@ -31,7 +31,7 @@ var (
 
 func main() {
 	app := kingpin.New("mongodb-healthcheck", "Performs DC/OS health and readiness checks for MongoDB")
-	common.HandleApp(app, GitCommit, GitBranch)
+	common.NewApp(app, GitCommit, GitBranch)
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
