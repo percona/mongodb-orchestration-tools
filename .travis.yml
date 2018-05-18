@@ -17,6 +17,7 @@ before_script:
   - docker-compose --version
   - sudo make test/test-mongod.key
   - sudo make test/test-mongod.pem
+  - sudo make test/test-rootCA.crt
   - make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
 script:
   - make TEST_CODECOV=true test-full
