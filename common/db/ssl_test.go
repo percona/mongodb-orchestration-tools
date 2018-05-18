@@ -55,7 +55,7 @@ func TestLoadCaCertificate(t *gotesting.T) {
 
 	pool, err := sslConfig.loadCaCertificate()
 	assert.NoError(t, err, ".loadCaCertificate() should return no error")
-	assert.NotZero(t, pool.Subjects(), ".loadCaCertificate() should return a non-empty x509.CertPool")
+	assert.NotEmpty(t, pool.Subjects(), ".loadCaCertificate() should return a non-empty x509.CertPool")
 
 	sslConfig.CAFile = "/does/not/exist.crt"
 	_, err = sslConfig.loadCaCertificate()
