@@ -16,8 +16,10 @@ package common
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/alecthomas/kingpin"
+	dcosMongoTools "github.com/percona/dcos-mongo-tools"
 )
 
 // DoStop checks if a goroutine should stop, based on a boolean channel
@@ -32,5 +34,8 @@ func DoStop(stop *chan bool) bool {
 
 // HandleAppVersion sets up a version handler for a kingpin.Application
 func HandleAppVersion(app *kingpin.Application, commit, branch string) {
-	app.Version(fmt.Sprintf("%s, git commit %s, branch %s", app.Name, commit, branch))
+	app.Version(fmt.Sprintf(
+		"%s version %s\ngit commit %s, branch %s\ngo version %s",
+		app.Name, dcosMongoTools.Version, commit, branch, runtime.Version(),
+	))
 }

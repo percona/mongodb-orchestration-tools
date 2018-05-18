@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 
+	dcosMongoTools "github.com/percona/dcos-mongo-tools"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
@@ -117,6 +118,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 
 func (w *Watchdog) Run() {
 	log.WithFields(log.Fields{
+		"version":   dcosMongoTools.Version,
 		"framework": w.config.FrameworkName,
 		"go":        runtime.Version(),
 	}).Info("Starting watchdog")
