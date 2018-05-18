@@ -30,15 +30,18 @@ import (
 var (
 	GitCommit        string
 	GitBranch        string
-	cmdReplset       = kingpin.Command("replset", "Control MongoDB replsets")
-	cmdInit          = cmdReplset.Command("init", "Initiate a MongoDB replica set")
-	cmdUser          = kingpin.Command("user", "Control MongoDB users")
-	cmdUserRemove    = cmdUser.Command("remove", "Remove a MongoDB user")
-	cmdUserUpdate    = cmdUser.Command("update", "Add/update a MongoDB user")
-	cmdUserReloadSys = cmdUser.Command("reload-system", "Reload the DCOS Framework MongoDB system users")
+	cmdInit          *kingpin.CmdClause
+	cmdReplset       *kingpin.CmdClause
+	cmdUser          *kingpin.CmdClause
+	cmdUserUpdate    *kingpin.CmdClause
+	cmdUserRemove    *kingpin.CmdClause
+	cmdUserReloadSys *kingpin.CmdClause
 )
 
-func handleReplsetCmd(cnf *controller.Config) {
+func handleReplsetCmd(app *kingpin.Application, cnf *controller.Config) {
+	cmdReplset = app.Command("replset", "Control MongoDB replsets")
+	cmdInit = cmdReplset.Command("init", "Initiate a MongoDB replica set")
+
 	// replset init
 	cmdInit.Flag(
 		"primaryAddr",
@@ -63,6 +66,11 @@ func handleReplsetCmd(cnf *controller.Config) {
 }
 
 func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
+	cmdUser = app.Command("user", "Control MongoDB users")
+	cmdUserRemove = cmdUser.Command("remove", "Remove a MongoDB user")
+	cmdUserUpdate = cmdUser.Command("update", "Add/update a MongoDB user")
+	cmdUserReloadSys = cmdUser.Command("reload-system", "Reload the DCOS Framework MongoDB system users")
+
 	// user
 	cmdUser.Flag(
 		"endpoint",
@@ -149,7 +157,7 @@ func main() {
 
 	cnf.SSL = db.NewSSLConfig(app)
 
-	handleReplsetCmd(cnf)
+	handleReplsetCmd(app, cnf)
 	handleUserCmd(app, cnf)
 
 	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
