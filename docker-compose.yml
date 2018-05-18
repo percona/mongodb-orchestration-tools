@@ -4,24 +4,27 @@ services:
   mongo0:
     network_mode: host
     image: percona/percona-server-mongodb:${TEST_PSMDB_VERSION:-latest}
-    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_PRIMARY_PORT:-65217} --sslMode=preferSSL --sslPEMKeyFile=/mongod.pem --sslAllowInvalidHostnames --sslAllowInvalidCertificates
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_PRIMARY_PORT:-65217} --sslMode=preferSSL --sslCAFile=/rootCA.crt --sslPEMKeyFile=/mongod.pem
     volumes:
-      - ./test-mongod.key:/mongod.key:ro
-      - ./test-mongod.pem:/mongod.pem:ro
+      - ./test/test-mongod.key:/mongod.key:ro
+      - ./test/test-rootCA.crt:/rootCA.crt:ro
+      - ./test/test-mongod.pem:/mongod.pem:ro
   mongo1:
     network_mode: host
     image: percona/percona-server-mongodb:${TEST_PSMDB_VERSION:-latest}
-    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY1_PORT:-65218} --sslMode=preferSSL --sslPEMKeyFile=/mongod.pem --sslAllowInvalidHostnames --sslAllowInvalidCertificates
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY1_PORT:-65218} --sslMode=preferSSL --sslCAFile=/rootCA.crt --sslPEMKeyFile=/mongod.pem
     volumes:
-      - ./test-mongod.key:/mongod.key:ro
-      - ./test-mongod.pem:/mongod.pem:ro
+      - ./test/test-mongod.key:/mongod.key:ro
+      - ./test/test-rootCA.crt:/rootCA.crt:ro
+      - ./test/test-mongod.pem:/mongod.pem:ro
   mongo2:
     network_mode: host
     image: percona/percona-server-mongodb:${TEST_PSMDB_VERSION:-latest}
-    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY2_PORT:-65219} --sslMode=preferSSL --sslPEMKeyFile=/mongod.pem --sslAllowInvalidHostnames --sslAllowInvalidCertificates
+    command: --keyFile=/mongod.key --replSet=${TEST_RS_NAME:-rs} --port=${TEST_SECONDARY2_PORT:-65219} --sslMode=preferSSL --sslCAFile=/rootCA.crt --sslPEMKeyFile=/mongod.pem
     volumes:
-      - ./test-mongod.key:/mongod.key:ro
-      - ./test-mongod.pem:/mongod.pem:ro
+      - ./test/test-mongod.key:/mongod.key:ro
+      - ./test/test-rootCA.crt:/rootCA.crt:ro
+      - ./test/test-mongod.pem:/mongod.pem:ro
   init:
     network_mode: host
     image: percona/percona-server-mongodb:${TEST_PSMDB_VERSION:-latest}
