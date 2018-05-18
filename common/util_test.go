@@ -15,11 +15,17 @@
 package common
 
 import (
-	"testing"
+	"bytes"
+	"io"
+	"os"
+	"strings"
+	gotesting "testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestDoStop(t *testing.T) {
+func TestDoStop(t *gotesting.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
@@ -42,7 +48,7 @@ func TestDoStop(t *testing.T) {
 	t.Error("Stop did not work")
 }
 
-func TestDoStopFalse(t *testing.T) {
+func TestDoStopFalse(t *gotesting.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
@@ -63,4 +69,22 @@ func TestDoStopFalse(t *testing.T) {
 		}
 	}
 	t.Error("Stop did not work")
+}
+
+func TestPrintVersion(t *gotesting.T) {
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	PrintVersion("test")
+
+	out := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, r)
+		out <- buf.String()
+	}()
+
+	w.Close()
+	os.Stdout = oldStdout
+	assert.Regexp(t, "^test, tools version \\d+\\.\\d+\\.\\d+$", strings.TrimSpace(<-out))
 }
