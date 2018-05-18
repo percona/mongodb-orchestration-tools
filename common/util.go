@@ -17,6 +17,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/alecthomas/kingpin"
@@ -27,7 +28,7 @@ const appAuthor = "Percona LLC."
 
 // NewApp sets up a new kingpin.Application
 func NewApp(help string, commit, branch string) *kingpin.Application {
-	app := kingpin.New(os.Args[0], help)
+	app := kingpin.New(filepath.Base(os.Args[0]), help)
 	app.Author(appAuthor)
 	app.Version(fmt.Sprintf(
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",

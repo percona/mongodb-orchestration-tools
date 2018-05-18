@@ -18,7 +18,6 @@ import (
 	gotesting "testing"
 	"time"
 
-	"github.com/alecthomas/kingpin"
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,8 +69,8 @@ func TestDoStopFalse(t *gotesting.T) {
 }
 
 func TestNewApp(t *gotesting.T) {
-	testApp := NewApp("testApp", "testApp help", "git-commit-here", "branch-name-here")
+	testApp := NewApp("testApp help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
-	assert.Contains(t, appModel.Version, "testApp version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here", "kingpin.Application version is unexpected")
+	assert.Contains(t, appModel.Version, "common.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here", "kingpin.Application version is unexpected")
 	assert.Equal(t, appAuthor, appModel.Author, "kingpin.Application author is unexpected")
 }
