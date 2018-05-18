@@ -25,13 +25,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testSSLDirRelPath = "../../test/ssl"
+
 func findTestSSLDir() string {
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		return ""
 	}
 	baseDir := filepath.Dir(filename)
-	path, err := filepath.Abs(filepath.Join(baseDir, "../../test"))
+	path, err := filepath.Abs(filepath.Join(baseDir, testSSLDirRelPath))
 	if err == nil {
 		if _, err := os.Stat(path); err == nil {
 			return path
@@ -41,7 +43,8 @@ func findTestSSLDir() string {
 }
 
 var (
-	sslCertPath = filepath.Join(findTestSSLDir(), "mongodb.pem")
+	sslCertPath = filepath.Join(findTestSSLDir(), "client.pem")
+	sslCAPath   = filepath.Join(findTestSSLDir(), "rootCA.crt")
 )
 
 func TestGetSessionSSL(t *gotesting.T) {
@@ -50,6 +53,7 @@ func TestGetSessionSSL(t *gotesting.T) {
 		SSL: &SSLConfig{
 			Enabled:    true,
 			PEMKeyFile: sslCertPath,
+			CAFile:     sslCAPath,
 			Insecure:   false,
 		},
 	}

@@ -2,4 +2,5 @@ bin
 coverage.txt
 test-mongod.key
 test-mongod.pem
+test-rootCA.crt
 vendor

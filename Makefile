@@ -46,12 +46,17 @@ test-mongod.key:
 	chown $(TEST_MONGODB_DOCKER_UID):0 test-mongod.key
 	chmod 0600 test-mongod.key
 
-test-mongod.pem:
-	cp test/mongodb.pem test-mongod.pem
+test-rootCA.crt: test/ssl/rootCA.crt
+	cp test/ssl/rootCA.crt test-rootCA.crt
+	chown $(TEST_MONGODB_DOCKER_UID):0 test-rootCA.crt
+	chmod 0600 test-rootCA.crt
+
+test-mongod.pem: test/ssl/mongodb.pem
+	cp test/ssl/mongodb.pem test-mongod.pem
 	chown $(TEST_MONGODB_DOCKER_UID):0 test-mongod.pem
 	chmod 0600 test-mongod.pem
 
-test-full-prepare: test-mongod.key test-mongod.pem
+test-full-prepare: test-mongod.key test-rootCA.crt test-mongod.pem
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
@@ -74,4 +79,4 @@ test-full: vendor
 	GOCACHE=$(GOCACHE) go test -v $(TEST_GO_EXTRA) ./...
 
 clean:
-	rm -rf bin coverage.txt test-mongod.key test-mongod.pem vendor 2>/dev/null || true
+	rm -rf bin coverage.txt test-mongod.key test-mongod.pem test-rootCA.crt vendor 2>/dev/null || true
