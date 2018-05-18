@@ -43,39 +43,70 @@ func findTestSSLDir() string {
 }
 
 var (
-	sslCertPath = filepath.Join(findTestSSLDir(), "client.pem")
-	sslCAPath   = filepath.Join(findTestSSLDir(), "rootCA.crt")
+	sslCertFile = filepath.Join(findTestSSLDir(), "mongodb.pem")
+	sslCAFile   = filepath.Join(findTestSSLDir(), "rootCA.crt")
 )
 
-func TestGetSessionSSL(t *gotesting.T) {
-	testPrimaryDbConfigSSL := &Config{
+func TestLoadCaCertificate(t *gotesting.T) {
+	sslConfig := &SSLConfig{
+		Enabled: true,
+		CAFile:  sslCAFile,
+	}
+
+	pool, err := sslConfig.loadCaCertificate()
+	assert.NoError(t, err, ".loadCaCertificate() should return no error")
+	assert.NotZero(t, pool.Subjects(), ".loadCaCertificate() should return a non-empty x509.CertPool")
+
+	sslConfig.CAFile = "/does/not/exist.crt"
+	_, err = sslConfig.loadCaCertificate()
+	assert.Error(t, err, ".loadCaCertificate() should return an error when given missing path")
+}
+
+func TestConfigureSSLDialInfo(t *gotesting.T) {
+	config := &Config{
 		DialInfo: testPrimaryDbConfig.DialInfo,
 		SSL: &SSLConfig{
 			Enabled:    true,
-			PEMKeyFile: sslCertPath,
-			CAFile:     sslCAPath,
-			Insecure:   false,
+			PEMKeyFile: sslCertFile,
+			CAFile:     sslCAFile,
+			Insecure:   true,
 		},
+	}
+	assert.Nil(t, config.DialInfo.DialServer, "config.DialInfo.DialServer should be nil")
+
+	err := config.configureSSLDialInfo()
+	assert.NoError(t, err, ".configureSSLDialInfo() should not return an error")
+	assert.NotNil(t, config.DialInfo.DialServer, "config.DialInfo.DialServer should not be nil")
+}
+
+func TestGetSessionSSL(t *gotesting.T) {
+	testPrimaryDbConfig.SSL = &SSLConfig{
+		Enabled:    true,
+		PEMKeyFile: sslCertFile,
+		CAFile:     sslCAFile,
+		Insecure:   false,
 	}
 
 	// intentionally test for SSL error (due to self-signed SSL certs) in secure mode
 	testLogBuffer.Reset()
 	assert.Nil(t, LastSSLError(), ".LastSSLError() should be nil")
-	testPrimaryDbConfigSSL.DialInfo.Timeout = 100 * time.Millisecond
-	_, err := GetSession(testPrimaryDbConfigSSL)
+	testPrimaryDbConfig.DialInfo.Timeout = 100 * time.Millisecond
+	_, err := GetSession(testPrimaryDbConfig)
 	assert.Error(t, err, ".GetSession() should return an error due to self-signed certificates")
 	assert.Error(t, LastSSLError(), ".LastSSLError() should not be nil")
 	assert.Regexp(t, "^x509: cannot validate certificate for", LastSSLError().Error(), ".LastSSLError() has unexpected error message")
 	assert.Contains(t, testLogBuffer.String(), "x509: cannot validate certificate for", ".GetSession() log output should contain ssl error")
 
 	// enable insecure mode (due to self-signed certs) and connect
-	testPrimaryDbConfigSSL.DialInfo.Timeout = testing.MongodbTimeout
-	testPrimaryDbConfigSSL.SSL.Insecure = true
-	testPrimarySessionSSL, err := GetSession(testPrimaryDbConfigSSL)
+	testPrimaryDbConfig.DialInfo.Timeout = testing.MongodbTimeout
+	testPrimaryDbConfig.SSL.Insecure = true
+	testPrimarySessionSSL, err := GetSession(testPrimaryDbConfig)
 	assert.NoError(t, err, ".GetSession() should return no error")
 	defer testPrimarySessionSSL.Close()
 
 	// test SSL connection
 	assert.NotNil(t, testPrimarySessionSSL, ".GetSession() should not return a nil testPrimarySession")
 	assert.NoError(t, testPrimarySessionSSL.Ping(), ".GetSession() returned a session that failed to ping")
+
+	testPrimaryDbConfig.SSL = &SSLConfig{}
 }
