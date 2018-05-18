@@ -12,12 +12,12 @@ env:
   - PSMDB_VERSION=3.6
 services:
   - docker
+install:
+  - make vendor
 before_script:
   - docker --version
   - docker-compose --version
-  - sudo make test/test-mongod.key
-  - sudo make test/test-mongod.pem
-  - sudo make test/test-rootCA.crt
+  - sudo make test-full-keys
   - make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
 script:
   - make TEST_CODECOV=true test-full

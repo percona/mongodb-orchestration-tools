@@ -56,6 +56,8 @@ test/test-mongod.pem: test/ssl/mongodb.pem
 	chown $(TEST_MONGODB_DOCKER_UID):0 test/test-mongod.pem
 	chmod 0600 test/test-mongod.pem
 
+test-full-keys: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pem
+
 test-full-prepare: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pem
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
