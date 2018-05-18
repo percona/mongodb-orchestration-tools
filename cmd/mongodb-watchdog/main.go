@@ -33,7 +33,7 @@ var (
 
 func main() {
 	app := kingpin.New("mongodb-watchdog", "A daemon for watching the DC/OS SDK API for MongoDB tasks and updating the MongoDB replica set state on changes")
-	common.HandleAppVersion(app, GitCommit, GitBranch)
+	common.HandleApp(app, GitCommit, GitBranch)
 
 	cnf := &config.Config{
 		API: &api.Config{},

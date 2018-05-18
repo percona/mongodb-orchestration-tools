@@ -32,10 +32,11 @@ func DoStop(stop *chan bool) bool {
 	}
 }
 
-// HandleAppVersion sets up a version handler for a kingpin.Application
-func HandleAppVersion(app *kingpin.Application, commit, branch string) {
+// HandleApp sets up a kingpin.Application
+func HandleApp(app *kingpin.Application, commit, branch string) {
 	app.Version(fmt.Sprintf(
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
 		app.Name, dcosMongoTools.Version, commit, branch, runtime.Version(),
 	))
+	app.Author("Percona LLC.")
 }
