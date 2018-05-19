@@ -58,7 +58,7 @@ func main() {
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
-			os.Exit(int(state))
+			os.Exit(state.ExitCode())
 		}
 		log.Debugf("Member passed health check with replication state: %s", memberState)
 	case readiness.FullCommand():
@@ -67,7 +67,7 @@ func main() {
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
-			os.Exit(int(state))
+			os.Exit(state.ExitCode())
 		}
 		log.Debug("Member passed readiness check")
 	}

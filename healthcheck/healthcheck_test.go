@@ -14,14 +14,13 @@
 
 package healthcheck
 
-type State int
+import (
+	gotesting "testing"
 
-const (
-	StateOk State = iota
-	StateFailed
+	"github.com/stretchr/testify/assert"
 )
 
-// ExitCode returns an integer reflecting the State, to be used as an exit code
-func (s State) ExitCode() int {
-	return int(s)
+func TestHealtcheckExitCode(t *gotesting.T) {
+	assert.Equal(t, 0, State(0).ExitCode())
+	assert.Equal(t, 1, State(1).ExitCode())
 }
