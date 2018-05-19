@@ -33,20 +33,18 @@ func main() {
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
-	cnf := &healthcheck.Config{
-		DB: db.NewConfig(
-			app,
-			common.EnvMongoDBClusterMonitorUser,
-			common.EnvMongoDBClusterMonitorPassword,
-		),
-	}
+	cnf := db.NewConfig(
+		app,
+		common.EnvMongoDBClusterMonitorUser,
+		common.EnvMongoDBClusterMonitorPassword,
+	)
 
 	command, err := app.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 
-	session, err := db.GetSession(cnf.DB)
+	session, err := db.GetSession(cnf)
 	if err != nil {
 		log.Fatalf("Error connecting to mongodb: %s", err)
 		return
