@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetUserId(t *gotesting.T) {
+func TestCommandGetUserId(t *gotesting.T) {
 	_, err := GetUserId("this-user-should-not-exist")
 	assert.Error(t, err, ".GetUserId() should return error due to missing user")
 
@@ -31,7 +31,7 @@ func TestGetUserId(t *gotesting.T) {
 	assert.NotZero(t, uid, ".GetUserId() should return a uid that is not zero")
 }
 
-func TestGetGroupId(t *gotesting.T) {
+func TestCommandGetGroupId(t *gotesting.T) {
 	_, err := GetGroupId("this-group-should-not-exist")
 	assert.Error(t, err, ".GetGroupId() should return error due to missing group")
 

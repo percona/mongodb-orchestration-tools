@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewCommand(t *gotesting.T) {
+func TestCommandNew(t *gotesting.T) {
 	var err error
 	testCommand, err = New("echo", []string{"hello", "world"}, testCurrentUser.Name, testCurrentGroup.Name)
 	assert.NoError(t, err, ".New() should not return an error")
@@ -30,24 +30,24 @@ func TestNewCommand(t *gotesting.T) {
 	assert.Equal(t, testCurrentGroup.Name, testCommand.Group, ".New() has incorrect Group")
 }
 
-func TestIsRunningFalse(t *gotesting.T) {
+func TestCommandIsRunningFalse(t *gotesting.T) {
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false")
 }
 
-func TestStart(t *gotesting.T) {
+func TestCommandStart(t *gotesting.T) {
 	assert.NoError(t, testCommand.Start(), ".Start() should not return an error")
 }
 
-func TestIsRunning(t *gotesting.T) {
+func TestCommandIsRunning(t *gotesting.T) {
 	assert.True(t, testCommand.IsRunning(), ".IsRunning() should be true")
 }
 
-func TestWait(t *gotesting.T) {
+func TestCommandWait(t *gotesting.T) {
 	testCommand.Wait()
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false after .Wait()")
 }
 
-func TestKill(t *gotesting.T) {
+func TestCommandKill(t *gotesting.T) {
 	killCommand, err := New("sleep", []string{"120"}, testCurrentUser.Name, testCurrentGroup.Name)
 	assert.NoError(t, err, ".New() should not return an error")
 	assert.NoError(t, killCommand.Start(), ".Start() should not return an error")
@@ -66,7 +66,7 @@ func TestKill(t *gotesting.T) {
 	assert.Nil(t, proc, "go-ps.FindProcess() should not find the killed process")
 }
 
-func TestCombinedOutput(t *gotesting.T) {
+func TestCommandCombinedOutput(t *gotesting.T) {
 	coCommand, err := New("echo", []string{"hello", "world"}, testCurrentUser.Name, testCurrentGroup.Name)
 	bytes, err := coCommand.CombinedOutput()
 	assert.NoError(t, err, ".CombinedOutput() should not return an error")
