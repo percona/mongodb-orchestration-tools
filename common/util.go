@@ -17,8 +17,11 @@ package common
 import (
 	"fmt"
 	"os"
+
+	"os/user"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	"github.com/alecthomas/kingpin"
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
@@ -46,4 +49,22 @@ func DoStop(stop *chan bool) bool {
 	default:
 		return false
 	}
+}
+
+// GetUserId returns the numeric ID of a system user
+func GetUserId(userName string) (int, error) {
+	u, err := user.Lookup(userName)
+	if err != nil {
+		return -1, err
+	}
+	return strconv.Atoi(u.Uid)
+}
+
+// GetGroupID returns the numeric ID of a system group
+func GetGroupId(groupName string) (int, error) {
+	g, err := user.LookupGroup(groupName)
+	if err != nil {
+		return -1, err
+	}
+	return strconv.Atoi(g.Gid)
 }

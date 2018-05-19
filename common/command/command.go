@@ -20,6 +20,7 @@ import (
 	"os/user"
 	"syscall"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -66,12 +67,12 @@ func (c *Command) doChangeUser() bool {
 func (c *Command) prepare() error {
 	var err error
 
-	c.uid, err = GetUserId(c.User)
+	c.uid, err = common.GetUserId(c.User)
 	if err != nil {
 		return err
 	}
 
-	c.gid, err = GetGroupId(c.Group)
+	c.gid, err = common.GetGroupId(c.Group)
 	if err != nil {
 		return err
 	}

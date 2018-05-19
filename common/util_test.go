@@ -15,6 +15,8 @@
 package common
 
 import (
+	"os"
+	"os/user"
 	gotesting "testing"
 	"time"
 
@@ -74,4 +76,27 @@ func TestCommonNewApp(t *gotesting.T) {
 	assert.Contains(t, appModel.Version, "common.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")
 	assert.Equal(t, appAuthor, appModel.Author, "kingpin.Application author is unexpected")
 	assert.Equal(t, "test help", appModel.Help, "kingpin.Application help is unexpected")
+}
+
+func TestCommonGetUserId(t *gotesting.T) {
+	_, err := GetUserId("this-user-should-not-exist")
+	assert.Error(t, err, ".GetUserId() should return error due to missing user")
+
+	uid, err := GetUserId(os.Getenv("USER"))
+	assert.NoError(t, err, ".GetUserId() for current user should not return an error")
+	assert.NotZero(t, uid, ".GetUserId() should return a uid that is not zero")
+}
+
+func TestCommonGetGroupId(t *gotesting.T) {
+	_, err := GetGroupId("this-group-should-not-exist")
+	assert.Error(t, err, ".GetGroupId() should return error due to missing group")
+
+	currentUser, err := user.Current()
+	assert.NoError(t, err, "could not get current user")
+	group, err := user.LookupGroupId(currentUser.Gid)
+	assert.NoError(t, err, "could not get current user group")
+
+	gid, err := GetGroupId(group.Name)
+	assert.NoError(t, err, ".GetGroupId() for current user group should not return an error")
+	assert.NotZero(t, gid, ".GetGroupId() should return a gid that is not zero")
 }
