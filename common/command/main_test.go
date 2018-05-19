@@ -35,9 +35,10 @@ func TestMain(m *gotesting.M) {
 		panic(err)
 	}
 
-	exit := m.Run()
-	if testCommand != nil {
-		testCommand.Kill()
-	}
-	os.Exit(exit)
+	defer func() {
+		if testCommand != nil {
+			testCommand.Kill()
+		}
+	}()
+	os.Exit(m.Run())
 }
