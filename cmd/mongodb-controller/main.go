@@ -128,8 +128,7 @@ func handleFailed(err error) {
 }
 
 func main() {
-	app := kingpin.New("mongodb-controller", "Performs administrative tasks for MongoDB on behalf of DC/OS")
-	common.NewApp(app, GitCommit, GitBranch)
+	app := common.NewApp("Performs administrative tasks for MongoDB on behalf of DC/OS", GitCommit, GitBranch)
 
 	cnf := &controller.Config{
 		ReplsetInit: &controller.ConfigReplsetInit{},
@@ -159,8 +158,6 @@ func main() {
 
 	handleReplsetCmd(app, cnf)
 	handleUserCmd(app, cnf)
-
-	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
 
 	command, err := app.Parse(os.Args[1:])
 	if err != nil {

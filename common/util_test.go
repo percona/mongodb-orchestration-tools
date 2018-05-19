@@ -17,6 +17,9 @@ package common
 import (
 	gotesting "testing"
 	"time"
+
+	dcosmongotools "github.com/percona/dcos-mongo-tools"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDoStop(t *gotesting.T) {
@@ -63,4 +66,12 @@ func TestDoStopFalse(t *gotesting.T) {
 		}
 	}
 	t.Error("Stop did not work")
+}
+
+func TestNewApp(t *gotesting.T) {
+	testApp := NewApp("test help", "git-commit-here", "branch-name-here")
+	appModel := testApp.Model()
+	assert.Contains(t, appModel.Version, "common.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")
+	assert.Equal(t, appAuthor, appModel.Author, "kingpin.Application author is unexpected")
+	assert.Equal(t, "test help", appModel.Help, "kingpin.Application help is unexpected")
 }

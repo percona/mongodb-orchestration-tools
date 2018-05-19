@@ -121,8 +121,7 @@ func handlePmm(app *kingpin.Application, cnf *executor.Config) {
 }
 
 func main() {
-	app := kingpin.New("mongodb-executor", "Handles running MongoDB instances and various in-container background tasks")
-	common.NewApp(app, GitCommit, GitBranch)
+	app := common.NewApp("Handles running MongoDB instances and various in-container background tasks", GitCommit, GitBranch)
 	app.Command("mongod", "run a mongod instance")
 	app.Command("mongos", "run a mongos instance")
 
@@ -159,8 +158,6 @@ func main() {
 	handleMongoDB(app, cnf)
 	handleMetrics(app, cnf)
 	handlePmm(app, cnf)
-
-	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
 
 	var err error
 	cnf.NodeType, err = app.Parse(os.Args[1:])
