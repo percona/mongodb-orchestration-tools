@@ -55,15 +55,15 @@ func TestKill(t *gotesting.T) {
 	// check process started
 	killCommandProc := killCommand.command.Process
 	proc, _ := ps.FindProcess(killCommandProc.Pid)
-	assert.NotNil(t, proc)
+	assert.NotNil(t, proc, "cannot find started process")
 
 	// kill the process before it's done
-	killCommand.Kill()
+	assert.NoError(t, killCommand.Kill(), ".Kill() should not return an error")
 
 	// check the process died
 	proc, err = ps.FindProcess(killCommandProc.Pid)
-	assert.Nil(t, err)
-	assert.Nil(t, proc)
+	assert.Nil(t, err, "go-ps.FindProcess() should have a nil error for killed process")
+	assert.Nil(t, proc, "go-ps.FindProcess() should not find the killed process")
 }
 
 func TestCombinedOutput(t *gotesting.T) {
