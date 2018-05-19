@@ -17,6 +17,7 @@ package command
 import (
 	"os"
 	"os/exec"
+	"os/user"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
@@ -49,6 +50,16 @@ func (c *Command) IsRunning() bool {
 }
 
 func (c *Command) doChangeUser() bool {
+	currentUser, err := user.Current()
+	if err != nil {
+		return true
+	}
+	if c.User == currentUser.Name {
+		currentGroup, err := user.LookupGroupId(currentUser.Gid)
+		if err == nil && c.Group == currentGroup.Name {
+			return false
+		}
+	}
 	return true
 }
 
@@ -130,5 +141,13 @@ func (c *Command) Kill() error {
 	if c.command.Process == nil {
 		return nil
 	}
-	return c.command.Process.Kill()
+
+	c.running = false
+	err := c.command.Process.Kill()
+	if err != nil {
+		return err
+	}
+
+	_, err = c.command.Process.Wait()
+	return err
 }
