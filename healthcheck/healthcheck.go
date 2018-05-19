@@ -14,8 +14,6 @@
 
 package healthcheck
 
-import "os"
-
 type State int
 
 const (
@@ -23,7 +21,7 @@ const (
 	StateFailed
 )
 
-// Exit exits the go program with an exit code reflecting the State
-func (s State) Exit() {
-	os.Exit(int(s))
+// ExitCode returns an integer reflecting the State, to be used as an exit code
+func (s State) ExitCode() int {
+	return int(s)
 }
