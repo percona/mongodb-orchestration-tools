@@ -16,12 +16,25 @@ package command
 
 import (
 	"os"
+	"os/user"
 	gotesting "testing"
 )
 
 var testCommand *Command
+var testCurrentUser *user.User
+var testCurrentGroup *user.Group
 
 func TestMain(m *gotesting.M) {
+	var err error
+	testCurrentUser, err = user.Current()
+	if err != nil {
+		panic(err)
+	}
+	testCurrentGroup, err = user.LookupGroupId(testCurrentUser.Gid)
+	if err != nil {
+		panic(err)
+	}
+
 	exit := m.Run()
 	if testCommand != nil {
 		testCommand.Kill()

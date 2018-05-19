@@ -15,7 +15,6 @@
 package command
 
 import (
-	"os/user"
 	gotesting "testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,17 +22,11 @@ import (
 
 func TestNewCommand(t *gotesting.T) {
 	var err error
-
-	currentUser, err := user.Current()
-	assert.NoError(t, err, "could not get current user")
-	group, err := user.LookupGroupId(currentUser.Gid)
-	assert.NoError(t, err, "could not get current user group")
-
-	testCommand, err = New("echo", []string{"hello", "world"}, currentUser.Name, group.Name)
+	testCommand, err = New("echo", []string{"hello", "world"}, testCurrentUser.Name, testCurrentGroup.Name)
 	assert.NoError(t, err, ".New() should not return an error")
 	assert.Equal(t, "echo", testCommand.Bin, ".New() has incorrect Bin")
-	assert.Equal(t, currentUser.Name, testCommand.User, ".New() has incorrect User")
-	assert.Equal(t, group.Name, testCommand.Group, ".New() has incorrect Group")
+	assert.Equal(t, testCurrentUser.Name, testCommand.User, ".New() has incorrect User")
+	assert.Equal(t, testCurrentGroup.Name, testCommand.Group, ".New() has incorrect Group")
 }
 
 func TestCombinedOutput(t *gotesting.T) {
