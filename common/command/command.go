@@ -65,15 +65,14 @@ func (c *Command) prepare() error {
 		return err
 	}
 
-	if !c.doChangeUser() {
-		return nil
-	}
 	c.command = exec.Command(c.Bin, c.Args...)
-	c.command.SysProcAttr = &syscall.SysProcAttr{
-		Credential: &syscall.Credential{
-			Uid: uint32(c.uid),
-			Gid: uint32(c.gid),
-		},
+	if c.doChangeUser() {
+		c.command.SysProcAttr = &syscall.SysProcAttr{
+			Credential: &syscall.Credential{
+				Uid: uint32(c.uid),
+				Gid: uint32(c.gid),
+			},
+		}
 	}
 	return nil
 }
