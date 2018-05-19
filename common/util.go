@@ -27,7 +27,7 @@ import (
 const appAuthor = "Percona LLC."
 
 // NewApp sets up a new kingpin.Application
-func NewApp(help string, commit, branch string) *kingpin.Application {
+func NewApp(help, commit, branch string) *kingpin.Application {
 	app := kingpin.New(filepath.Base(os.Args[0]), help)
 	app.Author(appAuthor)
 	app.Version(fmt.Sprintf(
