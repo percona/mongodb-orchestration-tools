@@ -159,8 +159,6 @@ func main() {
 	handleMetrics(app, cnf)
 	handlePmm(app, cnf)
 
-	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
-
 	var err error
 	cnf.NodeType, err = app.Parse(os.Args[1:])
 	if err != nil {

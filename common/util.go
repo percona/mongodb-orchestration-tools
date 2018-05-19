@@ -34,6 +34,7 @@ func NewApp(help, commit, branch string) *kingpin.Application {
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
 		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
 	))
+	SetupLogger(app, GetLogFormatter(app.Name), os.Stdout)
 	return app
 }
 

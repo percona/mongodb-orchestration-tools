@@ -159,8 +159,6 @@ func main() {
 	handleReplsetCmd(app, cnf)
 	handleUserCmd(app, cnf)
 
-	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
-
 	command, err := app.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)

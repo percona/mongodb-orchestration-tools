@@ -40,7 +40,6 @@ func main() {
 			common.EnvMongoDBClusterMonitorPassword,
 		),
 	}
-	common.SetupLogger(app, common.GetLogFormatter(os.Args[0]), os.Stdout)
 
 	command, err := app.Parse(os.Args[1:])
 	if err != nil {
