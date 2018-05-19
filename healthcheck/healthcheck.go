@@ -14,9 +14,16 @@
 
 package healthcheck
 
+import "os"
+
 type State int
 
 const (
 	StateOk State = iota
 	StateFailed
 )
+
+// Exit exits the go program with an exit code reflecting the State
+func (s State) Exit() {
+	os.Exit(int(s))
+}
