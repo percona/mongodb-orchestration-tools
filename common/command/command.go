@@ -48,6 +48,10 @@ func (c *Command) IsRunning() bool {
 	return c.running
 }
 
+func (c *Command) doChangeUser() bool {
+	return true
+}
+
 func (c *Command) prepare() error {
 	var err error
 
@@ -61,6 +65,9 @@ func (c *Command) prepare() error {
 		return err
 	}
 
+	if !c.doChangeUser() {
+		return nil
+	}
 	c.command = exec.Command(c.Bin, c.Args...)
 	c.command.SysProcAttr = &syscall.SysProcAttr{
 		Credential: &syscall.Credential{
@@ -68,7 +75,6 @@ func (c *Command) prepare() error {
 			Gid: uint32(c.gid),
 		},
 	}
-
 	return nil
 }
 
