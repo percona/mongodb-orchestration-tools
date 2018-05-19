@@ -24,7 +24,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func TestGetSession(t *gotesting.T) {
+func TestDbGetSession(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	assert.False(t, testPrimaryDbConfig.SSL.Enabled, "SSL should be disabled")
@@ -60,7 +60,7 @@ func TestGetSession(t *gotesting.T) {
 	assert.Equal(t, "admin", resp.Users[0].User, "'user' field of 'usersInfo' response is not correct")
 }
 
-func TestWaitForSession(t *gotesting.T) {
+func TestDbWaitForSession(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	failConfig := &Config{
@@ -82,7 +82,7 @@ func TestWaitForSession(t *gotesting.T) {
 	assert.NoError(t, session.Ping(), ".WaitForSession() should return a ping-able session")
 }
 
-func TestWaitForPrimary(t *gotesting.T) {
+func TestDbWaitForPrimary(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	assert.NoError(t, WaitForPrimary(testPrimarySession, 1, time.Second), ".WaitForPrimary() should return no error for primary")

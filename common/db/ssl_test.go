@@ -47,7 +47,7 @@ var (
 	sslCAFile   = filepath.Join(findTestSSLDir(), "rootCA.crt")
 )
 
-func TestLoadCaCertificate(t *gotesting.T) {
+func TestDbLoadCaCertificate(t *gotesting.T) {
 	sslConfig := &SSLConfig{
 		Enabled: true,
 		CAFile:  sslCAFile,
@@ -62,7 +62,7 @@ func TestLoadCaCertificate(t *gotesting.T) {
 	assert.Error(t, err, ".loadCaCertificate() should return an error when given missing path")
 }
 
-func TestConfigureSSLDialInfo(t *gotesting.T) {
+func TestDbConfigureSSLDialInfo(t *gotesting.T) {
 	config := &Config{
 		DialInfo: testPrimaryDbConfig.DialInfo,
 		SSL: &SSLConfig{
@@ -79,7 +79,7 @@ func TestConfigureSSLDialInfo(t *gotesting.T) {
 	assert.NotNil(t, config.DialInfo.DialServer, "config.DialInfo.DialServer should not be nil")
 }
 
-func TestGetSessionSSL(t *gotesting.T) {
+func TestDbGetSessionSSL(t *gotesting.T) {
 	testPrimaryDbConfig.SSL = &SSLConfig{
 		Enabled:    true,
 		PEMKeyFile: sslCertFile,

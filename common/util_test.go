@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDoStop(t *gotesting.T) {
+func TestCommonDoStop(t *gotesting.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
@@ -45,7 +45,7 @@ func TestDoStop(t *gotesting.T) {
 	t.Error("Stop did not work")
 }
 
-func TestDoStopFalse(t *gotesting.T) {
+func TestCommonDoStopFalse(t *gotesting.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
@@ -68,7 +68,7 @@ func TestDoStopFalse(t *gotesting.T) {
 	t.Error("Stop did not work")
 }
 
-func TestNewApp(t *gotesting.T) {
+func TestCommonNewApp(t *gotesting.T) {
 	testApp := NewApp("test help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
 	assert.Contains(t, appModel.Version, "common.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")
