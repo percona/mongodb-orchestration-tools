@@ -17,6 +17,8 @@ package user
 import (
 	"bytes"
 	"os"
+	"path/filepath"
+	"runtime"
 	gotesting "testing"
 	"time"
 
@@ -24,14 +26,31 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+)
+
+const (
+	testDirRelPath                    = "./test"
+	testBase64BSONFile                = "mongodbUserChange.bson.b64"
+	testBase64BSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
+	testBase64BSONFileMalformedBSON   = "mongodbUserChange-malformed_bson.bson.b64"
 )
 
 var (
-	testController       *Controller
-	testLogBuffer        = new(bytes.Buffer)
+	testCheckSession   *mgo.Session
+	testController     *Controller
+	testLogBuffer      = new(bytes.Buffer)
+	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
+	testSystemUsers    = []*mgo.User{
+		&mgo.User{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
+	}
 	testControllerConfig = &controller.Config{
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
+			Database:        "admin",
+			File:            filepath.Join(findTestDir(), testBase64BSONFile),
+			Username:        testBase64BSONUser.Username,
 			EndpointName:    "mongo-port",
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
@@ -43,9 +62,49 @@ var (
 	}
 )
 
+func findTestDir() string {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return ""
+	}
+	baseDir := filepath.Dir(filename)
+	path, err := filepath.Abs(filepath.Join(baseDir, testDirRelPath))
+	if err == nil {
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return ""
+}
+
+func checkUserExists(session *mgo.Session, user, db string) bool {
+	resp := struct {
+		Username string `bson:"user"`
+		Database string `bson:"db"`
+	}{}
+	err := session.DB(testControllerConfig.User.Database).C("system.users").Find(bson.M{
+		"user": user,
+		"db":   db,
+	}).One(&resp)
+	if err == nil && resp.Username == user && resp.Database == db {
+		return true
+	}
+	return false
+}
+
 func TestMain(m *gotesting.M) {
 	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
+
+	var err error
+	testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+	if err != nil {
+		panic(err)
+	}
+
 	defer func() {
+		if testCheckSession != nil {
+			testCheckSession.Close()
+		}
 		if testController != nil {
 			testController.Close()
 		}
