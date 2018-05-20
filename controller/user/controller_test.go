@@ -85,13 +85,42 @@ func TestControllerUserUpdateUsers(t *gotesting.T) {
 	)
 }
 
-func TestControllerUserRemoveUsers(t *gotesting.T) {
+func TestControllerUserRemoveUser(t *gotesting.T) {
 	assert.NoError(t, testController.RemoveUser(), ".RemoveUser() should not return an error")
 	assert.False(
 		t,
 		checkUserExists(testCheckSession, testControllerConfig.User.Username, testControllerConfig.User.Database),
 		"mongo user should not exist after .RemoveUser() call",
 	)
+}
+
+func TestControllerUserReloadSystemUsers(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	for _, user := range testSystemUsers {
+		assert.False(
+			t,
+			checkUserExists(testCheckSession, user.Username, SystemUserDatabase),
+			"mongo test system user should not exist before .ReloadSystemUsers() call",
+		)
+	}
+
+	SystemUsers = testSystemUsers
+	assert.NoError(t, testController.ReloadSystemUsers(), ".ReloadSystemUsers() should not return an error")
+	for _, user := range testSystemUsers {
+		assert.True(
+			t,
+			checkUserExists(testCheckSession, user.Username, SystemUserDatabase),
+			"mongo test system user should exist after .ReloadSystemUsers() call",
+		)
+		testControllerConfig.User.Username = user.Username
+		assert.NoError(t, testController.RemoveUser(), ".RemoveUser() should not return an error")
+		assert.False(
+			t,
+			checkUserExists(testCheckSession, user.Username, SystemUserDatabase),
+			"mongo test system user should not exist after .RemoveUser() call",
+		)
+	}
 }
 
 func TestControllerUserClose(t *gotesting.T) {

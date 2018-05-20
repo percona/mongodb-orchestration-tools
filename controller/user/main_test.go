@@ -38,10 +38,13 @@ const (
 )
 
 var (
-	testCheckSession     *mgo.Session
-	testController       *Controller
-	testLogBuffer        = new(bytes.Buffer)
-	testBase64BSONUser   = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
+	testCheckSession   *mgo.Session
+	testController     *Controller
+	testLogBuffer      = new(bytes.Buffer)
+	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
+	testSystemUsers    = []*mgo.User{
+		&mgo.User{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
+	}
 	testControllerConfig = &controller.Config{
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
