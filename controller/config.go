@@ -40,7 +40,6 @@ type ConfigReplsetInit struct {
 
 type ConfigUser struct {
 	API             *api.Config
-	Endpoint        *api.Endpoint
 	EndpointName    string
 	Database        string
 	Username        string
