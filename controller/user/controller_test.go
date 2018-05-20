@@ -49,13 +49,15 @@ func (a *MockApi) GetEndpoint(endpointName string) (*api.Endpoint, error) {
 	if endpointName == "mongo-port" {
 		return &api.Endpoint{
 			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-			Dns:     []string{testing.MongodbHostname + testing.MongodbPrimaryPort},
+			Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
 		}, nil
 	}
 	return &api.Endpoint{}, nil
 }
 
 func TestControllerUserNew(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	var err error
 	testController, err = NewController(testControllerConfig, &MockApi{})
 	assert.NoError(t, err, ".NewController() should not return an error")
@@ -66,6 +68,8 @@ func TestControllerUserNew(t *gotesting.T) {
 }
 
 func TestControllerUserClose(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	testController.Close()
 	assert.Nil(t, testController.session, "Controller session should not nil after .Close()")
 }
