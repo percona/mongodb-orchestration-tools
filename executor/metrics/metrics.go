@@ -21,6 +21,12 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+// MetricsPusher is an interface for a metrics pusher
+type MetricsPusher interface {
+	GetServerStatus(session *mgo.Session) (*mgostatsd.ServerStatus, error)
+	Push(status *mgostatsd.ServerStatus) error
+}
+
 type Metrics struct {
 	config  *Config
 	running bool
