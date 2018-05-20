@@ -111,6 +111,7 @@ func (uc *Controller) Close() {
 			"replset": uc.config.Replset,
 		}).Info("Disconnecting from MongoDB host(s)")
 		uc.session.Close()
+		uc.session = nil
 	}
 }
 
