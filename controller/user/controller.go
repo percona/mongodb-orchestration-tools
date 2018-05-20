@@ -1,4 +1,3 @@
-// Copyright 2018 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,10 +41,10 @@ type Controller struct {
 	retrySleep      time.Duration
 }
 
-func NewController(config *controller.Config, sdkApi api.Api) (*Controller, error) {
+func NewController(config *controller.Config, sdkAPI api.Api) (*Controller, error) {
 	var err error
 	uc := &Controller{
-		api:             sdkApi,
+		api:             sdkAPI,
 		config:          config,
 		maxConnectTries: config.User.MaxConnectTries,
 		retrySleep:      config.User.RetrySleep,
