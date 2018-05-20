@@ -17,12 +17,13 @@ package metrics
 import (
 	"time"
 
+	mgostatsd "github.com/scullxbones/mgo-statsd"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
 
-// MetricsPusher is an interface for a metrics pusher
-type MetricsPusher interface {
+// Pusher is an interface for a DC/OS Metrics pusher
+type Pusher interface {
 	GetServerStatus(session *mgo.Session) (*mgostatsd.ServerStatus, error)
 	Push(status *mgostatsd.ServerStatus) error
 }
@@ -31,10 +32,10 @@ type Metrics struct {
 	config  *Config
 	running bool
 	session *mgo.Session
-	pusher  MetricsPusher
+	pusher  Pusher
 }
 
-func New(config *Config, session *mgo.Session, pusher MetricsPusher) *Metrics {
+func New(config *Config, session *mgo.Session, pusher Pusher) *Metrics {
 	return &Metrics{
 		config:  config,
 		session: session,

@@ -100,7 +100,7 @@ func (e *Executor) backgroundJobRunner() {
 			Host: e.Config.Metrics.StatsdHost,
 			Port: e.Config.Metrics.StatsdPort,
 		}
-		e.addBackgroundJob(metrics.New(e.Config.Metrics, session.Copy(), metrics.NewStatsdPusher(statsdCnf)))
+		e.addBackgroundJob(metrics.New(e.Config.Metrics, session.Copy(), metrics.NewStatsdPusher(statsdCnf, e.Config.Verbose)))
 	} else {
 		log.Info("Skipping DC/OS Metrics client executor")
 	}

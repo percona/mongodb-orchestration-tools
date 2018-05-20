@@ -35,11 +35,14 @@ func enableVerboseLogging(ctx *kingpin.ParseContext) error {
 }
 
 // SetupLogger configures github.com/srupsen/logrus for logging
-func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Writer) {
+func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Writer) bool {
 	log.SetOutput(out)
 	log.SetFormatter(formatter)
 	log.SetLevel(log.InfoLevel)
 	if app != nil {
-		app.Flag("verbose", "enable verbose logging").Action(enableVerboseLogging).Bool()
+		var verbose bool
+		app.Flag("verbose", "enable verbose logging").Action(enableVerboseLogging).BoolVar(&verbose)
+		return verbose
 	}
+	return false
 }

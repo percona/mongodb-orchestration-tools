@@ -29,7 +29,7 @@ var (
 )
 
 func main() {
-	app := common.NewApp("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
+	app, _ := common.NewApp("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()

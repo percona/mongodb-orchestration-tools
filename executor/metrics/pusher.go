@@ -22,12 +22,14 @@ import (
 // StatsdPush is a metrics pusher to Statsd
 type StatsdPusher struct {
 	statsdConfig mgostatsd.Statsd
+	verbose      bool
 }
 
 // NewStatsPusher returns a new StatsdPusher
-func NewStatsdPusher(statsdCnf mgostatsd.Statsd) *StatsdPusher {
+func NewStatsdPusher(statsdCnf mgostatsd.Statsd, verbose bool) *StatsdPusher {
 	return &StatsdPusher{
 		statsdConfig: statsdCnf,
+		verbose:      verbose,
 	}
 }
 
@@ -38,5 +40,5 @@ func (p *StatsdPusher) GetServerStatus(session *mgo.Session) (*mgostatsd.ServerS
 
 // PushStats pushes metrics to Statsd
 func (p *StatsdPusher) Push(status *mgostatsd.ServerStatus) error {
-	return mgostatsd.PushStats(p.statsdConfig, status, false)
+	return mgostatsd.PushStats(p.statsdConfig, status, p.verbose)
 }
