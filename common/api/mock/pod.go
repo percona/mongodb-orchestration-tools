@@ -16,16 +16,9 @@ package mock
 
 import (
 	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/testing"
 )
 
-var EndpointName = "mongo-port"
-
-type API struct{}
-
-func New() *API {
-	return &API{}
-}
+var PodName = "mongo"
 
 func (a *API) GetPodUrl() string {
 	return "http://localhost/v1/pod"
@@ -37,22 +30,4 @@ func (a *API) GetPods() (*api.Pods, error) {
 
 func (a *API) GetPodTasks(podName string) ([]api.PodTask, error) {
 	return []api.PodTask{}, nil
-}
-
-func (a *API) GetEndpointsUrl() string {
-	return "http://localhost/v1/endpoints"
-}
-
-func (a *API) GetEndpoints() (*api.Endpoints, error) {
-	return &api.Endpoints{EndpointName}, nil
-}
-
-func (a *API) GetEndpoint(endpointName string) (*api.Endpoint, error) {
-	if endpointName == EndpointName {
-		return &api.Endpoint{
-			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-			Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
-		}, nil
-	}
-	return &api.Endpoint{}, nil
 }
