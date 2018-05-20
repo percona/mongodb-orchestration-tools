@@ -1,4 +1,3 @@
-// Copyright 2018 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +32,8 @@ var (
 	ErrUserNotFound     = errors.New("could not find user")
 )
 
-type UserController struct {
+type Controller struct {
+	api             api.Api
 	dbConfig        *db.Config
 	session         *mgo.Session
 	config          *controller.Config
@@ -41,9 +41,10 @@ type UserController struct {
 	retrySleep      time.Duration
 }
 
-func NewUserController(config *controller.Config) (*UserController, error) {
+func NewController(config *controller.Config, sdkAPI api.Api) (*Controller, error) {
 	var err error
-	uc := &UserController{
+	uc := &Controller{
+		api:             sdkAPI,
 		config:          config,
 		maxConnectTries: config.User.MaxConnectTries,
 		retrySleep:      config.User.RetrySleep,
@@ -59,11 +60,10 @@ func NewUserController(config *controller.Config) (*UserController, error) {
 	return uc, nil
 }
 
-func (uc *UserController) getDBConfig() (*db.Config, error) {
+func (uc *Controller) getDBConfig() (*db.Config, error) {
 	log.Infof("Gathering MongoDB seed list from endpoint %s", uc.config.User.EndpointName)
 
-	sdk := api.New(uc.config.FrameworkName, uc.config.User.API)
-	mongodService, err := sdk.GetEndpoint(uc.config.User.EndpointName)
+	mongodService, err := uc.api.GetEndpoint(uc.config.User.EndpointName)
 	if err != nil {
 		log.Errorf("Error fetching MongoDB seed list from endpoint %s: %s", uc.config.User.EndpointName, err)
 		return nil, err
@@ -81,7 +81,7 @@ func (uc *UserController) getDBConfig() (*db.Config, error) {
 	}, nil
 }
 
-func (uc *UserController) getSession() (*mgo.Session, error) {
+func (uc *Controller) getSession() (*mgo.Session, error) {
 	session, err := db.WaitForSession(uc.dbConfig, uc.maxConnectTries, uc.retrySleep)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -103,17 +103,18 @@ func (uc *UserController) getSession() (*mgo.Session, error) {
 	return session, err
 }
 
-func (uc *UserController) Close() {
+func (uc *Controller) Close() {
 	if uc.session != nil {
 		log.WithFields(log.Fields{
 			"hosts":   uc.dbConfig.DialInfo.Addrs,
 			"replset": uc.config.Replset,
 		}).Info("Disconnecting from MongoDB host(s)")
 		uc.session.Close()
+		uc.session = nil
 	}
 }
 
-func (uc *UserController) UpdateUsers() error {
+func (uc *Controller) UpdateUsers() error {
 	if uc.config.User.File == "" {
 		return errors.New("No file provided")
 	} else if uc.config.User.Database == "" {
@@ -140,7 +141,7 @@ func (uc *UserController) UpdateUsers() error {
 	return nil
 }
 
-func (uc *UserController) RemoveUser() error {
+func (uc *Controller) RemoveUser() error {
 	if uc.config.User.Username == "" {
 		return ErrNoUserProvided
 	} else if uc.config.User.Database == "" {
@@ -159,7 +160,7 @@ func (uc *UserController) RemoveUser() error {
 	return nil
 }
 
-func (uc *UserController) ReloadSystemUsers() error {
+func (uc *Controller) ReloadSystemUsers() error {
 	err := UpdateUsers(uc.session, SystemUsers, "admin")
 	if err != nil {
 		return err

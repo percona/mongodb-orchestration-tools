@@ -36,6 +36,7 @@ var (
 	enableDBTests        = os.Getenv(envEnableDBTests)
 	MongodbReplsetName   = os.Getenv(envMongoDBReplsetName)
 	MongodbHost          = "127.0.0.1"
+	MongodbHostname      = "localhost"
 	MongodbPrimaryPort   = os.Getenv(envMongoDBPrimaryPort)
 	MongodbSecondaryPort = os.Getenv(envMongoDBSecondaryPort)
 	MongodbAdminUser     = os.Getenv(envMongoDBAdminUser)
