@@ -15,40 +15,11 @@
 package user
 
 import (
-	"os"
 	"path/filepath"
-	"runtime"
 	gotesting "testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/mgo.v2"
 )
-
-const (
-	testDirRelPath                    = "./test"
-	testBase64BSONFile                = "mongodbUserChange.bson.b64"
-	testBase64BSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
-	testBase64BSONFileMalformedBSON   = "mongodbUserChange-malformed_bson.bson.b64"
-)
-
-var (
-	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
-)
-
-func findTestDir() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		return ""
-	}
-	baseDir := filepath.Dir(filename)
-	path, err := filepath.Abs(filepath.Join(baseDir, testDirRelPath))
-	if err == nil {
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-	}
-	return ""
-}
 
 func TestLoadFromBase64BSONFile(t *gotesting.T) {
 	_, err := loadFromBase64BSONFile("/this/should/not/exist/...")
