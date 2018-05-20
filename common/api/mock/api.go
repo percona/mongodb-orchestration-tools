@@ -14,6 +14,8 @@
 
 package mock
 
+var SimulateError bool
+
 type API struct{}
 
 func New() *API {

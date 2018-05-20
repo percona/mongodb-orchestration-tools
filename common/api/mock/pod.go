@@ -15,6 +15,8 @@
 package mock
 
 import (
+	"errors"
+
 	"github.com/percona/dcos-mongo-tools/common/api"
 )
 
@@ -25,9 +27,15 @@ func (a *API) GetPodUrl() string {
 }
 
 func (a *API) GetPods() (*api.Pods, error) {
-	return &api.Pods{}, nil
+	if SimulateError {
+		return nil, errors.New("simulating a .GetPods() error")
+	}
+	return &api.Pods{PodName}, nil
 }
 
 func (a *API) GetPodTasks(podName string) ([]api.PodTask, error) {
+	if SimulateError {
+		return nil, errors.New("simulating a .GetPodTasks() error")
+	}
 	return []api.PodTask{}, nil
 }

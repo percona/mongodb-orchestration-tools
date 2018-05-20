@@ -15,6 +15,8 @@
 package mock
 
 import (
+	"errors"
+
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 )
@@ -26,10 +28,16 @@ func (a *API) GetEndpointsUrl() string {
 }
 
 func (a *API) GetEndpoints() (*api.Endpoints, error) {
+	if SimulateError {
+		return nil, errors.New("simulating a .GetEndpoints() error")
+	}
 	return &api.Endpoints{EndpointName}, nil
 }
 
 func (a *API) GetEndpoint(endpointName string) (*api.Endpoint, error) {
+	if SimulateError {
+		return nil, errors.New("simulating a .GetEndpoint() error")
+	}
 	if endpointName == EndpointName {
 		return &api.Endpoint{
 			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
