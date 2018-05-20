@@ -42,6 +42,7 @@ type Config struct {
 	FrameworkName      string
 	DelayBackgroundJob time.Duration
 	ConnectRetrySleep  time.Duration
+	Verbose            bool
 }
 
 func MesosSandboxPathOrFallback(path string, fallback string) string {

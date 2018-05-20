@@ -31,7 +31,7 @@ var (
 )
 
 func main() {
-	app := common.NewApp(
+	app, _ := common.NewApp(
 		"A daemon for watching the DC/OS SDK API for MongoDB tasks and updating the MongoDB replica set state on changes",
 		GitCommit, GitBranch,
 	)

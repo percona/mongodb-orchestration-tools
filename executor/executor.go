@@ -24,6 +24,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
+	mgostatsd "github.com/scullxbones/mgo-statsd"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
@@ -95,7 +96,11 @@ func (e *Executor) backgroundJobRunner() {
 
 	// DC/OS Metrics
 	if e.Config.Metrics.Enabled {
-		e.addBackgroundJob(metrics.New(e.Config.Metrics, session.Copy()))
+		statsdCnf := mgostatsd.Statsd{
+			Host: e.Config.Metrics.StatsdHost,
+			Port: e.Config.Metrics.StatsdPort,
+		}
+		e.addBackgroundJob(metrics.New(e.Config.Metrics, session.Copy(), metrics.NewStatsdPusher(statsdCnf, e.Config.Verbose)))
 	} else {
 		log.Info("Skipping DC/OS Metrics client executor")
 	}
