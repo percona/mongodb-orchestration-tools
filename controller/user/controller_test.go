@@ -23,40 +23,6 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-//var testAPIEndpointName = "mongo-port"
-//
-//type MockApi struct{}
-//
-//func (a *MockApi) GetPodUrl() string {
-//	return "http://localhost/v1/pod"
-//}
-//
-//func (a *MockApi) GetPods() (*api.Pods, error) {
-//	return &api.Pods{}, nil
-//}
-//
-//func (a *MockApi) GetPodTasks(podName string) ([]api.PodTask, error) {
-//	return []api.PodTask{}, nil
-//}
-//
-//func (a *MockApi) GetEndpointsUrl() string {
-//	return "http://localhost/v1/endpoints"
-//}
-//
-//func (a *MockApi) GetEndpoints() (*api.Endpoints, error) {
-//	return &api.Endpoints{testAPIEndpointName}, nil
-//}
-//
-//func (a *MockApi) GetEndpoint(endpointName string) (*api.Endpoint, error) {
-//	if endpointName == testAPIEndpointName {
-//		return &api.Endpoint{
-//			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-//			Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
-//		}, nil
-//	}
-//	return &api.Endpoint{}, nil
-//}
-
 func TestControllerUserNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
