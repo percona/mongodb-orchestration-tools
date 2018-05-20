@@ -19,13 +19,13 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-// StatsdPush is a metrics pusher to Statsd
+// StatsdPusher is a metrics pusher to Statsd
 type StatsdPusher struct {
 	statsdConfig mgostatsd.Statsd
 	verbose      bool
 }
 
-// NewStatsPusher returns a new StatsdPusher
+// NewStatsdPusher returns a new StatsdPusher
 func NewStatsdPusher(statsdCnf mgostatsd.Statsd, verbose bool) *StatsdPusher {
 	return &StatsdPusher{
 		statsdConfig: statsdCnf,
