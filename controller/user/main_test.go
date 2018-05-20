@@ -18,15 +18,37 @@ import (
 	"bytes"
 	"os"
 	gotesting "testing"
+	"time"
 
 	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/controller"
 )
 
 var (
-	testLogBuffer = new(bytes.Buffer)
+	testController       *Controller
+	testLogBuffer        = new(bytes.Buffer)
+	testControllerConfig = &controller.Config{
+		SSL: &db.SSLConfig{},
+		User: &controller.ConfigUser{
+			EndpointName:    "mongo-port",
+			MaxConnectTries: 1,
+			RetrySleep:      time.Second,
+		},
+		FrameworkName:     "test",
+		Replset:           testing.MongodbReplsetName,
+		UserAdminUser:     testing.MongodbAdminUser,
+		UserAdminPassword: testing.MongodbAdminPassword,
+	}
 )
 
 func TestMain(m *gotesting.M) {
 	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
+	defer func() {
+		if testController != nil {
+			testController.Close()
+		}
+	}()
 	os.Exit(m.Run())
 }
