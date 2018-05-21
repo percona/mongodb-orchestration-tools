@@ -37,5 +37,10 @@ func (a *API) GetPodTasks(podName string) ([]api.PodTask, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetPodTasks() error")
 	}
-	return []api.PodTask{}, nil
+	return []api.PodTask{
+		&api.PodTaskHttp{
+			Info:   &api.PodTaskInfo{},
+			Status: &api.PodTaskStatus{},
+		},
+	}, nil
 }

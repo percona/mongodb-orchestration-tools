@@ -1,0 +1,2638 @@
+[ {
+  "info" : {
+    "name" : "mongo-rs-0-init",
+    "taskId" : {
+      "value" : "mongo-rs-0-init__63f6db13-aaab-442b-95c4-8f1f970c2b64"
+    },
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "resources" : [ {
+      "providerId" : null,
+      "name" : "cpus",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 0.2
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "60760452-3eb3-4d6a-a417-7932b961a77f"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "mem",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 96.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "3c096fbb-4fef-4f39-a169-97bbdc82171f"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    } ],
+    "executor" : {
+      "type" : "DEFAULT",
+      "executorId" : {
+        "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+      },
+      "frameworkId" : {
+        "value" : "7485db61-f798-4132-b53e-28a982b95e27-0002"
+      },
+      "command" : null,
+      "container" : {
+        "type" : "MESOS",
+        "volumes" : [ ],
+        "hostname" : null,
+        "docker" : null,
+        "mesos" : null,
+        "networkInfos" : [ ],
+        "linuxInfo" : null,
+        "rlimitInfo" : {
+          "rlimits" : [ {
+            "type" : "RLMT_NOFILE",
+            "hard" : 64000,
+            "soft" : 64000
+          }, {
+            "type" : "RLMT_NPROC",
+            "hard" : 64000,
+            "soft" : 64000
+          } ]
+        },
+        "ttyInfo" : null
+      },
+      "resources" : [ {
+        "providerId" : null,
+        "name" : "cpus",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 0.1
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "e9218a07-1664-42c0-a76a-d7d0a5ed2b65"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "mem",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 32.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "271a05b4-3b52-4848-be57-105b8cd1a08a"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "disk",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 256.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "bd447d7a-8c75-4b18-92a9-686847ad0260"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      } ],
+      "name" : "mongo-rs",
+      "source" : null,
+      "data" : null,
+      "discovery" : null,
+      "shutdownGracePeriod" : null,
+      "labels" : {
+        "labels" : [ {
+          "key" : "DCOS_SPACE",
+          "value" : "/percona-mongo"
+        } ]
+      }
+    },
+    "command" : {
+      "uris" : [ {
+        "value" : "https://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/bootstrap.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "https://percona-dcos-mongo.s3.amazonaws.com/autodelete7d/percona-mongo/20180521-113651-Uz5oByykllObwGq3/mongodb-tools.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/executor.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      } ],
+      "environment" : {
+        "variables" : [ {
+          "name" : "FRAMEWORK_HOST",
+          "type" : null,
+          "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_NAME",
+          "type" : null,
+          "value" : "percona-mongo",
+          "secret" : null
+        }, {
+          "name" : "INIT_INITIATE_DELAY",
+          "type" : null,
+          "value" : "15s",
+          "secret" : null
+        }, {
+          "name" : "INIT_MAX_ADD_USERS_TRIES",
+          "type" : null,
+          "value" : "60",
+          "secret" : null
+        }, {
+          "name" : "INIT_MAX_CONNECT_TRIES",
+          "type" : null,
+          "value" : "30",
+          "secret" : null
+        }, {
+          "name" : "INIT_MAX_INIT_REPLSET_TRIES",
+          "type" : null,
+          "value" : "60",
+          "secret" : null
+        }, {
+          "name" : "INIT_RETRY_SLEEP",
+          "type" : null,
+          "value" : "3s",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_BACKUP_PASSWORD",
+          "type" : null,
+          "value" : "backuppassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_BACKUP_USER",
+          "type" : null,
+          "value" : "backup",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_ADMIN_PASSWORD",
+          "type" : null,
+          "value" : "clusteradminpassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_ADMIN_USER",
+          "type" : null,
+          "value" : "clusteradmin",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_PASSWORD",
+          "type" : null,
+          "value" : "clustermonitorpassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_USER",
+          "type" : null,
+          "value" : "clustermonitor",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_PORT",
+          "type" : null,
+          "value" : "27017",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_PRIMARY_ADDR",
+          "type" : null,
+          "value" : "mongo-rs-0-mongod.percona-mongo.autoip.dcos.thisdcos.directory:27017",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLSET",
+          "type" : null,
+          "value" : "rs",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_USER_ADMIN_PASSWORD",
+          "type" : null,
+          "value" : "useradminpassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_USER_ADMIN_USER",
+          "type" : null,
+          "value" : "useradmin",
+          "secret" : null
+        }, {
+          "name" : "POD_INSTANCE_INDEX",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "TASK_NAME",
+          "type" : null,
+          "value" : "mongo-rs-0-init",
+          "secret" : null
+        }, {
+          "name" : "mongo-rs-0-init",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        } ]
+      },
+      "shell" : null,
+      "value" : "./bootstrap -resolve=false && $MESOS_SANDBOX/mongodb-controller-linux replset init",
+      "arguments" : [ ],
+      "user" : "root"
+    },
+    "container" : {
+      "type" : "MESOS",
+      "volumes" : [ ],
+      "hostname" : null,
+      "docker" : null,
+      "mesos" : {
+        "image" : {
+          "type" : "DOCKER",
+          "appc" : null,
+          "docker" : {
+            "name" : "percona/percona-server-mongodb:3.4.13",
+            "credential" : null,
+            "config" : null
+          },
+          "cached" : null
+        }
+      },
+      "networkInfos" : [ ],
+      "linuxInfo" : {
+        "capabilityInfo" : null,
+        "boundingCapabilities" : null,
+        "effectiveCapabilities" : null,
+        "sharePidNamespace" : false
+      },
+      "rlimitInfo" : {
+        "rlimits" : [ {
+          "type" : "RLMT_NOFILE",
+          "hard" : 64000,
+          "soft" : 64000
+        }, {
+          "type" : "RLMT_NPROC",
+          "hard" : 64000,
+          "soft" : 64000
+        } ]
+      },
+      "ttyInfo" : null
+    },
+    "healthCheck" : null,
+    "check" : null,
+    "killPolicy" : {
+      "gracePeriod" : {
+        "nanoseconds" : 0
+      }
+    },
+    "data" : null,
+    "labels" : {
+      "labels" : [ {
+        "key" : "goal_state",
+        "value" : "FINISHED"
+      }, {
+        "key" : "index",
+        "value" : "0"
+      }, {
+        "key" : "offer_attributes",
+        "value" : ""
+      }, {
+        "key" : "offer_hostname",
+        "value" : "10.0.2.222"
+      }, {
+        "key" : "target_configuration",
+        "value" : "615a4617-d63c-4795-9c65-0468a78d8d25"
+      }, {
+        "key" : "task_type",
+        "value" : "mongo-rs"
+      } ]
+    },
+    "discovery" : null
+  },
+  "status" : {
+    "taskId" : {
+      "value" : "mongo-rs-0-init__63f6db13-aaab-442b-95c4-8f1f970c2b64"
+    },
+    "state" : "TASK_FINISHED",
+    "message" : "Command exited with status 0",
+    "source" : "SOURCE_EXECUTOR",
+    "reason" : null,
+    "data" : null,
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "executorId" : {
+      "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+    },
+    "timestamp" : 1.526903292784586E9,
+    "uuid" : "Pzmt6v3STLmGxbvvyqOJ9g==",
+    "healthy" : null,
+    "checkStatus" : null,
+    "labels" : null,
+    "containerStatus" : {
+      "containerId" : {
+        "value" : "0f049e96-1354-4648-baaf-20089cfea0f7",
+        "parent" : {
+          "value" : "b5a738e1-491c-4009-a189-4b9c4e8cece4",
+          "parent" : null
+        }
+      },
+      "networkInfos" : [ ],
+      "cgroupInfo" : null,
+      "executorPid" : null
+    },
+    "unreachableTime" : null
+  }
+}, {
+  "info" : {
+    "name" : "mongo-rs-0-mongod",
+    "taskId" : {
+      "value" : "mongo-rs-0-mongod__f3d53f46-2ab8-41be-98b5-45393e51ac47"
+    },
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "resources" : [ {
+      "providerId" : null,
+      "name" : "ports",
+      "type" : "RANGES",
+      "scalar" : null,
+      "ranges" : {
+        "range" : [ {
+          "begin" : 27017,
+          "end" : 27017
+        } ]
+      },
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "02a23ac0-3bf5-4412-ac00-aa1d65b610d5"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "cpus",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 1.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "5f39575a-64ca-4a49-a839-ef404a390a71"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "mem",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 1024.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "74076b5f-c99b-4050-9f27-175766210e16"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "disk",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 1000.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "b9bcf9ef-2b40-40ee-ba27-75d7cebd50a7"
+          } ]
+        }
+      } ],
+      "disk" : {
+        "persistence" : {
+          "id" : "5c2f5c2b-b971-4687-83c6-e44d638773fa",
+          "principal" : "percona-mongo-principal"
+        },
+        "volume" : {
+          "mode" : "RW",
+          "containerPath" : "mongo-data",
+          "hostPath" : null,
+          "image" : null,
+          "source" : null
+        },
+        "source" : null
+      },
+      "revocable" : null,
+      "shared" : null
+    } ],
+    "executor" : {
+      "type" : "DEFAULT",
+      "executorId" : {
+        "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+      },
+      "frameworkId" : {
+        "value" : "7485db61-f798-4132-b53e-28a982b95e27-0002"
+      },
+      "command" : null,
+      "container" : {
+        "type" : "MESOS",
+        "volumes" : [ ],
+        "hostname" : null,
+        "docker" : null,
+        "mesos" : null,
+        "networkInfos" : [ ],
+        "linuxInfo" : null,
+        "rlimitInfo" : {
+          "rlimits" : [ {
+            "type" : "RLMT_NOFILE",
+            "hard" : 64000,
+            "soft" : 64000
+          }, {
+            "type" : "RLMT_NPROC",
+            "hard" : 64000,
+            "soft" : 64000
+          } ]
+        },
+        "ttyInfo" : null
+      },
+      "resources" : [ {
+        "providerId" : null,
+        "name" : "cpus",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 0.1
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "e9218a07-1664-42c0-a76a-d7d0a5ed2b65"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "mem",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 32.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "271a05b4-3b52-4848-be57-105b8cd1a08a"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "disk",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 256.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "bd447d7a-8c75-4b18-92a9-686847ad0260"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      } ],
+      "name" : "mongo-rs",
+      "source" : null,
+      "data" : null,
+      "discovery" : null,
+      "shutdownGracePeriod" : null,
+      "labels" : {
+        "labels" : [ {
+          "key" : "DCOS_SPACE",
+          "value" : "/percona-mongo"
+        } ]
+      }
+    },
+    "command" : {
+      "uris" : [ {
+        "value" : "https://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/bootstrap.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "https://percona-dcos-mongo.s3.amazonaws.com/autodelete7d/percona-mongo/20180521-113651-Uz5oByykllObwGq3/mongodb-tools.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/executor.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://api.percona-mongo.marathon.l4lb.thisdcos.directory/v1/artifacts/template/615a4617-d63c-4795-9c65-0468a78d8d25/mongo-rs/mongod/mongod-config",
+        "executable" : null,
+        "extract" : false,
+        "cache" : null,
+        "outputFile" : "config-templates/mongod-config"
+      }, {
+        "value" : "http://api.percona-mongo.marathon.l4lb.thisdcos.directory/v1/artifacts/template/615a4617-d63c-4795-9c65-0468a78d8d25/mongo-rs/mongod/keyfile",
+        "executable" : null,
+        "extract" : false,
+        "cache" : null,
+        "outputFile" : "config-templates/keyfile"
+      } ],
+      "environment" : {
+        "variables" : [ {
+          "name" : "CONFIG_TEMPLATE_KEYFILE",
+          "type" : null,
+          "value" : "config-templates/keyfile,mongod.key",
+          "secret" : null
+        }, {
+          "name" : "CONFIG_TEMPLATE_MONGOD_CONFIG",
+          "type" : null,
+          "value" : "config-templates/mongod-config,mongod.conf",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_HOST",
+          "type" : null,
+          "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_NAME",
+          "type" : null,
+          "value" : "percona-mongo",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_PASSWORD",
+          "type" : null,
+          "value" : "clustermonitorpassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_USER",
+          "type" : null,
+          "value" : "clustermonitor",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_KEY",
+          "type" : null,
+          "value" : "VCeZ9zWjiNJQDZxXBZA4jfeI9YHUrWmRJDe7DKOG34b/mzER0hncruRlKLYT9HNUiU7ABxvNQ7jj1mSgmDpVt+XfKEpI3TTCJYjEAf/8G9Saeu8pdETCAd/l8xLZOAYbZd2yjhIWagiOjDz1i56GN+R51I11mSLUcGdhXVmSOCV6rrrqAtY+3+0KaWPFOnbkTHJdm3mPrts+oFT2VjGhg2yNzcfCI9FwEVPX3PWW5dbryEAHIBUapXSsMJcBFlD730DWk/MbEZSV/B/hkaFEDXgvEJszTLT6U9a2Dg4v7+eN97mK/87iKMDPIXZ5wzjbH9XNYHFVY5ensP6pmdscU9osY2MdCYhFotJHUJfGmMNbj2d1tvcc4GuFMqGcFrTyrr2E9QKm4QOtRnxLAeE2AIX0XbXxyEEbDGkKpJRLiiJRIREHh4VP6DZDzhntgcuOwWBhCLiRGDID0m1UyDe1qMXk+yy1mSRWAdfQtjXTVdS1o+AIBCxM0L0rM3rSto1PeA3CJcN1CjTfWq0t4t9mUOy4QO/juXaZCsvRDl8FKUsjnQfnocsRlWrqCGI7ONsbJdaEuiKxtu7H1WR0A+qdtBK/tZmTgbN9q0CCaP7Y1a48R5UHJAPS3HobOrqxNXEgYn+rhADUt0/ahRMuOBMTx/zm+VG8BFl8AmjOPQItvNOc9A08bKPg7lEqlzzcsTMa9QEJcW1sN9Io2F+ibKsiK9CdlPhPEUh2zMtex5e9LbT/102cmqJezq/16/xy9GYC7GwgYkrMoEbEfKdtUvVyQRijy4UE7bl9bdEgrIEY4Rs+TlR1zIRc8nl1RgL1pQp0V/gOuU/a5G5UMfIu9uZe5kgsS7T/8TQ3bzA9JpLVyCJx9rp8jvmcWO4RfOa6rKHT6pAjo1tf+VJ/mdJAwebxcpD/OPhEmfuTH5WqS3Vb/vWRbkFfC6nn+P2oB95+bF2yvA5PnkwswMTiI9Q/zSW8b4QrKyBXbd003c4FxplAGoQr2ukY",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_NET_MAX_INCOMING_CONNECTIONS",
+          "type" : null,
+          "value" : "51200",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_OPERATION_PROFILING_MODE",
+          "type" : null,
+          "value" : "slowOp",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_OPERATION_PROFILING_RATE_LIMIT",
+          "type" : null,
+          "value" : "1",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_OPERATION_PROFILING_SLOWOP_THRESHOLD_MS",
+          "type" : null,
+          "value" : "100",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_PORT",
+          "type" : null,
+          "value" : "27017",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLICATION_ENABLE_MAJORITY_READ_CONCERN",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLICATION_SECONDARY_INDEX_PREFETCH",
+          "type" : null,
+          "value" : "all",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLSET",
+          "type" : null,
+          "value" : "rs",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SECURITY_REDACT_CLIENT_LOG_DATA",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_AUDIT_AUTHORIZATION_SUCCESS",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_FAIL_INDEX_KEY_TOO_LONG",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_LOG_USER_IDS",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_MAX_INDEX_BUILD_MEMORY_USAGE_MB",
+          "type" : null,
+          "value" : "500",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_ROCKSDB_CONCURRENT_READ_TRANSACTIONS",
+          "type" : null,
+          "value" : "128",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_ROCKSDB_CONCURRENT_WRITE_TRANSACTIONS",
+          "type" : null,
+          "value" : "128",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_TTL_MONITOR_ENABLED",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_TTL_MONITOR_SLEEP_SECS",
+          "type" : null,
+          "value" : "60",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_WIREDTIGER_CONCURRENT_READ_TRANSACTIONS",
+          "type" : null,
+          "value" : "128",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SET_PARAMETER_WIREDTIGER_CONCURRENT_WRITE_TRANSACTIONS",
+          "type" : null,
+          "value" : "128",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_DIRECTORY_PER_DB",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_ENGINE",
+          "type" : null,
+          "value" : "wiredTiger",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_INDEX_BUILD_RETRY",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_JOURNAL_COMMIT_INTERVAL_MS",
+          "type" : null,
+          "value" : "100",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_MMAPV1_MAX_FILES_PER_DB",
+          "type" : null,
+          "value" : "8",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_MMAPV1_NS_SIZE",
+          "type" : null,
+          "value" : "16",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_MMAPV1_PREALLOC_DATA_FILES",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_MMAPV1_QUOTA_ENFORCED",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_MMAPV1_SMALLFILES",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_ROCKSDB_COMPRESSION",
+          "type" : null,
+          "value" : "snappy",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_ROCKSDB_CRASH_SAFE_COUNTERS",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_ROCKSDB_WRITE_MB_PER_SEC",
+          "type" : null,
+          "value" : "1024",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_SYNC_PERIOD_SECS",
+          "type" : null,
+          "value" : "60",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_WIREDTIGER_COLLECTION_CONFIG_BLOCK_COMPRESSOR",
+          "type" : null,
+          "value" : "snappy",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_WIREDTIGER_ENGINE_CONFIG_DIRECTORY_FOR_INDEXES",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_WIREDTIGER_ENGINE_CONFIG_JOURNAL_COMPRESSOR",
+          "type" : null,
+          "value" : "snappy",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_STORAGE_WIREDTIGER_INDEX_CONFIG_PREFIX_COMPRESSION",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SYSTEM_LOG_TIMESTAMP_FORMAT",
+          "type" : null,
+          "value" : "iso8601-local",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SYSTEM_LOG_TRACE_ALL_EXCEPTIONS",
+          "type" : null,
+          "value" : "false",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_SYSTEM_LOG_VERBOSITY",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "POD_INSTANCE_INDEX",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "PORT_MONGODB",
+          "type" : null,
+          "value" : "27017",
+          "secret" : null
+        }, {
+          "name" : "TASK_NAME",
+          "type" : null,
+          "value" : "mongo-rs-0-mongod",
+          "secret" : null
+        }, {
+          "name" : "mongo-rs-0-mongod",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        } ]
+      },
+      "shell" : null,
+      "value" : "./bootstrap -resolve=true && exec $MESOS_SANDBOX/mongodb-executor-linux mongod\n",
+      "arguments" : [ ],
+      "user" : "root"
+    },
+    "container" : {
+      "type" : "MESOS",
+      "volumes" : [ ],
+      "hostname" : null,
+      "docker" : null,
+      "mesos" : {
+        "image" : {
+          "type" : "DOCKER",
+          "appc" : null,
+          "docker" : {
+            "name" : "percona/percona-server-mongodb:3.4.13",
+            "credential" : null,
+            "config" : null
+          },
+          "cached" : null
+        }
+      },
+      "networkInfos" : [ ],
+      "linuxInfo" : {
+        "capabilityInfo" : null,
+        "boundingCapabilities" : null,
+        "effectiveCapabilities" : null,
+        "sharePidNamespace" : false
+      },
+      "rlimitInfo" : {
+        "rlimits" : [ {
+          "type" : "RLMT_NOFILE",
+          "hard" : 64000,
+          "soft" : 64000
+        }, {
+          "type" : "RLMT_NPROC",
+          "hard" : 64000,
+          "soft" : 64000
+        } ]
+      },
+      "ttyInfo" : null
+    },
+    "healthCheck" : {
+      "delaySeconds" : 60.0,
+      "intervalSeconds" : 10.0,
+      "timeoutSeconds" : 5.0,
+      "consecutiveFailures" : 6,
+      "gracePeriodSeconds" : 60.0,
+      "type" : "COMMAND",
+      "command" : {
+        "uris" : [ ],
+        "environment" : {
+          "variables" : [ {
+            "name" : "FRAMEWORK_HOST",
+            "type" : null,
+            "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+            "secret" : null
+          }, {
+            "name" : "FRAMEWORK_NAME",
+            "type" : null,
+            "value" : "percona-mongo",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_CLUSTER_MONITOR_PASSWORD",
+            "type" : null,
+            "value" : "clustermonitorpassword",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_CLUSTER_MONITOR_USER",
+            "type" : null,
+            "value" : "clustermonitor",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_KEY",
+            "type" : null,
+            "value" : "VCeZ9zWjiNJQDZxXBZA4jfeI9YHUrWmRJDe7DKOG34b/mzER0hncruRlKLYT9HNUiU7ABxvNQ7jj1mSgmDpVt+XfKEpI3TTCJYjEAf/8G9Saeu8pdETCAd/l8xLZOAYbZd2yjhIWagiOjDz1i56GN+R51I11mSLUcGdhXVmSOCV6rrrqAtY+3+0KaWPFOnbkTHJdm3mPrts+oFT2VjGhg2yNzcfCI9FwEVPX3PWW5dbryEAHIBUapXSsMJcBFlD730DWk/MbEZSV/B/hkaFEDXgvEJszTLT6U9a2Dg4v7+eN97mK/87iKMDPIXZ5wzjbH9XNYHFVY5ensP6pmdscU9osY2MdCYhFotJHUJfGmMNbj2d1tvcc4GuFMqGcFrTyrr2E9QKm4QOtRnxLAeE2AIX0XbXxyEEbDGkKpJRLiiJRIREHh4VP6DZDzhntgcuOwWBhCLiRGDID0m1UyDe1qMXk+yy1mSRWAdfQtjXTVdS1o+AIBCxM0L0rM3rSto1PeA3CJcN1CjTfWq0t4t9mUOy4QO/juXaZCsvRDl8FKUsjnQfnocsRlWrqCGI7ONsbJdaEuiKxtu7H1WR0A+qdtBK/tZmTgbN9q0CCaP7Y1a48R5UHJAPS3HobOrqxNXEgYn+rhADUt0/ahRMuOBMTx/zm+VG8BFl8AmjOPQItvNOc9A08bKPg7lEqlzzcsTMa9QEJcW1sN9Io2F+ibKsiK9CdlPhPEUh2zMtex5e9LbT/102cmqJezq/16/xy9GYC7GwgYkrMoEbEfKdtUvVyQRijy4UE7bl9bdEgrIEY4Rs+TlR1zIRc8nl1RgL1pQp0V/gOuU/a5G5UMfIu9uZe5kgsS7T/8TQ3bzA9JpLVyCJx9rp8jvmcWO4RfOa6rKHT6pAjo1tf+VJ/mdJAwebxcpD/OPhEmfuTH5WqS3Vb/vWRbkFfC6nn+P2oB95+bF2yvA5PnkwswMTiI9Q/zSW8b4QrKyBXbd003c4FxplAGoQr2ukY",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_NET_MAX_INCOMING_CONNECTIONS",
+            "type" : null,
+            "value" : "51200",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_OPERATION_PROFILING_MODE",
+            "type" : null,
+            "value" : "slowOp",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_OPERATION_PROFILING_RATE_LIMIT",
+            "type" : null,
+            "value" : "1",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_OPERATION_PROFILING_SLOWOP_THRESHOLD_MS",
+            "type" : null,
+            "value" : "100",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_PORT",
+            "type" : null,
+            "value" : "27017",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_REPLICATION_ENABLE_MAJORITY_READ_CONCERN",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_REPLICATION_SECONDARY_INDEX_PREFETCH",
+            "type" : null,
+            "value" : "all",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_REPLSET",
+            "type" : null,
+            "value" : "rs",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SECURITY_REDACT_CLIENT_LOG_DATA",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_AUDIT_AUTHORIZATION_SUCCESS",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_FAIL_INDEX_KEY_TOO_LONG",
+            "type" : null,
+            "value" : "true",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_LOG_USER_IDS",
+            "type" : null,
+            "value" : "0",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_MAX_INDEX_BUILD_MEMORY_USAGE_MB",
+            "type" : null,
+            "value" : "500",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_ROCKSDB_CONCURRENT_READ_TRANSACTIONS",
+            "type" : null,
+            "value" : "128",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_ROCKSDB_CONCURRENT_WRITE_TRANSACTIONS",
+            "type" : null,
+            "value" : "128",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_TTL_MONITOR_ENABLED",
+            "type" : null,
+            "value" : "true",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_TTL_MONITOR_SLEEP_SECS",
+            "type" : null,
+            "value" : "60",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_WIREDTIGER_CONCURRENT_READ_TRANSACTIONS",
+            "type" : null,
+            "value" : "128",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SET_PARAMETER_WIREDTIGER_CONCURRENT_WRITE_TRANSACTIONS",
+            "type" : null,
+            "value" : "128",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_DIRECTORY_PER_DB",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_ENGINE",
+            "type" : null,
+            "value" : "wiredTiger",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_INDEX_BUILD_RETRY",
+            "type" : null,
+            "value" : "true",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_JOURNAL_COMMIT_INTERVAL_MS",
+            "type" : null,
+            "value" : "100",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_MMAPV1_MAX_FILES_PER_DB",
+            "type" : null,
+            "value" : "8",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_MMAPV1_NS_SIZE",
+            "type" : null,
+            "value" : "16",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_MMAPV1_PREALLOC_DATA_FILES",
+            "type" : null,
+            "value" : "true",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_MMAPV1_QUOTA_ENFORCED",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_MMAPV1_SMALLFILES",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_ROCKSDB_COMPRESSION",
+            "type" : null,
+            "value" : "snappy",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_ROCKSDB_CRASH_SAFE_COUNTERS",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_ROCKSDB_WRITE_MB_PER_SEC",
+            "type" : null,
+            "value" : "1024",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_SYNC_PERIOD_SECS",
+            "type" : null,
+            "value" : "60",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_WIREDTIGER_COLLECTION_CONFIG_BLOCK_COMPRESSOR",
+            "type" : null,
+            "value" : "snappy",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_WIREDTIGER_ENGINE_CONFIG_DIRECTORY_FOR_INDEXES",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_WIREDTIGER_ENGINE_CONFIG_JOURNAL_COMPRESSOR",
+            "type" : null,
+            "value" : "snappy",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_STORAGE_WIREDTIGER_INDEX_CONFIG_PREFIX_COMPRESSION",
+            "type" : null,
+            "value" : "true",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SYSTEM_LOG_TIMESTAMP_FORMAT",
+            "type" : null,
+            "value" : "iso8601-local",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SYSTEM_LOG_TRACE_ALL_EXCEPTIONS",
+            "type" : null,
+            "value" : "false",
+            "secret" : null
+          }, {
+            "name" : "MONGODB_SYSTEM_LOG_VERBOSITY",
+            "type" : null,
+            "value" : "0",
+            "secret" : null
+          }, {
+            "name" : "POD_INSTANCE_INDEX",
+            "type" : null,
+            "value" : "0",
+            "secret" : null
+          }, {
+            "name" : "PORT_MONGODB",
+            "type" : null,
+            "value" : "27017",
+            "secret" : null
+          }, {
+            "name" : "TASK_NAME",
+            "type" : null,
+            "value" : "mongo-rs-0-mongod",
+            "secret" : null
+          }, {
+            "name" : "mongo-rs-0-mongod",
+            "type" : null,
+            "value" : "true",
+            "secret" : null
+          } ]
+        },
+        "shell" : null,
+        "value" : "./bootstrap -resolve=false && $MESOS_SANDBOX/mongodb-healthcheck-linux health",
+        "arguments" : [ ],
+        "user" : null
+      },
+      "http" : null,
+      "tcp" : null
+    },
+    "check" : {
+      "type" : "COMMAND",
+      "command" : {
+        "command" : {
+          "uris" : [ ],
+          "environment" : {
+            "variables" : [ {
+              "name" : "FRAMEWORK_HOST",
+              "type" : null,
+              "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+              "secret" : null
+            }, {
+              "name" : "FRAMEWORK_NAME",
+              "type" : null,
+              "value" : "percona-mongo",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_CLUSTER_MONITOR_PASSWORD",
+              "type" : null,
+              "value" : "clustermonitorpassword",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_CLUSTER_MONITOR_USER",
+              "type" : null,
+              "value" : "clustermonitor",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_KEY",
+              "type" : null,
+              "value" : "VCeZ9zWjiNJQDZxXBZA4jfeI9YHUrWmRJDe7DKOG34b/mzER0hncruRlKLYT9HNUiU7ABxvNQ7jj1mSgmDpVt+XfKEpI3TTCJYjEAf/8G9Saeu8pdETCAd/l8xLZOAYbZd2yjhIWagiOjDz1i56GN+R51I11mSLUcGdhXVmSOCV6rrrqAtY+3+0KaWPFOnbkTHJdm3mPrts+oFT2VjGhg2yNzcfCI9FwEVPX3PWW5dbryEAHIBUapXSsMJcBFlD730DWk/MbEZSV/B/hkaFEDXgvEJszTLT6U9a2Dg4v7+eN97mK/87iKMDPIXZ5wzjbH9XNYHFVY5ensP6pmdscU9osY2MdCYhFotJHUJfGmMNbj2d1tvcc4GuFMqGcFrTyrr2E9QKm4QOtRnxLAeE2AIX0XbXxyEEbDGkKpJRLiiJRIREHh4VP6DZDzhntgcuOwWBhCLiRGDID0m1UyDe1qMXk+yy1mSRWAdfQtjXTVdS1o+AIBCxM0L0rM3rSto1PeA3CJcN1CjTfWq0t4t9mUOy4QO/juXaZCsvRDl8FKUsjnQfnocsRlWrqCGI7ONsbJdaEuiKxtu7H1WR0A+qdtBK/tZmTgbN9q0CCaP7Y1a48R5UHJAPS3HobOrqxNXEgYn+rhADUt0/ahRMuOBMTx/zm+VG8BFl8AmjOPQItvNOc9A08bKPg7lEqlzzcsTMa9QEJcW1sN9Io2F+ibKsiK9CdlPhPEUh2zMtex5e9LbT/102cmqJezq/16/xy9GYC7GwgYkrMoEbEfKdtUvVyQRijy4UE7bl9bdEgrIEY4Rs+TlR1zIRc8nl1RgL1pQp0V/gOuU/a5G5UMfIu9uZe5kgsS7T/8TQ3bzA9JpLVyCJx9rp8jvmcWO4RfOa6rKHT6pAjo1tf+VJ/mdJAwebxcpD/OPhEmfuTH5WqS3Vb/vWRbkFfC6nn+P2oB95+bF2yvA5PnkwswMTiI9Q/zSW8b4QrKyBXbd003c4FxplAGoQr2ukY",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_NET_MAX_INCOMING_CONNECTIONS",
+              "type" : null,
+              "value" : "51200",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_OPERATION_PROFILING_MODE",
+              "type" : null,
+              "value" : "slowOp",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_OPERATION_PROFILING_RATE_LIMIT",
+              "type" : null,
+              "value" : "1",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_OPERATION_PROFILING_SLOWOP_THRESHOLD_MS",
+              "type" : null,
+              "value" : "100",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_PORT",
+              "type" : null,
+              "value" : "27017",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_REPLICATION_ENABLE_MAJORITY_READ_CONCERN",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_REPLICATION_SECONDARY_INDEX_PREFETCH",
+              "type" : null,
+              "value" : "all",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_REPLSET",
+              "type" : null,
+              "value" : "rs",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SECURITY_REDACT_CLIENT_LOG_DATA",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_AUDIT_AUTHORIZATION_SUCCESS",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_FAIL_INDEX_KEY_TOO_LONG",
+              "type" : null,
+              "value" : "true",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_LOG_USER_IDS",
+              "type" : null,
+              "value" : "0",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_MAX_INDEX_BUILD_MEMORY_USAGE_MB",
+              "type" : null,
+              "value" : "500",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_ROCKSDB_CONCURRENT_READ_TRANSACTIONS",
+              "type" : null,
+              "value" : "128",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_ROCKSDB_CONCURRENT_WRITE_TRANSACTIONS",
+              "type" : null,
+              "value" : "128",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_TTL_MONITOR_ENABLED",
+              "type" : null,
+              "value" : "true",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_TTL_MONITOR_SLEEP_SECS",
+              "type" : null,
+              "value" : "60",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_WIREDTIGER_CONCURRENT_READ_TRANSACTIONS",
+              "type" : null,
+              "value" : "128",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SET_PARAMETER_WIREDTIGER_CONCURRENT_WRITE_TRANSACTIONS",
+              "type" : null,
+              "value" : "128",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_DIRECTORY_PER_DB",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_ENGINE",
+              "type" : null,
+              "value" : "wiredTiger",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_INDEX_BUILD_RETRY",
+              "type" : null,
+              "value" : "true",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_JOURNAL_COMMIT_INTERVAL_MS",
+              "type" : null,
+              "value" : "100",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_MMAPV1_MAX_FILES_PER_DB",
+              "type" : null,
+              "value" : "8",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_MMAPV1_NS_SIZE",
+              "type" : null,
+              "value" : "16",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_MMAPV1_PREALLOC_DATA_FILES",
+              "type" : null,
+              "value" : "true",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_MMAPV1_QUOTA_ENFORCED",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_MMAPV1_SMALLFILES",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_ROCKSDB_COMPRESSION",
+              "type" : null,
+              "value" : "snappy",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_ROCKSDB_CRASH_SAFE_COUNTERS",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_ROCKSDB_WRITE_MB_PER_SEC",
+              "type" : null,
+              "value" : "1024",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_SYNC_PERIOD_SECS",
+              "type" : null,
+              "value" : "60",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_WIREDTIGER_COLLECTION_CONFIG_BLOCK_COMPRESSOR",
+              "type" : null,
+              "value" : "snappy",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_WIREDTIGER_ENGINE_CONFIG_DIRECTORY_FOR_INDEXES",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_WIREDTIGER_ENGINE_CONFIG_JOURNAL_COMPRESSOR",
+              "type" : null,
+              "value" : "snappy",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_STORAGE_WIREDTIGER_INDEX_CONFIG_PREFIX_COMPRESSION",
+              "type" : null,
+              "value" : "true",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SYSTEM_LOG_TIMESTAMP_FORMAT",
+              "type" : null,
+              "value" : "iso8601-local",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SYSTEM_LOG_TRACE_ALL_EXCEPTIONS",
+              "type" : null,
+              "value" : "false",
+              "secret" : null
+            }, {
+              "name" : "MONGODB_SYSTEM_LOG_VERBOSITY",
+              "type" : null,
+              "value" : "0",
+              "secret" : null
+            }, {
+              "name" : "POD_INSTANCE_INDEX",
+              "type" : null,
+              "value" : "0",
+              "secret" : null
+            }, {
+              "name" : "PORT_MONGODB",
+              "type" : null,
+              "value" : "27017",
+              "secret" : null
+            }, {
+              "name" : "TASK_NAME",
+              "type" : null,
+              "value" : "mongo-rs-0-mongod",
+              "secret" : null
+            }, {
+              "name" : "mongo-rs-0-mongod",
+              "type" : null,
+              "value" : "true",
+              "secret" : null
+            } ]
+          },
+          "shell" : null,
+          "value" : "./bootstrap -resolve=false && $MESOS_SANDBOX/mongodb-healthcheck-linux readiness",
+          "arguments" : [ ],
+          "user" : null
+        }
+      },
+      "http" : null,
+      "tcp" : null,
+      "delaySeconds" : 45.0,
+      "intervalSeconds" : 10.0,
+      "timeoutSeconds" : 10.0
+    },
+    "killPolicy" : {
+      "gracePeriod" : {
+        "nanoseconds" : 0
+      }
+    },
+    "data" : null,
+    "labels" : {
+      "labels" : [ {
+        "key" : "goal_state",
+        "value" : "RUNNING"
+      }, {
+        "key" : "index",
+        "value" : "0"
+      }, {
+        "key" : "offer_attributes",
+        "value" : ""
+      }, {
+        "key" : "offer_hostname",
+        "value" : "10.0.2.222"
+      }, {
+        "key" : "target_configuration",
+        "value" : "615a4617-d63c-4795-9c65-0468a78d8d25"
+      }, {
+        "key" : "task_type",
+        "value" : "mongo-rs"
+      } ]
+    },
+    "discovery" : {
+      "visibility" : "CLUSTER",
+      "name" : "mongo-rs-0-mongod",
+      "environment" : null,
+      "location" : null,
+      "version" : null,
+      "ports" : {
+        "ports" : [ {
+          "number" : 27017,
+          "name" : "mongo-port",
+          "protocol" : "tcp",
+          "visibility" : "EXTERNAL",
+          "labels" : null
+        } ]
+      },
+      "labels" : null
+    }
+  },
+  "status" : {
+    "taskId" : {
+      "value" : "mongo-rs-0-mongod__f3d53f46-2ab8-41be-98b5-45393e51ac47"
+    },
+    "state" : "TASK_RUNNING",
+    "message" : null,
+    "source" : "SOURCE_EXECUTOR",
+    "reason" : "REASON_TASK_HEALTH_CHECK_STATUS_UPDATED",
+    "data" : null,
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "executorId" : {
+      "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+    },
+    "timestamp" : 1.526903304823575E9,
+    "uuid" : "rdI+77L1QxaAHMA+qblHdg==",
+    "healthy" : true,
+    "checkStatus" : {
+      "type" : "COMMAND",
+      "command" : {
+        "exitCode" : 0
+      },
+      "http" : null,
+      "tcp" : null
+    },
+    "labels" : null,
+    "containerStatus" : {
+      "containerId" : {
+        "value" : "f3e74b88-35af-48cb-8134-7703998edb89",
+        "parent" : {
+          "value" : "b5a738e1-491c-4009-a189-4b9c4e8cece4",
+          "parent" : null
+        }
+      },
+      "networkInfos" : [ {
+        "ipAddresses" : [ {
+          "protocol" : null,
+          "ipAddress" : "10.0.2.222"
+        } ],
+        "name" : null,
+        "groups" : [ ],
+        "labels" : null,
+        "portMappings" : [ ]
+      } ],
+      "cgroupInfo" : null,
+      "executorPid" : 5586
+    },
+    "unreachableTime" : null
+  }
+}, {
+  "info" : {
+    "name" : "mongo-rs-0-reload-system-users",
+    "taskId" : {
+      "value" : ""
+    },
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "resources" : [ {
+      "providerId" : null,
+      "name" : "cpus",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 0.1
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "04370cfe-62c0-48f0-82b8-46d5016370b6"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "mem",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 128.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "9b457eb1-ff70-44a3-81e9-f57f6a25605f"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    } ],
+    "executor" : {
+      "type" : "DEFAULT",
+      "executorId" : {
+        "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+      },
+      "frameworkId" : {
+        "value" : "7485db61-f798-4132-b53e-28a982b95e27-0002"
+      },
+      "command" : null,
+      "container" : {
+        "type" : "MESOS",
+        "volumes" : [ ],
+        "hostname" : null,
+        "docker" : null,
+        "mesos" : null,
+        "networkInfos" : [ ],
+        "linuxInfo" : null,
+        "rlimitInfo" : {
+          "rlimits" : [ {
+            "type" : "RLMT_NOFILE",
+            "hard" : 64000,
+            "soft" : 64000
+          }, {
+            "type" : "RLMT_NPROC",
+            "hard" : 64000,
+            "soft" : 64000
+          } ]
+        },
+        "ttyInfo" : null
+      },
+      "resources" : [ {
+        "providerId" : null,
+        "name" : "cpus",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 0.1
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "e9218a07-1664-42c0-a76a-d7d0a5ed2b65"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "mem",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 32.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "271a05b4-3b52-4848-be57-105b8cd1a08a"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "disk",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 256.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "bd447d7a-8c75-4b18-92a9-686847ad0260"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      } ],
+      "name" : "mongo-rs",
+      "source" : null,
+      "data" : null,
+      "discovery" : null,
+      "shutdownGracePeriod" : null,
+      "labels" : {
+        "labels" : [ {
+          "key" : "DCOS_SPACE",
+          "value" : "/percona-mongo"
+        } ]
+      }
+    },
+    "command" : {
+      "uris" : [ {
+        "value" : "https://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/bootstrap.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "https://percona-dcos-mongo.s3.amazonaws.com/autodelete7d/percona-mongo/20180521-113651-Uz5oByykllObwGq3/mongodb-tools.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/executor.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      } ],
+      "environment" : {
+        "variables" : [ {
+          "name" : "FRAMEWORK_HOST",
+          "type" : null,
+          "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_NAME",
+          "type" : null,
+          "value" : "percona-mongo",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_BACKUP_PASSWORD",
+          "type" : null,
+          "value" : "backuppassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_BACKUP_USER",
+          "type" : null,
+          "value" : "backup",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_ADMIN_PASSWORD",
+          "type" : null,
+          "value" : "clusteradminpassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_ADMIN_USER",
+          "type" : null,
+          "value" : "clusteradmin",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_PASSWORD",
+          "type" : null,
+          "value" : "clustermonitorpassword",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_USER",
+          "type" : null,
+          "value" : "clustermonitor",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_PORT",
+          "type" : null,
+          "value" : "27017",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLSET",
+          "type" : null,
+          "value" : "rs",
+          "secret" : null
+        }, {
+          "name" : "POD_INSTANCE_INDEX",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "TASK_NAME",
+          "type" : null,
+          "value" : "mongo-rs-0-reload-system-users",
+          "secret" : null
+        }, {
+          "name" : "mongo-rs-0-reload-system-users",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        } ]
+      },
+      "shell" : null,
+      "value" : "./bootstrap -resolve=false && $MESOS_SANDBOX/mongodb-controller-linux user reload-system",
+      "arguments" : [ ],
+      "user" : "root"
+    },
+    "container" : {
+      "type" : "MESOS",
+      "volumes" : [ ],
+      "hostname" : null,
+      "docker" : null,
+      "mesos" : {
+        "image" : {
+          "type" : "DOCKER",
+          "appc" : null,
+          "docker" : {
+            "name" : "percona/percona-server-mongodb:3.4.13",
+            "credential" : null,
+            "config" : null
+          },
+          "cached" : null
+        }
+      },
+      "networkInfos" : [ ],
+      "linuxInfo" : {
+        "capabilityInfo" : null,
+        "boundingCapabilities" : null,
+        "effectiveCapabilities" : null,
+        "sharePidNamespace" : false
+      },
+      "rlimitInfo" : {
+        "rlimits" : [ {
+          "type" : "RLMT_NOFILE",
+          "hard" : 64000,
+          "soft" : 64000
+        }, {
+          "type" : "RLMT_NPROC",
+          "hard" : 64000,
+          "soft" : 64000
+        } ]
+      },
+      "ttyInfo" : null
+    },
+    "healthCheck" : null,
+    "check" : null,
+    "killPolicy" : {
+      "gracePeriod" : {
+        "nanoseconds" : 0
+      }
+    },
+    "data" : null,
+    "labels" : {
+      "labels" : [ {
+        "key" : "goal_state",
+        "value" : "FINISHED"
+      }, {
+        "key" : "index",
+        "value" : "0"
+      }, {
+        "key" : "offer_attributes",
+        "value" : ""
+      }, {
+        "key" : "offer_hostname",
+        "value" : "10.0.2.222"
+      }, {
+        "key" : "target_configuration",
+        "value" : "615a4617-d63c-4795-9c65-0468a78d8d25"
+      }, {
+        "key" : "task_type",
+        "value" : "mongo-rs"
+      } ]
+    },
+    "discovery" : null
+  },
+  "status" : null
+}, {
+  "info" : {
+    "name" : "mongo-rs-0-remove-user",
+    "taskId" : {
+      "value" : ""
+    },
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "resources" : [ {
+      "providerId" : null,
+      "name" : "cpus",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 0.1
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "0972845d-9b8f-4028-ac04-23e8a46012bf"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "mem",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 128.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "cc3b578c-e4f2-43e8-ad02-34c5da763337"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    } ],
+    "executor" : {
+      "type" : "DEFAULT",
+      "executorId" : {
+        "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+      },
+      "frameworkId" : {
+        "value" : "7485db61-f798-4132-b53e-28a982b95e27-0002"
+      },
+      "command" : null,
+      "container" : {
+        "type" : "MESOS",
+        "volumes" : [ ],
+        "hostname" : null,
+        "docker" : null,
+        "mesos" : null,
+        "networkInfos" : [ ],
+        "linuxInfo" : null,
+        "rlimitInfo" : {
+          "rlimits" : [ {
+            "type" : "RLMT_NOFILE",
+            "hard" : 64000,
+            "soft" : 64000
+          }, {
+            "type" : "RLMT_NPROC",
+            "hard" : 64000,
+            "soft" : 64000
+          } ]
+        },
+        "ttyInfo" : null
+      },
+      "resources" : [ {
+        "providerId" : null,
+        "name" : "cpus",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 0.1
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "e9218a07-1664-42c0-a76a-d7d0a5ed2b65"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "mem",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 32.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "271a05b4-3b52-4848-be57-105b8cd1a08a"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "disk",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 256.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "bd447d7a-8c75-4b18-92a9-686847ad0260"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      } ],
+      "name" : "mongo-rs",
+      "source" : null,
+      "data" : null,
+      "discovery" : null,
+      "shutdownGracePeriod" : null,
+      "labels" : {
+        "labels" : [ {
+          "key" : "DCOS_SPACE",
+          "value" : "/percona-mongo"
+        } ]
+      }
+    },
+    "command" : {
+      "uris" : [ {
+        "value" : "https://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/bootstrap.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "https://percona-dcos-mongo.s3.amazonaws.com/autodelete7d/percona-mongo/20180521-113651-Uz5oByykllObwGq3/mongodb-tools.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/executor.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      } ],
+      "environment" : {
+        "variables" : [ {
+          "name" : "FRAMEWORK_HOST",
+          "type" : null,
+          "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_NAME",
+          "type" : null,
+          "value" : "percona-mongo",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_BACKUP_USER",
+          "type" : null,
+          "value" : "backup",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_ADMIN_USER",
+          "type" : null,
+          "value" : "clusteradmin",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_USER",
+          "type" : null,
+          "value" : "clustermonitor",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_PORT",
+          "type" : null,
+          "value" : "27017",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLSET",
+          "type" : null,
+          "value" : "rs",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_USER_ADMIN_USER",
+          "type" : null,
+          "value" : "useradmin",
+          "secret" : null
+        }, {
+          "name" : "POD_INSTANCE_INDEX",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "TASK_NAME",
+          "type" : null,
+          "value" : "mongo-rs-0-remove-user",
+          "secret" : null
+        }, {
+          "name" : "mongo-rs-0-remove-user",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        } ]
+      },
+      "shell" : null,
+      "value" : "./bootstrap -resolve=false && $MESOS_SANDBOX/mongodb-controller-linux user remove",
+      "arguments" : [ ],
+      "user" : "root"
+    },
+    "container" : {
+      "type" : "MESOS",
+      "volumes" : [ ],
+      "hostname" : null,
+      "docker" : null,
+      "mesos" : {
+        "image" : {
+          "type" : "DOCKER",
+          "appc" : null,
+          "docker" : {
+            "name" : "percona/percona-server-mongodb:3.4.13",
+            "credential" : null,
+            "config" : null
+          },
+          "cached" : null
+        }
+      },
+      "networkInfos" : [ ],
+      "linuxInfo" : {
+        "capabilityInfo" : null,
+        "boundingCapabilities" : null,
+        "effectiveCapabilities" : null,
+        "sharePidNamespace" : false
+      },
+      "rlimitInfo" : {
+        "rlimits" : [ {
+          "type" : "RLMT_NOFILE",
+          "hard" : 64000,
+          "soft" : 64000
+        }, {
+          "type" : "RLMT_NPROC",
+          "hard" : 64000,
+          "soft" : 64000
+        } ]
+      },
+      "ttyInfo" : null
+    },
+    "healthCheck" : null,
+    "check" : null,
+    "killPolicy" : {
+      "gracePeriod" : {
+        "nanoseconds" : 0
+      }
+    },
+    "data" : null,
+    "labels" : {
+      "labels" : [ {
+        "key" : "goal_state",
+        "value" : "FINISHED"
+      }, {
+        "key" : "index",
+        "value" : "0"
+      }, {
+        "key" : "offer_attributes",
+        "value" : ""
+      }, {
+        "key" : "offer_hostname",
+        "value" : "10.0.2.222"
+      }, {
+        "key" : "target_configuration",
+        "value" : "615a4617-d63c-4795-9c65-0468a78d8d25"
+      }, {
+        "key" : "task_type",
+        "value" : "mongo-rs"
+      } ]
+    },
+    "discovery" : null
+  },
+  "status" : null
+}, {
+  "info" : {
+    "name" : "mongo-rs-0-update-user",
+    "taskId" : {
+      "value" : ""
+    },
+    "slaveId" : {
+      "value" : "7485db61-f798-4132-b53e-28a982b95e27-S0"
+    },
+    "resources" : [ {
+      "providerId" : null,
+      "name" : "cpus",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 0.1
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "d17cb97c-907f-4231-8c16-2f1fb5a1133c"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    }, {
+      "providerId" : null,
+      "name" : "mem",
+      "type" : "SCALAR",
+      "scalar" : {
+        "value" : 128.0
+      },
+      "ranges" : null,
+      "set" : null,
+      "role" : null,
+      "allocationInfo" : null,
+      "reservation" : null,
+      "reservations" : [ {
+        "type" : "DYNAMIC",
+        "role" : "percona-mongo-role",
+        "principal" : "percona-mongo-principal",
+        "labels" : {
+          "labels" : [ {
+            "key" : "resource_id",
+            "value" : "02d9f1ca-b4ac-4ff7-bad0-015ee82813c0"
+          } ]
+        }
+      } ],
+      "disk" : null,
+      "revocable" : null,
+      "shared" : null
+    } ],
+    "executor" : {
+      "type" : "DEFAULT",
+      "executorId" : {
+        "value" : "mongo-rs__34dee2a8-17e3-429f-be0c-2f0d2e9c7eb4"
+      },
+      "frameworkId" : {
+        "value" : "7485db61-f798-4132-b53e-28a982b95e27-0002"
+      },
+      "command" : null,
+      "container" : {
+        "type" : "MESOS",
+        "volumes" : [ ],
+        "hostname" : null,
+        "docker" : null,
+        "mesos" : null,
+        "networkInfos" : [ ],
+        "linuxInfo" : null,
+        "rlimitInfo" : {
+          "rlimits" : [ {
+            "type" : "RLMT_NOFILE",
+            "hard" : 64000,
+            "soft" : 64000
+          }, {
+            "type" : "RLMT_NPROC",
+            "hard" : 64000,
+            "soft" : 64000
+          } ]
+        },
+        "ttyInfo" : null
+      },
+      "resources" : [ {
+        "providerId" : null,
+        "name" : "cpus",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 0.1
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "e9218a07-1664-42c0-a76a-d7d0a5ed2b65"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "mem",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 32.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "271a05b4-3b52-4848-be57-105b8cd1a08a"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      }, {
+        "providerId" : null,
+        "name" : "disk",
+        "type" : "SCALAR",
+        "scalar" : {
+          "value" : 256.0
+        },
+        "ranges" : null,
+        "set" : null,
+        "role" : null,
+        "allocationInfo" : null,
+        "reservation" : null,
+        "reservations" : [ {
+          "type" : "DYNAMIC",
+          "role" : "percona-mongo-role",
+          "principal" : "percona-mongo-principal",
+          "labels" : {
+            "labels" : [ {
+              "key" : "resource_id",
+              "value" : "bd447d7a-8c75-4b18-92a9-686847ad0260"
+            } ]
+          }
+        } ],
+        "disk" : null,
+        "revocable" : null,
+        "shared" : null
+      } ],
+      "name" : "mongo-rs",
+      "source" : null,
+      "data" : null,
+      "discovery" : null,
+      "shutdownGracePeriod" : null,
+      "labels" : {
+        "labels" : [ {
+          "key" : "DCOS_SPACE",
+          "value" : "/percona-mongo"
+        } ]
+      }
+    },
+    "command" : {
+      "uris" : [ {
+        "value" : "https://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/bootstrap.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "https://percona-dcos-mongo.s3.amazonaws.com/autodelete7d/percona-mongo/20180521-113651-Uz5oByykllObwGq3/mongodb-tools.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://downloads.mesosphere.com/dcos-commons/artifacts/0.30.3/executor.zip",
+        "executable" : null,
+        "extract" : null,
+        "cache" : null,
+        "outputFile" : null
+      }, {
+        "value" : "http://api.percona-mongo.marathon.l4lb.thisdcos.directory/v1/artifacts/template/615a4617-d63c-4795-9c65-0468a78d8d25/mongo-rs/update-user/user-change-data",
+        "executable" : null,
+        "extract" : false,
+        "cache" : null,
+        "outputFile" : "config-templates/user-change-data"
+      } ],
+      "environment" : {
+        "variables" : [ {
+          "name" : "CONFIG_TEMPLATE_USER_CHANGE_DATA",
+          "type" : null,
+          "value" : "config-templates/user-change-data,mongodbUserChange.bson.b64",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_HOST",
+          "type" : null,
+          "value" : "percona-mongo.autoip.dcos.thisdcos.directory",
+          "secret" : null
+        }, {
+          "name" : "FRAMEWORK_NAME",
+          "type" : null,
+          "value" : "percona-mongo",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_BACKUP_USER",
+          "type" : null,
+          "value" : "backup",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_ADMIN_USER",
+          "type" : null,
+          "value" : "clusteradmin",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_CLUSTER_MONITOR_USER",
+          "type" : null,
+          "value" : "clustermonitor",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_PORT",
+          "type" : null,
+          "value" : "27017",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_REPLSET",
+          "type" : null,
+          "value" : "rs",
+          "secret" : null
+        }, {
+          "name" : "MONGODB_USER_ADMIN_USER",
+          "type" : null,
+          "value" : "useradmin",
+          "secret" : null
+        }, {
+          "name" : "POD_INSTANCE_INDEX",
+          "type" : null,
+          "value" : "0",
+          "secret" : null
+        }, {
+          "name" : "TASK_NAME",
+          "type" : null,
+          "value" : "mongo-rs-0-update-user",
+          "secret" : null
+        }, {
+          "name" : "mongo-rs-0-update-user",
+          "type" : null,
+          "value" : "true",
+          "secret" : null
+        } ]
+      },
+      "shell" : null,
+      "value" : "./bootstrap -resolve=false && $MESOS_SANDBOX/mongodb-controller-linux user update $MESOS_SANDBOX/mongodbUserChange.bson.b64",
+      "arguments" : [ ],
+      "user" : "root"
+    },
+    "container" : {
+      "type" : "MESOS",
+      "volumes" : [ ],
+      "hostname" : null,
+      "docker" : null,
+      "mesos" : {
+        "image" : {
+          "type" : "DOCKER",
+          "appc" : null,
+          "docker" : {
+            "name" : "percona/percona-server-mongodb:3.4.13",
+            "credential" : null,
+            "config" : null
+          },
+          "cached" : null
+        }
+      },
+      "networkInfos" : [ ],
+      "linuxInfo" : {
+        "capabilityInfo" : null,
+        "boundingCapabilities" : null,
+        "effectiveCapabilities" : null,
+        "sharePidNamespace" : false
+      },
+      "rlimitInfo" : {
+        "rlimits" : [ {
+          "type" : "RLMT_NOFILE",
+          "hard" : 64000,
+          "soft" : 64000
+        }, {
+          "type" : "RLMT_NPROC",
+          "hard" : 64000,
+          "soft" : 64000
+        } ]
+      },
+      "ttyInfo" : null
+    },
+    "healthCheck" : null,
+    "check" : null,
+    "killPolicy" : {
+      "gracePeriod" : {
+        "nanoseconds" : 0
+      }
+    },
+    "data" : null,
+    "labels" : {
+      "labels" : [ {
+        "key" : "goal_state",
+        "value" : "FINISHED"
+      }, {
+        "key" : "index",
+        "value" : "0"
+      }, {
+        "key" : "offer_attributes",
+        "value" : ""
+      }, {
+        "key" : "offer_hostname",
+        "value" : "10.0.2.222"
+      }, {
+        "key" : "target_configuration",
+        "value" : "615a4617-d63c-4795-9c65-0468a78d8d25"
+      }, {
+        "key" : "task_type",
+        "value" : "mongo-rs"
+      } ]
+    },
+    "discovery" : null
+  },
+  "status" : null
+} ]
