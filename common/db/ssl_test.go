@@ -80,6 +80,8 @@ func TestConfigureSSLDialInfo(t *gotesting.T) {
 }
 
 func TestGetSessionSSL(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	testPrimaryDbConfig.SSL = &SSLConfig{
 		Enabled:    true,
 		PEMKeyFile: sslCertFile,
