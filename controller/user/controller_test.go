@@ -52,6 +52,8 @@ func TestControllerUserUpdateUsers(t *gotesting.T) {
 }
 
 func TestControllerUserRemoveUser(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	assert.NoError(t, testController.RemoveUser(), ".RemoveUser() should not return an error")
 	assert.False(
 		t,

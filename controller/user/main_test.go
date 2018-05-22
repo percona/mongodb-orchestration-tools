@@ -95,10 +95,12 @@ func checkUserExists(session *mgo.Session, user, db string) bool {
 func TestMain(m *gotesting.M) {
 	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
 
-	var err error
-	testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)
-	if err != nil {
-		panic(err)
+	if testing.Enabled() {
+		var err error
+		testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	defer func() {
