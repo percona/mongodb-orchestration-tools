@@ -22,8 +22,8 @@ import (
 	gotesting "testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/common/logger"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"gopkg.in/mgo.v2"
@@ -93,7 +93,7 @@ func checkUserExists(session *mgo.Session, user, db string) bool {
 }
 
 func TestMain(m *gotesting.M) {
-	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
+	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 
 	var err error
 	testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)

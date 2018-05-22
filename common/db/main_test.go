@@ -19,7 +19,7 @@ import (
 	"os"
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/logger"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"gopkg.in/mgo.v2"
 )
@@ -38,7 +38,7 @@ var (
 )
 
 func TestMain(m *gotesting.M) {
-	common.SetupLogger(nil, common.GetLogFormatter("test"), testLogBuffer)
+	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 	exit := m.Run()
 	if testPrimarySession != nil {
 		testPrimarySession.Close()

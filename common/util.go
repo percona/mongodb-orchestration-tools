@@ -22,6 +22,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
+	"github.com/percona/dcos-mongo-tools/common/logger"
 )
 
 const appAuthor = "Percona LLC."
@@ -34,7 +35,7 @@ func NewApp(help, commit, branch string) (*kingpin.Application, bool) {
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
 		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
 	))
-	verbose := SetupLogger(app, GetLogFormatter(app.Name), os.Stdout)
+	verbose := logger.SetupLogger(app, logger.GetLogFormatter(app.Name), os.Stdout)
 	return app, verbose
 }
 
