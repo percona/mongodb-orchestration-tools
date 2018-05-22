@@ -23,6 +23,8 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+var testAPIEndpointName = "mongo-port"
+
 type MockApi struct{}
 
 func (a *MockApi) GetPodUrl() string {
@@ -42,11 +44,11 @@ func (a *MockApi) GetEndpointsUrl() string {
 }
 
 func (a *MockApi) GetEndpoints() (*api.Endpoints, error) {
-	return &api.Endpoints{"mongo-port"}, nil
+	return &api.Endpoints{testAPIEndpointName}, nil
 }
 
 func (a *MockApi) GetEndpoint(endpointName string) (*api.Endpoint, error) {
-	if endpointName == "mongo-port" {
+	if endpointName == testAPIEndpointName {
 		return &api.Endpoint{
 			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
 			Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
@@ -65,6 +67,62 @@ func TestControllerUserNew(t *gotesting.T) {
 	assert.NotNil(t, testController.session, ".NewController() should return a Controller with a session field that is not nil")
 	assert.NoError(t, testController.session.Ping(), ".NewController() should return a Controller with a session that is pingable")
 	assert.Equal(t, mgo.Primary, testController.session.Mode(), ".NewController() should return a Controller with a session that is in mgo.Primary mode")
+}
+
+func TestControllerUserUpdateUsers(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	assert.False(
+		t,
+		checkUserExists(testCheckSession, testControllerConfig.User.Username, testControllerConfig.User.Database),
+		"mongo user should not exist before .UpdateUsers() call",
+	)
+	assert.NoError(t, testController.UpdateUsers(), ".UpdateUsers() should not return an error")
+	assert.True(
+		t,
+		checkUserExists(testCheckSession, testControllerConfig.User.Username, testControllerConfig.User.Database),
+		"mongo user should exist after .UpdateUsers() call",
+	)
+}
+
+func TestControllerUserRemoveUser(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	assert.NoError(t, testController.RemoveUser(), ".RemoveUser() should not return an error")
+	assert.False(
+		t,
+		checkUserExists(testCheckSession, testControllerConfig.User.Username, testControllerConfig.User.Database),
+		"mongo user should not exist after .RemoveUser() call",
+	)
+}
+
+func TestControllerUserReloadSystemUsers(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
+	for _, user := range testSystemUsers {
+		assert.False(
+			t,
+			checkUserExists(testCheckSession, user.Username, SystemUserDatabase),
+			"mongo test system user should not exist before .ReloadSystemUsers() call",
+		)
+	}
+
+	SystemUsers = testSystemUsers
+	assert.NoError(t, testController.ReloadSystemUsers(), ".ReloadSystemUsers() should not return an error")
+	for _, user := range testSystemUsers {
+		assert.True(
+			t,
+			checkUserExists(testCheckSession, user.Username, SystemUserDatabase),
+			"mongo test system user should exist after .ReloadSystemUsers() call",
+		)
+		testControllerConfig.User.Username = user.Username
+		assert.NoError(t, testController.RemoveUser(), ".RemoveUser() should not return an error")
+		assert.False(
+			t,
+			checkUserExists(testCheckSession, user.Username, SystemUserDatabase),
+			"mongo test system user should not exist after .RemoveUser() call",
+		)
+	}
 }
 
 func TestControllerUserClose(t *gotesting.T) {

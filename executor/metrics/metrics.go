@@ -22,16 +22,24 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+// Pusher is an interface for a DC/OS Metrics pusher
+type Pusher interface {
+	GetServerStatus(session *mgo.Session) (*mgostatsd.ServerStatus, error)
+	Push(status *mgostatsd.ServerStatus) error
+}
+
 type Metrics struct {
 	config  *Config
 	running bool
 	session *mgo.Session
+	pusher  Pusher
 }
 
-func New(config *Config, session *mgo.Session) *Metrics {
+func New(config *Config, session *mgo.Session, pusher Pusher) *Metrics {
 	return &Metrics{
 		config:  config,
 		session: session,
+		pusher:  pusher,
 	}
 }
 
@@ -60,16 +68,11 @@ func (m *Metrics) Run(quit *chan bool) error {
 	}).Info("Starting DC/OS Metrics pusher")
 
 	ticker := time.NewTicker(m.config.Interval)
-	statsdCnf := mgostatsd.Statsd{
-		Host: m.config.StatsdHost,
-		Port: m.config.StatsdPort,
-	}
-
 	m.running = true
 	for {
 		select {
 		case <-ticker.C:
-			status, err := mgostatsd.GetServerStatus(m.session)
+			status, err := m.pusher.GetServerStatus(m.session)
 			if err != nil {
 				log.Warnf("Failed to get serverStatus for DC/OS Metrics: %s", err)
 				continue
@@ -80,7 +83,7 @@ func (m *Metrics) Run(quit *chan bool) error {
 				"statsd_port": m.config.StatsdPort,
 			}).Info("Pushing DC/OS Metrics")
 
-			err = mgostatsd.PushStats(statsdCnf, status, false)
+			err = m.pusher.Push(status)
 			if err != nil {
 				log.Errorf("DC/OS Metrics push error: %s", err)
 			}

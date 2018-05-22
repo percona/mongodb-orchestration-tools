@@ -72,6 +72,7 @@ func TestCommonDoStopFalse(t *gotesting.T) {
 
 func TestCommonNewApp(t *gotesting.T) {
 	testApp := NewApp("test help", "git-commit-here", "branch-name-here")
+	testApp, _ := NewApp("test help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
 	assert.Contains(t, appModel.Version, "common.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")
 	assert.Equal(t, appAuthor, appModel.Author, "kingpin.Application author is unexpected")
@@ -82,7 +83,11 @@ func TestCommonGetUserId(t *gotesting.T) {
 	_, err := GetUserId("this-user-should-not-exist")
 	assert.Error(t, err, ".GetUserId() should return error due to missing user")
 
-	uid, err := GetUserId(os.Getenv("USER"))
+	user := os.Getenv("USER")
+	if user == "" {
+		user = "nobody"
+	}
+	uid, err := GetUserId(user)
 	assert.NoError(t, err, ".GetUserId() for current user should not return an error")
 	assert.NotZero(t, uid, ".GetUserId() should return a uid that is not zero")
 }
@@ -98,5 +103,5 @@ func TestCommonGetGroupId(t *gotesting.T) {
 
 	gid, err := GetGroupId(group.Name)
 	assert.NoError(t, err, ".GetGroupId() for current user group should not return an error")
-	assert.NotZero(t, gid, ".GetGroupId() should return a gid that is not zero")
+	assert.NotEqual(t, -1, gid, ".GetGroupId() should return a gid that is not zero")
 }

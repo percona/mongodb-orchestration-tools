@@ -128,7 +128,7 @@ func handleFailed(err error) {
 }
 
 func main() {
-	app := common.NewApp("Performs administrative tasks for MongoDB on behalf of DC/OS", GitCommit, GitBranch)
+	app, _ := common.NewApp("Performs administrative tasks for MongoDB on behalf of DC/OS", GitCommit, GitBranch)
 
 	cnf := &controller.Config{
 		ReplsetInit: &controller.ConfigReplsetInit{},
