@@ -51,8 +51,8 @@ func DoStop(stop *chan bool) bool {
 	}
 }
 
-// GetUserId returns the numeric ID of a system user
-func GetUserId(userName string) (int, error) {
+// GetUserID returns the numeric ID of a system user
+func GetUserID(userName string) (int, error) {
 	u, err := user.Lookup(userName)
 	if err != nil {
 		return -1, err
@@ -61,7 +61,7 @@ func GetUserId(userName string) (int, error) {
 }
 
 // GetGroupID returns the numeric ID of a system group
-func GetGroupId(groupName string) (int, error) {
+func GetGroupID(groupName string) (int, error) {
 	g, err := user.LookupGroup(groupName)
 	if err != nil {
 		return -1, err

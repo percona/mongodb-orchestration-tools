@@ -67,12 +67,12 @@ func (c *Command) doChangeUser() bool {
 func (c *Command) prepare() error {
 	var err error
 
-	c.uid, err = common.GetUserId(c.User)
+	c.uid, err = common.GetUserID(c.User)
 	if err != nil {
 		return err
 	}
 
-	c.gid, err = common.GetGroupId(c.Group)
+	c.gid, err = common.GetGroupID(c.Group)
 	if err != nil {
 		return err
 	}

@@ -71,7 +71,6 @@ func TestCommonDoStopFalse(t *gotesting.T) {
 }
 
 func TestCommonNewApp(t *gotesting.T) {
-	testApp := NewApp("test help", "git-commit-here", "branch-name-here")
 	testApp, _ := NewApp("test help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
 	assert.Contains(t, appModel.Version, "common.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")
@@ -79,29 +78,29 @@ func TestCommonNewApp(t *gotesting.T) {
 	assert.Equal(t, "test help", appModel.Help, "kingpin.Application help is unexpected")
 }
 
-func TestCommonGetUserId(t *gotesting.T) {
-	_, err := GetUserId("this-user-should-not-exist")
-	assert.Error(t, err, ".GetUserId() should return error due to missing user")
+func TestCommonGetUserID(t *gotesting.T) {
+	_, err := GetUserID("this-user-should-not-exist")
+	assert.Error(t, err, ".GetUserID() should return error due to missing user")
 
 	user := os.Getenv("USER")
 	if user == "" {
 		user = "nobody"
 	}
-	uid, err := GetUserId(user)
-	assert.NoError(t, err, ".GetUserId() for current user should not return an error")
-	assert.NotZero(t, uid, ".GetUserId() should return a uid that is not zero")
+	uid, err := GetUserID(user)
+	assert.NoError(t, err, ".GetUserID() for current user should not return an error")
+	assert.NotZero(t, uid, ".GetUserID() should return a uid that is not zero")
 }
 
-func TestCommonGetGroupId(t *gotesting.T) {
-	_, err := GetGroupId("this-group-should-not-exist")
-	assert.Error(t, err, ".GetGroupId() should return error due to missing group")
+func TestCommonGetGroupID(t *gotesting.T) {
+	_, err := GetGroupID("this-group-should-not-exist")
+	assert.Error(t, err, ".GetGroupID() should return error due to missing group")
 
 	currentUser, err := user.Current()
 	assert.NoError(t, err, "could not get current user")
 	group, err := user.LookupGroupId(currentUser.Gid)
 	assert.NoError(t, err, "could not get current user group")
 
-	gid, err := GetGroupId(group.Name)
-	assert.NoError(t, err, ".GetGroupId() for current user group should not return an error")
-	assert.NotEqual(t, -1, gid, ".GetGroupId() should return a gid that is not zero")
+	gid, err := GetGroupID(group.Name)
+	assert.NoError(t, err, ".GetGroupID() for current user group should not return an error")
+	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
 }

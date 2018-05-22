@@ -60,13 +60,13 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 }
 
 func (m *Mongod) Initiate() error {
-	uid, err := common.GetUserId(m.config.User)
+	uid, err := common.GetUserID(m.config.User)
 	if err != nil {
 		log.Errorf("Could not get user %s UID: %s\n", m.config.User, err)
 		return err
 	}
 
-	gid, err := common.GetGroupId(m.config.Group)
+	gid, err := common.GetGroupID(m.config.Group)
 	if err != nil {
 		log.Errorf("Could not get group %s GID: %s\n", m.config.Group, err)
 		return err
