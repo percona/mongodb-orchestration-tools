@@ -15,10 +15,12 @@
 package metrics
 
 import (
+	"bytes"
 	"os"
 	gotesting "testing"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common/logger"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"gopkg.in/mgo.v2"
@@ -27,6 +29,7 @@ import (
 var (
 	testMetrics        *Metrics
 	testMetricsPusher  Pusher
+	testLogBuffer      = new(bytes.Buffer)
 	testMetricsChan    = make(chan *mgostatsd.ServerStatus)
 	testMetricsRunQuit = make(chan bool)
 	testSession        *mgo.Session
@@ -40,6 +43,8 @@ var (
 )
 
 func TestMain(m *gotesting.M) {
+	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
+
 	if testing.Enabled() {
 		var err error
 		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
@@ -47,6 +52,7 @@ func TestMain(m *gotesting.M) {
 			panic(err)
 		}
 	}
+
 	exit := m.Run()
 	if testSession != nil {
 		testSession.Close()

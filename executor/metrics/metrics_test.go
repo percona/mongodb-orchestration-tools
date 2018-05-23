@@ -24,8 +24,6 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-const testHostname = "test.example.com"
-
 type MockPusher struct {
 	statusChan chan *mgostatsd.ServerStatus
 }
@@ -37,7 +35,7 @@ func NewMockPusher(statusChan chan *mgostatsd.ServerStatus) *MockPusher {
 }
 
 func (p *MockPusher) GetServerStatus(session *mgo.Session) (*mgostatsd.ServerStatus, error) {
-	return &mgostatsd.ServerStatus{Host: testHostname}, nil
+	return mgostatsd.GetServerStatus(session)
 }
 
 func (p *MockPusher) Push(status *mgostatsd.ServerStatus) error {
@@ -54,34 +52,33 @@ func TestExecutorMetricsNew(t *gotesting.T) {
 	assert.False(t, testMetrics.IsRunning(), ".IsRunning() should return false")
 }
 
+func TestExecutorMetricsDoRun(t *gotesting.T) {
+	assert.True(t, testMetrics.DoRun())
+
+	dontRun := &Metrics{config: &Config{}}
+	assert.False(t, dontRun.DoRun())
+}
+
 func TestExecutorMetricsRun(t *gotesting.T) {
 	testing.DoSkipTest(t)
+	testLogBuffer.Reset()
 
-	// start the metrics.Run() in a go routine
-	go testMetrics.Run(&testMetricsRunQuit)
-	tries := 0
-	for !testMetrics.IsRunning() || tries < 10 {
-		tries += 1
-		time.Sleep(testInterval)
-
-	}
-}
-
-func TestExecutorMetricsIsRunning(t *gotesting.T) {
-	assert.True(t, testMetrics.IsRunning(), ".IsRunning() should return true at this stage")
-}
-
-func TestExecutorMetricsRunStop(t *gotesting.T) {
 	// wait for a ServerStatus and then send a quit
-	status := <-testMetricsChan
-	testMetricsRunQuit <- true
-	assert.Equal(t, testHostname, status.Host, "Host field in ServerStatus is unexpected")
+	done := make(chan bool)
+	go func() {
+		status := <-testMetricsChan
+		assert.NotZero(t, status.Uptime, "Uptime field in ServerStatus should be greater than zero")
+		testMetricsRunQuit <- true
+		for testMetrics.IsRunning() {
+			time.Sleep(testInterval)
+		}
+		done <- true
+	}()
 
-	// wait for metrics.Run() goroutine to stop
-	tries := 0
-	for testMetrics.IsRunning() || tries < 10 {
-		tries += 1
-		time.Sleep(testInterval)
-	}
-	assert.False(t, testMetrics.IsRunning(), ".IsRunning() should return false at this stage")
+	// start the metrics.Run() in a go routine and wait
+	go testMetrics.Run(&testMetricsRunQuit)
+	<-done
+
+	assert.Contains(t, testLogBuffer.String(), "Pushing DC/OS Metrics")
+	assert.Contains(t, testLogBuffer.String(), "Stopping DC/OS Metrics pusher")
 }
