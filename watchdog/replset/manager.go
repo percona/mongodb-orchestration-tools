@@ -18,8 +18,6 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 )
 
-var testManagerReplset = &Replset{}
-
 type Manager struct {
 	config   *config.Config
 	replsets map[string]*Replset
