@@ -16,27 +16,8 @@ package replset
 
 import (
 	gotesting "testing"
-	"time"
 
-	wdConfig "github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	testWatchdogConfig = &wdConfig.Config{
-		Username:       "admin",
-		Password:       "123456",
-		ReplsetTimeout: time.Second,
-	}
-	testReplsetName   = "rs"
-	testReplset       = &Replset{}
-	testReplsetMongod = &Mongod{
-		Host:          "test123",
-		Port:          12345,
-		Replset:       testReplsetName,
-		PodName:       "mongod",
-		FrameworkName: "test",
-	}
 )
 
 func TestNewReplset(t *gotesting.T) {
