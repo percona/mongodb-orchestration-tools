@@ -25,9 +25,10 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/logger"
 )
 
+// Author is the author used by kingpin
 const Author = "Percona LLC."
 
-// NewApp sets up a new kingpin.Application
+// New sets up a new kingpin.Application
 func New(help, commit, branch string) (*kingpin.Application, bool) {
 	app := kingpin.New(filepath.Base(os.Args[0]), help)
 	app.Author(Author)
