@@ -47,6 +47,24 @@ func NewState(session *mgo.Session, replset string, configManager *rsConfig.Conf
 	}
 }
 
+func (s *State) fetchConfig() error {
+	config, err := s.fetcher.GetConfig()
+	if err != nil {
+		return err
+	}
+	s.Config = config
+	return nil
+}
+
+func (s *State) fetchStatus() error {
+	status, err := s.fetcher.GetStatus()
+	if err != nil {
+		return err
+	}
+	s.Status = status
+	return nil
+}
+
 func (s *State) Fetch() error {
 	s.Lock()
 	defer s.Unlock()
@@ -55,19 +73,12 @@ func (s *State) Fetch() error {
 		"replset": s.Replset,
 	}).Info("Updating replset config and status")
 
-	config, err := s.fetcher.GetConfig()
+	err := s.fetchConfig()
 	if err != nil {
 		return err
 	}
-	s.Config = config
 
-	status, err := s.fetcher.GetStatus()
-	if err != nil {
-		return err
-	}
-	s.Status = status
-
-	return nil
+	return s.fetchStatus()
 }
 
 func (s *State) updateConfig() error {
@@ -100,7 +111,7 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.Fetch()
+	err := s.fetchConfig()
 	if err != nil {
 		log.Errorf("Error fetching config while adding members: '%s'", err.Error())
 		return
@@ -134,7 +145,7 @@ func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.Fetch()
+	err := s.fetchConfig()
 	if err != nil {
 		log.Errorf("Error fetching config while removing members: '%s'", err.Error())
 		return
