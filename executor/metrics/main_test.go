@@ -28,7 +28,6 @@ import (
 
 var (
 	testMetrics        *Metrics
-	testMetricsPusher  Pusher
 	testLogBuffer      = new(bytes.Buffer)
 	testMetricsChan    = make(chan *mgostatsd.ServerStatus)
 	testMetricsRunQuit = make(chan bool)

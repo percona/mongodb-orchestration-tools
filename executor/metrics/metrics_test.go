@@ -46,8 +46,7 @@ func (p *MockPusher) Push(status *mgostatsd.ServerStatus) error {
 func TestExecutorMetricsNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	testMetricsPusher = NewMockPusher(testMetricsChan)
-	testMetrics = New(testConfig, testSession, testMetricsPusher)
+	testMetrics = New(testConfig, testSession, NewMockPusher(testMetricsChan))
 	assert.NotNil(t, testMetrics, ".New() should not return nil")
 	assert.False(t, testMetrics.IsRunning(), ".IsRunning() should return false")
 }
