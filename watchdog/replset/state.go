@@ -19,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
@@ -35,46 +34,40 @@ type State struct {
 	Status        *rsStatus.Status
 	configManager *rsConfig.ConfigManager
 	session       *mgo.Session
+	fetcher       Fetcher
 	doUpdate      bool
 }
 
-func NewState(session *mgo.Session, replset string) *State {
+func NewState(session *mgo.Session, replset string, configManager *rsConfig.ConfigManager, fetcher Fetcher) *State {
 	return &State{
 		Replset:       replset,
-		configManager: rsConfig.New(session),
 		session:       session,
+		configManager: configManager,
+		fetcher:       fetcher,
 	}
-}
-
-func (s *State) fetchConfig() error {
-	err := s.configManager.Load()
-	if err != nil {
-		return err
-	}
-	s.Config = s.configManager.Get()
-	return nil
-}
-
-func (s *State) fetchStatus() error {
-	status, err := rsStatus.New(s.session)
-	if err != nil {
-		return err
-	}
-	s.Status = status
-	return nil
 }
 
 func (s *State) Fetch() error {
 	s.Lock()
 	defer s.Unlock()
+
 	log.WithFields(log.Fields{
 		"replset": s.Replset,
 	}).Info("Updating replset config and status")
-	err := s.fetchConfig()
+
+	config, err := s.fetcher.GetConfig()
 	if err != nil {
 		return err
 	}
-	return s.fetchStatus()
+	s.Config = config
+
+	status, err := s.fetcher.GetStatus()
+	if err != nil {
+		return err
+	}
+	s.Status = status
+
+	return nil
 }
 
 func (s *State) updateConfig() error {
@@ -107,7 +100,7 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.fetchConfig()
+	err := s.Fetch()
 	if err != nil {
 		log.Errorf("Error fetching config while adding members: '%s'", err.Error())
 		return
@@ -141,7 +134,7 @@ func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.fetchConfig()
+	err := s.Fetch()
 	if err != nil {
 		log.Errorf("Error fetching config while removing members: '%s'", err.Error())
 		return
@@ -154,16 +147,20 @@ func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.updateConfig()
 }
 
-func (s *State) doStopFetcher(stop chan bool) bool {
-	return common.DoStop(&stop)
-}
-
-func (s *State) StartFetcher(stop chan bool, sleep time.Duration) {
+func (s *State) StartFetcher(stop *chan bool, interval time.Duration) {
 	log.WithFields(log.Fields{
-		"replset": s.Replset,
+		"replset":  s.Replset,
+		"interval": interval,
 	}).Info("Started background replset state fetcher")
-	for !s.doStopFetcher(stop) {
-		s.Fetch()
-		time.Sleep(sleep)
+
+	ticker := time.NewTicker(interval)
+	for {
+		select {
+		case <-ticker.C:
+			s.Fetch()
+		case <-*stop:
+			ticker.Stop()
+			break
+		}
 	}
 }

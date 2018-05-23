@@ -23,14 +23,14 @@ import (
 type Manager struct {
 	config    *config.Config
 	watchers  map[string]*Watcher
-	stopChans map[string]chan bool
+	stopChans map[string]*chan bool
 }
 
 func NewManager(config *config.Config) *Manager {
 	return &Manager{
 		config:    config,
 		watchers:  make(map[string]*Watcher),
-		stopChans: make(map[string]chan bool),
+		stopChans: make(map[string]*chan bool),
 	}
 }
 
@@ -46,7 +46,8 @@ func (m *Manager) Watch(rs *replset.Replset) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
-		m.stopChans[rs.Name] = make(chan bool)
+		stopChan := make(chan bool)
+		m.stopChans[rs.Name] = &stopChan
 		m.watchers[rs.Name] = New(
 			rs,
 			m.config,
@@ -58,6 +59,6 @@ func (m *Manager) Watch(rs *replset.Replset) {
 
 func (m *Manager) Stop() {
 	for _, val := range m.stopChans {
-		val <- true
+		*val <- true
 	}
 }
