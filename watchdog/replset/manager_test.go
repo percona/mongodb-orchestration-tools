@@ -56,15 +56,24 @@ func TestReplsetManagerGet(t *gotesting.T) {
 }
 
 func TestReplsetManagerUpdateMember(t *gotesting.T) {
+	testManager.UpdateMember(&Mongod{
+		Host:    "anotherhost",
+		Port:    12241,
+		Replset: "anotherRs",
+	})
+
 	testManager.UpdateMember(testManagerAddMongod)
 	rs := testManager.Get(testReplsetName)
 	assert.NotNil(t, rs, ".Get() should not return nil")
 	assert.True(t, rs.HasMember(testManagerAddMongod.Name()), ".HasMember() on replset returned false after .UpdateMember()")
 }
 
+func TestReplsetManagerHasMember(t *gotesting.T) {
+	assert.True(t, testManager.HasMember(testManagerAddMongod), ".HasMember() on replset returned false after .UpdateMember()")
+	assert.False(t, testManager.HasMember(&Mongod{Host: "doesntexit", Port: 12345, Replset: "notexists"}), ".HasMember() for missing member should return false")
+}
+
 func TestReplsetManagerRemoveMember(t *gotesting.T) {
 	testManager.RemoveMember(testManagerAddMongod)
-	rs := testManager.Get(testReplsetName)
-	assert.NotNil(t, rs, ".Get() should not return nil")
-	assert.False(t, rs.HasMember(testManagerAddMongod.Name()), ".HasMember() on replset returned true after .RemoveMember()")
+	assert.False(t, testManager.HasMember(testManagerAddMongod), ".HasMember() on replset returned true after .RemoveMember()")
 }
