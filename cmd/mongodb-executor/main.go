@@ -20,6 +20,7 @@ import (
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/executor"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/mongodb"
@@ -121,7 +122,7 @@ func handlePmm(app *kingpin.Application, cnf *executor.Config) {
 }
 
 func main() {
-	app, verbose := common.NewApp("Handles running MongoDB instances and various in-container background tasks", GitCommit, GitBranch)
+	app, verbose := tool.New("Handles running MongoDB instances and various in-container background tasks", GitCommit, GitBranch)
 	app.Command("mongod", "run a mongod instance")
 	app.Command("mongos", "run a mongos instance")
 
