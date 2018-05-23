@@ -168,7 +168,12 @@ func (s *State) StartFetcher(stop *chan bool, interval time.Duration) {
 	for {
 		select {
 		case <-ticker.C:
-			s.Fetch()
+			err := s.Fetch()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"replset": s.Replset,
+				}).Errorf("Error fetching replset state: %s")
+			}
 		case <-*stop:
 			ticker.Stop()
 			break

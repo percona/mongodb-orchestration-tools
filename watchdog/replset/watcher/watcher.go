@@ -38,7 +38,6 @@ type Watcher struct {
 	masterSessionLock sync.Mutex
 	mongodAddQueue    chan []*replset.Mongod
 	mongodRemoveQueue chan []*rsConfig.Member
-	configManager     *rsConfig.ConfigManager
 	replset           *replset.Replset
 	state             *replset.State
 	stop              *chan bool
