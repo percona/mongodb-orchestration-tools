@@ -24,8 +24,6 @@ import (
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
 
-var testState *State
-
 func TestNewState(t *gotesting.T) {
 	testing.DoSkipTest(t)
 

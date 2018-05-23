@@ -27,8 +27,9 @@ import (
 )
 
 var (
-	testManager        *Manager
 	testDBSession      *mgo.Session
+	testManager        *Manager
+	testState          *State
 	testLogBuffer      = new(bytes.Buffer)
 	testWatchdogConfig = &wdConfig.Config{
 		Username:       "admin",
