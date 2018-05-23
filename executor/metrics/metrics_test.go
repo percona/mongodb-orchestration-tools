@@ -63,11 +63,12 @@ func TestExecutorMetricsRun(t *gotesting.T) {
 	testLogBuffer.Reset()
 
 	// wait for a ServerStatus and then send a quit
+	stop := make(chan bool)
 	done := make(chan bool)
 	go func() {
 		status := <-testMetricsChan
 		assert.NotZero(t, status.Uptime, "Uptime field in ServerStatus should be greater than zero")
-		testMetricsRunQuit <- true
+		stop <- true
 		for testMetrics.IsRunning() {
 			time.Sleep(testInterval)
 		}
@@ -75,7 +76,7 @@ func TestExecutorMetricsRun(t *gotesting.T) {
 	}()
 
 	// start the metrics.Run() in a go routine and wait
-	go testMetrics.Run(&testMetricsRunQuit)
+	go testMetrics.Run(&stop)
 	<-done
 
 	assert.Contains(t, testLogBuffer.String(), "Pushing DC/OS Metrics")

@@ -27,13 +27,12 @@ import (
 )
 
 var (
-	testMetrics        *Metrics
-	testLogBuffer      = new(bytes.Buffer)
-	testMetricsChan    = make(chan *mgostatsd.ServerStatus)
-	testMetricsRunQuit = make(chan bool)
-	testSession        *mgo.Session
-	testInterval       = time.Duration(100) * time.Millisecond
-	testConfig         = &Config{
+	testMetrics     *Metrics
+	testLogBuffer   = new(bytes.Buffer)
+	testMetricsChan = make(chan *mgostatsd.ServerStatus)
+	testSession     *mgo.Session
+	testInterval    = time.Duration(100) * time.Millisecond
+	testConfig      = &Config{
 		Enabled:    true,
 		StatsdHost: "localhost",
 		StatsdPort: 9999,
