@@ -20,6 +20,7 @@ import (
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
@@ -29,7 +30,7 @@ func TestNewState(t *gotesting.T) {
 
 	configManager := rsConfig.New(testDBSession)
 
-	testState = NewState(nil, configManager, NewFetcher(testDBSession, configManager), testing.MongodbReplsetName)
+	testState = NewState(nil, configManager, fetcher.New(testDBSession, configManager), testing.MongodbReplsetName)
 	assert.Equal(t, testState.Replset, testing.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
 	assert.Nil(t, testState.session, "replset.NewState() returned State struct with a session other than nil")
 	assert.False(t, testState.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")

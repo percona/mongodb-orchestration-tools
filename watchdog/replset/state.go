@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
@@ -34,11 +35,11 @@ type State struct {
 	Status        *rsStatus.Status
 	configManager *rsConfig.ConfigManager
 	session       *mgo.Session
-	fetcher       Fetcher
+	fetcher       fetcher.Fetcher
 	doUpdate      bool
 }
 
-func NewState(session *mgo.Session, configManager *rsConfig.ConfigManager, fetcher Fetcher, replset string) *State {
+func NewState(session *mgo.Session, configManager *rsConfig.ConfigManager, fetcher fetcher.Fetcher, replset string) *State {
 	return &State{
 		Replset:       replset,
 		session:       session,

@@ -21,6 +21,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
+	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -177,8 +178,8 @@ func (rw *Watcher) Run() {
 	defer session.Close()
 
 	configManager := rsConfig.New(session)
-	fetcher := replset.NewFetcher(session, configManager)
-	rw.state = replset.NewState(session, configManager, fetcher, rw.replset.Name)
+	stateFetcher := fetcher.New(session, configManager)
+	rw.state = replset.NewState(session, configManager, stateFetcher, rw.replset.Name)
 	go rw.state.StartFetcher(rw.stop, rw.config.ReplsetPoll)
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package replset
+package fetcher
 
 import (
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
@@ -30,7 +30,7 @@ type StateFetcher struct {
 	session       *mgo.Session
 }
 
-func NewFetcher(session *mgo.Session, configManager *rsConfig.ConfigManager) *StateFetcher {
+func New(session *mgo.Session, configManager *rsConfig.ConfigManager) *StateFetcher {
 	return &StateFetcher{
 		configManager: configManager,
 		session:       session,
