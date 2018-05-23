@@ -179,7 +179,7 @@ func (rw *Watcher) Run() {
 
 	configManager := rsConfig.New(session)
 	fetcher := replset.NewFetcher(session, configManager)
-	rw.state = replset.NewState(session, rw.replset.Name, configManager, fetcher)
+	rw.state = replset.NewState(session, configManager, fetcher, rw.replset.Name)
 	go rw.state.StartFetcher(rw.stop, rw.config.ReplsetPoll)
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)

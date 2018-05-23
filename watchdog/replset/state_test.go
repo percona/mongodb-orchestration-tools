@@ -24,53 +24,55 @@ import (
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
 
+var testState *State
+
 func TestNewState(t *gotesting.T) {
-	state := NewState(nil, testing.MongodbReplsetName)
-	assert.Equal(t, state.Replset, testing.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
-	assert.Nil(t, state.session, "replset.NewState() returned State struct with a session other than nil")
-	assert.False(t, state.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")
+	testing.DoSkipTest(t)
+
+	configManager := rsConfig.New(testDBSession)
+
+	testState = NewState(nil, configManager, NewFetcher(testDBSession, configManager), testing.MongodbReplsetName)
+	assert.Equal(t, testState.Replset, testing.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
+	assert.Nil(t, testState.session, "replset.NewState() returned State struct with a session other than nil")
+	assert.False(t, testState.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")
 }
 
 func TestFetchConfig(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	state := NewState(testDBSession, testing.MongodbReplsetName)
-	assert.NoError(t, state.fetchConfig(), "state.fetchConfig() failed with error")
+	err := testState.fetchConfig()
+	assert.NoError(t, err, ".fetchConfig() should not return an error")
 
-	assert.NotNil(t, state.Config, "state.Config is nil")
-	assert.Equal(t, state.Config.Name, testing.MongodbReplsetName, "state.Config.Name is incorrect")
-	assert.NotZero(t, state.Config.Members, "state.Config.Members has no members")
+	assert.NotNil(t, testState.Config, "testState.Config is nil")
+	assert.Equal(t, testState.Config.Name, testing.MongodbReplsetName, "testState.Config.Name is incorrect")
+	assert.NotZero(t, testState.Config.Members, "testState.Config.Members has no members")
 }
 
 func TestFetchStatus(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	state := NewState(testDBSession, testing.MongodbReplsetName)
-	assert.NoError(t, state.fetchStatus(), "state.fetchStatus() failed with error")
+	err := testState.fetchStatus()
+	assert.NoError(t, err, ".fetchStatus() should not return an error")
 
-	assert.NotNil(t, state.Status, "state.Status is nil")
-	assert.Equal(t, state.Status.Set, testing.MongodbReplsetName, "state.Status.Set is incorrect")
-	assert.NotZero(t, state.Status.Members, "state.Status.Members has no members")
+	assert.NotNil(t, testState.Status, "testState.Status is nil")
+	assert.Equal(t, testState.Status.Set, testing.MongodbReplsetName, "testState.Status.Set is incorrect")
+	assert.NotZero(t, testState.Status.Members, "testState.Status.Members has no members")
 }
 
 func TestFetch(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	state := NewState(testDBSession, testing.MongodbReplsetName)
-	assert.NoError(t, state.Fetch(), "state.Fetch() failed with error")
+	assert.NoError(t, testState.Fetch(), "testState.Fetch() failed with error")
 }
 
 func TestRemoveAddConfigMembers(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	state := NewState(testDBSession, testing.MongodbReplsetName)
-	assert.NoError(t, state.Fetch(), "state.Fetch() failed with error")
-
-	memberCount := len(state.Config.Members)
-	removeMember := state.Config.Members[len(state.Config.Members)-1]
-	state.RemoveConfigMembers([]*rsConfig.Member{removeMember})
-	assert.False(t, state.doUpdate, "state.doUpdate is true after state.RemoveConfigMembers()")
-	assert.Len(t, state.Config.Members, memberCount-1, "state.Config.Members count did not reduce")
+	memberCount := len(testState.Config.Members)
+	removeMember := testState.Config.Members[len(testState.Config.Members)-1]
+	testState.RemoveConfigMembers([]*rsConfig.Member{removeMember})
+	assert.False(t, testState.doUpdate, "testState.doUpdate is true after testState.RemoveConfigMembers()")
+	assert.Len(t, testState.Config.Members, memberCount-1, "testState.Config.Members count did not reduce")
 
 	hostPort := strings.SplitN(removeMember.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
@@ -81,11 +83,11 @@ func TestRemoveAddConfigMembers(t *gotesting.T) {
 		FrameworkName: "test",
 		PodName:       "mongo",
 	}
-	state.AddConfigMembers([]*Mongod{addMongod})
-	assert.Falsef(t, state.doUpdate, "state.doUpdate is true after state.AddConfigMembers()")
-	assert.Len(t, state.Config.Members, memberCount, "state.Config.Members count did not increase")
+	testState.AddConfigMembers([]*Mongod{addMongod})
+	assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
+	assert.Len(t, testState.Config.Members, memberCount, "testState.Config.Members count did not increase")
 
-	member := state.Config.GetMember(removeMember.Host)
-	assert.NotNil(t, member, "state.Config.HasMember() returned no member")
+	member := testState.Config.GetMember(removeMember.Host)
+	assert.NotNil(t, member, "testState.Config.HasMember() returned no member")
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, "test"), "member has missing replica set tag")
 }

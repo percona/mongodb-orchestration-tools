@@ -38,7 +38,7 @@ type State struct {
 	doUpdate      bool
 }
 
-func NewState(session *mgo.Session, replset string, configManager *rsConfig.ConfigManager, fetcher Fetcher) *State {
+func NewState(session *mgo.Session, configManager *rsConfig.ConfigManager, fetcher Fetcher, replset string) *State {
 	return &State{
 		Replset:       replset,
 		session:       session,
