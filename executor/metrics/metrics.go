@@ -90,10 +90,10 @@ func (m *Metrics) Run(quit *chan bool) error {
 		case <-*quit:
 			log.Info("Stopping DC/OS Metrics pusher")
 			ticker.Stop()
+			m.running = false
 			break
 		}
 	}
 
-	m.running = false
 	return nil
 }
