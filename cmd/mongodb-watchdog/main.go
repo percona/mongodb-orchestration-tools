@@ -20,6 +20,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/watchdog"
 	config "github.com/percona/dcos-mongo-tools/watchdog/config"
 	log "github.com/sirupsen/logrus"
@@ -31,7 +32,7 @@ var (
 )
 
 func main() {
-	app, _ := common.NewApp(
+	app, _ := tool.New(
 		"A daemon for watching the DC/OS SDK API for MongoDB tasks and updating the MongoDB replica set state on changes",
 		GitCommit, GitBranch,
 	)

@@ -19,6 +19,7 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/healthcheck"
 	log "github.com/sirupsen/logrus"
 )
@@ -29,7 +30,7 @@ var (
 )
 
 func main() {
-	app, _ := common.NewApp("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
+	app, _ := tool.New("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
