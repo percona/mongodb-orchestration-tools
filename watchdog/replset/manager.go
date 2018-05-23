@@ -18,6 +18,8 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 )
 
+var testManagerReplset = &Replset{}
+
 type Manager struct {
 	config   *config.Config
 	replsets map[string]*Replset
@@ -37,9 +39,9 @@ func (m *Manager) HasReplset(name string) bool {
 	return false
 }
 
-func (m *Manager) Add(name string) {
-	if !m.HasReplset(name) {
-		m.replsets[name] = New(m.config, name)
+func (m *Manager) addReplset(rs *Replset) {
+	if !m.HasReplset(rs.Name) {
+		m.replsets[rs.Name] = rs
 	}
 }
 
@@ -69,7 +71,7 @@ func (m *Manager) HasMember(mongod *Mongod) bool {
 func (m *Manager) UpdateMember(mongod *Mongod) {
 	name := mongod.Replset
 	if !m.HasReplset(name) {
-		m.Add(name)
+		m.addReplset(New(m.config, name))
 	}
 	m.Get(name).UpdateMember(mongod)
 }
