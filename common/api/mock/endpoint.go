@@ -22,10 +22,6 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/testing"
 )
 
-func (a *API) GetEndpointsUrl() string {
-	return api.HttpSchemePlain.String() + "localhost/" + api.APIVersion + "/endpoints"
-}
-
 func (a *API) GetEndpoints() (*api.Endpoints, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetEndpoints() error")
