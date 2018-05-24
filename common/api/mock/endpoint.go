@@ -37,11 +37,19 @@ func (a *API) GetEndpoint(endpointName string) (*api.Endpoint, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetEndpoint() error")
 	}
-	if endpointName != common.DefaultMongoDBMongodEndpointName {
+	if !testing.Enabled() || endpointName != common.DefaultMongoDBMongodEndpointName {
 		return &api.Endpoint{}, nil
 	}
 	return &api.Endpoint{
-		Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-		Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
+		Address: []string{
+			testing.MongodbHost + ":" + testing.MongodbPrimaryPort,
+			testing.MongodbHost + ":" + testing.MongodbSecondary1Port,
+			testing.MongodbHost + ":" + testing.MongodbSecondary2Port,
+		},
+		Dns: []string{
+			testing.MongodbHostname + ":" + testing.MongodbPrimaryPort,
+			testing.MongodbHostname + ":" + testing.MongodbSecondary1Port,
+			testing.MongodbHostname + ":" + testing.MongodbSecondary2Port,
+		},
 	}, nil
 }
