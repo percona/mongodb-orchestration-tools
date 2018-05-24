@@ -14,7 +14,31 @@
 
 package mock
 
-var SimulateError bool
+import (
+	"encoding/json"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
+)
+
+var (
+	SimulateError bool
+	SDKVersion    = "0.30"
+)
+
+func apiFilePath(path string) string {
+	return common.RelPathToAbs(filepath.Join(SDKVersion, api.APIVersion, path))
+}
+
+func loadJSONFile(file string, out interface{}) error {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, out)
+}
 
 type API struct{}
 
