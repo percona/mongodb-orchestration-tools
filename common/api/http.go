@@ -21,80 +21,46 @@ import (
 )
 
 var (
-	DefaultHostPrefix = "api"
-	DefaultHostSuffix = "marathon.l4lb.thisdcos.directory"
-	DefaultTimeout    = "5s"
+	DefaultHTTPHostPrefix = "api"
+	DefaultHTTPHostSuffix = "marathon.l4lb.thisdcos.directory"
+	DefaultHTTPTimeout    = "5s"
 )
 
-type HttpScheme string
+// HTTPScheme is the scheme type to be used for HTTP calls
+type HTTPScheme string
 
 const (
-	HttpSchemePlain  HttpScheme = "http://"
-	HttpSchemeSecure HttpScheme = "https://"
+	HTTPSchemePlain  HTTPScheme = "http://"
+	HTTPSchemeSecure HTTPScheme = "https://"
 )
 
-func (s HttpScheme) String() string {
+// String returns a string representation of the HTTPScheme
+func (s HTTPScheme) String() string {
 	return string(s)
 }
 
+// ClientHTTP is an HTTP client for the DC/OS SDK API
 type ClientHTTP struct {
 	FrameworkName string
 	config        *Config
-	scheme        HttpScheme
+	scheme        HTTPScheme
 	client        *http.Client
 }
 
+// New creates a new ClientHTTP struct configured for use with the DC/OS SDK API
 func New(frameworkName string, config *Config) *ClientHTTP {
 	c := &ClientHTTP{
 		FrameworkName: frameworkName,
 		config:        config,
-		scheme:        HttpSchemePlain,
+		scheme:        HTTPSchemePlain,
 		client: &http.Client{
 			Timeout: config.Timeout,
 		},
 	}
 	if config.Secure {
-		c.scheme = HttpSchemeSecure
+		c.scheme = HTTPSchemeSecure
 	}
 	return c
-}
-
-func (c *ClientHTTP) getBaseURL() string {
-	return c.config.HostPrefix + "." + c.FrameworkName + "." + c.config.HostSuffix
-}
-
-func (c *ClientHTTP) GetPodURL() string {
-	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/pod"
-}
-
-func (c *ClientHTTP) GetPods() (*Pods, error) {
-	pods := &Pods{}
-	err := c.get(c.GetPodURL(), pods)
-	return pods, err
-}
-
-func (c *ClientHTTP) GetPodTasks(podName string) ([]*PodTask, error) {
-	podURL := c.GetPodURL() + "/" + podName + "/info"
-	var tasks []*PodTask
-	err := c.get(podURL, &tasks)
-	return tasks, err
-}
-
-func (c *ClientHTTP) getEndpointsURL() string {
-	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/endpoints"
-}
-
-func (c *ClientHTTP) GetEndpoints() (*Endpoints, error) {
-	endpoints := &Endpoints{}
-	err := c.get(c.getEndpointsURL(), endpoints)
-	return endpoints, err
-}
-
-func (c *ClientHTTP) GetEndpoint(endpointName string) (*Endpoint, error) {
-	endpointURL := c.getEndpointsURL() + "/" + endpointName
-	endpoint := &Endpoint{}
-	err := c.get(endpointURL, endpoint)
-	return endpoint, err
 }
 
 func (c *ClientHTTP) get(url string, out interface{}) error {
@@ -108,4 +74,9 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 		return err
 	}
 	return json.Unmarshal(body, out)
+}
+
+func (c *ClientHTTP) getBaseURL() string {
+	return c.config.HostPrefix + "." + c.FrameworkName + "." + c.config.HostSuffix
+
 }

@@ -18,10 +18,10 @@ import (
 	"time"
 )
 
-var (
-	APIVersion = "v1"
-)
+// APIVersion is the version of the DC/OS SDK API
+var APIVersion = "v1"
 
+// Config is a struct of configuration options for the API
 type Config struct {
 	HostPrefix string
 	HostSuffix string
@@ -29,6 +29,7 @@ type Config struct {
 	Secure     bool
 }
 
+// Client is an interface describing a DC/OS SDK API Client
 type Client interface {
 	GetPodURL() string
 	GetPods() (*Pods, error)

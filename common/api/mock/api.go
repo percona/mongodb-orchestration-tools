@@ -41,11 +41,11 @@ func loadJSONFile(file string, out interface{}) error {
 }
 
 type API struct {
-	scheme api.HttpScheme
+	scheme api.HTTPScheme
 }
 
 func New() *API {
 	return &API{
-		scheme: api.HttpSchemePlain,
+		scheme: api.HTTPSchemePlain,
 	}
 }

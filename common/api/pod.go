@@ -38,3 +38,23 @@ type PodTaskInfo struct {
 type PodTaskStatus struct {
 	State *PodTaskState `json:"state"`
 }
+
+// GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
+func (c *ClientHTTP) GetPodURL() string {
+	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/pod"
+}
+
+// GetPods returns a slice of existing Pods in the DC/OS SDK
+func (c *ClientHTTP) GetPods() (*Pods, error) {
+	pods := &Pods{}
+	err := c.get(c.GetPodURL(), pods)
+	return pods, err
+}
+
+// GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
+func (c *ClientHTTP) GetPodTasks(podName string) ([]*PodTask, error) {
+	podURL := c.GetPodURL() + "/" + podName + "/info"
+	var tasks []*PodTask
+	err := c.get(podURL, &tasks)
+	return tasks, err
+}
