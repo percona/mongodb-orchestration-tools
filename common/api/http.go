@@ -64,7 +64,7 @@ func (a *ApiHttp) getBaseUrl() string {
 }
 
 func (a *ApiHttp) GetPodUrl() string {
-	return a.scheme.String() + a.getBaseUrl() + "/v1/pod"
+	return a.scheme.String() + a.getBaseUrl() + "/" + APIVersion + "/pod"
 }
 
 func (a *ApiHttp) GetPods() (*Pods, error) {
@@ -81,7 +81,7 @@ func (a *ApiHttp) GetPodTasks(podName string) ([]*PodTask, error) {
 }
 
 func (a *ApiHttp) GetEndpointsUrl() string {
-	return a.scheme.String() + a.getBaseUrl() + "/v1/endpoints"
+	return a.scheme.String() + a.getBaseUrl() + "/" + APIVersion + "/endpoints"
 }
 
 func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {

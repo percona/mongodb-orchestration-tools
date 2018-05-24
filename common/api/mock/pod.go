@@ -26,11 +26,10 @@ import (
 
 var (
 	SDKVersion = "0.30"
-	APIVersion = "v1"
 )
 
 func apiFilePath(path string) string {
-	return common.RelPathToAbs(filepath.Join(SDKVersion, APIVersion, path))
+	return common.RelPathToAbs(filepath.Join(SDKVersion, api.APIVersion, path))
 }
 
 func loadJSONFile(file string, out interface{}) error {
@@ -42,7 +41,7 @@ func loadJSONFile(file string, out interface{}) error {
 }
 
 func (a *API) GetPodUrl() string {
-	return "http://localhost/" + APIVersion + "/pod"
+	return "http://localhost/" + api.APIVersion + "/pod"
 }
 
 func (a *API) GetPods() (*api.Pods, error) {

@@ -23,7 +23,7 @@ import (
 )
 
 func (a *API) GetEndpointsUrl() string {
-	return "http://localhost/v1/endpoints"
+	return "http://localhost/" + api.APIVersion + "/endpoints"
 }
 
 func (a *API) GetEndpoints() (*api.Endpoints, error) {
