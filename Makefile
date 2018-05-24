@@ -38,7 +38,7 @@ bin/mongodb-controller-$(PLATFORM): vendor cmd/mongodb-controller/main.go contro
 bin/mongodb-executor-$(PLATFORM): vendor cmd/mongodb-executor/main.go executor/*.go executor/*/*.go common/*.go common/*/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/mongodb-executor-$(PLATFORM) cmd/mongodb-executor/main.go
 
-bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*.go watchdog/*/*.go common/*.go common/*/*.go
+bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*.go watchdog/*/*.go watchdog/*/*/*.go common/*.go common/*/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/mongodb-watchdog-$(PLATFORM) cmd/mongodb-watchdog/main.go
 
 test: vendor

@@ -12,36 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package db
+package tool
 
 import (
-	"bytes"
+	"fmt"
 	"os"
-	gotesting "testing"
+	"path/filepath"
+	"runtime"
 
+	"github.com/alecthomas/kingpin"
+	dcosmongotools "github.com/percona/dcos-mongo-tools"
 	"github.com/percona/dcos-mongo-tools/common/logger"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
-	"gopkg.in/mgo.v2"
 )
 
-var (
-	testPrimarySession  *mgo.Session
-	testLogBuffer       = new(bytes.Buffer)
-	testPrimaryDbConfig = &Config{
-		DialInfo: &mgo.DialInfo{
-			Addrs:   []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-			Direct:  true,
-			Timeout: testing.MongodbTimeout,
-		},
-		SSL: &SSLConfig{},
-	}
-)
+// Author is the author used by kingpin
+const Author = "Percona LLC."
 
-func TestMain(m *gotesting.M) {
-	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
-	exit := m.Run()
-	if testPrimarySession != nil {
-		testPrimarySession.Close()
-	}
-	os.Exit(exit)
+// New sets up a new kingpin.Application
+func New(help, commit, branch string) (*kingpin.Application, bool) {
+	app := kingpin.New(filepath.Base(os.Args[0]), help)
+	app.Author(Author)
+	app.Version(fmt.Sprintf(
+		"%s version %s\ngit commit %s, branch %s\ngo version %s",
+		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
+	))
+	verbose := logger.SetupLogger(app, logger.GetLogFormatter(app.Name), os.Stdout)
+	return app, verbose
 }
