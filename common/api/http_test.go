@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	testAPI       = &APIHttp{}
+	testAPI       = &ClientHTTP{}
 	testAPIConfig = &Config{
 		HostPrefix: DefaultHostPrefix,
 		HostSuffix: DefaultHostSuffix,

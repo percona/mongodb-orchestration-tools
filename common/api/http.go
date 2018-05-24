@@ -37,15 +37,15 @@ func (s HttpScheme) String() string {
 	return string(s)
 }
 
-type APIHttp struct {
+type ClientHTTP struct {
 	FrameworkName string
 	config        *Config
 	scheme        HttpScheme
 	client        *http.Client
 }
 
-func New(frameworkName string, config *Config) *APIHttp {
-	a := &APIHttp{
+func New(frameworkName string, config *Config) *ClientHTTP {
+	c := &ClientHTTP{
 		FrameworkName: frameworkName,
 		config:        config,
 		scheme:        HttpSchemePlain,
@@ -54,51 +54,51 @@ func New(frameworkName string, config *Config) *APIHttp {
 		},
 	}
 	if config.Secure {
-		a.scheme = HttpSchemeSecure
+		c.scheme = HttpSchemeSecure
 	}
-	return a
+	return c
 }
 
-func (a *APIHttp) getBaseURL() string {
-	return a.config.HostPrefix + "." + a.FrameworkName + "." + a.config.HostSuffix
+func (c *ClientHTTP) getBaseURL() string {
+	return c.config.HostPrefix + "." + c.FrameworkName + "." + c.config.HostSuffix
 }
 
-func (a *APIHttp) GetPodURL() string {
-	return a.scheme.String() + a.getBaseURL() + "/" + APIVersion + "/pod"
+func (c *ClientHTTP) GetPodURL() string {
+	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/pod"
 }
 
-func (a *APIHttp) GetPods() (*Pods, error) {
+func (c *ClientHTTP) GetPods() (*Pods, error) {
 	pods := &Pods{}
-	err := a.get(a.GetPodURL(), pods)
+	err := c.get(c.GetPodURL(), pods)
 	return pods, err
 }
 
-func (a *APIHttp) GetPodTasks(podName string) ([]*PodTask, error) {
-	podURL := a.GetPodURL() + "/" + podName + "/info"
+func (c *ClientHTTP) GetPodTasks(podName string) ([]*PodTask, error) {
+	podURL := c.GetPodURL() + "/" + podName + "/info"
 	var tasks []*PodTask
-	err := a.get(podURL, &tasks)
+	err := c.get(podURL, &tasks)
 	return tasks, err
 }
 
-func (a *APIHttp) getEndpointsURL() string {
-	return a.scheme.String() + a.getBaseURL() + "/" + APIVersion + "/endpoints"
+func (c *ClientHTTP) getEndpointsURL() string {
+	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/endpoints"
 }
 
-func (a *APIHttp) GetEndpoints() (*Endpoints, error) {
+func (c *ClientHTTP) GetEndpoints() (*Endpoints, error) {
 	endpoints := &Endpoints{}
-	err := a.get(a.getEndpointsURL(), endpoints)
+	err := c.get(c.getEndpointsURL(), endpoints)
 	return endpoints, err
 }
 
-func (a *APIHttp) GetEndpoint(endpointName string) (*Endpoint, error) {
-	endpointURL := a.getEndpointsURL() + "/" + endpointName
+func (c *ClientHTTP) GetEndpoint(endpointName string) (*Endpoint, error) {
+	endpointURL := c.getEndpointsURL() + "/" + endpointName
 	endpoint := &Endpoint{}
-	err := a.get(endpointURL, endpoint)
+	err := c.get(endpointURL, endpoint)
 	return endpoint, err
 }
 
-func (a *APIHttp) get(url string, out interface{}) error {
-	resp, err := a.client.Get(url)
+func (c *ClientHTTP) get(url string, out interface{}) error {
+	resp, err := c.client.Get(url)
 	if err != nil {
 		return err
 	}

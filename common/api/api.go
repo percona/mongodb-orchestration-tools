@@ -29,7 +29,7 @@ type Config struct {
 	Secure     bool
 }
 
-type API interface {
+type Client interface {
 	GetPodURL() string
 	GetPods() (*Pods, error)
 	GetPodTasks(podName string) ([]*PodTask, error)
