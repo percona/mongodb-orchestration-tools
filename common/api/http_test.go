@@ -44,15 +44,15 @@ func TestApiNew(t *gotesting.T) {
 	assert.Equal(t, HttpSchemePlain, testApi.scheme, "api.scheme is incorrect")
 }
 
-func TestApiGetBaseUrl(t *gotesting.T) {
+func TestApiGetBaseURL(t *gotesting.T) {
 	expected := DefaultHostPrefix + "." + common.DefaultFrameworkName + "." + DefaultHostSuffix
-	assert.Equal(t, expected, testApi.getBaseUrl(), "api.getBaseUrl() is incorrect")
+	assert.Equal(t, expected, testApi.getBaseURL(), "api.getBaseURL() is incorrect")
 }
 
-func TestApiGetPodUrl(t *gotesting.T) {
-	assert.Equal(t, testApi.GetPodUrl(), testApi.scheme.String()+testApi.getBaseUrl()+"/v1/pod", "api.GetPodUrl() is incorrect")
+func TestApiGetPodURL(t *gotesting.T) {
+	assert.Equal(t, testApi.GetPodURL(), testApi.scheme.String()+testApi.getBaseURL()+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
 }
 
-func TestApiGetEndpointsUrl(t *gotesting.T) {
-	assert.Equal(t, testApi.GetEndpointsUrl(), testApi.scheme.String()+testApi.getBaseUrl()+"/v1/endpoints", "api.GetEndpointsUrl() is incorrect")
+func TestApiGetEndpointsURL(t *gotesting.T) {
+	assert.Equal(t, testApi.getEndpointsURL(), testApi.scheme.String()+testApi.getBaseURL()+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
 }

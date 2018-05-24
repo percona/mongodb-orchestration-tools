@@ -21,8 +21,8 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/api"
 )
 
-func (a *API) GetPodUrl() string {
-	return "http://localhost/" + api.APIVersion + "/pod"
+func (a *API) GetPodURL() string {
+	return api.HttpSchemePlain.String() + "localhost/" + api.APIVersion + "/pod"
 }
 
 func (a *API) GetPods() (*api.Pods, error) {

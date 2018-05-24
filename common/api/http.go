@@ -59,39 +59,39 @@ func New(frameworkName string, config *Config) *ApiHttp {
 	return a
 }
 
-func (a *ApiHttp) getBaseUrl() string {
+func (a *ApiHttp) getBaseURL() string {
 	return a.config.HostPrefix + "." + a.FrameworkName + "." + a.config.HostSuffix
 }
 
-func (a *ApiHttp) GetPodUrl() string {
-	return a.scheme.String() + a.getBaseUrl() + "/" + APIVersion + "/pod"
+func (a *ApiHttp) GetPodURL() string {
+	return a.scheme.String() + a.getBaseURL() + "/" + APIVersion + "/pod"
 }
 
 func (a *ApiHttp) GetPods() (*Pods, error) {
 	pods := &Pods{}
-	err := a.get(a.GetPodUrl(), pods)
+	err := a.get(a.GetPodURL(), pods)
 	return pods, err
 }
 
 func (a *ApiHttp) GetPodTasks(podName string) ([]*PodTask, error) {
-	podUrl := a.GetPodUrl() + "/" + podName + "/info"
+	podUrl := a.GetPodURL() + "/" + podName + "/info"
 	var tasks []*PodTask
 	err := a.get(podUrl, &tasks)
 	return tasks, err
 }
 
-func (a *ApiHttp) GetEndpointsUrl() string {
-	return a.scheme.String() + a.getBaseUrl() + "/" + APIVersion + "/endpoints"
+func (a *ApiHttp) getEndpointsURL() string {
+	return a.scheme.String() + a.getBaseURL() + "/" + APIVersion + "/endpoints"
 }
 
 func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {
 	endpoints := &Endpoints{}
-	err := a.get(a.GetEndpointsUrl(), endpoints)
+	err := a.get(a.getEndpointsURL(), endpoints)
 	return endpoints, err
 }
 
 func (a *ApiHttp) GetEndpoint(endpointName string) (*Endpoint, error) {
-	endpointUrl := a.GetEndpointsUrl() + "/" + endpointName
+	endpointUrl := a.getEndpointsURL() + "/" + endpointName
 	endpoint := &Endpoint{}
 	err := a.get(endpointUrl, endpoint)
 	return endpoint, err

@@ -132,13 +132,13 @@ func (w *Watchdog) Run() {
 		select {
 		case <-ticker.C:
 			log.WithFields(log.Fields{
-				"url": w.api.GetPodUrl(),
+				"url": w.api.GetPodURL(),
 			}).Info("Getting pods from url")
 
 			pods, err := w.api.GetPods()
 			if err != nil {
 				log.WithFields(log.Fields{
-					"url":   w.api.GetPodUrl(),
+					"url":   w.api.GetPodURL(),
 					"error": err,
 				}).Error("Error fetching DCOS pod list")
 				continue

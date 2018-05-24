@@ -30,7 +30,7 @@ func DoStop(stop *chan bool) bool {
 	}
 }
 
-// RelPath returns a string containing a absolute to the provided path, relative to the caller directory
+// RelPathToAbs returns a string containing a absolute to the provided path, relative to the caller directory
 func RelPathToAbs(relPath string) string {
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
