@@ -27,10 +27,10 @@ var (
 	}
 )
 
-func TestApiEndpointAddresses(t *gotesting.T) {
+func TestAPIEndpointAddresses(t *gotesting.T) {
 	assert.Equal(t, testEndpoint.Addresses(), testEndpoint.Address, "&Endpoint{} struct .Addresses() is incorrect")
 }
 
-func TestApiEndpointHosts(t *gotesting.T) {
+func TestAPIEndpointHosts(t *gotesting.T) {
 	assert.Equal(t, testEndpoint.Hosts(), testEndpoint.Dns, "&Endpoint{} struct .Hosts() is incorrect")
 }

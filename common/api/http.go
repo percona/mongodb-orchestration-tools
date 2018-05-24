@@ -37,15 +37,15 @@ func (s HttpScheme) String() string {
 	return string(s)
 }
 
-type ApiHttp struct {
+type APIHttp struct {
 	FrameworkName string
 	config        *Config
 	scheme        HttpScheme
 	client        *http.Client
 }
 
-func New(frameworkName string, config *Config) *ApiHttp {
-	a := &ApiHttp{
+func New(frameworkName string, config *Config) *APIHttp {
+	a := &APIHttp{
 		FrameworkName: frameworkName,
 		config:        config,
 		scheme:        HttpSchemePlain,
@@ -59,45 +59,45 @@ func New(frameworkName string, config *Config) *ApiHttp {
 	return a
 }
 
-func (a *ApiHttp) getBaseURL() string {
+func (a *APIHttp) getBaseURL() string {
 	return a.config.HostPrefix + "." + a.FrameworkName + "." + a.config.HostSuffix
 }
 
-func (a *ApiHttp) GetPodURL() string {
+func (a *APIHttp) GetPodURL() string {
 	return a.scheme.String() + a.getBaseURL() + "/" + APIVersion + "/pod"
 }
 
-func (a *ApiHttp) GetPods() (*Pods, error) {
+func (a *APIHttp) GetPods() (*Pods, error) {
 	pods := &Pods{}
 	err := a.get(a.GetPodURL(), pods)
 	return pods, err
 }
 
-func (a *ApiHttp) GetPodTasks(podName string) ([]*PodTask, error) {
+func (a *APIHttp) GetPodTasks(podName string) ([]*PodTask, error) {
 	podURL := a.GetPodURL() + "/" + podName + "/info"
 	var tasks []*PodTask
 	err := a.get(podURL, &tasks)
 	return tasks, err
 }
 
-func (a *ApiHttp) getEndpointsURL() string {
+func (a *APIHttp) getEndpointsURL() string {
 	return a.scheme.String() + a.getBaseURL() + "/" + APIVersion + "/endpoints"
 }
 
-func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {
+func (a *APIHttp) GetEndpoints() (*Endpoints, error) {
 	endpoints := &Endpoints{}
 	err := a.get(a.getEndpointsURL(), endpoints)
 	return endpoints, err
 }
 
-func (a *ApiHttp) GetEndpoint(endpointName string) (*Endpoint, error) {
+func (a *APIHttp) GetEndpoint(endpointName string) (*Endpoint, error) {
 	endpointURL := a.getEndpointsURL() + "/" + endpointName
 	endpoint := &Endpoint{}
 	err := a.get(endpointURL, endpoint)
 	return endpoint, err
 }
 
-func (a *ApiHttp) get(url string, out interface{}) error {
+func (a *APIHttp) get(url string, out interface{}) error {
 	resp, err := a.client.Get(url)
 	if err != nil {
 		return err

@@ -23,8 +23,8 @@ import (
 )
 
 var (
-	testApi       = &ApiHttp{}
-	testApiConfig = &Config{
+	testAPI       = &APIHttp{}
+	testAPIConfig = &Config{
 		HostPrefix: DefaultHostPrefix,
 		HostSuffix: DefaultHostSuffix,
 		Timeout:    time.Second,
@@ -32,27 +32,27 @@ var (
 	}
 )
 
-func TestApiNew(t *gotesting.T) {
-	testApi = New(common.DefaultFrameworkName, testApiConfig)
-	assert.Equal(t, testApiConfig, testApi.config, "api.config is incorrect")
-	assert.Equal(t, common.DefaultFrameworkName, testApi.FrameworkName, "api.FrameworkName is incorrect")
-	assert.Equal(t, testApiConfig.Timeout, testApi.client.Timeout, "api.client.Timeout is incorrect")
-	assert.Equal(t, HttpSchemeSecure, testApi.scheme, "api.scheme is incorrect")
+func TestAPINew(t *gotesting.T) {
+	testAPI = New(common.DefaultFrameworkName, testAPIConfig)
+	assert.Equal(t, testAPIConfig, testAPI.config, "api.config is incorrect")
+	assert.Equal(t, common.DefaultFrameworkName, testAPI.FrameworkName, "api.FrameworkName is incorrect")
+	assert.Equal(t, testAPIConfig.Timeout, testAPI.client.Timeout, "api.client.Timeout is incorrect")
+	assert.Equal(t, HttpSchemeSecure, testAPI.scheme, "api.scheme is incorrect")
 
-	testApiConfig.Secure = false
-	testApi = New(common.DefaultFrameworkName, testApiConfig)
-	assert.Equal(t, HttpSchemePlain, testApi.scheme, "api.scheme is incorrect")
+	testAPIConfig.Secure = false
+	testAPI = New(common.DefaultFrameworkName, testAPIConfig)
+	assert.Equal(t, HttpSchemePlain, testAPI.scheme, "api.scheme is incorrect")
 }
 
-func TestApiGetBaseURL(t *gotesting.T) {
+func TestAPIGetBaseURL(t *gotesting.T) {
 	expected := DefaultHostPrefix + "." + common.DefaultFrameworkName + "." + DefaultHostSuffix
-	assert.Equal(t, expected, testApi.getBaseURL(), "api.getBaseURL() is incorrect")
+	assert.Equal(t, expected, testAPI.getBaseURL(), "api.getBaseURL() is incorrect")
 }
 
-func TestApiGetPodURL(t *gotesting.T) {
-	assert.Equal(t, testApi.GetPodURL(), testApi.scheme.String()+testApi.getBaseURL()+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
+func TestAPIGetPodURL(t *gotesting.T) {
+	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
 }
 
-func TestApiGetEndpointsURL(t *gotesting.T) {
-	assert.Equal(t, testApi.getEndpointsURL(), testApi.scheme.String()+testApi.getBaseURL()+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
+func TestAPIGetEndpointsURL(t *gotesting.T) {
+	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
 }
