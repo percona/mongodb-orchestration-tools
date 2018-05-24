@@ -17,17 +17,20 @@ package replset
 import (
 	gotesting "testing"
 
+	//"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	//"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
+// This test needs a mock of common/api PodTask
 //func TestNewMongod(t *gotesting.T) {
 //	testing.DoSkipTest(t)
-//	apiTask := new(MockApiTask)
-//	mongod, err := NewMongod(apiTask, "frameworkNameHere", "mongo-"+testing.MongodbReplsetName)
+//
+//	mongod, err := NewMongod(&api.PodTaskHttp{}, "frameworkNameHere", "mongo-"+testing.MongodbReplsetName)
 //	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
+//	assert.NotNil(t, mongod, "replset.NewMongod() should not return a nil Mongod")
 //}
 
 func TestMongodName(t *gotesting.T) {

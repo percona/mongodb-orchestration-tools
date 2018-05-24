@@ -18,15 +18,33 @@ import (
 	"bytes"
 	"os"
 	gotesting "testing"
+	"time"
 
 	"github.com/percona/dcos-mongo-tools/common/logger"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	wdConfig "github.com/percona/dcos-mongo-tools/watchdog/config"
 	"gopkg.in/mgo.v2"
 )
 
 var (
-	testDBSession *mgo.Session
-	testLogBuffer = new(bytes.Buffer)
+	testDBSession      *mgo.Session
+	testManager        *Manager
+	testState          *State
+	testLogBuffer      = new(bytes.Buffer)
+	testWatchdogConfig = &wdConfig.Config{
+		Username:       "admin",
+		Password:       "123456",
+		ReplsetTimeout: time.Second,
+	}
+	testReplsetName   = "rs"
+	testReplset       = &Replset{}
+	testReplsetMongod = &Mongod{
+		Host:          "test123",
+		Port:          12345,
+		Replset:       testReplsetName,
+		PodName:       "mongod",
+		FrameworkName: "test",
+	}
 )
 
 func TestMain(m *gotesting.M) {

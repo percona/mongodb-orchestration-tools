@@ -19,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
@@ -35,28 +35,30 @@ type State struct {
 	Status        *rsStatus.Status
 	configManager *rsConfig.ConfigManager
 	session       *mgo.Session
+	fetcher       fetcher.Fetcher
 	doUpdate      bool
 }
 
-func NewState(session *mgo.Session, replset string) *State {
+func NewState(session *mgo.Session, configManager *rsConfig.ConfigManager, fetcher fetcher.Fetcher, replset string) *State {
 	return &State{
 		Replset:       replset,
-		configManager: rsConfig.New(session),
 		session:       session,
+		configManager: configManager,
+		fetcher:       fetcher,
 	}
 }
 
 func (s *State) fetchConfig() error {
-	err := s.configManager.Load()
+	config, err := s.fetcher.GetConfig()
 	if err != nil {
 		return err
 	}
-	s.Config = s.configManager.Get()
+	s.Config = config
 	return nil
 }
 
 func (s *State) fetchStatus() error {
-	status, err := rsStatus.New(s.session)
+	status, err := s.fetcher.GetStatus()
 	if err != nil {
 		return err
 	}
@@ -67,13 +69,16 @@ func (s *State) fetchStatus() error {
 func (s *State) Fetch() error {
 	s.Lock()
 	defer s.Unlock()
+
 	log.WithFields(log.Fields{
 		"replset": s.Replset,
 	}).Info("Updating replset config and status")
+
 	err := s.fetchConfig()
 	if err != nil {
 		return err
 	}
+
 	return s.fetchStatus()
 }
 
@@ -154,16 +159,25 @@ func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.updateConfig()
 }
 
-func (s *State) doStopFetcher(stop chan bool) bool {
-	return common.DoStop(&stop)
-}
-
-func (s *State) StartFetcher(stop chan bool, sleep time.Duration) {
+func (s *State) StartFetcher(stop *chan bool, interval time.Duration) {
 	log.WithFields(log.Fields{
-		"replset": s.Replset,
+		"replset":  s.Replset,
+		"interval": interval,
 	}).Info("Started background replset state fetcher")
-	for !s.doStopFetcher(stop) {
-		s.Fetch()
-		time.Sleep(sleep)
+
+	ticker := time.NewTicker(interval)
+	for {
+		select {
+		case <-ticker.C:
+			err := s.Fetch()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"replset": s.Replset,
+				}).Errorf("Error fetching replset state: %s")
+			}
+		case <-*stop:
+			ticker.Stop()
+			break
+		}
 	}
 }
