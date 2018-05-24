@@ -18,7 +18,9 @@ import (
 	"time"
 )
 
-const APIVersion = "v1"
+var (
+	APIVersion = "v1"
+)
 
 type Config struct {
 	HostPrefix string
