@@ -21,6 +21,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/replset"
 	"github.com/percona/dcos-mongo-tools/controller/user"
@@ -128,7 +129,7 @@ func handleFailed(err error) {
 }
 
 func main() {
-	app, _ := common.NewApp("Performs administrative tasks for MongoDB on behalf of DC/OS", GitCommit, GitBranch)
+	app, _ := tool.New("Performs administrative tasks for MongoDB on behalf of DC/OS", GitCommit, GitBranch)
 
 	cnf := &controller.Config{
 		ReplsetInit: &controller.ConfigReplsetInit{},
