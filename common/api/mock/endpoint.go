@@ -17,11 +17,10 @@ package mock
 import (
 	"errors"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 )
-
-var EndpointName = "mongo-port"
 
 func (a *API) GetEndpointsUrl() string {
 	return "http://localhost/v1/endpoints"
@@ -31,18 +30,18 @@ func (a *API) GetEndpoints() (*api.Endpoints, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetEndpoints() error")
 	}
-	return &api.Endpoints{EndpointName}, nil
+	return &api.Endpoints{common.DefaultMongoDBMongodEndpointName}, nil
 }
 
 func (a *API) GetEndpoint(endpointName string) (*api.Endpoint, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetEndpoint() error")
 	}
-	if endpointName == EndpointName {
-		return &api.Endpoint{
-			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-			Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
-		}, nil
+	if endpointName != common.DefaultMongoDBMongodEndpointName {
+		return &api.Endpoint{}, nil
 	}
-	return &api.Endpoint{}, nil
+	return &api.Endpoint{
+		Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
+		Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
+	}, nil
 }

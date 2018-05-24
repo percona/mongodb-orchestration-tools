@@ -16,20 +16,6 @@ package api
 
 type Pods []string
 
-type PodTask interface {
-	Name() string
-	HasState() bool
-	State() PodTaskState
-	IsRunning() bool
-	IsMongodTask() bool
-	IsMongosTask() bool
-	IsRemovedMongod() bool
-	GetMongoHostname(frameworkName string) string
-	GetEnvVar(variableName string) (string, error)
-	GetMongoPort() (int, error)
-	GetMongoReplsetName() (string, error)
-}
-
 type PodTaskCommandEnvironmentVariable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`

@@ -28,7 +28,7 @@ type Config struct {
 type Api interface {
 	GetPodUrl() string
 	GetPods() (*Pods, error)
-	GetPodTasks(podName string) ([]PodTask, error)
+	GetPodTasks(podName string) ([]*PodTask, error)
 	GetEndpointsUrl() string
 	GetEndpoints() (*Endpoints, error)
 	GetEndpoint(endpointName string) (*Endpoint, error)

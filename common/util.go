@@ -14,6 +14,12 @@
 
 package common
 
+import (
+	"os"
+	"path/filepath"
+	"runtime"
+)
+
 // DoStop checks if a goroutine should stop, based on a boolean channel
 func DoStop(stop *chan bool) bool {
 	select {
@@ -22,4 +28,20 @@ func DoStop(stop *chan bool) bool {
 	default:
 		return false
 	}
+}
+
+// RelPath returns a string containing a absolute to the provided path, relative to the caller directory
+func RelPathToAbs(relPath string) string {
+	_, filename, _, ok := runtime.Caller(1)
+	if !ok {
+		return ""
+	}
+	baseDir := filepath.Dir(filename)
+	path, err := filepath.Abs(filepath.Join(baseDir, relPath))
+	if err == nil {
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return ""
 }

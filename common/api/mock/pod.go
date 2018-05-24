@@ -15,32 +15,51 @@
 package mock
 
 import (
+	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"path/filepath"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
 )
 
-var PodName = "mongo"
+var (
+	SDKVersion = "0.30"
+	APIVersion = "v1"
+)
+
+func apiFilePath(path string) string {
+	return common.RelPathToAbs(filepath.Join(SDKVersion, APIVersion, path))
+}
+
+func loadJSONFile(file string, out interface{}) error {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, out)
+}
 
 func (a *API) GetPodUrl() string {
-	return "http://localhost/v1/pod"
+	return "http://localhost/" + APIVersion + "/pod"
 }
 
 func (a *API) GetPods() (*api.Pods, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetPods() error")
 	}
-	return &api.Pods{PodName}, nil
+	pods := &api.Pods{}
+	err := loadJSONFile(apiFilePath("pod.json"), pods)
+	return pods, err
 }
 
-func (a *API) GetPodTasks(podName string) ([]api.PodTask, error) {
+func (a *API) GetPodTasks(podName string) ([]*api.PodTask, error) {
 	if SimulateError {
 		return nil, errors.New("simulating a .GetPodTasks() error")
 	}
-	return []api.PodTask{
-		&api.PodTaskHttp{
-			Info:   &api.PodTaskInfo{},
-			Status: &api.PodTaskStatus{},
-		},
-	}, nil
+
+	var tasks []*api.PodTask
+	err := loadJSONFile(apiFilePath(filepath.Join("pod", podName+".info.json")), &tasks)
+	return tasks, err
 }
