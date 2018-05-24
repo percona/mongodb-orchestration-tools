@@ -28,18 +28,18 @@ import (
 )
 
 type Watchdog struct {
-	startTime      time.Time
 	config         *config.Config
-	api            api.Api
+	api            api.Client
+	startTime      time.Time
 	replsetManager *replset.Manager
 	watcherManager *watcher.Manager
 }
 
-func New(config *config.Config, dcosApi api.Api) *Watchdog {
+func New(config *config.Config, client api.Client) *Watchdog {
 	return &Watchdog{
 		config:         config,
+		api:            client,
 		startTime:      time.Now(),
-		api:            dcosApi,
 		replsetManager: replset.NewManager(config),
 		watcherManager: watcher.NewManager(config),
 	}
@@ -132,13 +132,13 @@ func (w *Watchdog) Run() {
 		select {
 		case <-ticker.C:
 			log.WithFields(log.Fields{
-				"url": w.api.GetPodUrl(),
+				"url": w.api.GetPodURL(),
 			}).Info("Getting pods from url")
 
 			pods, err := w.api.GetPods()
 			if err != nil {
 				log.WithFields(log.Fields{
-					"url":   w.api.GetPodUrl(),
+					"url":   w.api.GetPodURL(),
 					"error": err,
 				}).Error("Error fetching DCOS pod list")
 				continue

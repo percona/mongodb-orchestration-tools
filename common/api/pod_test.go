@@ -20,21 +20,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	testEndpoint = &Endpoint{
-		Address: []string{"127.0.0.1"},
-		Dns:     []string{"mongo1.example.com"},
-	}
-)
-
-func TestAPIEndpointAddresses(t *gotesting.T) {
-	assert.Equal(t, testEndpoint.Addresses(), testEndpoint.Address, "&Endpoint{} struct .Addresses() is incorrect")
-}
-
-func TestAPIEndpointHosts(t *gotesting.T) {
-	assert.Equal(t, testEndpoint.Hosts(), testEndpoint.Dns, "&Endpoint{} struct .Hosts() is incorrect")
-}
-
-func TestAPIGetEndpointsURL(t *gotesting.T) {
-	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
+func TestAPIGetPodURL(t *gotesting.T) {
+	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
 }

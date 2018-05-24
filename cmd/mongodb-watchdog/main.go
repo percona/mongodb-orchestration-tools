@@ -58,7 +58,7 @@ func main() {
 	app.Flag(
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
-	).Default(api.DefaultTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
+	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
 	app.Flag(
 		"replsetPoll",
 		"Frequency of replset state polls, overridden by env var WATCHDOG_REPLSET_POLL",
@@ -78,11 +78,11 @@ func main() {
 	app.Flag(
 		"apiHostPrefix",
 		"DC/OS SDK API hostname prefix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHostPrefix).StringVar(&cnf.API.HostPrefix)
+	).Default(api.DefaultHTTPHostPrefix).StringVar(&cnf.API.HostPrefix)
 	app.Flag(
 		"apiHostSuffix",
 		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHostSuffix).StringVar(&cnf.API.HostSuffix)
+	).Default(api.DefaultHTTPHostSuffix).StringVar(&cnf.API.HostSuffix)
 	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
