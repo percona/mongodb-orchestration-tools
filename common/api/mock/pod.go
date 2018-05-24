@@ -22,7 +22,7 @@ import (
 )
 
 func (a *API) GetPodURL() string {
-	return api.HttpSchemePlain.String() + "localhost/" + api.APIVersion + "/pod"
+	return a.scheme.String() + "localhost/" + api.APIVersion + "/pod"
 }
 
 func (a *API) GetPods() (*api.Pods, error) {

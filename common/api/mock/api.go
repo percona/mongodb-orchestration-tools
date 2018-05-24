@@ -40,8 +40,12 @@ func loadJSONFile(file string, out interface{}) error {
 	return json.Unmarshal(bytes, out)
 }
 
-type API struct{}
+type API struct {
+	scheme api.HttpScheme
+}
 
 func New() *API {
-	return &API{}
+	return &API{
+		scheme: api.HttpSchemePlain,
+	}
 }
