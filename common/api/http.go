@@ -74,9 +74,9 @@ func (a *ApiHttp) GetPods() (*Pods, error) {
 }
 
 func (a *ApiHttp) GetPodTasks(podName string) ([]*PodTask, error) {
-	podUrl := a.GetPodURL() + "/" + podName + "/info"
+	podURL := a.GetPodURL() + "/" + podName + "/info"
 	var tasks []*PodTask
-	err := a.get(podUrl, &tasks)
+	err := a.get(podURL, &tasks)
 	return tasks, err
 }
 
@@ -91,9 +91,9 @@ func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {
 }
 
 func (a *ApiHttp) GetEndpoint(endpointName string) (*Endpoint, error) {
-	endpointUrl := a.getEndpointsURL() + "/" + endpointName
+	endpointURL := a.getEndpointsURL() + "/" + endpointName
 	endpoint := &Endpoint{}
-	err := a.get(endpointUrl, endpoint)
+	err := a.get(endpointURL, endpoint)
 	return endpoint, err
 }
 
