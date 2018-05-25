@@ -14,17 +14,40 @@
 
 package api
 
+// Endpoints contains several DC/OS SDK Service endpoints
 type Endpoints []string
 
+// Endpoint represents a DC/OS SDK Service endpoint
 type Endpoint struct {
 	Address []string `json:"address"`
 	Dns     []string `json:"dns"`
 }
 
+// Addresses returns a list of IP:Port addresses for the DC/OS SDK Service endpoint
 func (e *Endpoint) Addresses() []string {
 	return e.Address
 }
 
+// Hosts returns a list of DNS:Port addresses for the DC/OS SDK Service endpoint
 func (e *Endpoint) Hosts() []string {
 	return e.Dns
+}
+
+func (c *ClientHTTP) getEndpointsURL() string {
+	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/endpoints"
+}
+
+// GetEndpoints returns a slice of DC/OS SDK Service Endpoints
+func (c *ClientHTTP) GetEndpoints() (*Endpoints, error) {
+	endpoints := &Endpoints{}
+	err := c.get(c.getEndpointsURL(), endpoints)
+	return endpoints, err
+}
+
+// GetEndpoint returns an DC/OS SDK Service Endpoint by name
+func (c *ClientHTTP) GetEndpoint(endpointName string) (*Endpoint, error) {
+	endpointURL := c.getEndpointsURL() + "/" + endpointName
+	endpoint := &Endpoint{}
+	err := c.get(endpointURL, endpoint)
+	return endpoint, err
 }

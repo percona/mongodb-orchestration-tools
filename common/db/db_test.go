@@ -87,7 +87,7 @@ func TestWaitForPrimary(t *gotesting.T) {
 
 	assert.NoError(t, WaitForPrimary(testPrimarySession, 1, time.Second), ".WaitForPrimary() should return no error for primary")
 
-	secondarySession, err := testing.GetSession(testing.MongodbSecondaryPort)
+	secondarySession, err := testing.GetSession(testing.MongodbSecondary1Port)
 	assert.NoError(t, err, "could not get secondary-host session for testing .WaitForPrimary()")
 	assert.NotNil(t, secondarySession)
 	defer secondarySession.Close()

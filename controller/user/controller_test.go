@@ -17,51 +17,17 @@ package user
 import (
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common/api"
+	mockAPI "github.com/percona/dcos-mongo-tools/common/api/mock"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
-var testAPIEndpointName = "mongo-port"
-
-type MockApi struct{}
-
-func (a *MockApi) GetPodUrl() string {
-	return "http://localhost/v1/pod"
-}
-
-func (a *MockApi) GetPods() (*api.Pods, error) {
-	return &api.Pods{}, nil
-}
-
-func (a *MockApi) GetPodTasks(podName string) ([]api.PodTask, error) {
-	return []api.PodTask{}, nil
-}
-
-func (a *MockApi) GetEndpointsUrl() string {
-	return "http://localhost/v1/endpoints"
-}
-
-func (a *MockApi) GetEndpoints() (*api.Endpoints, error) {
-	return &api.Endpoints{testAPIEndpointName}, nil
-}
-
-func (a *MockApi) GetEndpoint(endpointName string) (*api.Endpoint, error) {
-	if endpointName == testAPIEndpointName {
-		return &api.Endpoint{
-			Address: []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
-			Dns:     []string{testing.MongodbHostname + ":" + testing.MongodbPrimaryPort},
-		}, nil
-	}
-	return &api.Endpoint{}, nil
-}
-
 func TestControllerUserNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	var err error
-	testController, err = NewController(testControllerConfig, &MockApi{})
+	testController, err = NewController(testControllerConfig, mockAPI.New())
 	assert.NoError(t, err, ".NewController() should not return an error")
 	assert.NotNil(t, testController, ".NewController() should return a Controller that is not nil")
 	assert.NotNil(t, testController.session, ".NewController() should return a Controller with a session field that is not nil")

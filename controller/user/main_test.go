@@ -18,10 +18,10 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
-	"runtime"
 	gotesting "testing"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/logger"
 	"github.com/percona/dcos-mongo-tools/common/testing"
@@ -48,34 +48,19 @@ var (
 	testControllerConfig = &controller.Config{
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
-			Database:        "admin",
-			File:            filepath.Join(findTestDir(), testBase64BSONFile),
+			Database:        SystemUserDatabase,
+			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64BSONFile)),
 			Username:        testBase64BSONUser.Username,
-			EndpointName:    "mongo-port",
+			EndpointName:    common.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		FrameworkName:     "test",
+		FrameworkName:     common.DefaultFrameworkName,
 		Replset:           testing.MongodbReplsetName,
 		UserAdminUser:     testing.MongodbAdminUser,
 		UserAdminPassword: testing.MongodbAdminPassword,
 	}
 )
-
-func findTestDir() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		return ""
-	}
-	baseDir := filepath.Dir(filename)
-	path, err := filepath.Abs(filepath.Join(baseDir, testDirRelPath))
-	if err == nil {
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-	}
-	return ""
-}
 
 func checkUserExists(session *mgo.Session, user, db string) bool {
 	resp := struct {

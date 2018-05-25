@@ -21,84 +21,50 @@ import (
 )
 
 var (
-	DefaultHostPrefix = "api"
-	DefaultHostSuffix = "marathon.l4lb.thisdcos.directory"
-	DefaultTimeout    = "5s"
+	DefaultHTTPHostPrefix = "api"
+	DefaultHTTPHostSuffix = "marathon.l4lb.thisdcos.directory"
+	DefaultHTTPTimeout    = "5s"
 )
 
-type HttpScheme string
+// HTTPScheme is the scheme type to be used for HTTP calls
+type HTTPScheme string
 
 const (
-	HttpSchemePlain  HttpScheme = "http://"
-	HttpSchemeSecure HttpScheme = "https://"
+	HTTPSchemePlain  HTTPScheme = "http://"
+	HTTPSchemeSecure HTTPScheme = "https://"
 )
 
-func (s HttpScheme) String() string {
+// String returns a string representation of the HTTPScheme
+func (s HTTPScheme) String() string {
 	return string(s)
 }
 
-type ApiHttp struct {
+// ClientHTTP is an HTTP client for the DC/OS SDK API
+type ClientHTTP struct {
 	FrameworkName string
 	config        *Config
-	scheme        HttpScheme
+	scheme        HTTPScheme
 	client        *http.Client
 }
 
-func New(frameworkName string, config *Config) *ApiHttp {
-	a := &ApiHttp{
+// New creates a new ClientHTTP struct configured for use with the DC/OS SDK API
+func New(frameworkName string, config *Config) *ClientHTTP {
+	c := &ClientHTTP{
 		FrameworkName: frameworkName,
 		config:        config,
-		scheme:        HttpSchemePlain,
+		scheme:        HTTPSchemePlain,
 		client: &http.Client{
 			Timeout: config.Timeout,
 		},
 	}
 	if config.Secure {
-		a.scheme = HttpSchemeSecure
+		c.scheme = HTTPSchemeSecure
 	}
-	return a
+	return c
 }
 
-func (a *ApiHttp) getBaseUrl() string {
-	return a.config.HostPrefix + "." + a.FrameworkName + "." + a.config.HostSuffix
-}
-
-func (a *ApiHttp) GetPodUrl() string {
-	return a.scheme.String() + a.getBaseUrl() + "/v1/pod"
-}
-
-func (a *ApiHttp) GetPods() (*Pods, error) {
-	pods := &Pods{}
-	err := a.get(a.GetPodUrl(), pods)
-	return pods, err
-}
-
-func (a *ApiHttp) GetPodTasks(podName string) ([]PodTask, error) {
-	podUrl := a.GetPodUrl() + "/" + podName + "/info"
-	var tasks []PodTask
-	err := a.get(podUrl, &tasks)
-	return tasks, err
-}
-
-func (a *ApiHttp) GetEndpointsUrl() string {
-	return a.scheme.String() + a.getBaseUrl() + "/v1/endpoints"
-}
-
-func (a *ApiHttp) GetEndpoints() (*Endpoints, error) {
-	endpoints := &Endpoints{}
-	err := a.get(a.GetEndpointsUrl(), endpoints)
-	return endpoints, err
-}
-
-func (a *ApiHttp) GetEndpoint(endpointName string) (*Endpoint, error) {
-	endpointUrl := a.GetEndpointsUrl() + "/" + endpointName
-	endpoint := &Endpoint{}
-	err := a.get(endpointUrl, endpoint)
-	return endpoint, err
-}
-
-func (a *ApiHttp) get(url string, out interface{}) error {
-	resp, err := a.client.Get(url)
+func (c *ClientHTTP) get(url string, out interface{}) error {
+	resp, err := c.client.Get(url)
 	if err != nil {
 		return err
 	}
@@ -108,4 +74,9 @@ func (a *ApiHttp) get(url string, out interface{}) error {
 		return err
 	}
 	return json.Unmarshal(body, out)
+}
+
+func (c *ClientHTTP) getBaseURL() string {
+	return c.config.HostPrefix + "." + c.FrameworkName + "." + c.config.HostSuffix
+
 }

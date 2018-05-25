@@ -125,5 +125,6 @@ func (c *Command) Kill() error {
 	if c.command.Process == nil {
 		return nil
 	}
+	c.running = false
 	return c.command.Process.Kill()
 }

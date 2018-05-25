@@ -80,15 +80,15 @@ func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
 	cmdUser.Flag(
 		"apiHostPrefix",
 		"DC/OS SDK API hostname prefix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHostPrefix).StringVar(&cnf.User.API.HostPrefix)
+	).Default(api.DefaultHTTPHostPrefix).StringVar(&cnf.User.API.HostPrefix)
 	cmdUser.Flag(
 		"apiHostSuffix",
 		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHostSuffix).StringVar(&cnf.User.API.HostSuffix)
+	).Default(api.DefaultHTTPHostSuffix).StringVar(&cnf.User.API.HostSuffix)
 	cmdUser.Flag(
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var",
-	).Default(api.DefaultTimeout).DurationVar(&cnf.User.API.Timeout)
+	).Default(api.DefaultHTTPTimeout).DurationVar(&cnf.User.API.Timeout)
 	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
