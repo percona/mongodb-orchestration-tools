@@ -15,6 +15,7 @@
 package metrics
 
 import (
+	"sync"
 	"time"
 
 	mgostatsd "github.com/scullxbones/mgo-statsd"
@@ -29,6 +30,7 @@ type Pusher interface {
 }
 
 type Metrics struct {
+	sync.Mutex
 	config  *Config
 	running bool
 	session *mgo.Session
@@ -51,7 +53,15 @@ func (m *Metrics) DoRun() bool {
 	return m.config.Enabled
 }
 
+func (m *Metrics) setRunning(running bool) {
+	m.Lock()
+	defer m.Unlock()
+	m.running = running
+}
+
 func (m *Metrics) IsRunning() bool {
+	m.Lock()
+	defer m.Unlock()
 	return m.running
 }
 
@@ -68,7 +78,7 @@ func (m *Metrics) Run(quit *chan bool) error {
 	}).Info("Starting DC/OS Metrics pusher")
 
 	ticker := time.NewTicker(m.config.Interval)
-	m.running = true
+	m.setRunning(true)
 	for {
 		select {
 		case <-ticker.C:
@@ -90,7 +100,7 @@ func (m *Metrics) Run(quit *chan bool) error {
 		case <-*quit:
 			log.Info("Stopping DC/OS Metrics pusher")
 			ticker.Stop()
-			m.running = false
+			m.setRunning(false)
 			break
 		}
 	}

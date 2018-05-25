@@ -62,22 +62,19 @@ func TestExecutorMetricsRun(t *gotesting.T) {
 	testing.DoSkipTest(t)
 	testLogBuffer.Reset()
 
-	// wait for a ServerStatus and then send a quit
+	// start the metrics.Run() in a go routine and wait for ServerStatus struct
 	stop := make(chan bool)
-	done := make(chan bool)
-	go func() {
-		status := <-testMetricsChan
-		assert.NotZero(t, status.Uptime, "Uptime field in ServerStatus should be greater than zero")
-		stop <- true
-		for testMetrics.IsRunning() {
-			time.Sleep(testInterval)
-		}
-		done <- true
-	}()
-
-	// start the metrics.Run() in a go routine and wait
 	go testMetrics.Run(&stop)
-	<-done
+	serverStatus := <-testMetricsChan
+	assert.NotZero(t, serverStatus.Uptime, "Uptime field in ServerStatus should be greater than zero")
+	stop <- true
+
+	// wait for the .Run() goroutine to stop
+	var tries int
+	for testMetrics.IsRunning() || tries < 60 {
+		time.Sleep(testInterval)
+		tries += 1
+	}
 
 	assert.Contains(t, testLogBuffer.String(), "Pushing DC/OS Metrics")
 	assert.Contains(t, testLogBuffer.String(), "Stopping DC/OS Metrics pusher")
