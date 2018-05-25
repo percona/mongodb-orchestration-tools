@@ -15,36 +15,20 @@
 package db
 
 import (
-	"os"
 	"path/filepath"
-	"runtime"
 	gotesting "testing"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 )
 
 const testSSLDirRelPath = "../../test/ssl"
 
-func findTestSSLDir() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		return ""
-	}
-	baseDir := filepath.Dir(filename)
-	path, err := filepath.Abs(filepath.Join(baseDir, testSSLDirRelPath))
-	if err == nil {
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-	}
-	return ""
-}
-
 var (
-	sslCertFile = filepath.Join(findTestSSLDir(), "client.pem")
-	sslCAFile   = filepath.Join(findTestSSLDir(), "rootCA.crt")
+	sslCertFile = common.RelPathToAbs(filepath.Join(testSSLDirRelPath, "client.pem"))
+	sslCAFile   = common.RelPathToAbs(filepath.Join(testSSLDirRelPath, "rootCA.crt"))
 )
 
 func TestDbLoadCaCertificate(t *gotesting.T) {

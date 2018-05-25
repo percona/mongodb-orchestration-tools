@@ -143,11 +143,11 @@ func (c *Command) Kill() error {
 		return nil
 	}
 
-	c.running = false
 	err := c.command.Process.Kill()
 	if err != nil {
 		return err
 	}
+	c.running = false
 
 	_, err = c.command.Process.Wait()
 	return err

@@ -33,7 +33,7 @@ var (
 )
 
 type Controller struct {
-	api             api.Api
+	api             api.Client
 	dbConfig        *db.Config
 	session         *mgo.Session
 	config          *controller.Config
@@ -41,10 +41,10 @@ type Controller struct {
 	retrySleep      time.Duration
 }
 
-func NewController(config *controller.Config, sdkAPI api.Api) (*Controller, error) {
+func NewController(config *controller.Config, client api.Client) (*Controller, error) {
 	var err error
 	uc := &Controller{
-		api:             sdkAPI,
+		api:             client,
 		config:          config,
 		maxConnectTries: config.User.MaxConnectTries,
 		retrySleep:      config.User.RetrySleep,

@@ -12,28 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package api
+package mock
 
 import (
-	"time"
+	"encoding/json"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
 )
 
-// APIVersion is the version of the DC/OS SDK API
-var APIVersion = "v1"
+var (
+	SimulateError bool
+	SDKVersion    = "0.30"
+)
 
-// Config is a struct of configuration options for the API
-type Config struct {
-	HostPrefix string
-	HostSuffix string
-	Timeout    time.Duration
-	Secure     bool
+func apiFilePath(path string) string {
+	return common.RelPathToAbs(filepath.Join(SDKVersion, api.APIVersion, path))
 }
 
-// Client is an interface describing a DC/OS SDK API Client
-type Client interface {
-	GetPodURL() string
-	GetPods() (*Pods, error)
-	GetPodTasks(podName string) ([]*PodTask, error)
-	GetEndpoints() (*Endpoints, error)
-	GetEndpoint(endpointName string) (*Endpoint, error)
+func loadJSONFile(file string, out interface{}) error {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, out)
+}
+
+type API struct {
+	scheme api.HTTPScheme
+}
+
+func New() *API {
+	return &API{
+		scheme: api.HTTPSchemePlain,
+	}
 }

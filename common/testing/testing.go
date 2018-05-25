@@ -24,24 +24,26 @@ import (
 )
 
 const (
-	envEnableDBTests        = "ENABLE_MONGODB_TESTS"
-	envMongoDBReplsetName   = "TEST_RS_NAME"
-	envMongoDBPrimaryPort   = "TEST_PRIMARY_PORT"
-	envMongoDBSecondaryPort = "TEST_SECONDARY1_PORT"
-	envMongoDBAdminUser     = "TEST_ADMIN_USER"
-	envMongoDBAdminPassword = "TEST_ADMIN_PASSWORD"
+	envEnableDBTests         = "ENABLE_MONGODB_TESTS"
+	envMongoDBReplsetName    = "TEST_RS_NAME"
+	envMongoDBPrimaryPort    = "TEST_PRIMARY_PORT"
+	envMongoDBSecondary1Port = "TEST_SECONDARY1_PORT"
+	envMongoDBSecondary2Port = "TEST_SECONDARY2_PORT"
+	envMongoDBAdminUser      = "TEST_ADMIN_USER"
+	envMongoDBAdminPassword  = "TEST_ADMIN_PASSWORD"
 )
 
 var (
-	enableDBTests        = os.Getenv(envEnableDBTests)
-	MongodbReplsetName   = os.Getenv(envMongoDBReplsetName)
-	MongodbHost          = "127.0.0.1"
-	MongodbHostname      = "localhost"
-	MongodbPrimaryPort   = os.Getenv(envMongoDBPrimaryPort)
-	MongodbSecondaryPort = os.Getenv(envMongoDBSecondaryPort)
-	MongodbAdminUser     = os.Getenv(envMongoDBAdminUser)
-	MongodbAdminPassword = os.Getenv(envMongoDBAdminPassword)
-	MongodbTimeout       = time.Duration(10) * time.Second
+	enableDBTests         = os.Getenv(envEnableDBTests)
+	MongodbReplsetName    = os.Getenv(envMongoDBReplsetName)
+	MongodbHost           = "127.0.0.1"
+	MongodbHostname       = "localhost"
+	MongodbPrimaryPort    = os.Getenv(envMongoDBPrimaryPort)
+	MongodbSecondary1Port = os.Getenv(envMongoDBSecondary1Port)
+	MongodbSecondary2Port = os.Getenv(envMongoDBSecondary2Port)
+	MongodbAdminUser      = os.Getenv(envMongoDBAdminUser)
+	MongodbAdminPassword  = os.Getenv(envMongoDBAdminPassword)
+	MongodbTimeout        = time.Duration(10) * time.Second
 )
 
 // Enabled returns a boolean reflecting whether testing against Mongodb should occur
