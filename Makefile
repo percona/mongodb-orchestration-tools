@@ -16,7 +16,7 @@ TEST_SECONDARY1_PORT?=65218
 TEST_SECONDARY2_PORT?=65219
 
 TEST_CODECOV?=false
-TEST_GO_EXTRA?=
+TEST_GO_EXTRA?=-race
 ifeq ($(TEST_CODECOV),true)
 	TEST_GO_EXTRA=-race -coverprofile=coverage.txt -covermode=atomic
 endif
@@ -77,6 +77,7 @@ test-full-clean:
 
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
+	MESOS_SANDBOX=/mnt/mesos/sandbox \
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
