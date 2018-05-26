@@ -15,24 +15,32 @@
 package command
 
 import (
+	"os"
 	"os/user"
-	"strconv"
+	gotesting "testing"
 )
 
-// GetUserId returns the numeric ID of a system user
-func GetUserId(userName string) (int, error) {
-	u, err := user.Lookup(userName)
-	if err != nil {
-		return -1, err
-	}
-	return strconv.Atoi(u.Uid)
-}
+var testCommand *Command
+var testCurrentUser *user.User
+var testCurrentGroup *user.Group
 
-// GetGroupID returns the numeric ID of a system group
-func GetGroupId(groupName string) (int, error) {
-	g, err := user.LookupGroup(groupName)
+func TestMain(m *gotesting.M) {
+	var err error
+
+	testCurrentUser, err = user.Current()
 	if err != nil {
-		return -1, err
+		panic(err)
 	}
-	return strconv.Atoi(g.Gid)
+
+	testCurrentGroup, err = user.LookupGroupId(testCurrentUser.Gid)
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if testCommand != nil {
+			testCommand.Kill()
+		}
+	}()
+	os.Exit(m.Run())
 }

@@ -78,5 +78,4 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 
 func (c *ClientHTTP) getBaseURL() string {
 	return c.config.HostPrefix + "." + c.FrameworkName + "." + c.config.HostSuffix
-
 }

@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLoadFromBase64BSONFile(t *gotesting.T) {
+func TestControllerUserLoadFromBase64BSONFile(t *gotesting.T) {
 	_, err := loadFromBase64BSONFile("/this/should/not/exist/...")
 	assert.Error(t, err, ".loadFromBase64BSONFile() should return an error for missing file")
 
@@ -39,7 +39,7 @@ func TestLoadFromBase64BSONFile(t *gotesting.T) {
 	assert.Equal(t, testBase64BSONUser, change.Users[0], ".loadFromBase64BSONFile() returned an unexpected mgo.User")
 }
 
-func TestIsSystemUser(t *gotesting.T) {
+func TestControllerUserIsSystemUser(t *gotesting.T) {
 	SystemUsernames = []string{"admin"}
 	assert.True(t, isSystemUser("admin", SystemUserDatabase))
 	assert.False(t, isSystemUser("notadmin", SystemUserDatabase))

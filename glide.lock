@@ -1,5 +1,5 @@
-hash: ae123fa487e2d34cb0963b529ef207ad8dc4673e3c5cefe204c6a55c494bed11
-updated: 2018-05-17T17:36:41.502071615+02:00
+hash: 9cc046996cae5789134a7a91952241ceabaa727f8c5d001fa398c38f4429bb7b
+updated: 2018-05-19T19:29:48.174944848+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -13,14 +13,6 @@ imports:
   version: 5e3c483eb9321a69283f0bb517894e46c108b88b
   subpackages:
   - statsd
-- name: github.com/davecgh/go-spew
-  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
-  subpackages:
-  - spew
-- name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
-  subpackages:
-  - difflib
 - name: github.com/Robpol86/logrus-custom-formatter
   version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
@@ -30,10 +22,6 @@ imports:
   - .
 - name: github.com/sirupsen/logrus
   version: 0dad3b6953e73d351ec8ebfd8a8c6b088d320381
-- name: github.com/stretchr/testify
-  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
-  subpackages:
-  - assert
 - name: github.com/timvaillancourt/go-mongodb-config
   version: 35160f1fd66597e2cc988e89c3679900bd60d788
   subpackages:
@@ -63,4 +51,18 @@ imports:
   - internal/scram
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
+  subpackages:
+  - spew
+- name: github.com/mitchellh/go-ps
+  version: 4fdf99ab29366514c69ccccddab5dc58b8d84062
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
+  subpackages:
+  - assert

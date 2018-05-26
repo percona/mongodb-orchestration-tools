@@ -1,23 +1,24 @@
 package: github.com/percona/dcos-mongo-tools
 import:
-  - package: github.com/sirupsen/logrus
-  - package: github.com/Robpol86/logrus-custom-formatter
-    repo: https://github.com/timvaillancourt/logrus-custom-formatter
-  - package: gopkg.in/mgo.v2
-    subpackages:
-    - bson
-  - package: github.com/timvaillancourt/go-mongodb-replset
-    subpackages:
-    - config
-    - status
-  - package: github.com/timvaillancourt/go-mongodb-config
-    subpackages:
-    - config
-  - package: github.com/alecthomas/kingpin
-  - package: github.com/scullxbones/mgo-statsd
-    subpackages:
-    - .
+- package: github.com/sirupsen/logrus
+- package: github.com/Robpol86/logrus-custom-formatter
+  repo: https://github.com/timvaillancourt/logrus-custom-formatter
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson
+- package: github.com/timvaillancourt/go-mongodb-replset
+  subpackages:
+  - config
+  - status
+- package: github.com/timvaillancourt/go-mongodb-config
+  subpackages:
+  - config
+- package: github.com/alecthomas/kingpin
+- package: github.com/scullxbones/mgo-statsd
+  subpackages:
+  - .
 testImport:
-  - package: github.com/stretchr/testify
-    subpackages:
-    - assert
+- package: github.com/mitchellh/go-ps
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert

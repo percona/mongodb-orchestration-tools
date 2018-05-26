@@ -18,7 +18,7 @@ TEST_SECONDARY2_PORT?=65219
 TEST_CODECOV?=false
 TEST_GO_EXTRA?=-race
 ifeq ($(TEST_CODECOV),true)
-	TEST_GO_EXTRA=-race -coverprofile=coverage.txt -covermode=atomic
+	TEST_GO_EXTRA=-race -coverprofile=cover.out -covermode=atomic
 endif
 
 all: bin/mongodb-healthcheck-$(PLATFORM) bin/mongodb-controller-$(PLATFORM) bin/mongodb-executor-$(PLATFORM) bin/mongodb-watchdog-$(PLATFORM)
