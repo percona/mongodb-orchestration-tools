@@ -17,6 +17,7 @@ package mongodb
 import (
 	"errors"
 	"os"
+	"os/user"
 	"path/filepath"
 
 	"github.com/percona/dcos-mongo-tools/common"
@@ -129,11 +130,21 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
+	mongodUser, err := user.Lookup(m.config.User)
+	if err != nil {
+		return err
+	}
+
+	mongodGroup, err := user.LookupGroup(m.config.Group)
+	if err != nil {
+		return err
+	}
+
 	m.command, err = command.New(
 		m.commandBin,
 		[]string{"--config", m.configFile},
-		m.config.User,
-		m.config.Group,
+		mongodUser,
+		mongodGroup,
 	)
 	if err != nil {
 		return err

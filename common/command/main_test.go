@@ -26,10 +26,12 @@ var testCurrentGroup *user.Group
 
 func TestMain(m *gotesting.M) {
 	var err error
+
 	testCurrentUser, err = user.Current()
 	if err != nil {
 		panic(err)
 	}
+
 	testCurrentGroup, err = user.LookupGroupId(testCurrentUser.Gid)
 	if err != nil {
 		panic(err)

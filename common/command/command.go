@@ -18,25 +18,23 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"strconv"
 	"syscall"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 )
 
 type Command struct {
 	Bin   string
 	Args  []string
-	Group string
-	User  string
+	User  *user.User
+	Group *user.Group
 
 	command *exec.Cmd
-	uid     int
-	gid     int
 	running bool
 }
 
-func New(bin string, args []string, user, group string) (*Command, error) {
+func New(bin string, args []string, user *user.User, group *user.Group) (*Command, error) {
 	c := &Command{
 		Bin:   bin,
 		Args:  args,
@@ -55,34 +53,29 @@ func (c *Command) doChangeUser() bool {
 	if err != nil {
 		return true
 	}
-	if c.User == currentUser.Name {
-		currentGroup, err := user.LookupGroupId(currentUser.Gid)
-		if err == nil && c.Group == currentGroup.Name {
-			return false
-		}
+	if c.User.Name == currentUser.Name && currentUser.Gid == c.Group.Gid {
+		return false
 	}
 	return true
 }
 
 func (c *Command) prepare() error {
-	var err error
-
-	c.uid, err = common.GetUserID(c.User)
-	if err != nil {
-		return err
-	}
-
-	c.gid, err = common.GetGroupID(c.Group)
-	if err != nil {
-		return err
-	}
-
 	c.command = exec.Command(c.Bin, c.Args...)
 	if c.doChangeUser() {
+		uid, err := strconv.Atoi(c.User.Uid)
+		if err != nil {
+			return err
+		}
+
+		gid, err := strconv.Atoi(c.User.Gid)
+		if err != nil {
+			return err
+		}
+
 		c.command.SysProcAttr = &syscall.SysProcAttr{
 			Credential: &syscall.Credential{
-				Uid: uint32(c.uid),
-				Gid: uint32(c.gid),
+				Uid: uint32(uid),
+				Gid: uint32(gid),
 			},
 		}
 	}
@@ -93,8 +86,8 @@ func (c *Command) Start() error {
 	log.WithFields(log.Fields{
 		"command": c.Bin,
 		"args":    c.Args,
-		"user":    c.User,
-		"group":   c.Group,
+		"user":    c.User.Name,
+		"group":   c.Group.Name,
 	}).Debug("Starting command")
 
 	c.command.Stdout = os.Stdout
@@ -113,8 +106,8 @@ func (c *Command) CombinedOutput() ([]byte, error) {
 	log.WithFields(log.Fields{
 		"command": c.Bin,
 		"args":    c.Args,
-		"user":    c.User,
-		"group":   c.Group,
+		"user":    c.User.Name,
+		"group":   c.Group.Name,
 	}).Debug("Running command")
 
 	return c.command.CombinedOutput()
@@ -124,8 +117,8 @@ func (c *Command) Run() error {
 	log.WithFields(log.Fields{
 		"command": c.Bin,
 		"args":    c.Args,
-		"user":    c.User,
-		"group":   c.Group,
+		"user":    c.User.Name,
+		"group":   c.Group.Name,
 	}).Debug("Running command")
 
 	return c.command.Run()
