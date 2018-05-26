@@ -16,6 +16,7 @@ package metrics
 
 import (
 	"net"
+	"os"
 	"strconv"
 	gotesting "testing"
 
@@ -77,6 +78,7 @@ func TestExecutorMetricsPusherPush(t *gotesting.T) {
 		}
 	}()
 
+	hostname, err := os.Hostname()
 	assert.NoError(t, testStatsdPusher.Push(testServerStatus), ".Push() should not return an error")
-	assert.Regexp(t, "^\\.\\S+-\\d+\\.connections.current:", string(<-data), ".Push() sent unexpected payload")
+	assert.Regexp(t, "^\\."+hostname+"-"+testing.MongodbPrimaryPort+"\\.connections.current:", string(<-data), ".Push() sent unexpected payload")
 }
