@@ -14,29 +14,11 @@
 
 package executor
 
-import (
-	"github.com/percona/dcos-mongo-tools/executor/config"
-	log "github.com/sirupsen/logrus"
-)
-
-type Executor struct {
-	config *config.Config
-	quit   *chan bool
-}
-
-func New(config *config.Config, quit *chan bool) *Executor {
-	return &Executor{
-		config: config,
-		quit:   quit,
-	}
-}
-
-func (e *Executor) Run(daemon Daemon) error {
-	log.Infof("Running %s daemon", e.config.NodeType)
-	err := daemon.Start()
-	if err != nil {
-		daemon.Kill()
-		return err
-	}
-	return nil
+// Daemon is an interface for the mongodb (mongod or mongos) daemon
+type Daemon interface {
+	Name() string
+	IsStarted() bool
+	Start() error
+	Wait()
+	Kill() error
 }

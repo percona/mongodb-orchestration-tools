@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -155,14 +154,10 @@ func (p *PMM) startQueryAnalytics() error {
 	return service.addWithRetry(p.maxRetries, p.retrySleep)
 }
 
-func (p *PMM) Run(quit *chan bool) error {
+func (p *PMM) Run(quit *chan bool) {
 	if p.DoRun() == false {
 		log.Warn("PMM client executor disabled! Skipping start")
-		return nil
-	}
-
-	if common.DoStop(quit) {
-		return nil
+		return
 	}
 
 	log.WithFields(log.Fields{
@@ -173,20 +168,20 @@ func (p *PMM) Run(quit *chan bool) error {
 	err := p.repair()
 	if err != nil {
 		log.Errorf("Error repairing PMM services: %s", err)
-		return err
+		return
 	}
 
 	err = p.startMetrics()
 	if err != nil {
 		log.Errorf("PMM metrics services did not start: %s", err)
-		return err
+		return
 	}
 
 	if p.doStartQueryAnalytics() {
 		err = p.startQueryAnalytics()
 		if err != nil {
 			log.Errorf("Could not enable PMM Query Analytics (QAN) agent service: %s", err)
-			return err
+			return
 		}
 	} else {
 		log.Info("PMM Query Analytics (QAN) disabled, skipping")
@@ -194,6 +189,4 @@ func (p *PMM) Run(quit *chan bool) error {
 
 	p.running = false
 	log.Info("Completed PMM client executor")
-
-	return nil
 }

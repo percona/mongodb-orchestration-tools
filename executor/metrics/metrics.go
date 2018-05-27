@@ -23,6 +23,8 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+const jobName = "DC/OS Metrics"
+
 // Pusher is an interface for a DC/OS Metrics pusher
 type Pusher interface {
 	GetServerStatus(session *mgo.Session) (*mgostatsd.ServerStatus, error)
@@ -46,7 +48,7 @@ func New(config *Config, session *mgo.Session, pusher Pusher) *Metrics {
 }
 
 func (m *Metrics) Name() string {
-	return "DC/OS Metrics"
+	return jobName
 }
 
 func (m *Metrics) DoRun() bool {
@@ -65,10 +67,10 @@ func (m *Metrics) IsRunning() bool {
 	return m.running
 }
 
-func (m *Metrics) Run(quit *chan bool) error {
+func (m *Metrics) Run(quit *chan bool) {
 	if m.DoRun() == false {
 		log.Warn("DC/OS Metrics client executor disabled! Skipping start")
-		return nil
+		return
 	}
 
 	log.WithFields(log.Fields{
@@ -104,6 +106,4 @@ func (m *Metrics) Run(quit *chan bool) error {
 			break
 		}
 	}
-
-	return nil
 }

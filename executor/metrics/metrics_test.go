@@ -51,6 +51,10 @@ func TestExecutorMetricsNew(t *gotesting.T) {
 	assert.False(t, testMetrics.IsRunning(), ".IsRunning() should return false")
 }
 
+func TestExecutorMetricsName(t *gotesting.T) {
+	assert.Equal(t, jobName, testMetrics.Name(), ".Name() has unexpected string")
+}
+
 func TestExecutorMetricsDoRun(t *gotesting.T) {
 	assert.True(t, testMetrics.DoRun())
 

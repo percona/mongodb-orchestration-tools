@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package executor
+package config
 
 import (
 	"os"
@@ -27,18 +27,27 @@ import (
 )
 
 const (
-	NodeTypeMongod            = "mongod"
-	NodeTypeMongos            = "mongos"
 	DefaultDelayBackgroundJob = "15s"
 	DefaultConnectRetrySleep  = "5s"
 )
+
+type NodeType string
+
+const (
+	NodeTypeMongod NodeType = "mongod"
+	NodeTypeMongos NodeType = "mongos"
+)
+
+func (t NodeType) String() string {
+	return string(t)
+}
 
 type Config struct {
 	DB                 *db.Config
 	MongoDB            *mongodb.Config
 	PMM                *pmm.Config
 	Metrics            *metrics.Config
-	NodeType           string
+	NodeType           NodeType
 	FrameworkName      string
 	DelayBackgroundJob time.Duration
 	ConnectRetrySleep  time.Duration
