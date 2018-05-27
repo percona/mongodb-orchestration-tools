@@ -15,54 +15,51 @@
 package executor
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/executor/config"
 	"github.com/percona/dcos-mongo-tools/executor/job"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2"
+)
+
+const (
+	NodeTypeMongod = "mongod"
+	NodeTypeMongos = "mongos"
 )
 
 type Executor struct {
-	Config         *Config
-	backgroundJobs []job.BackgroundJob
-	signals        chan os.Signal
-	quit           chan bool
+	config *config.Config
+	quit   *chan bool
+	runner *job.Runner
 }
 
-func New(config *Config) *Executor {
+func New(config *config.Config, quit *chan bool) *Executor {
 	return &Executor{
-		Config:         config,
-		backgroundJobs: make([]job.BackgroundJob, 0),
-		signals:        make(chan os.Signal),
-		quit:           make(chan bool),
+		config: config,
+		quit:   quit,
 	}
 }
 
-func (e *Executor) waitForSession() (*mgo.Session, error) {
-	return db.WaitForSession(
-		e.Config.DB,
-		0,
-		e.Config.ConnectRetrySleep,
-	)
-}
-
 func (e *Executor) Run(daemon Daemon) error {
-	go e.backgroundJobRunner()
-
-	log.Infof("Running %s daemon", e.Config.NodeType)
+	log.Infof("Running %s daemon", e.config.NodeType)
 	err := daemon.Start()
 	if err != nil {
 		daemon.Kill()
 		return err
 	}
 
-	signal.Notify(e.signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	sig := <-e.signals
-	log.Infof("Received %s signal, killing %s daemon and jobs", sig, e.Config.NodeType)
+	session, err := db.WaitForSession(
+		e.config.DB,
+		0,
+		e.config.ConnectRetrySleep,
+	)
+	if err != nil {
+		log.Errorf("Error creating db session: %s", err.Error())
+		return err
+	}
+	defer session.Close()
 
-	e.quit <- true
-	return daemon.Kill()
+	runner := job.New(e.config, e.quit)
+	go runner.Run(session)
+
+	return nil
 }

@@ -15,14 +15,15 @@
 package job
 
 import (
-	"github.com/percona/dcos-mongo-tools/common"
+	"time"
+
+	"github.com/percona/dcos-mongo-tools/executor/config"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/mgo.v2"
 )
-
-type Runner struct{}
 
 // BackgroundJob is an interface for background backgroundJobs to be executed against the Daemon
 type BackgroundJob interface {
@@ -32,25 +33,43 @@ type BackgroundJob interface {
 	Run(quit *chan bool) error
 }
 
-func (r *Runner) handleDCOSMetrics() {
-	if r.Config.Metrics.Enabled {
-		statsdCnf := mgostatsd.Statsd{
-			Host: r.Config.Metrics.StatsdHost,
-			Port: r.Config.Metrics.StatsdPort,
-		}
-		r.Add(metrics.New(r.Config.Metrics, session.Copy(), metrics.NewStatsdPusher(statsdCnf, r.Config.Verbose)))
+type Runner struct {
+	config *config.Config
+	jobs   []BackgroundJob
+	quit   *chan bool
+}
+
+// New returns a new Runner for running BackgroundJob jobs
+func New(config *config.Config, quit *chan bool) *Runner {
+	return &Runner{
+		config: config,
+		quit:   quit,
+		jobs:   make([]BackgroundJob, 0),
+	}
+}
+
+func (r *Runner) handleDCOSMetrics(session *mgo.Session) {
+	if r.config.Metrics.Enabled {
+		metricsPusher := metrics.NewStatsdPusher(
+			mgostatsd.Statsd{
+				Host: r.config.Metrics.StatsdHost,
+				Port: r.config.Metrics.StatsdPort,
+			},
+			r.config.Verbose,
+		)
+		r.add(metrics.New(r.config.Metrics, session.Copy(), metricsPusher))
 	} else {
 		log.Info("Skipping DC/OS Metrics client executor")
 	}
 }
 
 func (r *Runner) handlePMM() {
-	if r.Config.PMM.Enabled {
-		pmmJob, err := pmm.New(r.Config.PMM, r.Config.FrameworkName)
+	if r.config.PMM.Enabled {
+		pmmJob, err := pmm.New(r.config.PMM, r.config.FrameworkName)
 		if err != nil {
 			log.Errorf("Error adding PMM background job: %s", err)
 		} else {
-			r.Add(pmmJob)
+			r.add(pmmJob)
 		}
 	} else {
 		log.Info("Skipping Percona PMM client executor")
@@ -58,44 +77,33 @@ func (r *Runner) handlePMM() {
 }
 
 // runJob runs a single BackgroundJob
-func (r *Runner) runJob(job BackgroundJob) {
+func (r *Runner) runJob(backgroundJob BackgroundJob) {
 	log.Infof("Starting background job: %s", backgroundJob.Name())
-	go backgroundJob.Run(&r.quit)
+	go backgroundJob.Run(r.quit)
 }
 
-// Add adds a BackgroundJob to the list of jobs to be ran by .Run()
-func (r *Runner) Add(job BackgroundJob) {
-	log.Debugf("Adding background job %s", job.Name())
-	r.backgroundJobs = append(r.backgroundJobs, job)
+// add adds a BackgroundJob to the list of jobs to be ran by .Run()
+func (r *Runner) add(backgroundJob BackgroundJob) {
+	log.Debugf("Adding background job %s", backgroundJob.Name())
+	r.jobs = append(r.jobs, backgroundJob)
 }
 
 // Run runs all added BackgroundJobs
-func (r *Runner) Run() {
+func (r *Runner) Run(session *mgo.Session) {
 	log.Info("Starting background job runner")
 
 	log.WithFields(log.Fields{
-		"delay": r.Config.DelayBackgroundJob,
+		"delay": r.config.DelayBackgroundJob,
 	}).Info("Delaying the start of the background job runner")
-	timr.Sleep(r.Config.DelayBackgroundJob)
+	time.Sleep(r.config.DelayBackgroundJob)
 
-	if common.DoStop(&r.quit) {
-		return
-	}
-
-	log.Infof("Waiting for %s daemon to become reachable", r.Config.NodeType)
-	session, err := r.waitForSession()
-	if err != nil {
-		log.Errorf("Could not get connection to mongodb: %s", err)
-		return
-	}
-	log.Infof("Mongodb %s daemon is now reachable", r.Config.NodeType)
-
-	r.handleDCOSMetrics()
+	// Percona PMM
 	r.handlePMM()
 
-	session.Close()
+	// DC/OS Metrics
+	r.handleDCOSMetrics(session)
 
-	for _, backgroundJob := range r.backgroundJobs {
+	for _, backgroundJob := range r.jobs {
 		r.runJob(backgroundJob)
 	}
 
