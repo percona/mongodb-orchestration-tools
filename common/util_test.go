@@ -15,11 +15,15 @@
 package common
 
 import (
+	"os"
+	"os/user"
 	gotesting "testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestDoStop(t *gotesting.T) {
+func TestCommonDoStop(t *gotesting.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
@@ -42,7 +46,7 @@ func TestDoStop(t *gotesting.T) {
 	t.Error("Stop did not work")
 }
 
-func TestDoStopFalse(t *gotesting.T) {
+func TestCommonDoStopFalse(t *gotesting.T) {
 	stop := make(chan bool)
 	stopped := make(chan bool)
 	go func(stop *chan bool, stopped chan bool) {
@@ -63,4 +67,31 @@ func TestDoStopFalse(t *gotesting.T) {
 		}
 	}
 	t.Error("Stop did not work")
+}
+
+func TestCommonGetUserID(t *gotesting.T) {
+	_, err := GetUserID("this-user-should-not-exist")
+	assert.Error(t, err, ".GetUserID() should return error due to missing user")
+
+	user := os.Getenv("USER")
+	if user == "" {
+		user = "nobody"
+	}
+	uid, err := GetUserID(user)
+	assert.NoError(t, err, ".GetUserID() for current user should not return an error")
+	assert.NotZero(t, uid, ".GetUserID() should return a uid that is not zero")
+}
+
+func TestCommonGetGroupID(t *gotesting.T) {
+	_, err := GetGroupID("this-group-should-not-exist")
+	assert.Error(t, err, ".GetGroupID() should return error due to missing group")
+
+	currentUser, err := user.Current()
+	assert.NoError(t, err, "could not get current user")
+	group, err := user.LookupGroupId(currentUser.Gid)
+	assert.NoError(t, err, "could not get current user group")
+
+	gid, err := GetGroupID(group.Name)
+	assert.NoError(t, err, ".GetGroupID() for current user group should not return an error")
+	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
 }

@@ -15,6 +15,7 @@
 package pmm
 
 import (
+	"os/user"
 	"strconv"
 	"strings"
 	"time"
@@ -24,18 +25,22 @@ import (
 )
 
 type Service struct {
-	ConfigFile string
 	Name       string
-	Port       uint
-	Args       []string
+	configFile string
+	port       uint
+	args       []string
+	user       *user.User
+	group      *user.Group
 }
 
-func NewService(configFile string, name string, port uint, args []string) *Service {
+func NewService(configFile string, name string, port uint, args []string, runUser *user.User, runGroup *user.Group) *Service {
 	return &Service{
-		ConfigFile: configFile,
 		Name:       name,
-		Port:       port,
-		Args:       args,
+		configFile: configFile,
+		port:       port,
+		args:       args,
+		user:       runUser,
+		group:      runGroup,
 	}
 }
 
@@ -43,18 +48,18 @@ func (s *Service) add() error {
 	args := append(
 		[]string{"add"},
 		s.Name,
-		"--config-file="+s.ConfigFile,
+		"--config-file="+s.configFile,
 	)
-	if int(s.Port) > 0 {
-		args = append(args, "--service-port="+strconv.Itoa(int(s.Port)))
+	if int(s.port) > 0 {
+		args = append(args, "--service-port="+strconv.Itoa(int(s.port)))
 	}
-	args = append(args, s.Args...)
+	args = append(args, s.args...)
 
 	cmd, err := command.New(
 		pmmAdminCommand,
 		args,
-		pmmAdminRunUser,
-		pmmAdminRunGroup,
+		s.user,
+		s.group,
 	)
 	if err != nil {
 		return err
@@ -92,8 +97,8 @@ func (p *PMM) repair() error {
 	cmd, err := command.New(
 		pmmAdminCommand,
 		[]string{"repair", "--config-file=" + p.configFile},
-		pmmAdminRunUser,
-		pmmAdminRunGroup,
+		p.user,
+		p.group,
 	)
 	if err != nil {
 		return err

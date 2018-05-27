@@ -16,8 +16,10 @@ package common
 
 import (
 	"os"
+	"os/user"
 	"path/filepath"
 	"runtime"
+	"strconv"
 )
 
 // DoStop checks if a goroutine should stop, based on a boolean channel
@@ -28,6 +30,24 @@ func DoStop(stop *chan bool) bool {
 	default:
 		return false
 	}
+}
+
+// GetUserID returns the numeric ID of a system user
+func GetUserID(userName string) (int, error) {
+	u, err := user.Lookup(userName)
+	if err != nil {
+		return -1, err
+	}
+	return strconv.Atoi(u.Uid)
+}
+
+// GetGroupID returns the numeric ID of a system group
+func GetGroupID(groupName string) (int, error) {
+	g, err := user.LookupGroup(groupName)
+	if err != nil {
+		return -1, err
+	}
+	return strconv.Atoi(g.Gid)
 }
 
 // RelPathToAbs returns a string containing a absolute to the provided path, relative to the caller directory

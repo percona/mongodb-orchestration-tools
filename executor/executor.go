@@ -107,7 +107,12 @@ func (e *Executor) backgroundJobRunner() {
 
 	// Percona PMM
 	if e.Config.PMM.Enabled {
-		e.addBackgroundJob(pmm.New(e.Config.PMM, e.Config.FrameworkName))
+		pmmJob, err := pmm.New(e.Config.PMM, e.Config.FrameworkName)
+		if err != nil {
+			log.Errorf("Error adding PMM background job: %s", err)
+		} else {
+			e.addBackgroundJob(pmmJob)
+		}
 	} else {
 		log.Info("Skipping Percona PMM client executor")
 	}

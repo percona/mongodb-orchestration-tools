@@ -72,8 +72,8 @@ func (p *PMM) list() (*ListClient, error) {
 	cmd, err := command.New(
 		pmmAdminCommand,
 		[]string{"list", "--json", "--config-file=" + p.configFile},
-		pmmAdminRunUser,
-		pmmAdminRunGroup,
+		p.user,
+		p.group,
 	)
 	if err != nil {
 		return nil, err

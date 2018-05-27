@@ -15,6 +15,7 @@
 package pmm
 
 import (
+	"os/user"
 	"path/filepath"
 	"time"
 
@@ -35,17 +36,31 @@ type PMM struct {
 	frameworkName string
 	maxRetries    uint
 	retrySleep    time.Duration
+	user          *user.User
+	group         *user.Group
 	running       bool
 }
 
-func New(config *Config, frameworkName string) *PMM {
+func New(config *Config, frameworkName string) (*PMM, error) {
+	pmmUser, err := user.Lookup(pmmAdminRunUser)
+	if err != nil {
+		return nil, err
+	}
+
+	pmmGroup, err := user.LookupGroup(pmmAdminRunGroup)
+	if err != nil {
+		return nil, err
+	}
+
 	return &PMM{
 		config:        config,
 		configFile:    filepath.Join(config.ConfigDir, "pmm.yml"),
 		frameworkName: frameworkName,
 		maxRetries:    5,
 		retrySleep:    time.Duration(5) * time.Second,
-	}
+		user:          pmmUser,
+		group:         pmmGroup,
+	}, nil
 }
 
 func (p *PMM) Name() string {
@@ -83,6 +98,8 @@ func (p *PMM) startMetrics() error {
 			"linux:metrics",
 			p.config.LinuxMetricsExporterPort,
 			[]string{},
+			p.user,
+			p.group,
 		),
 		NewService(
 			p.configFile,
@@ -92,6 +109,8 @@ func (p *PMM) startMetrics() error {
 				"--cluster=" + p.frameworkName,
 				"--uri=" + p.config.DB.Uri(),
 			},
+			p.user,
+			p.group,
 		),
 	}
 
@@ -125,6 +144,8 @@ func (p *PMM) startQueryAnalytics() error {
 		qanServiceName,
 		0,
 		[]string{"--uri=" + p.config.DB.Uri()},
+		p.user,
+		p.group,
 	)
 
 	log.WithFields(log.Fields{
