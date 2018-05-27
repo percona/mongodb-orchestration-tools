@@ -54,7 +54,7 @@ func TestExecutorMetricsPusherGetServerStatus(t *gotesting.T) {
 func TestExecutorMetricsPusherPush(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	addr, err := net.ResolveUDPAddr("udp", ":"+strconv.Itoa(testUDPPort))
+	addr, err := net.ResolveUDPAddr("udp", testUDPHost+":"+strconv.Itoa(testUDPPort))
 	if err != nil {
 		assert.FailNowf(t, "Could not create UDP address for testing StatsdPusher: %v", err.Error())
 	}
