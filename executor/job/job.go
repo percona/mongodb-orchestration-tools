@@ -30,7 +30,7 @@ type BackgroundJob interface {
 	Name() string
 	DoRun() bool
 	IsRunning() bool
-	Run(quit *chan bool) error
+	Run(quit *chan bool)
 }
 
 type Runner struct {

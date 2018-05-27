@@ -67,10 +67,10 @@ func (m *Metrics) IsRunning() bool {
 	return m.running
 }
 
-func (m *Metrics) Run(quit *chan bool) error {
+func (m *Metrics) Run(quit *chan bool) {
 	if m.DoRun() == false {
 		log.Warn("DC/OS Metrics client executor disabled! Skipping start")
-		return nil
+		return
 	}
 
 	log.WithFields(log.Fields{
@@ -106,6 +106,4 @@ func (m *Metrics) Run(quit *chan bool) error {
 			break
 		}
 	}
-
-	return nil
 }
