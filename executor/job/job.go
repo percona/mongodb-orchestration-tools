@@ -34,21 +34,23 @@ type BackgroundJob interface {
 }
 
 type Runner struct {
-	config *config.Config
-	jobs   []BackgroundJob
-	quit   *chan bool
+	config  *config.Config
+	jobs    []BackgroundJob
+	session *mgo.Session
+	quit    *chan bool
 }
 
 // New returns a new Runner for running BackgroundJob jobs
-func New(config *config.Config, quit *chan bool) *Runner {
+func New(config *config.Config, session *mgo.Session, quit *chan bool) *Runner {
 	return &Runner{
-		config: config,
-		quit:   quit,
-		jobs:   make([]BackgroundJob, 0),
+		config:  config,
+		session: session,
+		quit:    quit,
+		jobs:    make([]BackgroundJob, 0),
 	}
 }
 
-func (r *Runner) handleDCOSMetrics(session *mgo.Session) {
+func (r *Runner) handleDCOSMetrics() {
 	if r.config.Metrics.Enabled {
 		metricsPusher := metrics.NewStatsdPusher(
 			mgostatsd.Statsd{
@@ -57,7 +59,7 @@ func (r *Runner) handleDCOSMetrics(session *mgo.Session) {
 			},
 			r.config.Verbose,
 		)
-		r.add(metrics.New(r.config.Metrics, session.Copy(), metricsPusher))
+		r.add(metrics.New(r.config.Metrics, r.session.Copy(), metricsPusher))
 	} else {
 		log.Info("Skipping DC/OS Metrics client executor")
 	}
@@ -89,7 +91,7 @@ func (r *Runner) add(backgroundJob BackgroundJob) {
 }
 
 // Run runs all added BackgroundJobs
-func (r *Runner) Run(session *mgo.Session) {
+func (r *Runner) Run() {
 	log.Info("Starting background job runner")
 
 	log.WithFields(log.Fields{
@@ -101,7 +103,7 @@ func (r *Runner) Run(session *mgo.Session) {
 	r.handlePMM()
 
 	// DC/OS Metrics
-	r.handleDCOSMetrics(session)
+	r.handleDCOSMetrics()
 
 	for _, backgroundJob := range r.jobs {
 		r.runJob(backgroundJob)

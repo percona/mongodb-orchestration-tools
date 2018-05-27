@@ -15,21 +15,13 @@
 package executor
 
 import (
-	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/executor/config"
-	"github.com/percona/dcos-mongo-tools/executor/job"
 	log "github.com/sirupsen/logrus"
-)
-
-const (
-	NodeTypeMongod = "mongod"
-	NodeTypeMongos = "mongos"
 )
 
 type Executor struct {
 	config *config.Config
 	quit   *chan bool
-	runner *job.Runner
 }
 
 func New(config *config.Config, quit *chan bool) *Executor {
@@ -46,20 +38,5 @@ func (e *Executor) Run(daemon Daemon) error {
 		daemon.Kill()
 		return err
 	}
-
-	session, err := db.WaitForSession(
-		e.config.DB,
-		0,
-		e.config.ConnectRetrySleep,
-	)
-	if err != nil {
-		log.Errorf("Error creating db session: %s", err.Error())
-		return err
-	}
-	defer session.Close()
-
-	runner := job.New(e.config, e.quit)
-	go runner.Run(session)
-
 	return nil
 }

@@ -23,7 +23,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/command"
 	log "github.com/sirupsen/logrus"
-	mongo_config "github.com/timvaillancourt/go-mongodb-config/config"
+	mongoConfig "github.com/timvaillancourt/go-mongodb-config/config"
 )
 
 const (
@@ -38,11 +38,11 @@ type Mongod struct {
 	command    *command.Command
 }
 
-func NewMongod(config *Config, nodeType string) *Mongod {
+func NewMongod(config *Config) *Mongod {
 	return &Mongod{
 		config:     config,
-		configFile: filepath.Join(config.ConfigDir, nodeType+".conf"),
-		commandBin: filepath.Join(config.BinDir, nodeType),
+		configFile: filepath.Join(config.ConfigDir, "mongod.conf"),
+		commandBin: filepath.Join(config.BinDir, "mongod"),
 	}
 }
 
@@ -58,6 +58,10 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 		return err
 	}
 	return nil
+}
+
+func (m *Mongod) Name() string {
+	return "mongod"
 }
 
 func (m *Mongod) Initiate() error {
@@ -76,7 +80,7 @@ func (m *Mongod) Initiate() error {
 	log.WithFields(log.Fields{
 		"config": m.configFile,
 	}).Info("Loading mongodb config file")
-	config, err := mongo_config.Load(m.configFile)
+	config, err := mongoConfig.Load(m.configFile)
 	if err != nil {
 		log.Errorf("Error loading mongodb configuration: %s", err)
 		return err

@@ -25,6 +25,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/executor"
 	"github.com/percona/dcos-mongo-tools/executor/config"
+	"github.com/percona/dcos-mongo-tools/executor/job"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/mongodb"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
@@ -164,25 +165,21 @@ func main() {
 	handleMetrics(app, cnf)
 	handlePmm(app, cnf)
 
-	var err error
-	cnf.NodeType, err = app.Parse(os.Args[1:])
+	nodeType, err := app.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
+	cnf.NodeType = config.NodeType(nodeType)
 
+	var daemon executor.Daemon
 	signals := make(chan os.Signal, 1)
 	quit := make(chan bool)
 	e := executor.New(cnf, &quit)
 
 	switch cnf.NodeType {
-	case executor.NodeTypeMongod:
-		mongod := mongodb.NewMongod(cnf.MongoDB, cnf.NodeType)
-		err := e.Run(mongod)
-		if err != nil {
-			log.Errorf("Failed to start mongod: %s", err)
-			return
-		}
-	case executor.NodeTypeMongos:
+	case config.NodeTypeMongod:
+		daemon = mongodb.NewMongod(cnf.MongoDB)
+	case config.NodeTypeMongos:
 		log.Error("mongos nodes are not supported yet!")
 		return
 	default:
@@ -190,8 +187,33 @@ func main() {
 		return
 	}
 
+	// start the daemon
+	err = e.Run(daemon)
+	if err != nil {
+		log.Errorf("Failed to start %s daemon: %s", daemon.Name(), err)
+		return
+	}
+
+	// wait for Daemon to become available
+	session, err := db.WaitForSession(
+		cnf.DB,
+		0,
+		cnf.ConnectRetrySleep,
+	)
+	if err != nil {
+		log.Errorf("Error creating db session: %s", err.Error())
+		return
+	}
+	defer session.Close()
+
+	// start job Runner
+	go job.New(cnf, session, &quit).Run()
+
+	// wait for signals from the OS
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	sig := <-signals
 	log.Infof("Received %s signal, killing %s daemon and jobs", sig, cnf.NodeType)
+
+	// send quit to all goroutines
 	quit <- true
 }

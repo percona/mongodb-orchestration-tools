@@ -16,6 +16,7 @@ package executor
 
 // Daemon is an interface for the mongodb (mongod or mongos) daemon
 type Daemon interface {
+	Name() string
 	IsStarted() bool
 	Start() error
 	Wait()
