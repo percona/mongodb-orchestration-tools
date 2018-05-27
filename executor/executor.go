@@ -20,13 +20,14 @@ import (
 	"syscall"
 
 	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/executor/job"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
 
 type Executor struct {
 	Config         *Config
-	backgroundJobs []BackgroundJob
+	backgroundJobs []job.BackgroundJob
 	signals        chan os.Signal
 	quit           chan bool
 }
@@ -34,7 +35,7 @@ type Executor struct {
 func New(config *Config) *Executor {
 	return &Executor{
 		Config:         config,
-		backgroundJobs: make([]BackgroundJob, 0),
+		backgroundJobs: make([]job.BackgroundJob, 0),
 		signals:        make(chan os.Signal),
 		quit:           make(chan bool),
 	}
