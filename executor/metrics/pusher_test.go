@@ -28,14 +28,12 @@ import (
 var (
 	testStatsdPusher *StatsdPusher
 	testServerStatus *mgostatsd.ServerStatus
-	testUDPHost      = "localhost"
-	testUDPPort      = 9999
 )
 
 func TestExecutorMetricsNewStatsdPusher(t *gotesting.T) {
 	testStatsdPusher = NewStatsdPusher(mgostatsd.Statsd{
-		Host: testUDPHost,
-		Port: testUDPPort,
+		Host: testConfig.StatsdHost,
+		Port: testConfig.StatsdPort,
 	}, false)
 	assert.NotNil(t, testStatsdPusher, ".NewStatsdPusher() should not return nil")
 	assert.False(t, testStatsdPusher.verbose, ".NewStatsdPusher() should return with a verbose set to false")
@@ -54,7 +52,7 @@ func TestExecutorMetricsPusherGetServerStatus(t *gotesting.T) {
 func TestExecutorMetricsPusherPush(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	addr, err := net.ResolveUDPAddr("udp", testUDPHost+":"+strconv.Itoa(testUDPPort))
+	addr, err := net.ResolveUDPAddr("udp", testConfig.StatsdHost+":"+strconv.Itoa(testConfig.StatsdPort))
 	if err != nil {
 		assert.FailNowf(t, "Could not create UDP address for testing StatsdPusher: %v", err.Error())
 	}
