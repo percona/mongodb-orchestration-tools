@@ -38,7 +38,7 @@ func TestMain(m *gotesting.M) {
 	os.Exit(m.Run())
 }
 
-func TestAPINew(t *gotesting.T) {
+func TestCommonAPINew(t *gotesting.T) {
 	testAPI = nil
 	assert.Nil(t, testAPI)
 

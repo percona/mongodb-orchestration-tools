@@ -21,6 +21,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/healthcheck"
+	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -64,7 +65,7 @@ func main() {
 		log.Debugf("Member passed health check with replication state: %s", memberState)
 	case readiness.FullCommand():
 		log.Debug("Running readiness check")
-		state, err := healthcheck.ReadinessCheck(session)
+		state, err := healthcheck.ReadinessCheck(pmgo.NewSessionManager(session))
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
