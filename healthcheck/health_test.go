@@ -41,7 +41,7 @@ var (
 	}
 )
 
-func TestGetSelfMemberState(t *gotesting.T) {
+func TestHealthcheckGetSelfMemberState(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
 	assert.Equalf(t, *state, testMember.State, "healthcheck.getSelfMemberState() returned wrong result")
 
@@ -51,7 +51,7 @@ func TestGetSelfMemberState(t *gotesting.T) {
 	testStatus.Members[0].Health = status.MemberHealthUp
 }
 
-func TestIsMemberStateOk(t *gotesting.T) {
+func TestHealthcheckIsMemberStateOk(t *gotesting.T) {
 	state := getSelfMemberState(testStatus)
 	assert.Truef(t, isStateOk(state, OkMemberStates), "healthcheck.isStateOk(\"%s\") returned false", *state)
 
@@ -61,19 +61,15 @@ func TestIsMemberStateOk(t *gotesting.T) {
 	assert.Falsef(t, isStateOk(stateFail, OkMemberStates), "healthcheck.isStateOk(\"%s\") returned true", *stateFail)
 }
 
-func TestHealthCheck(t *gotesting.T) {
+func TestHealthcheckHealthCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	state, memberState, err := HealthCheck(testDBSession, OkMemberStates)
 	assert.NoError(t, err, "healthcheck.HealthCheck() returned an error")
 	assert.Equal(t, state, StateOk, "healthcheck.HealthCheck() returned non-ok state")
 	assert.Equal(t, *memberState, status.MemberStatePrimary, "healthcheck.HealthCheck() returned non-primary member state")
-}
 
-func TestHealthCheckFalse(t *gotesting.T) {
-	testing.DoSkipTest(t)
-
-	state, _, err := HealthCheck(testDBSession, []status.MemberState{status.MemberStateRemoved})
+	state, _, err = HealthCheck(testDBSession, []status.MemberState{status.MemberStateRemoved})
 	assert.EqualError(t, err,
 		"Member has unhealthy replication state: "+status.MemberStatePrimary.String(),
 		"healthcheck.HealthCheck() returned an expected error",

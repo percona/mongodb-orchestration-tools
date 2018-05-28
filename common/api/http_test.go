@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAPIGetBaseURL(t *gotesting.T) {
+func TestCommonAPIGetBaseURL(t *gotesting.T) {
 	expected := DefaultHTTPHostPrefix + "." + common.DefaultFrameworkName + "." + DefaultHTTPHostSuffix
 	assert.Equal(t, expected, testAPI.getBaseURL(), "api.getBaseURL() is incorrect")
 }

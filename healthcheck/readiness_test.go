@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadinessCheck(t *gotesting.T) {
+func TestHealthcheckReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	assert.NoError(t, testDBSession.Ping(), "Database ping error")

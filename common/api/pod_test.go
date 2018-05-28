@@ -20,6 +20,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAPIGetPodURL(t *gotesting.T) {
+func TestCommonAPIGetPodURL(t *gotesting.T) {
 	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
 }

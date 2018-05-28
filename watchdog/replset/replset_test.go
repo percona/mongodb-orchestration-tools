@@ -20,40 +20,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewReplset(t *gotesting.T) {
+func TestWatchdogNewReplset(t *gotesting.T) {
 	testReplset = New(testWatchdogConfig, testReplsetName)
 	assert.Equal(t, testReplsetName, testReplset.Name, "replset.Name is incorrect")
 	assert.Len(t, testReplset.Members, 0, "replset.Members is not empty")
 	assert.Zero(t, testReplset.LastUpdated, "replset.LastUpdated is not empty/zero")
 }
 
-func TestReplsetGetMemberFalse(t *gotesting.T) {
+func TestWatchdogReplsetGetMemberFalse(t *gotesting.T) {
 	assert.Nil(t, testReplset.GetMember(testReplsetMongod.Name()), "replset.GetMember() returned unexpected result")
 }
 
-func TestReplsetHasMemberFalse(t *gotesting.T) {
+func TestWatchdogReplsetHasMemberFalse(t *gotesting.T) {
 	assert.False(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result")
 }
 
-func TestReplsetUpdateMember(t *gotesting.T) {
+func TestWatchdogReplsetUpdateMember(t *gotesting.T) {
 	testReplset.UpdateMember(testReplsetMongod)
 	assert.Len(t, testReplset.Members, 1, "replset.Members length is not 1")
 }
 
-func TestReplsetGetMember(t *gotesting.T) {
+func TestWatchdogReplsetGetMember(t *gotesting.T) {
 	member := testReplset.GetMember(testReplsetMongod.Name())
 	assert.Equal(t, testReplsetMongod, member, "replset.GetMember() returned unexpected result")
 }
 
-func TestReplsetGetMembers(t *gotesting.T) {
+func TestWatchdogReplsetGetMembers(t *gotesting.T) {
 	assert.Len(t, testReplset.GetMembers(), 1, "replset.GetMembers() returned unexpected result")
 }
 
-func TestReplsetHasMember(t *gotesting.T) {
+func TestWatchdogReplsetHasMember(t *gotesting.T) {
 	assert.True(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result")
 }
 
-func TestGetReplsetDialInfo(t *gotesting.T) {
+func TestWatchdogReplsetGetReplsetDialInfo(t *gotesting.T) {
 	dialInfo := testReplset.GetReplsetDialInfo()
 	assert.NotNil(t, dialInfo, "replset.GetReplsetDialInfo() returned nil *mgo.DialInfo")
 	assert.Lenf(t, dialInfo.Addrs, len(testReplset.GetMembers()), "*mgo.DialInfo 'Addrs' must have the length %d", len(testReplset.GetMembers()))
@@ -65,7 +65,7 @@ func TestGetReplsetDialInfo(t *gotesting.T) {
 	assert.True(t, dialInfo.FailFast, "*mgo.DialInfo 'FailFast' must be true")
 }
 
-func TestReplsetRemoveMember(t *gotesting.T) {
+func TestWatchdogReplsetRemoveMember(t *gotesting.T) {
 	testReplset.RemoveMember(testReplsetMongod)
 	assert.False(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result after replset.RemoveMember()")
 	assert.Len(t, testReplset.GetMembers(), 0, "replset.GetMembers() returned unexpected result after replset.RemoveMember()")

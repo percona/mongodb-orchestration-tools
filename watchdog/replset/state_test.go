@@ -19,13 +19,16 @@ import (
 	"strings"
 	gotesting "testing"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
 
-func TestNewState(t *gotesting.T) {
+var testMemberRemoved *rsConfig.Member
+
+func TestWatchdogReplsetNewState(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	configManager := rsConfig.New(testDBSession)
@@ -36,7 +39,7 @@ func TestNewState(t *gotesting.T) {
 	assert.False(t, testState.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")
 }
 
-func TestFetchConfig(t *gotesting.T) {
+func TestWatchdogReplsetStateFetchConfig(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	err := testState.fetchConfig()
@@ -47,7 +50,7 @@ func TestFetchConfig(t *gotesting.T) {
 	assert.NotZero(t, testState.Config.Members, "testState.Config.Members has no members")
 }
 
-func TestFetchStatus(t *gotesting.T) {
+func TestWatchdogReplsetStateFetchStatus(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	err := testState.fetchStatus()
@@ -58,35 +61,38 @@ func TestFetchStatus(t *gotesting.T) {
 	assert.NotZero(t, testState.Status.Members, "testState.Status.Members has no members")
 }
 
-func TestFetch(t *gotesting.T) {
+func TestWatchdogReplsetStateFetch(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	assert.NoError(t, testState.Fetch(), "testState.Fetch() failed with error")
 }
 
-func TestRemoveAddConfigMembers(t *gotesting.T) {
+func TestWatchdogReplsetStateRemoveConfigMembers(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	memberCount := len(testState.Config.Members)
-	removeMember := testState.Config.Members[len(testState.Config.Members)-1]
-	testState.RemoveConfigMembers([]*rsConfig.Member{removeMember})
+	testMemberRemoved = testState.Config.Members[len(testState.Config.Members)-1]
+	testState.RemoveConfigMembers([]*rsConfig.Member{testMemberRemoved})
 	assert.False(t, testState.doUpdate, "testState.doUpdate is true after testState.RemoveConfigMembers()")
 	assert.Len(t, testState.Config.Members, memberCount-1, "testState.Config.Members count did not reduce")
+}
 
-	hostPort := strings.SplitN(removeMember.Host, ":", 2)
+func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
+	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
 		Host:          hostPort[0],
 		Port:          port,
 		Replset:       testing.MongodbReplsetName,
-		FrameworkName: "test",
+		FrameworkName: common.DefaultFrameworkName,
 		PodName:       "mongo",
 	}
+	memberCount := len(testState.Config.Members)
 	testState.AddConfigMembers([]*Mongod{addMongod})
 	assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
-	assert.Len(t, testState.Config.Members, memberCount, "testState.Config.Members count did not increase")
+	assert.Len(t, testState.Config.Members, memberCount+1, "testState.Config.Members count did not increase")
 
-	member := testState.Config.GetMember(removeMember.Host)
+	member := testState.Config.GetMember(testMemberRemoved.Host)
 	assert.NotNil(t, member, "testState.Config.HasMember() returned no member")
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, "test"), "member has missing replica set tag")
 }
