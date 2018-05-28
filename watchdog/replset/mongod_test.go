@@ -15,10 +15,12 @@
 package replset
 
 import (
+	"strconv"
 	gotesting "testing"
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/api/mocks"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
@@ -29,20 +31,12 @@ import (
 func TestWatchdogReplsetNewMongod(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
+	apiTask := &mocks.PodTask{}
+	apiTask.On("GetMongoHostname", common.DefaultFrameworkName).Return("test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
+	apiTask.On("GetMongoPort").Return(strconv.Atoi(testing.MongodbPrimaryPort))
+	apiTask.On("GetMongoReplsetName").Return(testing.MongodbReplsetName, nil)
+
 	var err error
-	apiTask := &api.PodTaskHTTP{
-		Info: &api.PodTaskInfo{
-			Name: "test",
-			Command: &api.PodTaskCommand{
-				Environment: &api.PodTaskCommandEnvironment{
-					Variables: []*api.PodTaskCommandEnvironmentVariable{
-						{Name: common.EnvMongoDBPort, Value: testing.MongodbPrimaryPort},
-						{Name: common.EnvMongoDBReplset, Value: testing.MongodbReplsetName},
-					},
-				},
-			},
-		},
-	}
 	testMongod, err = NewMongod(apiTask, common.DefaultFrameworkName, "mongo-"+testing.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
