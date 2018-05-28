@@ -19,6 +19,7 @@ import (
 	"strings"
 	gotesting "testing"
 
+	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	"github.com/stretchr/testify/assert"
@@ -79,7 +80,7 @@ func TestRemoveAddConfigMembers(t *gotesting.T) {
 		Host:          hostPort[0],
 		Port:          port,
 		Replset:       testing.MongodbReplsetName,
-		FrameworkName: "test",
+		FrameworkName: common.DefaultFrameworkName,
 		PodName:       "mongo",
 	}
 	testState.AddConfigMembers([]*Mongod{addMongod})
