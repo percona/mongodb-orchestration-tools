@@ -33,13 +33,13 @@ type State struct {
 	Replset       string
 	Config        *rsConfig.Config
 	Status        *rsStatus.Status
-	configManager *rsConfig.ConfigManager
+	configManager rsConfig.Manager
 	session       *mgo.Session
 	fetcher       fetcher.Fetcher
 	doUpdate      bool
 }
 
-func NewState(session *mgo.Session, configManager *rsConfig.ConfigManager, fetcher fetcher.Fetcher, replset string) *State {
+func NewState(session *mgo.Session, configManager rsConfig.Manager, fetcher fetcher.Fetcher, replset string) *State {
 	return &State{
 		Replset:       replset,
 		session:       session,
