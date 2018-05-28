@@ -18,31 +18,17 @@ import (
 	gotesting "testing"
 
 	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/api/mocks"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
-var testAPIEndpoint = &api.Endpoint{
-	Address: []string{
-		testing.MongodbHost + ":" + testing.MongodbPrimaryPort,
-		testing.MongodbHost + ":" + testing.MongodbSecondary1Port,
-		testing.MongodbHost + ":" + testing.MongodbSecondary2Port,
-	},
-	Dns: []string{
-		testing.MongodbHostname + ":" + testing.MongodbPrimaryPort,
-		testing.MongodbHostname + ":" + testing.MongodbSecondary1Port,
-		testing.MongodbHostname + ":" + testing.MongodbSecondary2Port,
-	},
-}
-
 func TestControllerUserNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	mockAPI := &mocks.Client{}
-	mockAPI.On("GetEndpoint", common.DefaultMongoDBMongodEndpointName).Return(testAPIEndpoint, nil)
+	mockAPI.On("GetEndpoint", common.DefaultMongoDBMongodEndpointName).Return(testing.GetMongoPortAPIEndpoint(), nil)
 
 	var err error
 	testController, err = NewController(testControllerConfig, mockAPI)

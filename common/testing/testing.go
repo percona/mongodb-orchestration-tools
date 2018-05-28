@@ -20,6 +20,7 @@ import (
 	gotesting "testing"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common/api"
 	"gopkg.in/mgo.v2"
 )
 
@@ -88,6 +89,22 @@ func GetSession(port string) (*mgo.Session, error) {
 		return nil, err
 	}
 	return session, err
+}
+
+// GetMongoPortAPIEndpoint returns an *api.Endpoint configured for testing MongoDB
+func GetMongoPortAPIEndpoint() *api.Endpoint {
+	return &api.Endpoint{
+		Address: []string{
+			MongodbHost + ":" + MongodbPrimaryPort,
+			MongodbHost + ":" + MongodbSecondary1Port,
+			MongodbHost + ":" + MongodbSecondary2Port,
+		},
+		Dns: []string{
+			MongodbHostname + ":" + MongodbPrimaryPort,
+			MongodbHostname + ":" + MongodbSecondary1Port,
+			MongodbHostname + ":" + MongodbSecondary2Port,
+		},
+	}
 }
 
 // DoSkipTest handles the conditional skipping of tests, based on the output of .Enabled()

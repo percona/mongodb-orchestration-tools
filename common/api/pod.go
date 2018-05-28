@@ -54,14 +54,13 @@ func (c *ClientHTTP) GetPods() (*Pods, error) {
 // GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
 func (c *ClientHTTP) GetPodTasks(podName string) ([]PodTask, error) {
 	tasksHTTP := make([]*PodTaskHTTP, 0)
-	tasks := make([]PodTask, len(tasksHTTP))
-
 	podURL := c.GetPodURL() + "/" + podName + "/info"
 	err := c.get(podURL, &tasksHTTP)
 	if err != nil {
-		return tasks, err
+		return nil, err
 	}
 
+	tasks := make([]PodTask, len(tasksHTTP))
 	for _, task := range tasksHTTP {
 		tasks = append(tasks, task)
 	}
