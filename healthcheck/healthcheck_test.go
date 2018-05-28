@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHealtcheckExitCode(t *gotesting.T) {
+func TestHealthcheckExitCode(t *gotesting.T) {
 	assert.Equal(t, 0, State(0).ExitCode())
 	assert.Equal(t, 1, State(1).ExitCode())
 }
