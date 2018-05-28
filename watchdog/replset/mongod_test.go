@@ -17,50 +17,57 @@ package replset
 import (
 	gotesting "testing"
 
-	//"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
-	//"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
 // This test needs a mock of common/api PodTask
-//func TestNewMongod(t *gotesting.T) {
-//	testing.DoSkipTest(t)
-//
-//	mongod, err := NewMongod(&api.PodTaskHttp{}, "frameworkNameHere", "mongo-"+testing.MongodbReplsetName)
-//	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
-//	assert.NotNil(t, mongod, "replset.NewMongod() should not return a nil Mongod")
-//}
+func TestWatchdogReplsetNewMongod(t *gotesting.T) {
+	testing.DoSkipTest(t)
 
-func TestMongodName(t *gotesting.T) {
-	mongod := &Mongod{
-		Host: "test1234",
-		Port: 123456,
+	var err error
+	apiTask := &api.PodTask{
+		Info: &api.PodTaskInfo{
+			Name: "test",
+			Command: &api.PodTaskCommand{
+				Environment: &api.PodTaskCommandEnvironment{
+					Variables: []*api.PodTaskCommandEnvironmentVariable{
+						{Name: common.EnvMongoDBPort, Value: testing.MongodbPrimaryPort},
+						{Name: common.EnvMongoDBReplset, Value: testing.MongodbReplsetName},
+					},
+				},
+			},
+		},
 	}
-	assert.Equal(t, mongod.Name(), "test1234:123456")
+	testMongod, err = NewMongod(apiTask, common.DefaultFrameworkName, "mongo-"+testing.MongodbReplsetName)
+	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
+	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }
 
-func TestIsBackupNode(t *gotesting.T) {
+func TestWatchdogReplsetMongodName(t *gotesting.T) {
+	expected := "test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testing.MongodbPrimaryPort
+	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
+}
+
+func TestWatchdogReplsetMongodIsBackupNode(t *gotesting.T) {
+	assert.False(t, testMongod.IsBackupNode(), "mongod.IsBackupNode() should be false")
 	mongod := &Mongod{
 		Host:    "test1234",
 		Port:    123456,
-		PodName: "notabackupnode",
+		PodName: backupPodNamePrefix + "-something",
 	}
-	assert.False(t, mongod.IsBackupNode(), "mongod.IsBackupNode() should be false")
-	mongod.PodName = backupPodNamePrefix + "-something"
 	assert.True(t, mongod.IsBackupNode(), "mongod.IsBackupNode() should be true")
 }
 
-func TestDBConfig(t *gotesting.T) {
-	mongod := &Mongod{
-		Host: "test1234",
-		Port: 123456,
-	}
+func TestWatchdogReplsetMongodDBConfig(t *gotesting.T) {
 	sslConfig := &db.SSLConfig{}
-	assert.Equal(t, mongod.DBConfig(sslConfig), &db.Config{
+	assert.Equal(t, testMongod.DBConfig(sslConfig), &db.Config{
 		DialInfo: &mgo.DialInfo{
-			Addrs:    []string{"test1234:123456"},
+			Addrs:    []string{testMongod.Name()},
 			Direct:   true,
 			FailFast: true,
 			Timeout:  db.DefaultMongoDBTimeoutDuration,
