@@ -94,5 +94,5 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 
 	member := testState.Config.GetMember(testMemberRemoved.Host)
 	assert.NotNil(t, member, "testState.Config.HasMember() returned no member")
-	assert.True(t, member.Tags.HasMatch(frameworkTagName, "test"), "member has missing replica set tag")
+	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
 }
