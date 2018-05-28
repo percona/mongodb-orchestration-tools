@@ -18,6 +18,7 @@ import (
 	gotesting "testing"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/pmgo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +26,7 @@ func TestReadinessCheck(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	assert.NoError(t, testDBSession.Ping(), "Database ping error")
-	state, err := ReadinessCheck(testDBSession)
+	state, err := ReadinessCheck(pmgo.NewSessionManager(testDBSession))
 	assert.NoError(t, err, "healthcheck.ReadinessCheck() returned an error")
 	assert.Equal(t, state, StateOk, "healthcheck.ReadinessCheck() returned incorrect state")
 }
