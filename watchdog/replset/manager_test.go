@@ -27,35 +27,35 @@ var (
 	}
 )
 
-func TestReplsetNewManager(t *gotesting.T) {
+func TestWatchdogReplsetNewManager(t *gotesting.T) {
 	testManager = NewManager(testWatchdogConfig)
 	assert.NotNil(t, testManager, ".NewManager() should not return nil")
 	assert.Len(t, testManager.replsets, 0, ".NewManager() should return a Manager with an empty slice of replsets")
 }
 
-func TestReplsetManagerGetFalse(t *gotesting.T) {
+func TestWatchdogReplsetManagerGetFalse(t *gotesting.T) {
 	assert.Nil(t, testManager.Get(testReplsetName), ".Get() should return nil")
 }
 
-func TestReplsetManagerHasReplsetFalse(t *gotesting.T) {
+func TestWatchdogReplsetManagerHasReplsetFalse(t *gotesting.T) {
 	assert.False(t, testManager.HasReplset(testReplsetName), ".HasReplset() should return false")
 }
 
-func TestReplsetManagerAddReplset(t *gotesting.T) {
+func TestWatchdogReplsetManagerAddReplset(t *gotesting.T) {
 	replset := New(testWatchdogConfig, testReplsetName)
 	testManager.addReplset(replset)
 	assert.True(t, testManager.HasReplset(testReplsetName), ".HasReplset() after .addReplset() should return true")
 }
 
-func TestReplsetManagerGetAll(t *gotesting.T) {
+func TestWatchdogReplsetManagerGetAll(t *gotesting.T) {
 	assert.Len(t, testManager.GetAll(), 1, ".GetAll() should return a single Replset")
 }
 
-func TestReplsetManagerGet(t *gotesting.T) {
+func TestWatchdogReplsetManagerGet(t *gotesting.T) {
 	assert.NotNil(t, testManager.Get(testReplsetName), ".Get() should return a Replset")
 }
 
-func TestReplsetManagerUpdateMember(t *gotesting.T) {
+func TestWatchdogReplsetManagerUpdateMember(t *gotesting.T) {
 	testManager.UpdateMember(&Mongod{
 		Host:    "anotherhost",
 		Port:    12241,
@@ -68,12 +68,12 @@ func TestReplsetManagerUpdateMember(t *gotesting.T) {
 	assert.True(t, rs.HasMember(testManagerAddMongod.Name()), ".HasMember() on replset returned false after .UpdateMember()")
 }
 
-func TestReplsetManagerHasMember(t *gotesting.T) {
+func TestWatchdogReplsetManagerHasMember(t *gotesting.T) {
 	assert.True(t, testManager.HasMember(testManagerAddMongod), ".HasMember() on replset returned false after .UpdateMember()")
 	assert.False(t, testManager.HasMember(&Mongod{Host: "doesntexit", Port: 12345, Replset: "notexists"}), ".HasMember() for missing member should return false")
 }
 
-func TestReplsetManagerRemoveMember(t *gotesting.T) {
+func TestWatchdogReplsetManagerRemoveMember(t *gotesting.T) {
 	testManager.RemoveMember(testManagerAddMongod)
 	assert.False(t, testManager.HasMember(testManagerAddMongod), ".HasMember() on replset returned true after .RemoveMember()")
 }

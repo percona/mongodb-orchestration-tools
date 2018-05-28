@@ -27,14 +27,14 @@ var (
 	}
 )
 
-func TestAPIEndpointAddresses(t *gotesting.T) {
+func TestCommonAPIEndpointAddresses(t *gotesting.T) {
 	assert.Equal(t, testEndpoint.Addresses(), testEndpoint.Address, "&Endpoint{} struct .Addresses() is incorrect")
 }
 
-func TestAPIEndpointHosts(t *gotesting.T) {
+func TestCommonAPIEndpointHosts(t *gotesting.T) {
 	assert.Equal(t, testEndpoint.Hosts(), testEndpoint.Dns, "&Endpoint{} struct .Hosts() is incorrect")
 }
 
-func TestAPIGetEndpointsURL(t *gotesting.T) {
+func TestCommonAPIGetEndpointsURL(t *gotesting.T) {
 	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
 }
