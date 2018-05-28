@@ -16,6 +16,8 @@ package main
 
 import (
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/api"
@@ -95,8 +97,18 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 
-	watchdog.New(cnf, api.New(
+	quit := make(chan bool)
+	watchdog.New(cnf, &quit, api.New(
 		cnf.FrameworkName,
 		cnf.API,
 	)).Run()
+
+	// wait for signals from the OS
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	sig := <-signals
+	log.Infof("Received %s signal, killing watchdog", sig)
+
+	// send quit to all goroutines
+	quit <- true
 }

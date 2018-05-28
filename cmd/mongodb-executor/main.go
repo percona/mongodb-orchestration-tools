@@ -172,7 +172,6 @@ func main() {
 	cnf.NodeType = config.NodeType(nodeType)
 
 	var daemon executor.Daemon
-	signals := make(chan os.Signal, 1)
 	quit := make(chan bool)
 	e := executor.New(cnf, &quit)
 
@@ -210,6 +209,7 @@ func main() {
 	go job.New(cnf, session, &quit).Run()
 
 	// wait for signals from the OS
+	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	sig := <-signals
 	log.Infof("Received %s signal, killing %s daemon and jobs", sig, cnf.NodeType)

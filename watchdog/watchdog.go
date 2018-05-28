@@ -33,15 +33,17 @@ type Watchdog struct {
 	startTime      time.Time
 	replsetManager *replset.Manager
 	watcherManager *watcher.Manager
+	quit           *chan bool
 }
 
-func New(config *config.Config, client api.Client) *Watchdog {
+func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 	return &Watchdog{
 		config:         config,
 		api:            client,
 		startTime:      time.Now(),
 		replsetManager: replset.NewManager(config),
 		watcherManager: watcher.NewManager(config),
+		quit:           quit,
 	}
 }
 
@@ -152,9 +154,11 @@ func (w *Watchdog) Run() {
 			wg.Wait()
 
 			w.ensureWatchers()
+		case <-*w.quit:
+			log.Info("Stopping watchers")
+			ticker.Stop()
+			w.stopWatchers()
+			break
 		}
 	}
-
-	log.Info("Stopping watchers")
-	w.stopWatchers()
 }

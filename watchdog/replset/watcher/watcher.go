@@ -195,6 +195,7 @@ func (rw *Watcher) Run() {
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,
 			}).Info("Stopping watcher for replset")
+			ticker.Stop()
 			return
 		}
 	}
