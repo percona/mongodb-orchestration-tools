@@ -25,7 +25,7 @@ import (
 type PodTaskState string
 
 var (
-	autoIpDnsSuffix                   = "autoip.dcos.thisdcos.directory"
+	AutoIpDnsSuffix                   = "autoip.dcos.thisdcos.directory"
 	PodTaskStateError    PodTaskState = "TASK_ERROR"
 	PodTaskStateFailed   PodTaskState = "TASK_FAILED"
 	PodTaskStateFinished PodTaskState = "TASK_FINISHED"
@@ -80,7 +80,7 @@ func (task *PodTask) IsRemovedMongod() bool {
 }
 
 func (task *PodTask) GetMongoHostname(frameworkName string) string {
-	return task.Info.Name + "." + frameworkName + "." + autoIpDnsSuffix
+	return task.Info.Name + "." + frameworkName + "." + AutoIpDnsSuffix
 }
 
 func (task *PodTask) GetEnvVar(variableName string) (string, error) {

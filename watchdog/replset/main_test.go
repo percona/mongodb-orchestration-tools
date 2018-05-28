@@ -29,6 +29,7 @@ import (
 var (
 	testDBSession      *mgo.Session
 	testManager        *Manager
+	testMongod         *Mongod
 	testState          *State
 	testLogBuffer      = new(bytes.Buffer)
 	testWatchdogConfig = &wdConfig.Config{
