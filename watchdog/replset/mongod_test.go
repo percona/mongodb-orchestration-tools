@@ -49,7 +49,7 @@ func TestWatchdogReplsetNewMongod(t *gotesting.T) {
 }
 
 func TestWatchdogReplsetMongodName(t *gotesting.T) {
-	expected := "test." + common.DefaultFrameworkName + "." + api.AutoIpDnsSuffix + ":" + testing.MongodbPrimaryPort
+	expected := "test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testing.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 
