@@ -17,17 +17,35 @@ package user
 import (
 	gotesting "testing"
 
-	mockAPI "github.com/percona/dcos-mongo-tools/common/api/mock"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/common/api/mocks"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
+var testAPIEndpoint = &api.Endpoint{
+	Address: []string{
+		testing.MongodbHost + ":" + testing.MongodbPrimaryPort,
+		testing.MongodbHost + ":" + testing.MongodbSecondary1Port,
+		testing.MongodbHost + ":" + testing.MongodbSecondary2Port,
+	},
+	Dns: []string{
+		testing.MongodbHostname + ":" + testing.MongodbPrimaryPort,
+		testing.MongodbHostname + ":" + testing.MongodbSecondary1Port,
+		testing.MongodbHostname + ":" + testing.MongodbSecondary2Port,
+	},
+}
+
 func TestControllerUserNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
+	mockAPI := &mocks.Client{}
+	mockAPI.On("GetEndpoint", common.DefaultMongoDBMongodEndpointName).Return(testAPIEndpoint, nil)
+
 	var err error
-	testController, err = NewController(testControllerConfig, mockAPI.New())
+	testController, err = NewController(testControllerConfig, mockAPI)
 	assert.NoError(t, err, ".NewController() should not return an error")
 	assert.NotNil(t, testController, ".NewController() should return a Controller that is not nil")
 	assert.NotNil(t, testController.session, ".NewController() should return a Controller with a session field that is not nil")

@@ -56,15 +56,15 @@ func (_m *Client) GetEndpoints() (*api.Endpoints, error) {
 }
 
 // GetPodTasks provides a mock function with given fields: podName
-func (_m *Client) GetPodTasks(podName string) ([]*api.PodTask, error) {
+func (_m *Client) GetPodTasks(podName string) ([]api.PodTask, error) {
 	ret := _m.Called(podName)
 
-	var r0 []*api.PodTask
-	if rf, ok := ret.Get(0).(func(string) []*api.PodTask); ok {
+	var r0 []api.PodTask
+	if rf, ok := ret.Get(0).(func(string) []api.PodTask); ok {
 		r0 = rf(podName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*api.PodTask)
+			r0 = ret.Get(0).([]api.PodTask)
 		}
 	}
 

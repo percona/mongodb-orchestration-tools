@@ -33,7 +33,7 @@ type Config struct {
 type Client interface {
 	GetPodURL() string
 	GetPods() (*Pods, error)
-	GetPodTasks(podName string) ([]*PodTask, error)
+	GetPodTasks(podName string) ([]PodTask, error)
 	GetEndpoints() (*Endpoints, error)
 	GetEndpoint(endpointName string) (*Endpoint, error)
 }
