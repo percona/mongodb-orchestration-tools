@@ -57,9 +57,9 @@ func getDialInfo(host, port string) (*mgo.DialInfo, error) {
 		return nil, nil
 	}
 	if port == "" {
-		return nil, errors.New("Port arguement is not set")
+		return nil, errors.New("Port argument is not set")
 	} else if host == "" {
-		return nil, errors.New("Host arguement is not set")
+		return nil, errors.New("Host argument is not set")
 	} else if MongodbReplsetName == "" {
 		return nil, errors.New("Replica set name env var is not set")
 	} else if MongodbAdminUser == "" {

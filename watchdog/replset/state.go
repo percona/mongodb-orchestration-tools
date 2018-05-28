@@ -173,7 +173,7 @@ func (s *State) StartFetcher(stop *chan bool, interval time.Duration) {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"replset": s.Replset,
-				}).Errorf("Error fetching replset state: %s")
+				}).Errorf("Error fetching replset state: %s", err.Error())
 			}
 		case <-*stop:
 			ticker.Stop()
