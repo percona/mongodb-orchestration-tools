@@ -30,7 +30,7 @@ func TestWatchdogReplsetNewMongod(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	var err error
-	apiTask := &api.PodTask{
+	apiTask := &api.PodTaskHTTP{
 		Info: &api.PodTaskInfo{
 			Name: "test",
 			Command: &api.PodTaskCommand{

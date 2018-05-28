@@ -17,7 +17,8 @@ package user
 import (
 	gotesting "testing"
 
-	mockAPI "github.com/percona/dcos-mongo-tools/common/api/mock"
+	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/common/api/mocks"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -26,8 +27,11 @@ import (
 func TestControllerUserNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
+	mockAPI := &mocks.Client{}
+	mockAPI.On("GetEndpoint", common.DefaultMongoDBMongodEndpointName).Return(testing.GetMongoPortAPIEndpoint(), nil)
+
 	var err error
-	testController, err = NewController(testControllerConfig, mockAPI.New())
+	testController, err = NewController(testControllerConfig, mockAPI)
 	assert.NoError(t, err, ".NewController() should not return an error")
 	assert.NotNil(t, testController, ".NewController() should return a Controller that is not nil")
 	assert.NotNil(t, testController.session, ".NewController() should return a Controller with a session field that is not nil")
