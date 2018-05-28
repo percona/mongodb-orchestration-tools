@@ -17,11 +17,11 @@ package healthcheck
 import (
 	"fmt"
 
-	"gopkg.in/mgo.v2"
+	"github.com/percona/pmgo"
 )
 
-// ReadinessCheck runs a ping on a mgo.Session to check server readiness
-func ReadinessCheck(session *mgo.Session) (State, error) {
+// ReadinessCheck runs a ping on a pmgo.SessionManager to check server readiness
+func ReadinessCheck(session pmgo.SessionManager) (State, error) {
 	err := session.Ping()
 	if err != nil {
 		return StateFailed, fmt.Errorf("Failed to get successful ping: %s", err)

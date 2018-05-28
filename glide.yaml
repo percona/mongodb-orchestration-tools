@@ -17,6 +17,7 @@ import:
 - package: github.com/scullxbones/mgo-statsd
   subpackages:
   - .
+- package: github.com/percona/pmgo
 testImport:
 - package: github.com/mitchellh/go-ps
 - package: github.com/stretchr/testify
