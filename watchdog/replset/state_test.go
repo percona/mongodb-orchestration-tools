@@ -78,6 +78,8 @@ func TestWatchdogReplsetStateRemoveConfigMembers(t *gotesting.T) {
 }
 
 func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
