@@ -43,11 +43,15 @@ func TestWatchdogReplsetNewMongod(t *gotesting.T) {
 }
 
 func TestWatchdogReplsetMongodName(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	expected := "test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testing.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 
 func TestWatchdogReplsetMongodIsBackupNode(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	assert.False(t, testMongod.IsBackupNode(), "mongod.IsBackupNode() should be false")
 	mongod := &Mongod{
 		Host:    "test1234",
@@ -58,6 +62,8 @@ func TestWatchdogReplsetMongodIsBackupNode(t *gotesting.T) {
 }
 
 func TestWatchdogReplsetMongodDBConfig(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	sslConfig := &db.SSLConfig{}
 	assert.Equal(t, testMongod.DBConfig(sslConfig), &db.Config{
 		DialInfo: &mgo.DialInfo{

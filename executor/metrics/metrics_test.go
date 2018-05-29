@@ -52,10 +52,14 @@ func TestExecutorMetricsNew(t *gotesting.T) {
 }
 
 func TestExecutorMetricsName(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	assert.Equal(t, jobName, testMetrics.Name(), ".Name() has unexpected string")
 }
 
 func TestExecutorMetricsDoRun(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	assert.True(t, testMetrics.DoRun())
 
 	dontRun := &Metrics{config: &Config{}}
@@ -64,6 +68,7 @@ func TestExecutorMetricsDoRun(t *gotesting.T) {
 
 func TestExecutorMetricsRun(t *gotesting.T) {
 	testing.DoSkipTest(t)
+
 	testLogBuffer.Reset()
 
 	// start the metrics.Run() in a go routine and wait for ServerStatus struct
