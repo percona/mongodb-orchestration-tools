@@ -26,11 +26,11 @@ type Fetcher interface {
 }
 
 type StateFetcher struct {
-	configManager *rsConfig.ConfigManager
+	configManager rsConfig.Manager
 	session       *mgo.Session
 }
 
-func New(session *mgo.Session, configManager *rsConfig.ConfigManager) *StateFetcher {
+func New(session *mgo.Session, configManager rsConfig.Manager) *StateFetcher {
 	return &StateFetcher{
 		configManager: configManager,
 		session:       session,
