@@ -93,6 +93,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 	log.WithFields(log.Fields{
 		"pod": podName,
 	}).Info("Getting tasks for pod")
+
 	tasks, err := w.api.GetPodTasks(podName)
 	if err != nil {
 		log.WithFields(log.Fields{
