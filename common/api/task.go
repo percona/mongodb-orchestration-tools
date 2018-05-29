@@ -74,14 +74,14 @@ func (task *PodTaskHTTP) IsRunning() bool {
 }
 
 func (task *PodTaskHTTP) IsMongodTask() bool {
-	if strings.HasSuffix(task.Info.Name, "-mongod") {
+	if task.Info != nil && strings.HasSuffix(task.Info.Name, "-mongod") {
 		return strings.Contains(task.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
 }
 
 func (task *PodTaskHTTP) IsMongosTask() bool {
-	if strings.HasSuffix(task.Info.Name, "-mongos") {
+	if task.Info != nil && strings.HasSuffix(task.Info.Name, "-mongos") {
 		return strings.Contains(task.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
