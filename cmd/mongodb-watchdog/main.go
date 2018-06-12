@@ -54,6 +54,10 @@ func main() {
 		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
 	app.Flag(
+		"apiIgnoreApiPods",
+		"DC/OS SDK API pods to ignore/exclude",
+	).Default(config.DefaultAPIIgnorePod).StringsVar(&cnf.APIIgnorePods)
+	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
 	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.APIPoll)

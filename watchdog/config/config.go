@@ -23,6 +23,7 @@ import (
 
 var (
 	DefaultAPIPoll               = "10s"
+	DefaultAPIIgnorePod          = "admin-0"
 	DefaultDelayWatcher          = "20s"
 	DefaultReplsetPoll           = "5s"
 	DefaultReplsetTimeout        = "3s"
@@ -35,6 +36,7 @@ type Config struct {
 	Password              string
 	FrameworkName         string
 	API                   *api.Config
+	APIIgnorePods         []string
 	APIPoll               time.Duration
 	SSL                   *db.SSLConfig
 	ReplsetPoll           time.Duration

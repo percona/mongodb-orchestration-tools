@@ -16,7 +16,7 @@ TEST_SECONDARY1_PORT?=65218
 TEST_SECONDARY2_PORT?=65219
 
 TEST_CODECOV?=false
-TEST_GO_EXTRA?=-race
+TEST_GO_EXTRA?=
 ifeq ($(TEST_CODECOV),true)
 	TEST_GO_EXTRA=-race -coverprofile=cover.out -covermode=atomic
 endif
