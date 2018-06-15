@@ -16,7 +16,6 @@ package replset
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
@@ -29,14 +28,14 @@ import (
 const frameworkTagName = "dcosFramework"
 
 type State struct {
-	sync.Mutex
 	Replset       string
-	Config        *rsConfig.Config
-	Status        *rsStatus.Status
+	config        *rsConfig.Config
 	configManager rsConfig.Manager
 	session       *mgo.Session
-	fetcher       fetcher.Fetcher
-	doUpdate      bool
+	status        *rsStatus.Status
+	session       *mgo.Session
+	//fetcher       fetcher.Fetcher
+	doUpdate bool
 }
 
 func NewState(session *mgo.Session, configManager rsConfig.Manager, fetcher fetcher.Fetcher, replset string) *State {
@@ -48,7 +47,7 @@ func NewState(session *mgo.Session, configManager rsConfig.Manager, fetcher fetc
 	}
 }
 
-func (s *State) fetchConfig() error {
+func (m *Manager) fetchConfig() error {
 	config, err := s.fetcher.GetConfig()
 	if err != nil {
 		return err
@@ -57,7 +56,7 @@ func (s *State) fetchConfig() error {
 	return nil
 }
 
-func (s *State) fetchStatus() error {
+func (m *Manager) fetchStatus() error {
 	status, err := s.fetcher.GetStatus()
 	if err != nil {
 		return err
@@ -66,7 +65,7 @@ func (s *State) fetchStatus() error {
 	return nil
 }
 
-func (s *State) Fetch() error {
+func (m *Manager) Fetch() error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -82,7 +81,7 @@ func (s *State) Fetch() error {
 	return s.fetchStatus()
 }
 
-func (s *State) updateConfig() error {
+func (m *Manager) updateConfig() error {
 	if s.doUpdate == false {
 		return nil
 	}
@@ -104,7 +103,7 @@ func (s *State) updateConfig() error {
 	return nil
 }
 
-func (s *State) AddConfigMembers(mongods []*Mongod) {
+func (m *Manager) AddConfigMembers(mongods []*Mongod) {
 	if len(mongods) == 0 {
 		return
 	}
@@ -138,7 +137,7 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 	s.updateConfig()
 }
 
-func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
+func (m *Manager) RemoveConfigMembers(members []*rsConfig.Member) {
 	if len(members) == 0 {
 		return
 	}
@@ -159,7 +158,7 @@ func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.updateConfig()
 }
 
-func (s *State) StartFetcher(stop *chan bool, interval time.Duration) {
+func (m *Manager) StartFetcher(stop *chan bool, interval time.Duration) {
 	log.WithFields(log.Fields{
 		"replset":  s.Replset,
 		"interval": interval,
