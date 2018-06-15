@@ -23,7 +23,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset/watcher"
+	"github.com/percona/dcos-mongo-tools/watchdog/watcher"
 	log "github.com/sirupsen/logrus"
 )
 
