@@ -40,7 +40,7 @@ func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 		config:         config,
 		api:            client,
 		startTime:      time.Now(),
-		watcherManager: watcher.NewManager(config),
+		watcherManager: watcher.NewManager(config, quit),
 		quit:           quit,
 	}
 }
@@ -130,7 +130,6 @@ func (w *Watchdog) Run() {
 		case <-*w.quit:
 			log.Info("Stopping watchers")
 			ticker.Stop()
-			w.watcherManager.Stop()
 			break
 		}
 	}

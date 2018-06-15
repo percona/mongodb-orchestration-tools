@@ -48,9 +48,9 @@ func New(rs *replset.Replset, config *config.Config, stop *chan bool) *Watcher {
 	return &Watcher{
 		config:            config,
 		replset:           rs,
+		stop:              stop,
 		mongodAddQueue:    make(chan []*replset.Mongod),
 		mongodRemoveQueue: make(chan []*rsConfig.Member),
-		stop:              stop,
 	}
 }
 
