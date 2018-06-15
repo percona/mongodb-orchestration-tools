@@ -34,15 +34,15 @@ func NewManager(config *config.Config) *Manager {
 	}
 }
 
-func (m *Manager) HasWatcher(rs *replset.Replset) bool {
-	if _, ok := m.watchers[rs.Name]; ok {
+func (m *Manager) HasWatcher(rsName string) bool {
+	if _, ok := m.watchers[rsName]; ok {
 		return true
 	}
 	return false
 }
 
 func (m *Manager) Watch(rs *replset.Replset) {
-	if !m.HasWatcher(rs) {
+	if !m.HasWatcher(rs.Name) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
@@ -55,6 +55,13 @@ func (m *Manager) Watch(rs *replset.Replset) {
 		)
 		go m.watchers[rs.Name].Run()
 	}
+}
+
+func (m *Manager) Get(rsName string) *Watcher {
+	if !m.HasWatcher(rsName) {
+		return nil
+	}
+	return m.watchers[rsName]
 }
 
 func (m *Manager) Stop() {

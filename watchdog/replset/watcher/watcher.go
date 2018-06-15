@@ -162,7 +162,8 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 
 func (rw *Watcher) Run() {
 	log.WithFields(log.Fields{
-		"replset": rw.replset.Name,
+		"replset":  rw.replset.Name,
+		"interval": rw.config.ReplsetPoll,
 	}).Info("Watching replset")
 
 	go rw.replsetConfigAdder(rw.mongodAddQueue)
@@ -180,12 +181,13 @@ func (rw *Watcher) Run() {
 	configManager := rsConfig.New(session)
 	stateFetcher := fetcher.New(session, configManager)
 	rw.state = replset.NewState(session, configManager, stateFetcher, rw.replset.Name)
-	go rw.state.StartFetcher(rw.stop, rw.config.ReplsetPoll)
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
 		select {
 		case <-ticker.C:
+			// move the config+state fetch to here
+			rw.state.Fetch()
 			if rw.state.Status != nil {
 				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
 				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()

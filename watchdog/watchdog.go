@@ -28,10 +28,9 @@ import (
 )
 
 type Watchdog struct {
-	config    *config.Config
-	api       api.Client
-	startTime time.Time
-	//replsetManager *replset.Manager
+	config         *config.Config
+	api            api.Client
+	startTime      time.Time
 	watcherManager *watcher.Manager
 	quit           *chan bool
 }
@@ -41,7 +40,6 @@ func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 		config:         config,
 		api:            client,
 		startTime:      time.Now(),
-		replsetManager: replset.NewManager(config),
 		watcherManager: watcher.NewManager(config),
 		quit:           quit,
 	}
@@ -51,43 +49,17 @@ func (w *Watchdog) runtimeDuration() time.Duration {
 	return time.Since(w.startTime)
 }
 
-func (w *Watchdog) ensureWatchers() {
-	if w.runtimeDuration() < w.config.DelayWatcher {
-		return
-	}
-	// use DC/OS as the list of replsets
-	for _, rs := range w.replsetManager.GetAll() {
-		w.watcherManager.Watch(rs)
+func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {
+	for mongodUpdate := range mongodUpdates {
+		// ensure the replset has a watcher started
+		if !w.watcherManager.HasWatcher(mongod.Replset) {
+			w.watcherManager.Watch(mongod.Replset)
+		}
+
+		// send the update to the watcher for the given replset
+		w.watcherManager.Get(mongod.Replset).UpdateMongod(mongodUpdate)
 	}
 }
-
-func (w *Watchdog) stopWatchers() {
-	w.watcherManager.Stop()
-}
-
-// each replset-level watcher should handle updating state, etc
-//func (w *Watchdog) mongodUpdater(mongodUpdates <-chan *replset.Mongod) {
-//	for mongod := range mongodUpdates {
-//		fields := log.Fields{
-//			"name":    mongod.Task.Name(),
-//			"state":   string(mongod.Task.State()),
-//			"replset": mongod.Replset,
-//			"host":    mongod.Name(),
-//		}
-//		if w.replsetManager.HasMember(mongod) {
-//			if mongod.Task.IsRemovedMongod() {
-//				log.WithFields(fields).Info("Removing completed mongod task")
-//				w.replsetManager.RemoveMember(mongod)
-//			} else {
-//				log.WithFields(fields).Info("Updating running mongod task")
-//				w.replsetManager.UpdateMember(mongod)
-//			}
-//		} else if mongod.Task.HasState() {
-//			log.WithFields(fields).Info("Adding new mongod task")
-//			w.replsetManager.UpdateMember(mongod)
-//		}
-//	}
-//}
 
 func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMongod chan *replset.Mongod) {
 	defer wg.Done()
@@ -128,9 +100,9 @@ func (w *Watchdog) Run() {
 		"go":        runtime.Version(),
 	}).Info("Starting watchdog")
 
-	// run the mongod updater in a goroutine
-	updateMongod := make(chan *replset.Mongod)
-	//go w.mongodUpdater(updateMongod)
+	// run the mongod update hander in a goroutine, this receives the updates from the pod fetchers
+	mongodUpdates := make(chan *replset.Mongod)
+	go w.mongodUpdateHandler(mongodUpdates)
 
 	ticker := time.NewTicker(w.config.APIPoll)
 	for {
@@ -152,15 +124,13 @@ func (w *Watchdog) Run() {
 			var wg sync.WaitGroup
 			wg.Add(len(*pods))
 			for _, podName := range *pods {
-				go w.podMongodFetcher(podName, &wg, updateMongod)
+				go w.podMongodFetcher(podName, &wg, mongodTasks)
 			}
 			wg.Wait()
-
-			w.ensureWatchers()
 		case <-*w.quit:
 			log.Info("Stopping watchers")
 			ticker.Stop()
-			w.stopWatchers()
+			w.watcherManager.Stop()
 			break
 		}
 	}

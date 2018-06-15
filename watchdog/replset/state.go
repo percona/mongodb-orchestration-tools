@@ -16,7 +16,6 @@ package replset
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
@@ -156,27 +155,4 @@ func (m *Manager) RemoveConfigMembers(members []*rsConfig.Member) {
 		s.doUpdate = true
 	}
 	s.updateConfig()
-}
-
-func (m *Manager) StartFetcher(stop *chan bool, interval time.Duration) {
-	log.WithFields(log.Fields{
-		"replset":  s.Replset,
-		"interval": interval,
-	}).Info("Started background replset state fetcher")
-
-	ticker := time.NewTicker(interval)
-	for {
-		select {
-		case <-ticker.C:
-			err := s.Fetch()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"replset": s.Replset,
-				}).Errorf("Error fetching replset state: %s", err.Error())
-			}
-		case <-*stop:
-			ticker.Stop()
-			break
-		}
-	}
 }
