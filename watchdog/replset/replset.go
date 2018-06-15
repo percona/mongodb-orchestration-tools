@@ -38,19 +38,19 @@ func New(config *config.Config, name string) *Replset {
 	}
 }
 
-func (r *Replset) UpdateMember(mongod *Member) {
+func (r *Replset) UpdateMember(member *Member) {
 	r.Lock()
 	defer r.Unlock()
 
-	r.Members[mongod.Name()] = mongod
+	r.Members[member.Name()] = member
 	r.LastUpdated = time.Now()
 }
 
-func (r *Replset) RemoveMember(mongod *Member) {
+func (r *Replset) RemoveMember(member *Member) {
 	r.Lock()
 	defer r.Unlock()
 
-	delete(r.Members, mongod.Name())
+	delete(r.Members, member.Name())
 }
 
 func (r *Replset) GetMember(name string) *Member {
