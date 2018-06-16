@@ -24,33 +24,33 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-const frameworkTagName = "dcosFramework"
+const (
+	frameworkTagName = "dcosFramework"
+)
 
+// State is a struct reflecting the state of a MongoDB Replica Set
 type State struct {
 	sync.Mutex
-	Replset       string
-	config        *rsConfig.Config
-	configManager rsConfig.Manager
-	status        *rsStatus.Status
-	//session       *mgo.Session
+	Replset  string
+	config   *rsConfig.Config
+	status   *rsStatus.Status
 	doUpdate bool
 }
 
-func NewState(configManager rsConfig.Manager, replset string) *State {
+// NewState returns a new State struct
+func NewState(replset string) *State {
 	return &State{
 		Replset: replset,
-		//session:       session,
-		configManager: configManager,
 	}
 }
 
-func (s *State) fetchConfig(session *mgo.Session) error {
-	err := s.configManager.Load()
+func (s *State) fetchConfig(configManager rsConfig.Manager) error {
+	err := configManager.Load()
 	if err != nil {
 		return err
 	}
 
-	s.config = s.configManager.Get()
+	s.config = configManager.Get()
 	return nil
 }
 
@@ -64,21 +64,8 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 	return nil
 }
 
-func (s *State) GetConfig() *rsConfig.Config {
-	s.Lock()
-	defer s.Unlock()
-
-	return s.config
-}
-
-func (s *State) GetStatus() *rsStatus.Status {
-	s.Lock()
-	defer s.Unlock()
-
-	return s.status
-}
-
-func (s *State) Fetch(session *mgo.Session) error {
+// Fetch gets the current MongoDB Replica Set status and config while locking the State
+func (s *State) Fetch(session *mgo.Session, configManager rsConfig.Manager) error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -86,7 +73,7 @@ func (s *State) Fetch(session *mgo.Session) error {
 		"replset": s.Replset,
 	}).Info("Updating replset config and status")
 
-	err := s.fetchConfig(session)
+	err := s.fetchConfig(configManager)
 	if err != nil {
 		return err
 	}
@@ -94,20 +81,20 @@ func (s *State) Fetch(session *mgo.Session) error {
 	return s.fetchStatus(session)
 }
 
-func (s *State) updateConfig() error {
+func (s *State) updateConfig(configManager rsConfig.Manager) error {
 	if s.doUpdate == false {
 		return nil
 	}
 
-	s.configManager.IncrVersion()
-	config := s.configManager.Get()
+	configManager.IncrVersion()
+	config := configManager.Get()
 	log.WithFields(log.Fields{
 		"replset":        s.Replset,
 		"config_version": config.Version,
 	}).Info("Writing new replset config")
 	fmt.Println(config)
 
-	err := s.configManager.Save()
+	err := configManager.Save()
 	if err != nil {
 		return err
 	}
@@ -116,7 +103,8 @@ func (s *State) updateConfig() error {
 	return nil
 }
 
-func (s *State) AddConfigMembers(session *mgo.Session, members []*Mongod) {
+// AddConfigMembers adds members to the MongoDB Replica Set config
+func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*Mongod) {
 	if len(members) == 0 {
 		return
 	}
@@ -144,14 +132,15 @@ func (s *State) AddConfigMembers(session *mgo.Session, members []*Mongod) {
 			}
 			member.Votes = 0
 		}
-		s.configManager.AddMember(member)
+		configManager.AddMember(member)
 		s.doUpdate = true
 	}
 
 	s.updateConfig()
 }
 
-func (s *State) RemoveConfigMembers(session *mgo.Session, members []*rsConfig.Member) {
+// RemoveConfigMembers removes members from the MongoDB Replica Set config
+func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*rsConfig.Member) {
 	if len(members) == 0 {
 		return
 	}
@@ -166,7 +155,7 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, members []*rsConfig.Me
 	}
 
 	for _, member := range members {
-		s.configManager.RemoveMember(member)
+		configManager.RemoveMember(member)
 		s.doUpdate = true
 	}
 

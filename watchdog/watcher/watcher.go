@@ -48,6 +48,7 @@ func New(rs *replset.Replset, config *config.Config, stop *chan bool) *Watcher {
 		config:            config,
 		replset:           rs,
 		stop:              stop,
+		state:             replset.NewState(rs.Name),
 		mongodAddQueue:    make(chan []*replset.Mongod),
 		mongodRemoveQueue: make(chan []*rsConfig.Member),
 	}
@@ -91,7 +92,7 @@ func (rw *Watcher) getReplsetSession() (*mgo.Session, error) {
 	return rw.masterSession.Copy(), nil
 }
 
-func (rw *Watcher) logState() {
+func (rw *Watcher) logReplsetState() {
 	status := rw.state.GetStatus()
 	if status == nil {
 		return
@@ -188,13 +189,22 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 	}
 }
 
+func (rw *Watcher) fetchReplsetState() error {
+
+	return nil
+}
+
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
+	rw.Lock()
+	defer rw.Unlock()
+
 	fields := log.Fields{
 		"replset": rw.replset.Name,
 		"name":    mongod.Task.Name(),
 		"state":   string(mongod.Task.State()),
 		"host":    mongod.Name(),
 	}
+
 	if rw.replset.HasMember(mongod.Name()) {
 		if mongod.Task.IsRemovedMongod() {
 			log.WithFields(fields).Info("Removing completed mongod task")
@@ -227,14 +237,11 @@ func (rw *Watcher) Run() {
 	}
 	defer session.Close()
 
-	//configManager := rsConfig.New(session)
-	//rw.state = replset.NewState(session, configManager, stateFetcher, rw.replset.Name)
-
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
 		select {
 		case <-ticker.C:
-			err := rw.fetchState()
+			err := rw.fetchReplsetState()
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
@@ -242,7 +249,7 @@ func (rw *Watcher) Run() {
 			if rw.replset.GetStatus() != nil {
 				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
 				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
-				rw.logState()
+				rw.logReplsetState()
 			}
 		case <-*rw.stop:
 			log.WithFields(log.Fields{
