@@ -16,8 +16,8 @@ package replset
 
 import (
 	"fmt"
+	"sync"
 
-	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
@@ -27,44 +27,58 @@ import (
 const frameworkTagName = "dcosFramework"
 
 type State struct {
+	sync.Mutex
 	Replset       string
 	config        *rsConfig.Config
 	configManager rsConfig.Manager
-	session       *mgo.Session
 	status        *rsStatus.Status
-	session       *mgo.Session
-	//fetcher       fetcher.Fetcher
+	//session       *mgo.Session
 	doUpdate bool
 }
 
-func NewState(session *mgo.Session, configManager rsConfig.Manager, fetcher fetcher.Fetcher, replset string) *State {
+func NewState(configManager rsConfig.Manager, replset string) *State {
 	return &State{
-		Replset:       replset,
-		session:       session,
+		Replset: replset,
+		//session:       session,
 		configManager: configManager,
-		fetcher:       fetcher,
 	}
 }
 
-func (m *Manager) fetchConfig() error {
-	config, err := s.fetcher.GetConfig()
+func (s *State) fetchConfig(session *mgo.Session) error {
+	err := s.configManager.Load()
 	if err != nil {
 		return err
 	}
-	s.Config = config
+
+	s.config = s.configManager.Get()
 	return nil
 }
 
-func (m *Manager) fetchStatus() error {
-	status, err := s.fetcher.GetStatus()
+func (s *State) fetchStatus(session *mgo.Session) error {
+	status, err := rsStatus.New(session)
 	if err != nil {
 		return err
 	}
-	s.Status = status
+
+	s.status = status
 	return nil
 }
 
-func (m *Manager) Fetch() error {
+func (s *State) GetConfig() *rsConfig.Config {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.config
+}
+
+func (s *State) GetStatus() *rsStatus.Status {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.status
+}
+
+func (s *State) Fetch(session *mgo.Session) error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -72,15 +86,15 @@ func (m *Manager) Fetch() error {
 		"replset": s.Replset,
 	}).Info("Updating replset config and status")
 
-	err := s.fetchConfig()
+	err := s.fetchConfig(session)
 	if err != nil {
 		return err
 	}
 
-	return s.fetchStatus()
+	return s.fetchStatus(session)
 }
 
-func (m *Manager) updateConfig() error {
+func (s *State) updateConfig() error {
 	if s.doUpdate == false {
 		return nil
 	}
@@ -102,21 +116,21 @@ func (m *Manager) updateConfig() error {
 	return nil
 }
 
-func (m *Manager) AddConfigMembers(mongods []*Mongod) {
-	if len(mongods) == 0 {
+func (s *State) AddConfigMembers(session *mgo.Session, members []*Mongod) {
+	if len(members) == 0 {
 		return
 	}
 
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.fetchConfig()
+	err := s.fetchConfig(session)
 	if err != nil {
 		log.Errorf("Error fetching config while adding members: '%s'", err.Error())
 		return
 	}
 
-	for _, mongod := range mongods {
+	for _, mongod := range members {
 		member := rsConfig.NewMember(mongod.Name())
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
@@ -133,10 +147,11 @@ func (m *Manager) AddConfigMembers(mongods []*Mongod) {
 		s.configManager.AddMember(member)
 		s.doUpdate = true
 	}
+
 	s.updateConfig()
 }
 
-func (m *Manager) RemoveConfigMembers(members []*rsConfig.Member) {
+func (s *State) RemoveConfigMembers(session *mgo.Session, members []*rsConfig.Member) {
 	if len(members) == 0 {
 		return
 	}
@@ -144,7 +159,7 @@ func (m *Manager) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.fetchConfig()
+	err := s.fetchConfig(session)
 	if err != nil {
 		log.Errorf("Error fetching config while removing members: '%s'", err.Error())
 		return
@@ -154,5 +169,6 @@ func (m *Manager) RemoveConfigMembers(members []*rsConfig.Member) {
 		s.configManager.RemoveMember(member)
 		s.doUpdate = true
 	}
+
 	s.updateConfig()
 }

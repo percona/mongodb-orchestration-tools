@@ -21,7 +21,6 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -34,9 +33,9 @@ var (
 )
 
 type Watcher struct {
+	sync.Mutex
 	config            *config.Config
 	masterSession     *mgo.Session
-	masterSessionLock sync.Mutex
 	mongodAddQueue    chan []*replset.Mongod
 	mongodRemoveQueue chan []*rsConfig.Member
 	replset           *replset.Replset
@@ -54,33 +53,60 @@ func New(rs *replset.Replset, config *config.Config, stop *chan bool) *Watcher {
 	}
 }
 
+func (rw *Watcher) connectReplsetSession() error {
+	dialInfo := rw.replset.GetReplsetDialInfo()
+
+	session, err := mgo.DialWithInfo(dialInfo)
+	if err != nil {
+		return err
+	}
+	session.SetMode(replsetReadPreference, true)
+
+	if rw.masterSession != nil {
+		log.Infof("Reconnecting to %s/%s", rw.replset.Name, dialInfo.Addrs)
+		rw.masterSession.Close()
+	}
+	rw.masterSession = session
+
+	return nil
+}
+
+func (rw *Watcher) reconnectReplsetSession() error {
+	rw.Lock()
+	defer rw.Unlock()
+
+	return rw.connectReplsetSession()
+}
+
 func (rw *Watcher) getReplsetSession() (*mgo.Session, error) {
-	rw.masterSessionLock.Lock()
-	defer rw.masterSessionLock.Unlock()
+	rw.Lock()
+	defer rw.Unlock()
 
 	if rw.masterSession == nil {
-		dialInfo := rw.replset.GetReplsetDialInfo()
-		session, err := mgo.DialWithInfo(dialInfo)
+		err := rw.connectReplsetSession()
 		if err != nil {
 			return nil, err
 		}
-		session.SetMode(replsetReadPreference, true)
-		rw.masterSession = session
 	}
-
 	return rw.masterSession.Copy(), nil
 }
 
 func (rw *Watcher) logState() {
-	primary := rw.state.Status.Primary()
+	status := rw.state.GetStatus()
+	if status == nil {
+		return
+	}
+	primary := status.Primary()
 	member := rw.replset.GetMember(primary.Name)
+
 	log.WithFields(log.Fields{
 		"replset":    rw.replset.Name,
 		"host":       primary.Name,
 		"task":       member.Task.Name(),
 		"task_state": member.Task.State(),
 	}).Info("Replset Primary")
-	for _, secondary := range rw.state.Status.Secondaries() {
+
+	for _, secondary := range status.Secondaries() {
 		member = rw.replset.GetMember(secondary.Name)
 		log.WithFields(log.Fields{
 			"replset":    rw.replset.Name,
@@ -93,9 +119,10 @@ func (rw *Watcher) logState() {
 
 func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
 	notInReplset := make([]*replset.Mongod, 0)
-	if rw.state != nil && rw.state.Config != nil {
+	replsetConfig := rw.state.GetConfig()
+	if rw.state != nil && replsetConfig != nil {
 		for _, member := range rw.replset.GetMembers() {
-			cnfMember := rw.state.Config.GetMember(member.Name())
+			cnfMember := replsetConfig.GetMember(member.Name())
 			if cnfMember == nil {
 				notInReplset = append(notInReplset, member)
 			}
@@ -106,8 +133,9 @@ func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
 
 func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
 	orphanedMembers := make([]*rsConfig.Member, 0)
-	if rw.state != nil && rw.state.Config != nil {
-		for _, member := range rw.state.Config.Members {
+	replsetConfig := rw.state.GetConfig()
+	if rw.state != nil && replsetConfig != nil {
+		for _, member := range replsetConfig.Members {
 			if rw.replset.HasMember(member.Host) != true {
 				orphanedMembers = append(orphanedMembers, member)
 			}
@@ -116,9 +144,9 @@ func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
 	return orphanedMembers
 }
 
-func (rw *Watcher) waitForAvailable(mongod *replset.Mongod) error {
+func (rw *Watcher) waitForAvailable(member replset.Member) error {
 	session, err := db.WaitForSession(
-		mongod.DBConfig(rw.config.SSL),
+		member.DBConfig(rw.config.SSL),
 		waitForMongodAvailableRetries,
 		rw.config.ReplsetPoll,
 	)
@@ -160,6 +188,27 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 	}
 }
 
+func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
+	fields := log.Fields{
+		"replset": rw.replset.Name,
+		"name":    mongod.Task.Name(),
+		"state":   string(mongod.Task.State()),
+		"host":    mongod.Name(),
+	}
+	if rw.replset.HasMember(mongod.Name()) {
+		if mongod.Task.IsRemovedMongod() {
+			log.WithFields(fields).Info("Removing completed mongod task")
+			rw.replset.RemoveMember(mongod)
+		} else {
+			log.WithFields(fields).Info("Updating running mongod task")
+			rw.replset.UpdateMember(mongod)
+		}
+	} else if mongod.Task.HasState() {
+		log.WithFields(fields).Info("Adding new mongod task")
+		rw.replset.UpdateMember(mongod)
+	}
+}
+
 func (rw *Watcher) Run() {
 	log.WithFields(log.Fields{
 		"replset":  rw.replset.Name,
@@ -178,17 +227,19 @@ func (rw *Watcher) Run() {
 	}
 	defer session.Close()
 
-	configManager := rsConfig.New(session)
-	stateFetcher := fetcher.New(session, configManager)
-	rw.state = replset.NewState(session, configManager, stateFetcher, rw.replset.Name)
+	//configManager := rsConfig.New(session)
+	//rw.state = replset.NewState(session, configManager, stateFetcher, rw.replset.Name)
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
 		select {
 		case <-ticker.C:
-			// move the config+state fetch to here
-			rw.state.Fetch()
-			if rw.state.Status != nil {
+			err := rw.fetchState()
+			if err != nil {
+				log.Errorf("Error fetching replset state: %s", err)
+				continue
+			}
+			if rw.replset.GetStatus() != nil {
 				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
 				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
 				rw.logState()

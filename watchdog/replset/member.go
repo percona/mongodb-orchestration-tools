@@ -30,7 +30,7 @@ const (
 type Member interface {
 	Name() string
 	IsBackupNode() bool
-	DBConfig() *db.Config
+	DBConfig(sslCnf *db.SSLConfig) *db.Config
 }
 
 type Mongod struct {

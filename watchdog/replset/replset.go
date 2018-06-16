@@ -25,7 +25,7 @@ import (
 type Replset struct {
 	sync.Mutex
 	config      *config.Config
-	Members     map[string]*Member
+	Members     map[string]*Mongod
 	Name        string
 	LastUpdated time.Time
 }
@@ -33,12 +33,12 @@ type Replset struct {
 func New(config *config.Config, name string) *Replset {
 	return &Replset{
 		config:  config,
-		Members: make(map[string]*Member),
+		Members: make(map[string]*Mongod),
 		Name:    name,
 	}
 }
 
-func (r *Replset) UpdateMember(member *Member) {
+func (r *Replset) UpdateMember(member *Mongod) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -46,14 +46,14 @@ func (r *Replset) UpdateMember(member *Member) {
 	r.LastUpdated = time.Now()
 }
 
-func (r *Replset) RemoveMember(member *Member) {
+func (r *Replset) RemoveMember(member *Mongod) {
 	r.Lock()
 	defer r.Unlock()
 
 	delete(r.Members, member.Name())
 }
 
-func (r *Replset) GetMember(name string) *Member {
+func (r *Replset) GetMember(name string) *Mongod {
 	r.Lock()
 	defer r.Unlock()
 
@@ -67,7 +67,7 @@ func (r *Replset) HasMember(name string) bool {
 	return r.GetMember(name) != nil
 }
 
-func (r *Replset) GetMembers() map[string]*Member {
+func (r *Replset) GetMembers() map[string]*Mongod {
 	r.Lock()
 	defer r.Unlock()
 

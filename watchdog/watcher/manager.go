@@ -22,6 +22,7 @@ import (
 
 type Manager struct {
 	config   *config.Config
+	stop     *chan bool
 	watchers map[string]*Watcher
 }
 
