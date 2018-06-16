@@ -15,13 +15,10 @@
 package replset
 
 import (
-	"sync"
-
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 )
 
 type Manager struct {
-	sync.Mutex
 	config   *config.Config
 	replsets map[string]*Replset
 }
