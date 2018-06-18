@@ -88,9 +88,9 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 	}
 }
 
-func (w *Watchdog) doSkipPod(podName string) bool {
-	for _, skipPodName := range w.config.IgnorePods {
-		if podName == skipPodName {
+func (w *Watchdog) doIgnorePod(podName string) bool {
+	for _, ignorePodName := range w.config.IgnorePods {
+		if podName == ignorePodName {
 			return true
 		}
 	}
@@ -114,7 +114,7 @@ func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 	var wg sync.WaitGroup
 	wg.Add(len(*pods))
 	for _, podName := range *pods {
-		if w.doSkipPod(podName) {
+		if w.doIgnorePod(podName) {
 			continue
 		}
 		go w.podMongodFetcher(podName, &wg, mongodUpdates)
