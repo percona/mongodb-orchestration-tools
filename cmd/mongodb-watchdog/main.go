@@ -54,10 +54,6 @@ func main() {
 		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
 	app.Flag(
-		"apiIgnoreApiPods",
-		"DC/OS SDK API pods to ignore/exclude",
-	).Default(config.DefaultAPIIgnorePod).StringsVar(&cnf.APIIgnorePods)
-	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
 	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.APIPoll)
@@ -65,6 +61,10 @@ func main() {
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
 	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
+	app.Flag(
+		"ignoreApiPods",
+		"DC/OS SDK pods to ignore/exclude from watching",
+	).Default(config.DefaultIgnorePod).StringsVar(&cnf.IgnorePods)
 	app.Flag(
 		"replsetPoll",
 		"Frequency of replset state polls, overridden by env var WATCHDOG_REPLSET_POLL",

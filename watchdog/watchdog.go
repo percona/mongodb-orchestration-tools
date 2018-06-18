@@ -89,7 +89,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 }
 
 func (w *Watchdog) doSkipPod(podName string) bool {
-	for _, skipPodName := range w.config.APIIgnorePods {
+	for _, skipPodName := range w.config.IgnorePods {
 		if podName == skipPodName {
 			return true
 		}
