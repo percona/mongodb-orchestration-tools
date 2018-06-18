@@ -66,16 +66,16 @@ func (rw *Watcher) connectReplsetSession() error {
 	rw.Lock()
 	defer rw.Unlock()
 
-	dialInfo := rw.replset.GetReplsetDialInfo()
-
-	session, err := mgo.DialWithInfo(dialInfo)
+	// TODO: ADD SSL CONFIG HERE
+	dbCnf := rw.replset.GetReplsetDBConfig(nil)
+	session, err := db.WaitForSession(dbCnf, 0, rw.config.ReplsetPoll)
 	if err != nil {
 		return err
 	}
 	session.SetMode(replsetReadPreference, true)
 
 	if rw.masterSession != nil {
-		log.Infof("Reconnecting to %s/%s", rw.replset.Name, dialInfo.Addrs)
+		log.Infof("Reconnecting to %s/%s", rw.replset.Name, dbCnf.DialInfo.Addrs)
 		rw.masterSession.Close()
 	}
 	rw.masterSession = session

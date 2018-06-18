@@ -18,6 +18,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"gopkg.in/mgo.v2"
 )
@@ -74,19 +75,22 @@ func (r *Replset) GetMembers() map[string]*Mongod {
 	return r.Members
 }
 
-func (r *Replset) GetReplsetDialInfo() *mgo.DialInfo {
-	di := &mgo.DialInfo{
-		Direct:         false,
-		FailFast:       true,
-		ReplicaSetName: r.Name,
-		Timeout:        r.config.ReplsetTimeout,
+func (r *Replset) GetReplsetDBConfig(sslCnf *db.SSLConfig) *db.Config {
+	cnf := &db.Config{
+		DialInfo: &mgo.DialInfo{
+			Direct:         false,
+			FailFast:       true,
+			ReplicaSetName: r.Name,
+			Timeout:        r.config.ReplsetTimeout,
+		},
+		SSL: sslCnf,
 	}
 	for _, member := range r.GetMembers() {
-		di.Addrs = append(di.Addrs, member.Name())
+		cnf.DialInfo.Addrs = append(cnf.DialInfo.Addrs, member.Name())
 	}
 	if r.config.Username != "" && r.config.Password != "" {
-		di.Username = r.config.Username
-		di.Password = r.config.Password
+		cnf.DialInfo.Username = r.config.Username
+		cnf.DialInfo.Password = r.config.Password
 	}
-	return di
+	return cnf
 }

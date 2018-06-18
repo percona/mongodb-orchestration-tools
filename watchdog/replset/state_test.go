@@ -70,11 +70,12 @@ func TestWatchdogReplsetStateRemoveConfigMembers(t *gotesting.T) {
 
 	config := testState.GetConfig()
 	assert.NotNil(t, config, ".GetConfig() should not return nil")
+
 	memberCount := len(config.Members)
 	testMemberRemoved = config.Members[len(config.Members)-1]
 	testState.RemoveConfigMembers(testDBSession, testRsConfigManager, []*rsConfig.Member{testMemberRemoved})
 	assert.False(t, testState.doUpdate, "testState.doUpdate is true after testState.RemoveConfigMembers()")
-	assert.Len(t, config.Members, memberCount-1, "testState.Config.Members count did not reduce")
+	assert.Len(t, testState.GetConfig().Members, memberCount-1, "testState.Config.Members count did not reduce")
 }
 
 func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
