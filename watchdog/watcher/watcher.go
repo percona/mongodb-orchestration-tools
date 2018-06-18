@@ -66,8 +66,7 @@ func (rw *Watcher) connectReplsetSession() error {
 	rw.Lock()
 	defer rw.Unlock()
 
-	// TODO: ADD SSL CONFIG HERE
-	dbCnf := rw.replset.GetReplsetDBConfig(nil)
+	dbCnf := rw.replset.GetReplsetDBConfig(rw.config.SSL)
 	session, err := db.WaitForSession(dbCnf, 0, rw.config.ReplsetPoll)
 	if err != nil {
 		return err
