@@ -20,45 +20,51 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Manager struct {
+type Manager interface {
+	Get(rsName string) *Watcher
+	HasWatcher(rsName string) bool
+	Watch(rs *replset.Replset)
+}
+
+type WatcherManager struct {
 	config   *config.Config
 	stop     *chan bool
 	watchers map[string]*Watcher
 }
 
-func NewManager(config *config.Config, stop *chan bool) *Manager {
-	return &Manager{
+func NewManager(config *config.Config, stop *chan bool) *WatcherManager {
+	return &WatcherManager{
 		config:   config,
 		stop:     stop,
 		watchers: make(map[string]*Watcher),
 	}
 }
 
-func (m *Manager) HasWatcher(rsName string) bool {
-	if _, ok := m.watchers[rsName]; ok {
+func (wm *WatcherManager) HasWatcher(rsName string) bool {
+	if _, ok := wm.watchers[rsName]; ok {
 		return true
 	}
 	return false
 }
 
-func (m *Manager) Watch(rs *replset.Replset) {
-	if !m.HasWatcher(rs.Name) {
+func (wm *WatcherManager) Watch(rs *replset.Replset) {
+	if !wm.HasWatcher(rs.Name) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
 
-		m.watchers[rs.Name] = New(
+		wm.watchers[rs.Name] = New(
 			rs,
-			m.config,
-			m.stop,
+			wm.config,
+			wm.stop,
 		)
-		go m.watchers[rs.Name].Run()
+		go wm.watchers[rs.Name].Run()
 	}
 }
 
-func (m *Manager) Get(rsName string) *Watcher {
-	if !m.HasWatcher(rsName) {
+func (wm *WatcherManager) Get(rsName string) *Watcher {
+	if !wm.HasWatcher(rsName) {
 		return nil
 	}
-	return m.watchers[rsName]
+	return wm.watchers[rsName]
 }

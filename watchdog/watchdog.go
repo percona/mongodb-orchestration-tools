@@ -30,7 +30,7 @@ import (
 type Watchdog struct {
 	config         *config.Config
 	api            api.Client
-	watcherManager *watcher.Manager
+	watcherManager watcher.Manager
 	quit           *chan bool
 }
 
