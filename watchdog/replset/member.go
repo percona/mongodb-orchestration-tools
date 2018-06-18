@@ -64,14 +64,17 @@ func NewMongod(task api.PodTask, frameworkName string, podName string) (*Mongod,
 	return mongod, err
 }
 
+// Name returns a string representing the host and port of a mongod instance
 func (m *Mongod) Name() string {
 	return m.Host + ":" + strconv.Itoa(m.Port)
 }
 
+// IsBackupNode returns a boolean reflecting whether or not the mongod instance is a backup node
 func (m *Mongod) IsBackupNode() bool {
 	return strings.HasPrefix(m.PodName, backupPodNamePrefix)
 }
 
+// DBConfig returns a direct database connection to a single mongod instance
 func (m *Mongod) DBConfig(sslCnf *db.SSLConfig) *db.Config {
 	return &db.Config{
 		DialInfo: &mgo.DialInfo{

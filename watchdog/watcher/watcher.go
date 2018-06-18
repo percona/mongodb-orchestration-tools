@@ -63,15 +63,15 @@ func (rw *Watcher) getReplsetSession() *mgo.Session {
 }
 
 func (rw *Watcher) connectReplsetSession() error {
-	rw.Lock()
-	defer rw.Unlock()
-
 	dbCnf := rw.replset.GetReplsetDBConfig(rw.config.SSL)
-	session, err := db.WaitForSession(dbCnf, 0, rw.config.ReplsetPoll)
+	session, err := db.WaitForSession(dbCnf, 30, rw.config.ReplsetPoll)
 	if err != nil {
 		return err
 	}
 	session.SetMode(replsetReadPreference, true)
+
+	rw.Lock()
+	defer rw.Unlock()
 
 	if rw.masterSession != nil {
 		log.Infof("Reconnecting to %s/%s", rw.replset.Name, dbCnf.DialInfo.Addrs)
@@ -178,7 +178,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 			mongods = append(mongods, mongod)
 		}
 		rw.state.AddConfigMembers(rw.getReplsetSession(), rw.configManager, mongods)
-		rw.reconnectReplsetSession()
+		//rw.reconnectReplsetSession()
 	}
 }
 
@@ -188,7 +188,7 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 			continue
 		}
 		rw.state.RemoveConfigMembers(rw.getReplsetSession(), rw.configManager, members)
-		rw.reconnectReplsetSession()
+		//rw.reconnectReplsetSession()
 	}
 }
 
@@ -244,11 +244,11 @@ func (rw *Watcher) Run() {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
 			}
-			if rw.state.GetStatus() != nil {
-				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
-				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
-				rw.logReplsetState()
-			}
+			//if rw.state.GetStatus() != nil {
+			rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
+			rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
+			rw.logReplsetState()
+			//}
 		case <-*rw.stop:
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,

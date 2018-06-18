@@ -37,11 +37,26 @@ type State struct {
 	doUpdate bool
 }
 
-// NewState returns a new State struct
-func NewState(replset string) *State {
-	return &State{
-		Replset: replset,
+func (s *State) updateConfig(configManager rsConfig.Manager) error {
+	if s.doUpdate == false {
+		return nil
 	}
+
+	configManager.IncrVersion()
+	config := configManager.Get()
+	log.WithFields(log.Fields{
+		"replset":        s.Replset,
+		"config_version": config.Version,
+	}).Info("Writing new replset config")
+	fmt.Println(config)
+
+	err := configManager.Save()
+	if err != nil {
+		return err
+	}
+	s.doUpdate = false
+
+	return nil
 }
 
 func (s *State) fetchConfig(configManager rsConfig.Manager) error {
@@ -64,6 +79,13 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 	return nil
 }
 
+// NewState returns a new State struct
+func NewState(replset string) *State {
+	return &State{
+		Replset: replset,
+	}
+}
+
 // Fetch gets the current MongoDB Replica Set status and config while locking the State
 func (s *State) Fetch(session *mgo.Session, configManager rsConfig.Manager) error {
 	s.Lock()
@@ -81,6 +103,7 @@ func (s *State) Fetch(session *mgo.Session, configManager rsConfig.Manager) erro
 	return s.fetchStatus(session)
 }
 
+// GetConfig returns a Config struct representing a MongoDB Replica Set configuration
 func (s *State) GetConfig() *rsConfig.Config {
 	s.Lock()
 	defer s.Unlock()
@@ -88,33 +111,12 @@ func (s *State) GetConfig() *rsConfig.Config {
 	return s.config
 }
 
+// GetStatus returns a Status struct representing the status of a MongoDB Replica Set
 func (s *State) GetStatus() *rsStatus.Status {
 	s.Lock()
 	defer s.Unlock()
 
 	return s.status
-}
-
-func (s *State) updateConfig(configManager rsConfig.Manager) error {
-	if s.doUpdate == false {
-		return nil
-	}
-
-	configManager.IncrVersion()
-	config := configManager.Get()
-	log.WithFields(log.Fields{
-		"replset":        s.Replset,
-		"config_version": config.Version,
-	}).Info("Writing new replset config")
-	fmt.Println(config)
-
-	err := configManager.Save()
-	if err != nil {
-		return err
-	}
-	s.doUpdate = false
-
-	return nil
 }
 
 // AddConfigMembers adds members to the MongoDB Replica Set config

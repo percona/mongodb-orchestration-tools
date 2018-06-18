@@ -46,6 +46,7 @@ func (m *Manager) Watch(rs *replset.Replset) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
+
 		m.watchers[rs.Name] = New(
 			rs,
 			m.config,

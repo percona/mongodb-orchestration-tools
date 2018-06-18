@@ -24,8 +24,7 @@ import (
 func TestWatchdogNewReplset(t *gotesting.T) {
 	testReplset = New(testWatchdogConfig, testReplsetName)
 	assert.Equal(t, testReplsetName, testReplset.Name, "replset.Name is incorrect")
-	assert.Len(t, testReplset.Members, 0, "replset.Members is not empty")
-	assert.Zero(t, testReplset.LastUpdated, "replset.LastUpdated is not empty/zero")
+	assert.Len(t, testReplset.members, 0, "replset.members is not empty")
 }
 
 func TestWatchdogReplsetGetMemberFalse(t *gotesting.T) {
@@ -38,7 +37,7 @@ func TestWatchdogReplsetHasMemberFalse(t *gotesting.T) {
 
 func TestWatchdogReplsetUpdateMember(t *gotesting.T) {
 	testReplset.UpdateMember(testReplsetMongod)
-	assert.Len(t, testReplset.Members, 1, "replset.Members length is not 1")
+	assert.Len(t, testReplset.members, 1, "replset.members length is not 1")
 }
 
 func TestWatchdogReplsetGetMember(t *gotesting.T) {

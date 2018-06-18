@@ -16,7 +16,6 @@ package replset
 
 import (
 	"sync"
-	"time"
 
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
@@ -25,56 +24,63 @@ import (
 
 type Replset struct {
 	sync.Mutex
-	config      *config.Config
-	Members     map[string]*Mongod
-	Name        string
-	LastUpdated time.Time
+	Name    string
+	config  *config.Config
+	members map[string]*Mongod
 }
 
 func New(config *config.Config, name string) *Replset {
 	return &Replset{
-		config:  config,
-		Members: make(map[string]*Mongod),
 		Name:    name,
+		config:  config,
+		members: make(map[string]*Mongod),
 	}
 }
 
+// UpdateMember adds/updates the state of a MongoDB instance in a Replica Set
 func (r *Replset) UpdateMember(member *Mongod) {
 	r.Lock()
 	defer r.Unlock()
 
-	r.Members[member.Name()] = member
-	r.LastUpdated = time.Now()
+	r.members[member.Name()] = member
 }
 
+// RemoveMember removes the state of a MongoDB instance from a Replica Set
 func (r *Replset) RemoveMember(member *Mongod) {
 	r.Lock()
 	defer r.Unlock()
 
-	delete(r.Members, member.Name())
+	delete(r.members, member.Name())
 }
 
+// HasMember returns a boolean reflecting whether or not the state of a MongoDB instance exists in Replica Set
+func (r *Replset) HasMember(name string) bool {
+	if _, ok := r.members[name]; ok {
+		return true
+	}
+	return false
+}
+
+// GetMember returns a Mongod structure reflecting a MongoDB mongod instance
 func (r *Replset) GetMember(name string) *Mongod {
 	r.Lock()
 	defer r.Unlock()
 
-	if _, ok := r.Members[name]; ok {
-		return r.Members[name]
+	if r.HasMember(name) {
+		return r.members[name]
 	}
 	return nil
 }
 
-func (r *Replset) HasMember(name string) bool {
-	return r.GetMember(name) != nil
-}
-
+// GetMembers returns a map of all mongod instances in a MongoDB Replica Set
 func (r *Replset) GetMembers() map[string]*Mongod {
 	r.Lock()
 	defer r.Unlock()
 
-	return r.Members
+	return r.members
 }
 
+// GetReplsetDBConfig returns a db.Config for the MongoDB Replica Set
 func (r *Replset) GetReplsetDBConfig(sslCnf *db.SSLConfig) *db.Config {
 	cnf := &db.Config{
 		DialInfo: &mgo.DialInfo{
