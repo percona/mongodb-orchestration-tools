@@ -24,7 +24,7 @@ import (
 var (
 	DefaultAPIPoll               = "10s"
 	DefaultDelayWatcher          = "20s"
-	DefaultIgnorePod             = "admin-0"
+	DefaultIgnorePods            = []string{"admin-0", "mongodb-consistent-backup-0"}
 	DefaultReplsetPoll           = "5s"
 	DefaultReplsetTimeout        = "3s"
 	DefaultReplsetConfUpdatePoll = "10s"

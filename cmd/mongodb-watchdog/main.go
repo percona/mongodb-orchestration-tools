@@ -64,7 +64,7 @@ func main() {
 	app.Flag(
 		"ignoreApiPods",
 		"DC/OS SDK pods to ignore/exclude from watching",
-	).Default(config.DefaultIgnorePod).StringsVar(&cnf.IgnorePods)
+	).Default(config.DefaultIgnorePods...).StringsVar(&cnf.IgnorePods)
 	app.Flag(
 		"replsetPoll",
 		"Frequency of replset state polls, overridden by env var WATCHDOG_REPLSET_POLL",
