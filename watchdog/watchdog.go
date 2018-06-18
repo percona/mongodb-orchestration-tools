@@ -27,10 +27,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	skipPodNames = []string{"admin-0"}
-)
-
 type Watchdog struct {
 	config         *config.Config
 	api            api.Client
@@ -93,7 +89,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 }
 
 func (w *Watchdog) doSkipPod(podName string) bool {
-	for _, skipPodName := range skipPodNames {
+	for _, skipPodName := range w.config.APIIgnorePods {
 		if podName == skipPodName {
 			return true
 		}
