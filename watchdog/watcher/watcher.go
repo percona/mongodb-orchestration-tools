@@ -55,7 +55,17 @@ func New(rs *replset.Replset, config *config.Config, stop *chan bool) *Watcher {
 	}
 }
 
+func (rw *Watcher) getReplsetSession() *mgo.Session {
+	rw.Lock()
+	defer rw.Unlock()
+
+	return rw.masterSession
+}
+
 func (rw *Watcher) connectReplsetSession() error {
+	rw.Lock()
+	defer rw.Unlock()
+
 	dialInfo := rw.replset.GetReplsetDialInfo()
 
 	session, err := mgo.DialWithInfo(dialInfo)
@@ -74,24 +84,14 @@ func (rw *Watcher) connectReplsetSession() error {
 	return nil
 }
 
-func (rw *Watcher) reconnectReplsetSession() error {
-	rw.Lock()
-	defer rw.Unlock()
-
-	return rw.connectReplsetSession()
-}
-
-func (rw *Watcher) getReplsetSession() (*mgo.Session, error) {
-	rw.Lock()
-	defer rw.Unlock()
-
-	if rw.masterSession == nil {
-		err := rw.connectReplsetSession()
-		if err != nil {
-			return nil, err
-		}
+func (rw *Watcher) reconnectReplsetSession() {
+	err := rw.connectReplsetSession()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"replset": rw.replset.Name,
+			"error":   err,
+		}).Error("Error reconnecting mongodb session to replset")
 	}
-	return rw.masterSession.Copy(), nil
 }
 
 func (rw *Watcher) logReplsetState() {
@@ -178,7 +178,8 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 			}).Info("Mongod not present in replset config, adding it to replset")
 			mongods = append(mongods, mongod)
 		}
-		rw.state.AddConfigMembers(rw.masterSession, rw.configManager, mongods)
+		rw.state.AddConfigMembers(rw.getReplsetSession(), rw.configManager, mongods)
+		rw.reconnectReplsetSession()
 	}
 }
 
@@ -187,12 +188,9 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 		if rw.state == nil {
 			continue
 		}
-		rw.state.RemoveConfigMembers(rw.masterSession, rw.configManager, members)
+		rw.state.RemoveConfigMembers(rw.getReplsetSession(), rw.configManager, members)
+		rw.reconnectReplsetSession()
 	}
-}
-
-func (rw *Watcher) fetchReplsetState() error {
-	return nil
 }
 
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
@@ -229,20 +227,20 @@ func (rw *Watcher) Run() {
 	go rw.replsetConfigAdder(rw.mongodAddQueue)
 	go rw.replsetConfigRemover(rw.mongodRemoveQueue)
 
-	session, err := rw.getReplsetSession()
+	err := rw.connectReplsetSession()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"replset": rw.replset.Name,
 			"error":   err,
 		}).Error("Error getting mongodb session to replset")
+		return
 	}
-	defer session.Close()
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
 		select {
 		case <-ticker.C:
-			err := rw.fetchReplsetState()
+			err := rw.state.Fetch(rw.getReplsetSession(), rw.configManager)
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
