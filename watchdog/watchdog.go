@@ -112,11 +112,11 @@ func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(*pods))
 	for _, podName := range *pods {
 		if w.doIgnorePod(podName) {
 			continue
 		}
+		wg.Add(1)
 		go w.podMongodFetcher(podName, &wg, mongodUpdates)
 	}
 	wg.Wait()
