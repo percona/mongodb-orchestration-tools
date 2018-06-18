@@ -27,6 +27,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	skipPodNames = []string{"admin-0"}
+)
+
 type Watchdog struct {
 	config         *config.Config
 	api            api.Client
@@ -88,6 +92,15 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 	}
 }
 
+func (w *Watchdog) doSkipPod(podName string) bool {
+	for _, skipPodName := range skipPodNames {
+		if podName == skipPodName {
+			return true
+		}
+	}
+	return false
+}
+
 func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 	log.WithFields(log.Fields{
 		"url": w.api.GetPodURL(),
@@ -105,6 +118,9 @@ func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 	var wg sync.WaitGroup
 	wg.Add(len(*pods))
 	for _, podName := range *pods {
+		if w.doSkipPod(podName) {
+			continue
+		}
 		go w.podMongodFetcher(podName, &wg, mongodUpdates)
 	}
 	wg.Wait()
