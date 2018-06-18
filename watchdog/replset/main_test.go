@@ -23,16 +23,17 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/logger"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	wdConfig "github.com/percona/dcos-mongo-tools/watchdog/config"
+	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
 )
 
 var (
-	testDBSession      *mgo.Session
-	testManager        *Manager
-	testMongod         *Mongod
-	testState          *State
-	testLogBuffer      = new(bytes.Buffer)
-	testWatchdogConfig = &wdConfig.Config{
+	testDBSession       *mgo.Session
+	testRsConfigManager rsConfig.Manager
+	testMongod          *Mongod
+	testState           *State
+	testLogBuffer       = new(bytes.Buffer)
+	testWatchdogConfig  = &wdConfig.Config{
 		Username:       "admin",
 		Password:       "123456",
 		ReplsetTimeout: time.Second,
@@ -56,6 +57,7 @@ func TestMain(m *gotesting.M) {
 		if err != nil {
 			panic(err)
 		}
+		testRsConfigManager = rsConfig.New(testDBSession)
 	}
 	exit := m.Run()
 	if testDBSession != nil {
