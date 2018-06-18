@@ -40,6 +40,7 @@ type Watcher struct {
 	mongodRemoveQueue chan []*rsConfig.Member
 	replset           *replset.Replset
 	state             *replset.State
+	configManager     rsConfig.Manager
 	stop              *chan bool
 }
 
@@ -68,6 +69,7 @@ func (rw *Watcher) connectReplsetSession() error {
 		rw.masterSession.Close()
 	}
 	rw.masterSession = session
+	rw.configManager = rsConfig.New(rw.masterSession)
 
 	return nil
 }
@@ -176,7 +178,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 			}).Info("Mongod not present in replset config, adding it to replset")
 			mongods = append(mongods, mongod)
 		}
-		rw.state.AddConfigMembers(mongods)
+		rw.state.AddConfigMembers(rw.masterSession, rw.configManager, mongods)
 	}
 }
 
@@ -185,12 +187,11 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 		if rw.state == nil {
 			continue
 		}
-		rw.state.RemoveConfigMembers(members)
+		rw.state.RemoveConfigMembers(rw.masterSession, rw.configManager, members)
 	}
 }
 
 func (rw *Watcher) fetchReplsetState() error {
-
 	return nil
 }
 
@@ -246,7 +247,7 @@ func (rw *Watcher) Run() {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
 			}
-			if rw.replset.GetStatus() != nil {
+			if rw.state.GetStatus() != nil {
 				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
 				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
 				rw.logReplsetState()

@@ -52,12 +52,13 @@ func (w *Watchdog) runtimeDuration() time.Duration {
 func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {
 	for mongodUpdate := range mongodUpdates {
 		// ensure the replset has a watcher started
-		if !w.watcherManager.HasWatcher(mongod.Replset) {
-			w.watcherManager.Watch(mongod.Replset)
+		if !w.watcherManager.HasWatcher(mongodUpdate.Replset) {
+			rs := replset.New(w.config, mongodUpdate.Replset)
+			w.watcherManager.Watch(rs)
 		}
 
 		// send the update to the watcher for the given replset
-		w.watcherManager.Get(mongod.Replset).UpdateMongod(mongodUpdate)
+		w.watcherManager.Get(mongodUpdate.Replset).UpdateMongod(mongodUpdate)
 	}
 }
 
@@ -124,7 +125,7 @@ func (w *Watchdog) Run() {
 			var wg sync.WaitGroup
 			wg.Add(len(*pods))
 			for _, podName := range *pods {
-				go w.podMongodFetcher(podName, &wg, mongodTasks)
+				go w.podMongodFetcher(podName, &wg, mongodUpdates)
 			}
 			wg.Wait()
 		case <-*w.quit:

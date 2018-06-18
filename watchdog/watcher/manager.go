@@ -46,7 +46,6 @@ func (m *Manager) Watch(rs *replset.Replset) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
-		stopChan := make(chan bool)
 		m.watchers[rs.Name] = New(
 			rs,
 			m.config,
