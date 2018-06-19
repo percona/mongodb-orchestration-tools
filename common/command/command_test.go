@@ -68,6 +68,7 @@ func TestCommonCommandKill(t *gotesting.T) {
 
 func TestCommonCommandCombinedOutput(t *gotesting.T) {
 	coCommand, err := New("echo", []string{"hello", "world"}, testCurrentUser, testCurrentGroup)
+	assert.NoError(t, err, ".New() should not return an error")
 	bytes, err := coCommand.CombinedOutput()
 	assert.NoError(t, err, ".CombinedOutput() should not return an error")
 	assert.NotEmpty(t, bytes, ".CombinedOutput() should not return empty bytes")
