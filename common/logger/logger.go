@@ -15,7 +15,6 @@
 package logger
 
 import (
-	"errors"
 	"io"
 	"path/filepath"
 	"runtime"
@@ -45,7 +44,7 @@ func getLogCallerInfo(e *log.Entry, f *lcf.CustomFormatter) (interface{}, error)
 		}
 		return filepath.Base(file) + ":" + strconv.Itoa(lineNo), nil
 	}
-	return "", errors.New("could not find caller file")
+	return "", nil
 }
 
 // GetLogFormatter returns a configured logrus.Formatter for logging
