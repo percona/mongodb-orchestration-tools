@@ -15,6 +15,13 @@ Go-based tools for the [DC/OS 'percona-mongo' service](https://docs.mesosphere.c
 - **mongodb-healthcheck**: tool for running DC/OS health and readiness checks on a MongoDB task
 - **mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
 
+## Use Case / Required
+The tools in this repository are designed to be used specifically within the [DC/OS 'percona-mongo' service](https://docs.mesosphere.com/services/percona-mongo/) by using the [DC/OS SDK API](https://mesosphere.github.io/dcos-commons/reference/swagger-api/), etc.
+
+The minimum requirements are:
+1. DC/OS 1.10+
+2. DC/OS SDK 0.42.1+
+
 ## Build
 1. Install go1.10+ and 'make'
 2. Run 'make' in git directory
