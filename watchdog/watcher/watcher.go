@@ -109,12 +109,6 @@ func (rw *Watcher) connectReplsetSession() error {
 }
 
 func (rw *Watcher) reconnectReplsetSession() {
-	log.WithFields(log.Fields{
-		"addrs":   rw.dbConfig.DialInfo.Addrs,
-		"replset": rw.replset.Name,
-		"ssl":     rw.dbConfig.SSL.Enabled,
-	}).Info("Reconnecting mongodb replset session")
-
 	err := rw.connectReplsetSession()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -210,14 +204,17 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 			}).Info("Mongod not present in replset config, adding it to replset")
 			mongods = append(mongods, mongod)
 		}
+		if len(mongods) == 0 {
+			continue
+		}
 		rw.state.AddConfigMembers(rw.getReplsetSession(), rw.configManager, mongods)
 		rw.reconnectReplsetSession()
 	}
 }
 
-func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
-	for members := range remove {
-		if rw.state == nil {
+func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member) {
+	for members := range removeMembers {
+		if rw.state == nil || len(members) == 0 {
 			continue
 		}
 		rw.state.RemoveConfigMembers(rw.getReplsetSession(), rw.configManager, members)
