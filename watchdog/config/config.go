@@ -22,25 +22,21 @@ import (
 )
 
 var (
-	DefaultAPIPoll               = "10s"
-	DefaultDelayWatcher          = "20s"
-	DefaultIgnorePods            = []string{"admin-0", "mongodb-consistent-backup-0"}
-	DefaultReplsetPoll           = "5s"
-	DefaultReplsetTimeout        = "3s"
-	DefaultReplsetConfUpdatePoll = "10s"
+	DefaultAPIPoll        = "10s"
+	DefaultIgnorePods     = []string{"admin-0", "mongodb-consistent-backup-0"}
+	DefaultReplsetPoll    = "5s"
+	DefaultReplsetTimeout = "3s"
 )
 
 // Watchdog Configuration
 type Config struct {
-	Username              string
-	Password              string
-	FrameworkName         string
-	IgnorePods            []string
-	API                   *api.Config
-	APIPoll               time.Duration
-	SSL                   *db.SSLConfig
-	ReplsetPoll           time.Duration
-	ReplsetTimeout        time.Duration
-	ReplsetConfUpdatePoll time.Duration
-	DelayWatcher          time.Duration
+	Username       string
+	Password       string
+	FrameworkName  string
+	IgnorePods     []string
+	API            *api.Config
+	APIPoll        time.Duration
+	SSL            *db.SSLConfig
+	ReplsetPoll    time.Duration
+	ReplsetTimeout time.Duration
 }
