@@ -54,10 +54,6 @@ func main() {
 		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
 	app.Flag(
-		"apiIgnoreApiPods",
-		"DC/OS SDK API pods to ignore/exclude",
-	).Default(config.DefaultAPIIgnorePod).StringsVar(&cnf.APIIgnorePods)
-	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
 	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.APIPoll)
@@ -66,21 +62,17 @@ func main() {
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
 	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
 	app.Flag(
+		"ignoreApiPods",
+		"DC/OS SDK pods to ignore/exclude from watching",
+	).Default(config.DefaultIgnorePods...).StringsVar(&cnf.IgnorePods)
+	app.Flag(
 		"replsetPoll",
-		"Frequency of replset state polls, overridden by env var WATCHDOG_REPLSET_POLL",
+		"Frequency of replset state polls or updates, overridden by env var WATCHDOG_REPLSET_POLL",
 	).Default(config.DefaultReplsetPoll).Envar("WATCHDOG_REPLSET_POLL").DurationVar(&cnf.ReplsetPoll)
 	app.Flag(
 		"replsetTimeout",
 		"MongoDB connect timeout, should be less than 'replsetPoll', overridden by env var WATCHDOG_REPLSET_TIMEOUT",
 	).Default(config.DefaultReplsetTimeout).Envar("WATCHDOG_REPLSET_TIMEOUT").DurationVar(&cnf.ReplsetTimeout)
-	app.Flag(
-		"replsetConfUpdatePoll",
-		"Frequency of replica set config state updates, overridden by env var WATCHDOG_REPLSET_CONF_UPDATE_POLL",
-	).Default(config.DefaultReplsetConfUpdatePoll).Envar("WATCHDOG_REPLSET_CONF_UPDATE_POLL").DurationVar(&cnf.ReplsetConfUpdatePoll)
-	app.Flag(
-		"delayWatcherStart",
-		"Amount of time to delay the start of replset watchers, overridden by env var WATCHDOG_DELAY_WATCHER_START",
-	).Default(config.DefaultDelayWatcher).Envar("WATCHDOG_DELAY_WATCHER_START").DurationVar(&cnf.DelayWatcher)
 	app.Flag(
 		"apiHostPrefix",
 		"DC/OS SDK API hostname prefix, used to construct the DCOS API hostname",

@@ -17,14 +17,14 @@ package replset
 import (
 	gotesting "testing"
 
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWatchdogNewReplset(t *gotesting.T) {
 	testReplset = New(testWatchdogConfig, testReplsetName)
 	assert.Equal(t, testReplsetName, testReplset.Name, "replset.Name is incorrect")
-	assert.Len(t, testReplset.Members, 0, "replset.Members is not empty")
-	assert.Zero(t, testReplset.LastUpdated, "replset.LastUpdated is not empty/zero")
+	assert.Len(t, testReplset.members, 0, "replset.members is not empty")
 }
 
 func TestWatchdogReplsetGetMemberFalse(t *gotesting.T) {
@@ -37,7 +37,7 @@ func TestWatchdogReplsetHasMemberFalse(t *gotesting.T) {
 
 func TestWatchdogReplsetUpdateMember(t *gotesting.T) {
 	testReplset.UpdateMember(testReplsetMongod)
-	assert.Len(t, testReplset.Members, 1, "replset.Members length is not 1")
+	assert.Len(t, testReplset.members, 1, "replset.members length is not 1")
 }
 
 func TestWatchdogReplsetGetMember(t *gotesting.T) {
@@ -53,16 +53,19 @@ func TestWatchdogReplsetHasMember(t *gotesting.T) {
 	assert.True(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result")
 }
 
-func TestWatchdogReplsetGetReplsetDialInfo(t *gotesting.T) {
-	dialInfo := testReplset.GetReplsetDialInfo()
-	assert.NotNil(t, dialInfo, "replset.GetReplsetDialInfo() returned nil *mgo.DialInfo")
-	assert.Lenf(t, dialInfo.Addrs, len(testReplset.GetMembers()), "*mgo.DialInfo 'Addrs' must have the length %d", len(testReplset.GetMembers()))
-	assert.Equal(t, testWatchdogConfig.Username, dialInfo.Username, "*mgo.DialInfo 'Username' is incorrect")
-	assert.Equal(t, testWatchdogConfig.Password, dialInfo.Password, "*mgo.DialInfo 'Password' is incorrect")
-	assert.Equal(t, testReplset.Name, dialInfo.ReplicaSetName, "*mgo.DialInfo 'ReplicaSetName' is incorrect")
-	assert.Equal(t, testWatchdogConfig.ReplsetTimeout, dialInfo.Timeout, "*mgo.DialInfo 'Timeout' is incorrect")
-	assert.False(t, dialInfo.Direct, "*mgo.DialInfo 'Direct' must be false")
-	assert.True(t, dialInfo.FailFast, "*mgo.DialInfo 'FailFast' must be true")
+func TestWatchdogReplsetGetReplsetDBConfig(t *gotesting.T) {
+	dbCnf := testReplset.GetReplsetDBConfig(&db.SSLConfig{Enabled: true})
+	assert.NotNil(t, dbCnf, "replset.GetReplsetDBConfig() returned nil")
+	assert.NotNil(t, dbCnf.SSL, "replset.GetReplsetDBConfig() returned nil 'SSL' config")
+	assert.True(t, dbCnf.SSL.Enabled, "replset.GetReplsetDBConfig() returned 'SSL' config with false Enabled field")
+	assert.NotNil(t, dbCnf.DialInfo, "replset.GetReplsetDBConfig() returned nil 'DialInfo'")
+	assert.Lenf(t, dbCnf.DialInfo.Addrs, len(testReplset.GetMembers()), "*mgo.DialInfo 'Addrs' must have the length %d", len(testReplset.GetMembers()))
+	assert.Equal(t, testWatchdogConfig.Username, dbCnf.DialInfo.Username, "*mgo.DialInfo 'Username' is incorrect")
+	assert.Equal(t, testWatchdogConfig.Password, dbCnf.DialInfo.Password, "*mgo.DialInfo 'Password' is incorrect")
+	assert.Equal(t, testReplset.Name, dbCnf.DialInfo.ReplicaSetName, "*mgo.DialInfo 'ReplicaSetName' is incorrect")
+	assert.Equal(t, testWatchdogConfig.ReplsetTimeout, dbCnf.DialInfo.Timeout, "*mgo.DialInfo 'Timeout' is incorrect")
+	assert.False(t, dbCnf.DialInfo.Direct, "*mgo.DialInfo 'Direct' must be false")
+	assert.True(t, dbCnf.DialInfo.FailFast, "*mgo.DialInfo 'FailFast' must be true")
 }
 
 func TestWatchdogReplsetRemoveMember(t *gotesting.T) {

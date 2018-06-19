@@ -20,45 +20,51 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Manager struct {
-	config    *config.Config
-	watchers  map[string]*Watcher
-	stopChans map[string]*chan bool
+type Manager interface {
+	Get(rsName string) *Watcher
+	HasWatcher(rsName string) bool
+	Watch(rs *replset.Replset)
 }
 
-func NewManager(config *config.Config) *Manager {
-	return &Manager{
-		config:    config,
-		watchers:  make(map[string]*Watcher),
-		stopChans: make(map[string]*chan bool),
+type WatcherManager struct {
+	config   *config.Config
+	stop     *chan bool
+	watchers map[string]*Watcher
+}
+
+func NewManager(config *config.Config, stop *chan bool) *WatcherManager {
+	return &WatcherManager{
+		config:   config,
+		stop:     stop,
+		watchers: make(map[string]*Watcher),
 	}
 }
 
-func (m *Manager) HasWatcher(rs *replset.Replset) bool {
-	if _, ok := m.watchers[rs.Name]; ok {
+func (wm *WatcherManager) HasWatcher(rsName string) bool {
+	if _, ok := wm.watchers[rsName]; ok {
 		return true
 	}
 	return false
 }
 
-func (m *Manager) Watch(rs *replset.Replset) {
-	if !m.HasWatcher(rs) {
+func (wm *WatcherManager) Watch(rs *replset.Replset) {
+	if !wm.HasWatcher(rs.Name) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
-		stopChan := make(chan bool)
-		m.stopChans[rs.Name] = &stopChan
-		m.watchers[rs.Name] = New(
+
+		wm.watchers[rs.Name] = New(
 			rs,
-			m.config,
-			m.stopChans[rs.Name],
+			wm.config,
+			wm.stop,
 		)
-		go m.watchers[rs.Name].Run()
+		go wm.watchers[rs.Name].Run()
 	}
 }
 
-func (m *Manager) Stop() {
-	for _, val := range m.stopChans {
-		*val <- true
+func (wm *WatcherManager) Get(rsName string) *Watcher {
+	if !wm.HasWatcher(rsName) {
+		return nil
 	}
+	return wm.watchers[rsName]
 }
