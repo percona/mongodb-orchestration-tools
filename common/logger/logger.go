@@ -35,12 +35,12 @@ func enableVerboseLogging(ctx *kingpin.ParseContext) error {
 
 // getCallerInfo returns the file and file line-number of a caller
 func getLogCallerInfo(e *log.Entry, f *lcf.CustomFormatter) (interface{}, error) {
-	var skip int = 1
-	var skipMax int = 10
+	skip := 1
+	skipMax := 12
 	for skip <= skipMax {
 		_, file, lineNo, _ := runtime.Caller(skip)
 		if strings.Contains(file, "github.com/Robpol86/logrus-custom-formatter") || strings.Contains(file, "github.com/sirupsen/logrus") {
-			skip += 1
+			skip++
 			continue
 		}
 		return filepath.Base(file) + ":" + strconv.Itoa(lineNo), nil
