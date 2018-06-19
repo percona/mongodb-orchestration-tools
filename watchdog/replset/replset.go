@@ -80,19 +80,26 @@ func (r *Replset) GetMembers() map[string]*Mongod {
 	return r.members
 }
 
+// GetAddrs returns a list of host:port string representing the MongoDB Replica Set instances
+func (r *Replset) GetAddrs() []string {
+	addrs := []string{}
+	for _, member := range r.GetMembers() {
+		addrs = append(addrs, member.Name())
+	}
+	return addrs
+}
+
 // GetReplsetDBConfig returns a db.Config for the MongoDB Replica Set
 func (r *Replset) GetReplsetDBConfig(sslCnf *db.SSLConfig) *db.Config {
 	cnf := &db.Config{
 		DialInfo: &mgo.DialInfo{
+			Addrs:          r.GetAddrs(),
 			Direct:         false,
 			FailFast:       true,
 			ReplicaSetName: r.Name,
 			Timeout:        r.config.ReplsetTimeout,
 		},
 		SSL: sslCnf,
-	}
-	for _, member := range r.GetMembers() {
-		cnf.DialInfo.Addrs = append(cnf.DialInfo.Addrs, member.Name())
 	}
 	if r.config.Username != "" && r.config.Password != "" {
 		cnf.DialInfo.Username = r.config.Username

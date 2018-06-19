@@ -84,12 +84,18 @@ func (rw *Watcher) connectReplsetSession() error {
 }
 
 func (rw *Watcher) reconnectReplsetSession() {
+	log.WithFields(log.Fields{
+		"replset": rw.replset.Name,
+		"addrs":   rw.replset.GetAddrs(),
+	}).Info("Reconnecting mongodb replset session")
+
 	err := rw.connectReplsetSession()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"replset": rw.replset.Name,
+			"addrs":   rw.replset.GetAddrs(),
 			"error":   err,
-		}).Error("Error reconnecting mongodb session to replset")
+		}).Error("Error reconnecting mongodb replset session")
 	}
 }
 
@@ -178,7 +184,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 			mongods = append(mongods, mongod)
 		}
 		rw.state.AddConfigMembers(rw.getReplsetSession(), rw.configManager, mongods)
-		//rw.reconnectReplsetSession()
+		rw.reconnectReplsetSession()
 	}
 }
 
@@ -188,7 +194,7 @@ func (rw *Watcher) replsetConfigRemover(remove <-chan []*rsConfig.Member) {
 			continue
 		}
 		rw.state.RemoveConfigMembers(rw.getReplsetSession(), rw.configManager, members)
-		//rw.reconnectReplsetSession()
+		rw.reconnectReplsetSession()
 	}
 }
 
@@ -199,8 +205,8 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	fields := log.Fields{
 		"replset": rw.replset.Name,
 		"name":    mongod.Task.Name(),
-		"state":   string(mongod.Task.State()),
 		"host":    mongod.Name(),
+		"state":   string(mongod.Task.State()),
 	}
 
 	if rw.replset.HasMember(mongod.Name()) {
@@ -244,11 +250,11 @@ func (rw *Watcher) Run() {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
 			}
-			//if rw.state.GetStatus() != nil {
-			rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
-			rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
-			rw.logReplsetState()
-			//}
+			if rw.state.GetStatus() != nil {
+				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
+				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
+				rw.logReplsetState()
+			}
 		case <-*rw.stop:
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,
