@@ -18,7 +18,7 @@ TEST_SECONDARY2_PORT?=65219
 TEST_CODECOV?=false
 TEST_GO_EXTRA?=
 ifeq ($(TEST_CODECOV),true)
-	TEST_GO_EXTRA=-race -coverprofile=cover.out -covermode=atomic
+	TEST_GO_EXTRA=-coverprofile=cover.out -covermode=atomic
 endif
 
 all: bin/mongodb-healthcheck-$(PLATFORM) bin/mongodb-controller-$(PLATFORM) bin/mongodb-executor-$(PLATFORM) bin/mongodb-watchdog-$(PLATFORM)
@@ -43,6 +43,9 @@ bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*
 
 test: vendor
 	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v $(TEST_GO_EXTRA) ./...
+
+test-race: vendor
+	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v -race $(TEST_GO_EXTRA) ./...
 
 test/test-mongod.key:
 	openssl rand -base64 512 >test/test-mongod.key
@@ -84,7 +87,7 @@ test-full: vendor
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	GOCACHE=$(GOCACHE) go test -v $(TEST_GO_EXTRA) ./...
+	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
 
 clean:
 	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
