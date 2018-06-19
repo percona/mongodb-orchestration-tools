@@ -21,7 +21,6 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
@@ -31,50 +30,52 @@ var testMemberRemoved *rsConfig.Member
 func TestWatchdogReplsetNewState(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	configManager := rsConfig.New(testDBSession)
-
-	testState = NewState(nil, configManager, fetcher.New(testDBSession, configManager), testing.MongodbReplsetName)
+	testState = NewState(testing.MongodbReplsetName)
 	assert.Equal(t, testState.Replset, testing.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
-	assert.Nil(t, testState.session, "replset.NewState() returned State struct with a session other than nil")
 	assert.False(t, testState.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")
 }
 
 func TestWatchdogReplsetStateFetchConfig(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	err := testState.fetchConfig()
+	err := testState.fetchConfig(testRsConfigManager)
 	assert.NoError(t, err, ".fetchConfig() should not return an error")
 
-	assert.NotNil(t, testState.Config, "testState.Config is nil")
-	assert.Equal(t, testState.Config.Name, testing.MongodbReplsetName, "testState.Config.Name is incorrect")
-	assert.NotZero(t, testState.Config.Members, "testState.Config.Members has no members")
+	config := testState.GetConfig()
+	assert.NotNil(t, config, ".GetConfig() should not return nil")
+	assert.Equal(t, config.Name, testing.MongodbReplsetName, "testState.Config.Name is incorrect")
+	assert.NotZero(t, config.Members, "testState.Config.Members has no members")
 }
 
 func TestWatchdogReplsetStateFetchStatus(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	err := testState.fetchStatus()
+	err := testState.fetchStatus(testDBSession)
 	assert.NoError(t, err, ".fetchStatus() should not return an error")
 
-	assert.NotNil(t, testState.Status, "testState.Status is nil")
-	assert.Equal(t, testState.Status.Set, testing.MongodbReplsetName, "testState.Status.Set is incorrect")
-	assert.NotZero(t, testState.Status.Members, "testState.Status.Members has no members")
+	status := testState.GetStatus()
+	assert.NotNil(t, status, ".GetStatus() should not return nil")
+	assert.Equal(t, status.Set, testing.MongodbReplsetName, "testState.Status.Set is incorrect")
+	assert.NotZero(t, status.Members, "testState.Status.Members has no members")
 }
 
 func TestWatchdogReplsetStateFetch(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	assert.NoError(t, testState.Fetch(), "testState.Fetch() failed with error")
+	assert.NoError(t, testState.Fetch(testDBSession, testRsConfigManager), "testState.Fetch() failed with error")
 }
 
 func TestWatchdogReplsetStateRemoveConfigMembers(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	memberCount := len(testState.Config.Members)
-	testMemberRemoved = testState.Config.Members[len(testState.Config.Members)-1]
-	testState.RemoveConfigMembers([]*rsConfig.Member{testMemberRemoved})
+	config := testState.GetConfig()
+	assert.NotNil(t, config, ".GetConfig() should not return nil")
+
+	memberCount := len(config.Members)
+	testMemberRemoved = config.Members[len(config.Members)-1]
+	testState.RemoveConfigMembers(testDBSession, testRsConfigManager, []*rsConfig.Member{testMemberRemoved})
 	assert.False(t, testState.doUpdate, "testState.doUpdate is true after testState.RemoveConfigMembers()")
-	assert.Len(t, testState.Config.Members, memberCount-1, "testState.Config.Members count did not reduce")
+	assert.Len(t, testState.GetConfig().Members, memberCount-1, "testState.Config.Members count did not reduce")
 }
 
 func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
@@ -89,12 +90,15 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 		FrameworkName: common.DefaultFrameworkName,
 		PodName:       "mongo",
 	}
-	memberCount := len(testState.Config.Members)
-	testState.AddConfigMembers([]*Mongod{addMongod})
+	config := testState.GetConfig()
+	memberCount := len(config.Members)
+	testState.AddConfigMembers(testDBSession, testRsConfigManager, []*Mongod{addMongod})
 	assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
-	assert.Len(t, testState.Config.Members, memberCount+1, "testState.Config.Members count did not increase")
 
-	member := testState.Config.GetMember(testMemberRemoved.Host)
-	assert.NotNil(t, member, "testState.Config.HasMember() returned no member")
+	config = testState.GetConfig()
+	assert.NotNil(t, config, ".GetConfig() should not return nil")
+	assert.Len(t, config.Members, memberCount+1, "config.Members count did not increase")
+	member := config.GetMember(testMemberRemoved.Host)
+	assert.NotNil(t, member, "config.HasMember() returned no member")
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
 }

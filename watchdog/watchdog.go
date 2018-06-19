@@ -23,16 +23,14 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset/watcher"
+	"github.com/percona/dcos-mongo-tools/watchdog/watcher"
 	log "github.com/sirupsen/logrus"
 )
 
 type Watchdog struct {
 	config         *config.Config
 	api            api.Client
-	startTime      time.Time
-	replsetManager *replset.Manager
-	watcherManager *watcher.Manager
+	watcherManager watcher.Manager
 	quit           *chan bool
 }
 
@@ -40,50 +38,21 @@ func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 	return &Watchdog{
 		config:         config,
 		api:            client,
-		startTime:      time.Now(),
-		replsetManager: replset.NewManager(config),
-		watcherManager: watcher.NewManager(config),
+		watcherManager: watcher.NewManager(config, quit),
 		quit:           quit,
 	}
 }
 
-func (w *Watchdog) runtimeDuration() time.Duration {
-	return time.Since(w.startTime)
-}
-
-func (w *Watchdog) ensureWatchers() {
-	if w.runtimeDuration() < w.config.DelayWatcher {
-		return
-	}
-	for _, rs := range w.replsetManager.GetAll() {
-		w.watcherManager.Watch(rs)
-	}
-}
-
-func (w *Watchdog) stopWatchers() {
-	w.watcherManager.Stop()
-}
-
-func (w *Watchdog) mongodUpdater(mongodUpdates <-chan *replset.Mongod) {
-	for mongod := range mongodUpdates {
-		fields := log.Fields{
-			"name":    mongod.Task.Name(),
-			"state":   string(mongod.Task.State()),
-			"replset": mongod.Replset,
-			"host":    mongod.Name(),
+func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {
+	for mongodUpdate := range mongodUpdates {
+		// ensure the replset has a watcher started
+		if !w.watcherManager.HasWatcher(mongodUpdate.Replset) {
+			rs := replset.New(w.config, mongodUpdate.Replset)
+			w.watcherManager.Watch(rs)
 		}
-		if w.replsetManager.HasMember(mongod) {
-			if mongod.Task.IsRemovedMongod() {
-				log.WithFields(fields).Info("Removing completed mongod task")
-				w.replsetManager.RemoveMember(mongod)
-			} else {
-				log.WithFields(fields).Info("Updating running mongod task")
-				w.replsetManager.UpdateMember(mongod)
-			}
-		} else if mongod.Task.HasState() {
-			log.WithFields(fields).Info("Adding new mongod task")
-			w.replsetManager.UpdateMember(mongod)
-		}
+
+		// send the update to the watcher for the given replset
+		w.watcherManager.Get(mongodUpdate.Replset).UpdateMongod(mongodUpdate)
 	}
 }
 
@@ -119,6 +88,40 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 	}
 }
 
+func (w *Watchdog) doIgnorePod(podName string) bool {
+	for _, ignorePodName := range w.config.IgnorePods {
+		if podName == ignorePodName {
+			return true
+		}
+	}
+	return false
+}
+
+func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
+	log.WithFields(log.Fields{
+		"url": w.api.GetPodURL(),
+	}).Info("Getting pods from url")
+
+	pods, err := w.api.GetPods()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"url":   w.api.GetPodURL(),
+			"error": err,
+		}).Error("Error fetching DCOS pod list")
+		return
+	}
+
+	var wg sync.WaitGroup
+	for _, podName := range *pods {
+		if w.doIgnorePod(podName) {
+			continue
+		}
+		wg.Add(1)
+		go w.podMongodFetcher(podName, &wg, mongodUpdates)
+	}
+	wg.Wait()
+}
+
 func (w *Watchdog) Run() {
 	log.WithFields(log.Fields{
 		"version":   dcosmongotools.Version,
@@ -126,39 +129,18 @@ func (w *Watchdog) Run() {
 		"go":        runtime.Version(),
 	}).Info("Starting watchdog")
 
-	// run the mongod updater in a goroutine
-	updateMongod := make(chan *replset.Mongod)
-	go w.mongodUpdater(updateMongod)
+	// run the mongod update hander in a goroutine to receive updates
+	mongodUpdates := make(chan *replset.Mongod)
+	go w.mongodUpdateHandler(mongodUpdates)
 
 	ticker := time.NewTicker(w.config.APIPoll)
 	for {
 		select {
 		case <-ticker.C:
-			log.WithFields(log.Fields{
-				"url": w.api.GetPodURL(),
-			}).Info("Getting pods from url")
-
-			pods, err := w.api.GetPods()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"url":   w.api.GetPodURL(),
-					"error": err,
-				}).Error("Error fetching DCOS pod list")
-				continue
-			}
-
-			var wg sync.WaitGroup
-			wg.Add(len(*pods))
-			for _, podName := range *pods {
-				go w.podMongodFetcher(podName, &wg, updateMongod)
-			}
-			wg.Wait()
-
-			w.ensureWatchers()
+			w.fetchPods(mongodUpdates)
 		case <-*w.quit:
 			log.Info("Stopping watchers")
 			ticker.Stop()
-			w.stopWatchers()
 			break
 		}
 	}

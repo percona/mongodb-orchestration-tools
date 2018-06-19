@@ -17,85 +17,40 @@ package replset
 import (
 	"fmt"
 	"sync"
-	"time"
 
-	"github.com/percona/dcos-mongo-tools/watchdog/replset/fetcher"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
 	"gopkg.in/mgo.v2"
 )
 
-const frameworkTagName = "dcosFramework"
+const (
+	frameworkTagName = "dcosFramework"
+)
 
+// State is a struct reflecting the state of a MongoDB Replica Set
 type State struct {
 	sync.Mutex
-	Replset       string
-	Config        *rsConfig.Config
-	Status        *rsStatus.Status
-	configManager rsConfig.Manager
-	session       *mgo.Session
-	fetcher       fetcher.Fetcher
-	doUpdate      bool
+	Replset  string
+	config   *rsConfig.Config
+	status   *rsStatus.Status
+	doUpdate bool
 }
 
-func NewState(session *mgo.Session, configManager rsConfig.Manager, fetcher fetcher.Fetcher, replset string) *State {
-	return &State{
-		Replset:       replset,
-		session:       session,
-		configManager: configManager,
-		fetcher:       fetcher,
-	}
-}
-
-func (s *State) fetchConfig() error {
-	config, err := s.fetcher.GetConfig()
-	if err != nil {
-		return err
-	}
-	s.Config = config
-	return nil
-}
-
-func (s *State) fetchStatus() error {
-	status, err := s.fetcher.GetStatus()
-	if err != nil {
-		return err
-	}
-	s.Status = status
-	return nil
-}
-
-func (s *State) Fetch() error {
-	s.Lock()
-	defer s.Unlock()
-
-	log.WithFields(log.Fields{
-		"replset": s.Replset,
-	}).Info("Updating replset config and status")
-
-	err := s.fetchConfig()
-	if err != nil {
-		return err
-	}
-
-	return s.fetchStatus()
-}
-
-func (s *State) updateConfig() error {
+func (s *State) updateConfig(configManager rsConfig.Manager) error {
 	if s.doUpdate == false {
 		return nil
 	}
 
-	s.configManager.IncrVersion()
-	config := s.configManager.Get()
+	configManager.IncrVersion()
+	config := configManager.Get()
 	log.WithFields(log.Fields{
 		"replset":        s.Replset,
 		"config_version": config.Version,
 	}).Info("Writing new replset config")
 	fmt.Println(config)
 
-	err := s.configManager.Save()
+	err := configManager.Save()
 	if err != nil {
 		return err
 	}
@@ -104,21 +59,82 @@ func (s *State) updateConfig() error {
 	return nil
 }
 
-func (s *State) AddConfigMembers(mongods []*Mongod) {
-	if len(mongods) == 0 {
+func (s *State) fetchConfig(configManager rsConfig.Manager) error {
+	err := configManager.Load()
+	if err != nil {
+		return err
+	}
+
+	s.config = configManager.Get()
+	return nil
+}
+
+func (s *State) fetchStatus(session *mgo.Session) error {
+	status, err := rsStatus.New(session)
+	if err != nil {
+		return err
+	}
+
+	s.status = status
+	return nil
+}
+
+// NewState returns a new State struct
+func NewState(replset string) *State {
+	return &State{
+		Replset: replset,
+	}
+}
+
+// Fetch gets the current MongoDB Replica Set status and config while locking the State
+func (s *State) Fetch(session *mgo.Session, configManager rsConfig.Manager) error {
+	s.Lock()
+	defer s.Unlock()
+
+	log.WithFields(log.Fields{
+		"replset": s.Replset,
+	}).Info("Updating replset config and status")
+
+	err := s.fetchConfig(configManager)
+	if err != nil {
+		return err
+	}
+
+	return s.fetchStatus(session)
+}
+
+// GetConfig returns a Config struct representing a MongoDB Replica Set configuration
+func (s *State) GetConfig() *rsConfig.Config {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.config
+}
+
+// GetStatus returns a Status struct representing the status of a MongoDB Replica Set
+func (s *State) GetStatus() *rsStatus.Status {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.status
+}
+
+// AddConfigMembers adds members to the MongoDB Replica Set config
+func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*Mongod) {
+	if len(members) == 0 {
 		return
 	}
 
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.fetchConfig()
+	err := s.fetchConfig(configManager)
 	if err != nil {
 		log.Errorf("Error fetching config while adding members: '%s'", err.Error())
 		return
 	}
 
-	for _, mongod := range mongods {
+	for _, mongod := range members {
 		member := rsConfig.NewMember(mongod.Name())
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
@@ -132,13 +148,18 @@ func (s *State) AddConfigMembers(mongods []*Mongod) {
 			}
 			member.Votes = 0
 		}
-		s.configManager.AddMember(member)
+		configManager.AddMember(member)
 		s.doUpdate = true
 	}
-	s.updateConfig()
+
+	err = s.updateConfig(configManager)
+	if err != nil {
+		log.WithError(err).Error("Got error adding member")
+	}
 }
 
-func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
+// RemoveConfigMembers removes members from the MongoDB Replica Set config
+func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*rsConfig.Member) {
 	if len(members) == 0 {
 		return
 	}
@@ -146,38 +167,19 @@ func (s *State) RemoveConfigMembers(members []*rsConfig.Member) {
 	s.Lock()
 	defer s.Unlock()
 
-	err := s.fetchConfig()
+	err := s.fetchConfig(configManager)
 	if err != nil {
 		log.Errorf("Error fetching config while removing members: '%s'", err.Error())
 		return
 	}
 
 	for _, member := range members {
-		s.configManager.RemoveMember(member)
+		configManager.RemoveMember(member)
 		s.doUpdate = true
 	}
-	s.updateConfig()
-}
 
-func (s *State) StartFetcher(stop *chan bool, interval time.Duration) {
-	log.WithFields(log.Fields{
-		"replset":  s.Replset,
-		"interval": interval,
-	}).Info("Started background replset state fetcher")
-
-	ticker := time.NewTicker(interval)
-	for {
-		select {
-		case <-ticker.C:
-			err := s.Fetch()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"replset": s.Replset,
-				}).Errorf("Error fetching replset state: %s", err.Error())
-			}
-		case <-*stop:
-			ticker.Stop()
-			break
-		}
+	err = s.updateConfig(configManager)
+	if err != nil {
+		log.WithError(err).Error("Got error removing member")
 	}
 }
