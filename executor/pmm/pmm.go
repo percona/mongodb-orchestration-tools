@@ -81,7 +81,7 @@ func (p *PMM) doStartQueryAnalytics() bool {
 func (p *PMM) startMetrics() error {
 	list, err := p.list()
 	if err != nil {
-		log.Error("Got error listing PMM services: %s", err)
+		log.Errorf("Got error listing PMM services: %s", err)
 		return err
 	}
 
