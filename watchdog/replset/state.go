@@ -152,7 +152,10 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		s.doUpdate = true
 	}
 
-	s.updateConfig(configManager)
+	err = s.updateConfig(configManager)
+	if err != nil {
+		log.WithError(err).Error("Got error adding member")
+	}
 }
 
 // RemoveConfigMembers removes members from the MongoDB Replica Set config
@@ -175,5 +178,8 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 		s.doUpdate = true
 	}
 
-	s.updateConfig(configManager)
+	err = s.updateConfig(configManager)
+	if err != nil {
+		log.WithError(err).Error("Got error removing member")
+	}
 }

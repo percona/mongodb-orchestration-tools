@@ -29,7 +29,6 @@ import (
 var (
 	directReadPreference               = mgo.Monotonic
 	replsetReadPreference              = mgo.PrimaryPreferred
-	connectReplsetTries           uint = 5
 	waitForMongodAvailableRetries uint = 10
 )
 
@@ -173,7 +172,7 @@ func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
 	return orphanedMembers
 }
 
-func (rw *Watcher) waitForAvailable(member replset.Member) error {
+func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
 	session, err := db.WaitForSession(
 		member.DBConfig(rw.config.SSL),
 		waitForMongodAvailableRetries,
@@ -190,7 +189,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 	for members := range add {
 		mongods := make([]*replset.Mongod, 0)
 		for _, mongod := range members {
-			err := rw.waitForAvailable(mongod)
+			err := rw.waitForMongodAvailable(mongod)
 			if err != nil {
 				log.WithFields(log.Fields{
 					"host":    mongod.Name(),
@@ -207,7 +206,11 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 		if len(mongods) == 0 {
 			continue
 		}
+
+		rw.Lock()
 		rw.state.AddConfigMembers(rw.getReplsetSession(), rw.configManager, mongods)
+		rw.Unlock()
+
 		rw.reconnectReplsetSession()
 	}
 }
@@ -217,7 +220,11 @@ func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member)
 		if rw.state == nil || len(members) == 0 {
 			continue
 		}
+
+		rw.Lock()
 		rw.state.RemoveConfigMembers(rw.getReplsetSession(), rw.configManager, members)
+		rw.Unlock()
+
 		rw.reconnectReplsetSession()
 	}
 }
@@ -237,11 +244,11 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 		if mongod.Task.IsRemovedMongod() {
 			log.WithFields(fields).Info("Removing completed mongod task")
 			rw.replset.RemoveMember(mongod)
-		} else {
+		} else if mongod.Task.IsRunning() {
 			log.WithFields(fields).Info("Updating running mongod task")
 			rw.replset.UpdateMember(mongod)
 		}
-	} else if mongod.Task.HasState() {
+	} else if mongod.Task.HasState() && mongod.Task.IsRunning() {
 		log.WithFields(fields).Info("Adding new mongod task")
 		rw.replset.UpdateMember(mongod)
 	}
