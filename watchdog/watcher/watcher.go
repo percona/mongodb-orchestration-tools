@@ -207,10 +207,12 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 			continue
 		}
 
-		rw.Lock()
-		rw.state.AddConfigMembers(rw.getReplsetSession(), rw.configManager, mongods)
-		rw.Unlock()
-
+		session := rw.getReplsetSession()
+		if session != nil {
+			rw.Lock()
+			rw.state.AddConfigMembers(session, rw.configManager, mongods)
+			rw.Unlock()
+		}
 		rw.reconnectReplsetSession()
 	}
 }
@@ -221,10 +223,12 @@ func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member)
 			continue
 		}
 
-		rw.Lock()
-		rw.state.RemoveConfigMembers(rw.getReplsetSession(), rw.configManager, members)
-		rw.Unlock()
-
+		session := rw.getReplsetSession()
+		if session != nil {
+			rw.Lock()
+			rw.state.RemoveConfigMembers(session, rw.configManager, members)
+			rw.Unlock()
+		}
 		rw.reconnectReplsetSession()
 	}
 }
