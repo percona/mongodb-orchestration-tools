@@ -37,6 +37,14 @@ func New(config *config.Config, name string) *Replset {
 	}
 }
 
+func (r *Replset) getAddrs() []string {
+	addrs := []string{}
+	for _, member := range r.GetMembers() {
+		addrs = append(addrs, member.Name())
+	}
+	return addrs
+}
+
 // UpdateMember adds/updates the state of a MongoDB instance in a Replica Set
 func (r *Replset) UpdateMember(member *Mongod) {
 	r.Lock()
@@ -80,20 +88,11 @@ func (r *Replset) GetMembers() map[string]*Mongod {
 	return r.members
 }
 
-// GetAddrs returns a list of host:port string representing the MongoDB Replica Set instances
-func (r *Replset) GetAddrs() []string {
-	addrs := []string{}
-	for _, member := range r.GetMembers() {
-		addrs = append(addrs, member.Name())
-	}
-	return addrs
-}
-
 // GetReplsetDBConfig returns a db.Config for the MongoDB Replica Set
 func (r *Replset) GetReplsetDBConfig(sslCnf *db.SSLConfig) *db.Config {
 	cnf := &db.Config{
 		DialInfo: &mgo.DialInfo{
-			Addrs:          r.GetAddrs(),
+			Addrs:          r.getAddrs(),
 			Direct:         false,
 			FailFast:       true,
 			ReplicaSetName: r.Name,
