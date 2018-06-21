@@ -62,7 +62,7 @@ func main() {
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
 	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
 	app.Flag(
-		"ignoreApiPods",
+		"ignoreAPIPods",
 		"DC/OS SDK pods to ignore/exclude from watching",
 	).Default(config.DefaultIgnorePods...).StringsVar(&cnf.IgnorePods)
 	app.Flag(
@@ -74,13 +74,9 @@ func main() {
 		"MongoDB connect timeout, should be less than 'replsetPoll', overridden by env var WATCHDOG_REPLSET_TIMEOUT",
 	).Default(config.DefaultReplsetTimeout).Envar("WATCHDOG_REPLSET_TIMEOUT").DurationVar(&cnf.ReplsetTimeout)
 	app.Flag(
-		"apiHostPrefix",
-		"DC/OS SDK API hostname prefix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHTTPHostPrefix).StringVar(&cnf.API.HostPrefix)
-	app.Flag(
-		"apiHostSuffix",
-		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHTTPHostSuffix).StringVar(&cnf.API.HostSuffix)
+		"apiHost",
+		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerAPIHost,
+	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerAPIHost).StringVar(&cnf.API.Host)
 	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",

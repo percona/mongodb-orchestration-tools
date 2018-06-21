@@ -21,5 +21,5 @@ import (
 )
 
 func TestCommonAPIGetPodURL(t *gotesting.T) {
-	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
+	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
 }

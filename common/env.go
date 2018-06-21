@@ -15,11 +15,12 @@
 package common
 
 const (
-	EnvFrameworkName = "FRAMEWORK_NAME"
-	EnvFrameworkHost = "FRAMEWORK_HOST"
-	EnvPodName       = "POD_NAME"
-	EnvTaskName      = "TASK_NAME"
-	EnvMesosSandbox  = "MESOS_SANDBOX"
+	EnvFrameworkName    = "FRAMEWORK_NAME"
+	EnvFrameworkHost    = "FRAMEWORK_HOST"
+	EnvPodName          = "POD_NAME"
+	EnvTaskName         = "TASK_NAME"
+	EnvMesosSandbox     = "MESOS_SANDBOX"
+	EnvSchedulerAPIHost = "SCHEDULER_API_HOSTNAME"
 
 	EnvMongoDBPrimaryAddr            = "MONGODB_PRIMARY_ADDR"
 	EnvMongoDBPort                   = "MONGODB_PORT"

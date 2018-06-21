@@ -41,7 +41,7 @@ type PodTaskStatus struct {
 
 // GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
 func (c *ClientHTTP) GetPodURL() string {
-	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/pod"
+	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/pod"
 }
 
 // GetPods returns a slice of existing Pods in the DC/OS SDK

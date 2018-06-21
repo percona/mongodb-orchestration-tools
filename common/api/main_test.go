@@ -26,10 +26,9 @@ import (
 var (
 	testAPI       = &ClientHTTP{}
 	testAPIConfig = &Config{
-		HostPrefix: DefaultHTTPHostPrefix,
-		HostSuffix: DefaultHTTPHostSuffix,
-		Timeout:    time.Second,
-		Secure:     true,
+		Host:    DefaultSchedulerHost,
+		Timeout: time.Second,
+		Secure:  true,
 	}
 )
 

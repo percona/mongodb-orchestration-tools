@@ -34,7 +34,7 @@ func (e *Endpoint) Hosts() []string {
 }
 
 func (c *ClientHTTP) getEndpointsURL() string {
-	return c.scheme.String() + c.getBaseURL() + "/" + APIVersion + "/endpoints"
+	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/endpoints"
 }
 
 // GetEndpoints returns a slice of DC/OS SDK Service Endpoints
