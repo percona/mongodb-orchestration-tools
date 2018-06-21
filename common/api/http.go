@@ -21,9 +21,8 @@ import (
 )
 
 var (
-	DefaultHTTPHostPrefix = "api"
-	DefaultHTTPHostSuffix = "marathon.l4lb.thisdcos.directory"
-	DefaultHTTPTimeout    = "5s"
+	DefaultHTTPTimeout   = "5s"
+	DefaultSchedulerHost = "api.percona-mongo.marathon.l4lb.thisdcos.directory"
 )
 
 // HTTPScheme is the scheme type to be used for HTTP calls
@@ -74,8 +73,4 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 		return err
 	}
 	return json.Unmarshal(body, out)
-}
-
-func (c *ClientHTTP) getBaseURL() string {
-	return c.config.HostPrefix + "." + c.FrameworkName + "." + c.config.HostSuffix
 }
