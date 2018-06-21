@@ -115,6 +115,9 @@ func (i *Initiator) Run() error {
 	}).Info("Waiting to start initiation")
 	time.Sleep(i.config.ReplsetInit.Delay)
 
+	// use insecure SSL because the host certificate will not validate as 'localhost'
+	i.config.SSL.Insecure = true
+
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
 	localhostNoAuthSession, err := db.WaitForSession(
 		&db.Config{
@@ -159,6 +162,7 @@ func (i *Initiator) Run() error {
 	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
 	localhostNoAuthSession.Close()
 
+	i.config.SSL.Insecure = false
 	replsetAuthSession, err := db.WaitForSession(
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
