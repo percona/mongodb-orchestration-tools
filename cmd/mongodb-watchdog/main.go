@@ -62,7 +62,7 @@ func main() {
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
 	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
 	app.Flag(
-		"ignoreApiPods",
+		"ignoreAPIPods",
 		"DC/OS SDK pods to ignore/exclude from watching",
 	).Default(config.DefaultIgnorePods...).StringsVar(&cnf.IgnorePods)
 	app.Flag(
@@ -75,8 +75,8 @@ func main() {
 	).Default(config.DefaultReplsetTimeout).Envar("WATCHDOG_REPLSET_TIMEOUT").DurationVar(&cnf.ReplsetTimeout)
 	app.Flag(
 		"apiHost",
-		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerApiHost,
-	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerApiHost).StringVar(&cnf.API.Host)
+		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerAPIHost,
+	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerAPIHost).StringVar(&cnf.API.Host)
 	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",

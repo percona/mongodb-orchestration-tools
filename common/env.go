@@ -20,7 +20,7 @@ const (
 	EnvPodName          = "POD_NAME"
 	EnvTaskName         = "TASK_NAME"
 	EnvMesosSandbox     = "MESOS_SANDBOX"
-	EnvSchedulerApiHost = "SCHEDULER_API_HOSTNAME"
+	EnvSchedulerAPIHost = "SCHEDULER_API_HOSTNAME"
 
 	EnvMongoDBPrimaryAddr            = "MONGODB_PRIMARY_ADDR"
 	EnvMongoDBPort                   = "MONGODB_PORT"

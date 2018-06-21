@@ -79,8 +79,8 @@ func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
 	).Default(common.DefaultMongoDBMongodEndpointName).Envar(common.EnvMongoDBMongodEndpointName).StringVar(&cnf.User.EndpointName)
 	cmdUser.Flag(
 		"apiHost",
-		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerApiHost,
-	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerApiHost).StringVar(&cnf.User.API.Host)
+		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerAPIHost,
+	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerAPIHost).StringVar(&cnf.User.API.Host)
 	cmdUser.Flag(
 		"apiTimeout",
 		"DC/OS SDK API timeout",
