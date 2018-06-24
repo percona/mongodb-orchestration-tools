@@ -139,9 +139,11 @@ func (i *Initiator) Run() error {
 	defer localhostNoAuthSession.Close()
 
 	log.WithFields(log.Fields{
-		"host":    "localhost",
-		"auth":    false,
-		"replset": "",
+		"host":       "localhost",
+		"auth":       false,
+		"replset":    "",
+		"ssl":        sslCnfInsecure.Enabled,
+		"ssl_secure": !sslCnfInsecure.Insecure,
 	}).Info("Connected to MongoDB")
 
 	err = i.initReplset(localhostNoAuthSession)
@@ -184,9 +186,11 @@ func (i *Initiator) Run() error {
 	}
 	defer replsetAuthSession.Close()
 	log.WithFields(log.Fields{
-		"host":    i.config.ReplsetInit.PrimaryAddr,
-		"auth":    true,
-		"replset": i.config.Replset,
+		"host":       i.config.ReplsetInit.PrimaryAddr,
+		"auth":       true,
+		"replset":    i.config.Replset,
+		"ssl":        i.config.SSL.Enabled,
+		"ssl_secure": !i.config.SSL.Insecure,
 	}).Info("Connected to MongoDB")
 
 	err = i.initUsers(replsetAuthSession)
