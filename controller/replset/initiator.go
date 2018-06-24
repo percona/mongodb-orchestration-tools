@@ -115,19 +115,21 @@ func (i *Initiator) Run() error {
 	}).Info("Waiting to start initiation")
 	time.Sleep(i.config.ReplsetInit.Delay)
 
-	// use insecure SSL because the host certificate will not validate as 'localhost'
-	i.config.SSL.Insecure = true
+	// use an insecure SSL connection to avoid hostname validation error for the server hostname
+	sslCnfInsecure := *i.config.SSL
+	sslCnfInsecure.Insecure = true
 
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
+	localhostHost := "localhost:" + split[1]
 	localhostNoAuthSession, err := db.WaitForSession(
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
-				Addrs:    []string{"localhost:" + split[1]},
+				Addrs:    []string{localhostHost},
 				Direct:   true,
 				FailFast: true,
 				Timeout:  db.DefaultMongoDBTimeoutDuration,
 			},
-			SSL: i.config.SSL,
+			SSL: &sslCnfInsecure,
 		},
 		i.config.ReplsetInit.MaxConnectTries,
 		i.config.ReplsetInit.RetrySleep,
@@ -138,9 +140,11 @@ func (i *Initiator) Run() error {
 	defer localhostNoAuthSession.Close()
 
 	log.WithFields(log.Fields{
-		"host":    "localhost",
-		"auth":    false,
-		"replset": "",
+		"host":       localhostHost,
+		"auth":       false,
+		"replset":    "",
+		"ssl":        sslCnfInsecure.Enabled,
+		"ssl_secure": !sslCnfInsecure.Insecure,
 	}).Info("Connected to MongoDB")
 
 	err = i.initReplset(localhostNoAuthSession)
@@ -162,7 +166,6 @@ func (i *Initiator) Run() error {
 	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
 	localhostNoAuthSession.Close()
 
-	i.config.SSL.Insecure = false
 	replsetAuthSession, err := db.WaitForSession(
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
@@ -184,9 +187,11 @@ func (i *Initiator) Run() error {
 	}
 	defer replsetAuthSession.Close()
 	log.WithFields(log.Fields{
-		"host":    i.config.ReplsetInit.PrimaryAddr,
-		"auth":    true,
-		"replset": i.config.Replset,
+		"host":       i.config.ReplsetInit.PrimaryAddr,
+		"auth":       true,
+		"replset":    i.config.Replset,
+		"ssl":        i.config.SSL.Enabled,
+		"ssl_secure": !i.config.SSL.Insecure,
 	}).Info("Connected to MongoDB")
 
 	err = i.initUsers(replsetAuthSession)
