@@ -120,10 +120,11 @@ func (i *Initiator) Run() error {
 	sslCnfInsecure.Insecure = true
 
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
+	localhostHost := "localhost:" + split[1]
 	localhostNoAuthSession, err := db.WaitForSession(
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
-				Addrs:    []string{"localhost:" + split[1]},
+				Addrs:    []string{localhostHost},
 				Direct:   true,
 				FailFast: true,
 				Timeout:  db.DefaultMongoDBTimeoutDuration,
@@ -139,7 +140,7 @@ func (i *Initiator) Run() error {
 	defer localhostNoAuthSession.Close()
 
 	log.WithFields(log.Fields{
-		"host":       "localhost",
+		"host":       localhostHost,
 		"auth":       false,
 		"replset":    "",
 		"ssl":        sslCnfInsecure.Enabled,
