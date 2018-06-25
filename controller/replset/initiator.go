@@ -115,9 +115,13 @@ func (i *Initiator) Run() error {
 	}).Info("Waiting to start initiation")
 	time.Sleep(i.config.ReplsetInit.Delay)
 
-	// use an insecure SSL connection to avoid hostname validation error for the server hostname
-	sslCnfInsecure := *i.config.SSL
-	sslCnfInsecure.Insecure = true
+	// if enabled, use an insecure SSL connection to avoid hostname validation error
+	// for the server hostname, only for the first connection.
+	sslCnfInsecure := db.SSLConfig{}
+	if i.config.SSL != nil {
+		sslCnfInsecure = *i.config.SSL
+		sslCnfInsecure.Insecure = true
+	}
 
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
 	localhostHost := "localhost:" + split[1]
