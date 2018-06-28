@@ -38,12 +38,6 @@ func TestCommonLoggerLogInfo(t *gotesting.T) {
 	log.Info("test123")
 
 	infoStr := strings.ToUpper(log.InfoLevel.String())
-	expected := " test  " + infoStr + "    test123 \n"
 	logged := buf.String()
-	assert.Truef(t,
-		strings.HasSuffix(logged, expected),
-		"log not equal got '%v' and expected '%v'",
-		strings.TrimSpace(logged),
-		strings.TrimSpace(expected),
-	)
+	assert.Contains(t, strings.TrimSpace(logged), "test  logger_test.go:38 "+infoStr+"   test123", ".Info() log output unexpected")
 }

@@ -16,22 +16,41 @@ package logger
 
 import (
 	"io"
+	"path/filepath"
+	"runtime"
+	"strconv"
+	"strings"
 
 	lcf "github.com/Robpol86/logrus-custom-formatter"
 	"github.com/alecthomas/kingpin"
 	log "github.com/sirupsen/logrus"
 )
 
-// GetLogFormatter returns a configured logrus.Formatter for logging
-func GetLogFormatter(progName string) log.Formatter {
-	template := "%[ascTime]s %-5[process]d " + progName + "  %-7[levelName]s %[message]s %[fields]s\n"
-	return lcf.NewFormatter(template, nil)
-}
-
 // enableVerboseLogging enables verbose logging
 func enableVerboseLogging(ctx *kingpin.ParseContext) error {
 	log.SetLevel(log.DebugLevel)
 	return nil
+}
+
+// getCallerInfo returns the file and file line-number of a caller
+func getLogCallerInfo(e *log.Entry, f *lcf.CustomFormatter) (interface{}, error) {
+	skip := 1
+	skipMax := 12
+	for skip <= skipMax {
+		_, file, lineNo, _ := runtime.Caller(skip)
+		if strings.Contains(file, "github.com/Robpol86/logrus-custom-formatter") || strings.Contains(file, "github.com/sirupsen/logrus") {
+			skip++
+			continue
+		}
+		return filepath.Base(file) + ":" + strconv.Itoa(lineNo), nil
+	}
+	return "", nil
+}
+
+// GetLogFormatter returns a configured logrus.Formatter for logging
+func GetLogFormatter(progName string) log.Formatter {
+	template := "%[ascTime]s " + progName + "  %-16[caller]s %-6[levelName]s %[message]s %[fields]s\n"
+	return lcf.NewFormatter(template, lcf.CustomHandlers{"caller": getLogCallerInfo})
 }
 
 // SetupLogger configures github.com/srupsen/logrus for logging

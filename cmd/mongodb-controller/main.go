@@ -78,16 +78,12 @@ func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
 		"DC/OS SDK service mongod endpoint name, overridden by env var "+common.EnvMongoDBMongodEndpointName,
 	).Default(common.DefaultMongoDBMongodEndpointName).Envar(common.EnvMongoDBMongodEndpointName).StringVar(&cnf.User.EndpointName)
 	cmdUser.Flag(
-		"apiHostPrefix",
-		"DC/OS SDK API hostname prefix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHTTPHostPrefix).StringVar(&cnf.User.API.HostPrefix)
-	cmdUser.Flag(
-		"apiHostSuffix",
-		"DC/OS SDK API hostname suffix, used to construct the DCOS API hostname",
-	).Default(api.DefaultHTTPHostSuffix).StringVar(&cnf.User.API.HostSuffix)
+		"apiHost",
+		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerAPIHost,
+	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerAPIHost).StringVar(&cnf.User.API.Host)
 	cmdUser.Flag(
 		"apiTimeout",
-		"DC/OS SDK API timeout, overridden by env var",
+		"DC/OS SDK API timeout",
 	).Default(api.DefaultHTTPTimeout).DurationVar(&cnf.User.API.Timeout)
 	app.Flag(
 		"apiSecure",

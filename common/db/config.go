@@ -15,6 +15,7 @@
 package db
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -36,14 +37,33 @@ type Config struct {
 	SSL      *SSLConfig
 }
 
+func getDefaultMongoDBAddress() string {
+	hostname := DefaultMongoDBHost
+
+	// use the full hostname when using SSL mode
+	if os.Getenv(common.EnvMongoDBNetSSLEnabled) == "true" {
+		frameworkHost := os.Getenv(common.EnvFrameworkHost)
+		taskName := os.Getenv(common.EnvTaskName)
+		if taskName != "" && frameworkHost != "" {
+			hostname = taskName + "." + frameworkHost
+		}
+	}
+
+	mongodbPort := os.Getenv(common.EnvMongoDBPort)
+	if mongodbPort != "" {
+		return hostname + ":" + mongodbPort
+	}
+	return hostname + ":" + DefaultMongoDBPort
+}
+
 func NewConfig(app *kingpin.Application, envUser string, envPassword string) *Config {
 	db := &Config{
 		DialInfo: &mgo.DialInfo{},
 	}
 	app.Flag(
 		"address",
-		"mongodb server address (hostname:port)",
-	).Default(DefaultMongoDBHost + ":" + DefaultMongoDBPort).StringsVar(&db.DialInfo.Addrs)
+		"mongodb server address (hostname:port), defaults to '$TASK_NAME.$FRAMEWORK_HOST:$MONGODB_PORT' if the env vars are available and SSL is used, if not the default is '"+DefaultMongoDBHost+":"+DefaultMongoDBPort+"'",
+	).Default(getDefaultMongoDBAddress()).StringsVar(&db.DialInfo.Addrs)
 	app.Flag(
 		"replset",
 		"mongodb replica set name, overridden by env var "+common.EnvMongoDBReplset,

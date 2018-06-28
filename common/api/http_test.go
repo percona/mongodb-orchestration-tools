@@ -13,15 +13,3 @@
 // limitations under the License.
 
 package api
-
-import (
-	gotesting "testing"
-
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/stretchr/testify/assert"
-)
-
-func TestCommonAPIGetBaseURL(t *gotesting.T) {
-	expected := DefaultHTTPHostPrefix + "." + common.DefaultFrameworkName + "." + DefaultHTTPHostSuffix
-	assert.Equal(t, expected, testAPI.getBaseURL(), "api.getBaseURL() is incorrect")
-}

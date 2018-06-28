@@ -36,5 +36,5 @@ func TestCommonAPIEndpointHosts(t *gotesting.T) {
 }
 
 func TestCommonAPIGetEndpointsURL(t *gotesting.T) {
-	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.getBaseURL()+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
+	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
 }

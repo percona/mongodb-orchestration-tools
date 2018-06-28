@@ -23,10 +23,9 @@ var APIVersion = "v1"
 
 // Config is a struct of configuration options for the API
 type Config struct {
-	HostPrefix string
-	HostSuffix string
-	Timeout    time.Duration
-	Secure     bool
+	Host    string
+	Timeout time.Duration
+	Secure  bool
 }
 
 // Client is an interface describing a DC/OS SDK API Client
