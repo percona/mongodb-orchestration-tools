@@ -6,7 +6,7 @@ GO_LDFLAGS_FULL="${GO_LDFLAGS} -X main.GitCommit=${GIT_COMMIT} -X main.GitBranch
 GOCACHE?=
 
 ENABLE_MONGODB_TESTS?=false
-TEST_PSMDB_VERSION?=latest
+TEST_MONGODB_DOCKERTAG?=percona/percona-server-mongodb:latest
 TEST_RS_NAME?=rs
 TEST_MONGODB_DOCKER_UID?=1001
 TEST_ADMIN_USER?=admin
@@ -66,7 +66,7 @@ test-full-keys: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pem
 
 test-full-prepare: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pem
 	TEST_RS_NAME=$(TEST_RS_NAME) \
-	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
+	TEST_MONGODB_DOCKERTAG=$(TEST_MONGODB_DOCKERTAG) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \

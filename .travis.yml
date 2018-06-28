@@ -8,8 +8,9 @@ matrix:
   allow_failures:
     - go: master
 env:
-  - PSMDB_VERSION=3.4
-  - PSMDB_VERSION=3.6
+  - MONGODB_DOCKERTAG=percona/percona-server-mongodb:3.4
+  - MONGODB_DOCKERTAG=percona/percona-server-mongodb:3.6
+  - MONGODB_DOCKERTAG=mongo:4.0
 services:
   - docker
 install:
@@ -18,7 +19,7 @@ before_script:
   - docker --version
   - docker-compose --version
   - sudo make test-full-keys
-  - make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
+  - make TEST_MONGODB_DOCKERTAG=$MONGODB_DOCKERTAG test-full-prepare
 script:
   - make TEST_CODECOV=true test-full
 after_success:
