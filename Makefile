@@ -80,7 +80,6 @@ test-full-clean:
 
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
-	MESOS_SANDBOX=/mnt/mesos/sandbox \
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
@@ -88,6 +87,14 @@ test-full: vendor
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
+
+release: clean
+	docker build -t dcos-mongo-tools_build -f Dockerfile.build .
+	docker run --rm -v $(shell readlink -f $(CURDIR))/bin:/go/src/github.com/percona/dcos-mongo-tools/bin -it dcos-mongo-tools_build
+	docker rmi -f dcos-mongo-tools_build
+
+docker: release
+	docker build -t dcos-mongo-tools -f Dockerfile .
 
 clean:
 	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
