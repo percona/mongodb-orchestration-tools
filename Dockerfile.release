@@ -1,0 +1,15 @@
+ARG GO_VERSION
+
+FROM golang:$GO_VERSION
+
+WORKDIR /go/src/github.com/percona/dcos-mongo-tools
+COPY . .
+
+RUN apk update && \
+    apk add git make upx
+
+RUN make vendor
+
+CMD make test && \
+    make && \
+    upx bin/mongodb-*-*
