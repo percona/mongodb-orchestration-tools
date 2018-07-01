@@ -1,8 +1,3 @@
-FROM golang:1.10-alpine
-
-WORKDIR /go/src/github.com/percona/dcos-mongo-tools
-COPY . .
-
-RUN apk update && apk add git make
-RUN make test
-RUN make
+FROM alpine:3.7
+COPY bin/mongodb-controller-* /usr/bin/
+COPY bin/mongodb-watchdog-* /usr/bin/
