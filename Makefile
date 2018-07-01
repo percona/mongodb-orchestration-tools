@@ -3,6 +3,8 @@ BASE_DIR?=$(shell readlink -f $(CURDIR))
 VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+"' version.go | tr -d \")
 GIT_COMMIT?=$(shell git rev-parse HEAD)
 GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
+DOCKERHUB_REPO?=percona/dcos-mongo-tools
+
 GO_VERSION?=1.10
 GO_VERSION_MAJ_MIN=$(shell echo $(GO_VERSION) | cut -d. -f1-2)
 GO_LDFLAGS?=-s -w
@@ -106,10 +108,16 @@ release: clean
 	-it dcos-mongo-tools_build
 	docker rmi -f dcos-mongo-tools_build
 
-docker: release
+docker-build: release
 	docker build -t dcos-mongo-tools:$(VERSION) -f Dockerfile .
 	docker run --rm -it dcos-mongo-tools:$(VERSION) mongodb-controller-$(PLATFORM) --version
 	docker run --rm -it dcos-mongo-tools:$(VERSION) mongodb-watchdog-$(PLATFORM) --version
+
+docker-push:
+	docker tag dcos-mongo-tools:$(VERSION) $(DOCKERHUB_REPO):$(VERSION)
+	docker tag dcos-mongo-tools:$(VERSION) $(DOCKERHUB_REPO):latest
+	docker push $(DOCKERHUB_REPO):$(VERSION)
+	docker push $(DOCKERHUB_REPO):latest
 
 clean:
 	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
