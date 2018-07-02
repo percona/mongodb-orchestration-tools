@@ -5,7 +5,13 @@ VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+(-\S+)?"' version.go | tr -d \")
 GIT_COMMIT?=$(shell git rev-parse HEAD)
 GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 GITHUB_REPO?=percona/$(NAME)
+RELEASE_CACHE_DIR?=/tmp/$(NAME)_release.cache
+
 DOCKERHUB_REPO?=percona/$(NAME)
+DOCKERHUB_TAG?=$(VERSION)
+ifneq ($(GIT_BRANCH), master)
+	DOCKERHUB_TAG=$(VERSION)-$(GIT_BRANCH)
+endif
 
 GO_VERSION?=1.10
 GO_VERSION_MAJ_MIN=$(shell echo $(GO_VERSION) | cut -d. -f1-2)
@@ -25,7 +31,7 @@ TEST_SECONDARY2_PORT?=65219
 
 TEST_CODECOV?=false
 TEST_GO_EXTRA?=
-ifeq ($(TEST_CODECOV),true)
+ifeq ($(TEST_CODECOV), true)
 	TEST_GO_EXTRA=-coverprofile=cover.out -covermode=atomic
 endif
 
@@ -97,9 +103,10 @@ test-full: vendor
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
 
 release: clean
-	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-alpine -t $(NAME)_build -f Dockerfile.release .
+	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-alpine -t $(NAME)_release -f Dockerfile.release .
 	docker run --rm --network=host \
 	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
+	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
 	-e ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) \
 	-e TEST_RS_NAME=$(TEST_RS_NAME) \
 	-e TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
@@ -107,21 +114,25 @@ release: clean
 	-e TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	-it $(NAME)_build
+	-it $(NAME)_release
 
 release-clean:
-	docker rmi -f $(NAME)_build
+	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
+	docker rmi -f $(NAME)_release 2>/dev/null
+	docker rmi -f $(NAME):$(DOCKERHUB_TAG) 2>/dev/null
 
 docker-build: release
-	docker build -t $(NAME):$(VERSION) -f Dockerfile .
-	docker run --rm -it $(NAME):$(VERSION) mongodb-controller-$(PLATFORM) --version
-	docker run --rm -it $(NAME):$(VERSION) mongodb-watchdog-$(PLATFORM) --version
+	docker build -t $(NAME):$(DOCKERHUB_TAG) -f Dockerfile .
+	docker run --rm -it $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
+	docker run --rm -it $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
 
 docker-push:
-	docker tag $(NAME):$(VERSION) $(DOCKERHUB_REPO):$(VERSION)
-	docker tag $(NAME):$(VERSION) $(DOCKERHUB_REPO):latest
-	docker push $(DOCKERHUB_REPO):$(VERSION)
+	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
+	docker push $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
+ifeq ($(GIT_BRANCH), master)
+	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):latest
 	docker push $(DOCKERHUB_REPO):latest
+endif
 
 clean:
 	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
