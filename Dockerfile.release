@@ -1,6 +1,6 @@
-ARG GO_VERSION
+ARG GOLANG_DOCKERHUB_TAG
 
-FROM golang:$GO_VERSION
+FROM golang:$GOLANG_DOCKERHUB_TAG
 
 WORKDIR /go/src/github.com/percona/dcos-mongo-tools
 COPY . .
