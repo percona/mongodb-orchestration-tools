@@ -8,8 +8,6 @@ COPY . .
 RUN apk update && \
     apk add git make upx
 
-RUN make vendor
-
 CMD make test && \
     make && \
     upx bin/mongodb-*-*
