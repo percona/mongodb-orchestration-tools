@@ -115,6 +115,7 @@ release: clean
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	-it $(NAME)_release
+	zip -j bin/$(NAME)_mongod.zip bin/mongodb-{executor,healthcheck}-$(PLATFORM)
 
 release-clean:
 	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
