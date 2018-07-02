@@ -1,9 +1,11 @@
+NAME?=dcos-mongo-tools
 PLATFORM?=linux
 BASE_DIR?=$(shell readlink -f $(CURDIR))
-VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+"' version.go | tr -d \")
+VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+(-\S+)?"' version.go | tr -d \")
 GIT_COMMIT?=$(shell git rev-parse HEAD)
 GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
-DOCKERHUB_REPO?=percona/dcos-mongo-tools
+GITHUB_REPO?=percona/$(NAME)
+DOCKERHUB_REPO?=percona/$(NAME)
 
 GO_VERSION?=1.10
 GO_VERSION_MAJ_MIN=$(shell echo $(GO_VERSION) | cut -d. -f1-2)
@@ -95,9 +97,9 @@ test-full: vendor
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
 
 release: clean
-	docker build --build-arg GO_VERSION=$(GO_VERSION_MAJ_MIN)-alpine -t dcos-mongo-tools_build -f Dockerfile.release .
+	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-alpine -t $(NAME)_build -f Dockerfile.release .
 	docker run --rm --network=host \
-	-v $(BASE_DIR)/bin:/go/src/github.com/percona/dcos-mongo-tools/bin \
+	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
 	-e ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) \
 	-e TEST_RS_NAME=$(TEST_RS_NAME) \
 	-e TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
@@ -105,17 +107,19 @@ release: clean
 	-e TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	-it dcos-mongo-tools_build
-	docker rmi -f dcos-mongo-tools_build
+	-it $(NAME)_build
+
+release-clean:
+	docker rmi -f $(NAME)_build
 
 docker-build: release
-	docker build -t dcos-mongo-tools:$(VERSION) -f Dockerfile .
-	docker run --rm -it dcos-mongo-tools:$(VERSION) mongodb-controller-$(PLATFORM) --version
-	docker run --rm -it dcos-mongo-tools:$(VERSION) mongodb-watchdog-$(PLATFORM) --version
+	docker build -t $(NAME):$(VERSION) -f Dockerfile .
+	docker run --rm -it $(NAME):$(VERSION) mongodb-controller-$(PLATFORM) --version
+	docker run --rm -it $(NAME):$(VERSION) mongodb-watchdog-$(PLATFORM) --version
 
 docker-push:
-	docker tag dcos-mongo-tools:$(VERSION) $(DOCKERHUB_REPO):$(VERSION)
-	docker tag dcos-mongo-tools:$(VERSION) $(DOCKERHUB_REPO):latest
+	docker tag $(NAME):$(VERSION) $(DOCKERHUB_REPO):$(VERSION)
+	docker tag $(NAME):$(VERSION) $(DOCKERHUB_REPO):latest
 	docker push $(DOCKERHUB_REPO):$(VERSION)
 	docker push $(DOCKERHUB_REPO):latest
 
