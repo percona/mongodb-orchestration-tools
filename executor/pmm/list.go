@@ -24,7 +24,10 @@ import (
 )
 
 var (
-	ErrMsgNoServices = "No services under monitoring."
+	ErrMsgPrefixesNotMonitored = []string{
+		"No monitoring registered for this node",
+		"No services under monitoring",
+	}
 )
 
 type ListClientService struct {
@@ -54,7 +57,12 @@ func (pl *ListClient) getError() error {
 
 func (pl *ListClient) hasError() bool {
 	err := pl.getError()
-	return err != nil && err.Error() != ErrMsgNoServices
+	for _, msgPrefix := range ErrMsgPrefixesNotMonitored {
+		if strings.HasPrefix(err.Error(), msgPrefix) {
+			return false
+		}
+	}
+	return err != nil
 }
 
 func (pl *ListClient) hasService(serviceName string) bool {
