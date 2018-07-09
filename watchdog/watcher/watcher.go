@@ -80,11 +80,17 @@ func (rw *Watcher) connectReplsetSession() error {
 			if err == nil {
 				break
 			}
+
 			log.WithFields(log.Fields{
 				"addrs":   rw.dbConfig.DialInfo.Addrs,
 				"replset": rw.replset.Name,
 				"ssl":     rw.dbConfig.SSL.Enabled,
 			}).Errorf("Error connecting to mongodb replset: %s", err)
+
+			rw.dbConfig = rw.replset.GetReplsetDBConfig(rw.config.SSL)
+			if session != nil {
+				session.Close()
+			}
 		}
 		time.Sleep(rw.config.ReplsetPoll)
 	}
