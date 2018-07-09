@@ -49,20 +49,23 @@ type ListClient struct {
 }
 
 func (pl *ListClient) getError() error {
-	if pl.Err != "" {
-		return fmt.Errorf("PMM error: %s\n", strings.TrimSpace(pl.Err))
+	if pl.hasError() {
+		return fmt.Errorf("%s", strings.TrimSpace(pl.Err))
 	}
 	return nil
 }
 
 func (pl *ListClient) hasError() bool {
-	err := pl.getError()
+	return pl.Err != ""
+}
+
+func (pl *ListClient) hasNotMonitoredError() bool {
 	for _, msgPrefix := range ErrMsgPrefixesNotMonitored {
-		if strings.HasPrefix(err.Error(), msgPrefix) {
-			return false
+		if strings.HasPrefix(pl.Err, msgPrefix) {
+			return true
 		}
 	}
-	return err != nil
+	return false
 }
 
 func (pl *ListClient) hasService(serviceName string) bool {
@@ -97,7 +100,7 @@ func (p *PMM) list() (*ListClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	if list.hasError() {
+	if list.hasError() && !list.hasNotMonitoredError() {
 		return nil, list.getError()
 	}
 
