@@ -61,7 +61,7 @@ func (pl *ListClient) hasError() bool {
 
 func (pl *ListClient) hasNotMonitoredError() bool {
 	for _, msgPrefix := range ErrMsgPrefixesNotMonitored {
-		if strings.HasPrefix(pl.Err, msgPrefix) {
+		if strings.HasPrefix(strings.TrimSpace(pl.Err), msgPrefix) {
 			return true
 		}
 	}
