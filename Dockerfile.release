@@ -5,9 +5,10 @@ FROM golang:$GOLANG_DOCKERHUB_TAG
 WORKDIR /go/src/github.com/percona/dcos-mongo-tools
 COPY . .
 
-RUN apk update && \
-    apk add git make upx
+RUN apt-get update && \
+    apt-get install -y upx-ucl && \
+    apt-get clean all
 
-CMD make test && \
+CMD make test-full && \
     make && \
     upx bin/mongodb-*-*
