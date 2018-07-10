@@ -100,7 +100,7 @@ release: clean
 	-e TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	-it $(NAME)_release
+	-i $(NAME)_release
 	zip -j bin/$(NAME)_mongod.zip bin/mongodb-{executor,healthcheck}-$(PLATFORM)
 
 release-clean:
@@ -110,8 +110,8 @@ release-clean:
 
 docker-build: release
 	docker build -t $(NAME):$(DOCKERHUB_TAG) -f Dockerfile .
-	docker run --rm -it $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
-	docker run --rm -it $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
+	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
+	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
 
 docker-push:
 	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
