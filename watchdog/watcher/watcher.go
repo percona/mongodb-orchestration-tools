@@ -33,9 +33,10 @@ var (
 )
 
 type Watcher struct {
-	sync.Mutex
 	config            *config.Config
 	masterSession     *mgo.Session
+	sessionLock       sync.Mutex
+	stateLock         sync.Mutex
 	mongodAddQueue    chan []*replset.Mongod
 	mongodRemoveQueue chan []*rsConfig.Member
 	dbConfig          *db.Config
@@ -57,9 +58,6 @@ func New(rs *replset.Replset, config *config.Config, stop *chan bool) *Watcher {
 }
 
 func (rw *Watcher) getReplsetSession() *mgo.Session {
-	rw.Lock()
-	defer rw.Unlock()
-
 	if rw.masterSession == nil || rw.masterSession.Ping() != nil {
 		err := rw.connectReplsetSession()
 		if err != nil {
@@ -70,14 +68,17 @@ func (rw *Watcher) getReplsetSession() *mgo.Session {
 }
 
 func (rw *Watcher) connectReplsetSession() error {
+	rw.sessionLock.Lock()
+	defer rw.sessionLock.Unlock()
+
 	var err error
 	var session *mgo.Session
-
 	for {
 		rw.dbConfig = rw.replset.GetReplsetDBConfig(rw.config.SSL)
 		if len(rw.dbConfig.DialInfo.Addrs) >= 1 {
 			session, err = db.GetSession(rw.dbConfig)
 			if err == nil {
+				session.SetMode(replsetReadPreference, true)
 				break
 			}
 
@@ -94,10 +95,6 @@ func (rw *Watcher) connectReplsetSession() error {
 		}
 		time.Sleep(rw.config.ReplsetPoll)
 	}
-	session.SetMode(replsetReadPreference, true)
-
-	rw.Lock()
-	defer rw.Unlock()
 
 	if rw.masterSession != nil {
 		log.WithFields(log.Fields{
@@ -215,9 +212,9 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 
 		session := rw.getReplsetSession()
 		if session != nil {
-			rw.Lock()
+			rw.stateLock.Lock()
 			rw.state.AddConfigMembers(session, rw.configManager, mongods)
-			rw.Unlock()
+			rw.stateLock.Unlock()
 		}
 		rw.reconnectReplsetSession()
 	}
@@ -231,17 +228,17 @@ func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member)
 
 		session := rw.getReplsetSession()
 		if session != nil {
-			rw.Lock()
+			rw.stateLock.Lock()
 			rw.state.RemoveConfigMembers(session, rw.configManager, members)
-			rw.Unlock()
+			rw.stateLock.Unlock()
 		}
 		rw.reconnectReplsetSession()
 	}
 }
 
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
-	rw.Lock()
-	defer rw.Unlock()
+	rw.stateLock.Lock()
+	defer rw.stateLock.Unlock()
 
 	fields := log.Fields{
 		"replset": rw.replset.Name,
