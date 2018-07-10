@@ -91,9 +91,11 @@ test-full: vendor
 release: clean
 	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f Dockerfile.release .
 	docker run --rm --network=host \
+	-v $(BASE_DIR)/cover.out:/go/src/github.com/$(GITHUB_REPO)/cover.out \
 	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
 	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
 	-e ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) \
+	-e TEST_CODECOV=$(TEST_CODECOV) \
 	-e TEST_RS_NAME=$(TEST_RS_NAME) \
 	-e TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	-e TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
