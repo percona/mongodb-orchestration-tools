@@ -89,7 +89,7 @@ test-full: vendor
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
 
 release: clean
-	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-alpine -t $(NAME)_release -f Dockerfile.release .
+	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f Dockerfile.release .
 	docker run --rm --network=host \
 	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
 	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
@@ -101,7 +101,7 @@ release: clean
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	-i $(NAME)_release
-	zip -j bin/$(NAME)_mongod.zip bin/mongodb-{executor,healthcheck}-$(PLATFORM)
+	zip -j $(BASE_DIR)/bin/$(NAME)_mongod.zip $(BASE_DIR)/bin/mongodb-{executor,healthcheck}-$(PLATFORM)
 
 release-clean:
 	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
