@@ -6,9 +6,11 @@ WORKDIR /go/src/github.com/percona/dcos-mongo-tools
 COPY . .
 
 RUN apt-get update && \
-    apt-get install -y upx-ucl && \
+    apt-get install -y upx-ucl zip && \
     apt-get clean all
 
 CMD make test-full && \
     make && \
-    upx bin/mongodb-*-*
+    upx bin/mongodb-*-* && \
+    zip -c bin/dcos-mongo-tools_mongod.zip bin/mongodb-executor-linux && \
+    zip -c bin/dcos-mongo-tools_mongod.zip bin/mongodb-healthcheck-linux

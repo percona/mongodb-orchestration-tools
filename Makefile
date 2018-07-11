@@ -87,15 +87,18 @@ test-full: vendor
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
+ifeq ($(TEST_CODECOV), true)
+	test/push-codecov.sh
+endif
 
 release: clean
 	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f Dockerfile.release .
 	docker run --rm --network=host \
-	-v $(BASE_DIR)/cover.out:/go/src/github.com/$(GITHUB_REPO)/cover.out \
 	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
 	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
 	-e ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) \
 	-e TEST_CODECOV=$(TEST_CODECOV) \
+	-e CODECOV_TOKEN=$(CODECOV_TOKEN) \
 	-e TEST_RS_NAME=$(TEST_RS_NAME) \
 	-e TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	-e TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
@@ -103,8 +106,6 @@ release: clean
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	-i $(NAME)_release
-	zip -j $(BASE_DIR)/bin/$(NAME)_mongod.zip $(BASE_DIR)/bin/mongodb-executor-$(PLATFORM)
-	zip -j $(BASE_DIR)/bin/$(NAME)_mongod.zip $(BASE_DIR)/bin/mongodb-healthcheck-$(PLATFORM)
 
 release-clean:
 	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
@@ -125,4 +126,4 @@ ifeq ($(GIT_BRANCH), master)
 endif
 
 clean:
-	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
+	rm -rf bin cover.out test/test-mongod.key vendor 2>/dev/null || true
