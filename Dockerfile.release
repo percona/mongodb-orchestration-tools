@@ -6,7 +6,7 @@ WORKDIR /go/src/github.com/percona/dcos-mongo-tools
 COPY . .
 
 RUN apt-get update && \
-    apt-get install -y upx-ucl && \
+    apt-get install -y upx-ucl zip && \
     apt-get clean all
 
 CMD make test-full && \
