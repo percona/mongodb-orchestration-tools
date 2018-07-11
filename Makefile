@@ -126,4 +126,4 @@ ifeq ($(GIT_BRANCH), master)
 endif
 
 clean:
-	rm -rf bin cover.out test/test-*.* vendor 2>/dev/null || true
+	rm -rf bin cover.out test/test-mongod.key vendor 2>/dev/null || true
