@@ -94,7 +94,6 @@ endif
 release: clean
 	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f Dockerfile.release .
 	docker run --rm --network=host \
-	-v $(BASE_DIR)/cover.out:/go/src/github.com/$(GITHUB_REPO)/cover.out \
 	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
 	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
 	-e ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) \
@@ -128,4 +127,4 @@ ifeq ($(GIT_BRANCH), master)
 endif
 
 clean:
-	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
+	rm -rf bin cover.out test/test-*.* vendor 2>/dev/null || true
