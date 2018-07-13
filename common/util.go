@@ -15,11 +15,13 @@
 package common
 
 import (
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 )
 
 // DoStop checks if a goroutine should stop, based on a boolean channel
@@ -64,4 +66,20 @@ func RelPathToAbs(relPath string) string {
 		}
 	}
 	return ""
+}
+
+// StringFromFile returns a string containing the contents of a open file handle
+func StringFromFile(fileName string) *string {
+	if fileName != "" {
+		file, err := os.Open(fileName)
+		if err != nil {
+			return nil
+		}
+		bytes, err := ioutil.ReadAll(file)
+		if err == nil {
+			data := strings.TrimSpace(string(bytes))
+			return &data
+		}
+	}
+	return nil
 }

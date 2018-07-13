@@ -88,6 +88,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
+	if _, err := os.Stat(cnf.Password); err == nil {
+		log.Infof("Loading userAdmin password from %s", cnf.Password)
+		str := common.StringFromFile(cnf.Password)
+		if str != nil {
+			cnf.Password = *str
+		}
+	}
 
 	quit := make(chan bool)
 	watchdog.New(cnf, &quit, api.New(

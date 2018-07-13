@@ -148,7 +148,7 @@ func main() {
 	).Envar(common.EnvMongoDBUserAdminUser).Required().StringVar(&cnf.UserAdminUser)
 	app.Flag(
 		"userAdminPassword",
-		"mongodb userAdmin username, overridden by env var "+common.EnvMongoDBUserAdminPassword,
+		"mongodb userAdmin password or path to file containing it, overridden by env var "+common.EnvMongoDBUserAdminPassword,
 	).Envar(common.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
 
 	cnf.SSL = db.NewSSLConfig(app)
@@ -160,6 +160,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
+	if _, err := os.Stat(cnf.UserAdminPassword); err == nil {
+		log.Infof("Loading userAdmin password from %s", cnf.UserAdminPassword)
+		str := common.StringFromFile(cnf.UserAdminPassword)
+		if str != nil {
+			cnf.UserAdminUser = *str
+		}
+	}
+
 	switch command {
 	case cmdInit.FullCommand():
 		err := replset.NewInitiator(cnf).Run()
