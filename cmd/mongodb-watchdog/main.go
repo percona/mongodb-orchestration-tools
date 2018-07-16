@@ -88,7 +88,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	common.PasswordFallbackFromFile(&cnf.Password, "userAdmin")
+	cnf.Password = common.PasswordFallbackFromFile(cnf.Password, "userAdmin")
 
 	quit := make(chan bool)
 	watchdog.New(cnf, &quit, api.New(

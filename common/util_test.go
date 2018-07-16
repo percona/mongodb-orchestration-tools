@@ -125,11 +125,8 @@ func TestCommonStringFromFile(t *gotesting.T) {
 
 func TestPasswordFallbackFromFile(t *gotesting.T) {
 	password := testFileContent
-	PasswordFallbackFromFile(&password, "test")
-	assert.Equal(t, testFileContent, password, ".PasswordFallbackFromFile returned unexpected result")
+	assert.Equal(t, testFileContent, PasswordFallbackFromFile(password, "test"), ".PasswordFallbackFromFile returned unexpected result")
 
-	passwordNotExist := "is-not-an-existing-file"
-	password = passwordNotExist
-	PasswordFallbackFromFile(&password, "test")
-	assert.Equal(t, passwordNotExist, password, ".PasswordFallbackFromFile returned unexpected result")
+	password = "is-not-an-existing-file"
+	assert.Equal(t, password, PasswordFallbackFromFile(password, "test"), ".PasswordFallbackFromFile returned unexpected result")
 }

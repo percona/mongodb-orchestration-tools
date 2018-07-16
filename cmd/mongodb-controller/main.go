@@ -160,7 +160,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	common.PasswordFallbackFromFile(&cnf.UserAdminUser, "userAdmin")
+	cnf.UserAdminUser = common.PasswordFallbackFromFile(cnf.UserAdminUser, "userAdmin")
 
 	switch command {
 	case cmdInit.FullCommand():
