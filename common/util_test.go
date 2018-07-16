@@ -123,7 +123,7 @@ func TestCommonStringFromFile(t *gotesting.T) {
 	assert.Nil(t, StringFromFile("/does/not/exist.file"), ".StringFromFile() returned unexpected result")
 }
 
-func TestPasswordFallbackFromFile(t *gotesting.T) {
+func TestCommonPasswordFallbackFromFile(t *gotesting.T) {
 	password := testFileContent
 	assert.Equal(t, testFileContent, PasswordFallbackFromFile(password, "test"), ".PasswordFallbackFromFile returned unexpected result")
 
