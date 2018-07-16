@@ -77,6 +77,7 @@ func StringFromFile(fileName string) *string {
 		if err != nil {
 			return nil
 		}
+		defer file.Close()
 		bytes, err := ioutil.ReadAll(file)
 		if err == nil {
 			data := strings.TrimSpace(string(bytes))
