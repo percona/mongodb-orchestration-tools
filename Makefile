@@ -72,11 +72,11 @@ test-full-prepare: test/ssl/mongodb.pem test/ssl/rootCA.crt test/test-mongod.key
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	docker-compose up -d
+	docker-compose up -d --force-recreate
 	test/init-test-replset-wait.sh
 
 test-full-clean:
-	docker-compose down
+	docker-compose down -v
 
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
