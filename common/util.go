@@ -89,9 +89,6 @@ func StringFromFile(fileName string) *string {
 func PasswordFallbackFromFile(password *string, passwordName string) {
 	if _, err := os.Stat(*password); err == nil {
 		log.Infof("Loading %s password from file %s", passwordName, *password)
-		str := StringFromFile(*password)
-		if str != nil {
-			password = str
-		}
+		password = StringFromFile(*password)
 	}
 }
