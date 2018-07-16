@@ -16,6 +16,7 @@ package common
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	gotesting "testing"
@@ -25,8 +26,24 @@ import (
 )
 
 var (
+	testTmpfile     *os.File
 	testFileContent = "test123456"
 )
+
+func TestMain(m *gotesting.M) {
+	var err error
+	testTmpfile, err = ioutil.TempFile("", "dcos-mongo-tools")
+	if err != nil {
+		log.Fatalf("Error setting up test tmpfile: %v", err)
+	}
+	_, err = testTmpfile.Write([]byte(testFileContent))
+	if err != nil {
+		log.Fatalf("Error writing test tmpfile: %v", err)
+	}
+	exit := m.Run()
+	os.Remove(testTmpfile.Name())
+	os.Exit(exit)
+}
 
 func TestCommonDoStop(t *gotesting.T) {
 	stop := make(chan bool)
@@ -102,10 +119,17 @@ func TestCommonGetGroupID(t *gotesting.T) {
 }
 
 func TestCommonStringFromFile(t *gotesting.T) {
-	tmpfile, err := ioutil.TempFile("", "dcos-mongo-tools")
-	assert.NoError(t, err, "could not setup tmpfile for .StringFromFile() test")
-	defer os.Remove(tmpfile.Name())
-	_, err = tmpfile.Write([]byte(testFileContent))
-	assert.NoError(t, err, "could not write tmpfile for .StringFromFile() test")
-	assert.Equal(t, testFileContent, *StringFromFile(tmpfile.Name()), ".StringFromFile() returned unexpected result")
+	assert.Equal(t, testFileContent, *StringFromFile(testTmpfile.Name()), ".StringFromFile() returned unexpected result")
+	assert.Nil(t, StringFromFile("/does/not/exist.file"), ".StringFromFile() returned unexpected result")
+}
+
+func TestPasswordFallbackFromFile(t *gotesting.T) {
+	password := testFileContent
+	PasswordFallbackFromFile(&password, "test")
+	assert.Equal(t, testFileContent, password, ".PasswordFallbackFromFile returned unexpected result")
+
+	passwordNotExist := "is-not-an-existing-file"
+	password = passwordNotExist
+	PasswordFallbackFromFile(&password, "test")
+	assert.Equal(t, passwordNotExist, password, ".PasswordFallbackFromFile returned unexpected result")
 }

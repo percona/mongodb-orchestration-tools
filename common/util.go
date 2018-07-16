@@ -72,17 +72,15 @@ func RelPathToAbs(relPath string) string {
 
 // StringFromFile returns a string using the contents of an existing filename
 func StringFromFile(fileName string) *string {
-	if fileName != "" {
-		file, err := os.Open(fileName)
-		if err != nil {
-			return nil
-		}
-		defer file.Close()
-		bytes, err := ioutil.ReadAll(file)
-		if err == nil {
-			data := strings.TrimSpace(string(bytes))
-			return &data
-		}
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+	bytes, err := ioutil.ReadAll(file)
+	if err == nil {
+		data := strings.TrimSpace(string(bytes))
+		return &data
 	}
 	return nil
 }
