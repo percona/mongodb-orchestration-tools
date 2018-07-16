@@ -170,6 +170,7 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 	cnf.NodeType = config.NodeType(nodeType)
+	common.PasswordFallbackFromFile(&cnf.DB.DialInfo.Password, "password")
 
 	var daemon executor.Daemon
 	quit := make(chan bool)

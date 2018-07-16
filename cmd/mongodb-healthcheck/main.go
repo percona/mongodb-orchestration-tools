@@ -45,13 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	if _, err := os.Stat(cnf.DialInfo.Password); err == nil {
-		log.Infof("Loading db password from %s", cnf.DialInfo.Password)
-		str := common.StringFromFile(cnf.DialInfo.Password)
-		if str != nil {
-			cnf.DialInfo.Password = *str
-		}
-	}
+	common.PasswordFallbackFromFile(&cnf.DialInfo.Password, "password")
 
 	session, err := db.GetSession(cnf)
 	if err != nil {

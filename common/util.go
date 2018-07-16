@@ -22,6 +22,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // DoStop checks if a goroutine should stop, based on a boolean channel
@@ -82,4 +84,15 @@ func StringFromFile(fileName string) *string {
 		}
 	}
 	return nil
+}
+
+// PasswordFallbackFromFile loads a password from file if it exists
+func PasswordFallbackFromFile(password *string, passwordName string) {
+	if _, err := os.Stat(*password); err == nil {
+		log.Infof("Loading %s password from file %s", passwordName, *password)
+		str := StringFromFile(*password)
+		if str != nil {
+			password = str
+		}
+	}
 }
