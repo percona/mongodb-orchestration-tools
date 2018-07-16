@@ -88,7 +88,7 @@ test-full: vendor
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
 ifeq ($(TEST_CODECOV), true)
-	test/push-codecov.sh
+	curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}
 endif
 
 release: clean
