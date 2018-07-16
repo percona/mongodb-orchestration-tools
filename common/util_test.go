@@ -15,12 +15,17 @@
 package common
 
 import (
+	"io/ioutil"
 	"os"
 	"os/user"
 	gotesting "testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	testFileContent = "test123456"
 )
 
 func TestCommonDoStop(t *gotesting.T) {
@@ -94,4 +99,13 @@ func TestCommonGetGroupID(t *gotesting.T) {
 	gid, err := GetGroupID(group.Name)
 	assert.NoError(t, err, ".GetGroupID() for current user group should not return an error")
 	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
+}
+
+func TestCommonStringFromFile(t *gotesting.T) {
+	tmpfile, err := ioutil.TempFile("", "dcos-mongo-tools")
+	assert.NoError(t, err, "could not setup tmpfile for .StringFromFile() test")
+	defer os.Remove(tmpfile.Name())
+	_, err = tmpfile.Write([]byte(testFileContent))
+	assert.NoError(t, err, "could not write tmpfile for .StringFromFile() test")
+	assert.Equal(t, testFileContent, *StringFromFile(tmpfile.Name()), ".StringFromFile() returned unexpected result")
 }

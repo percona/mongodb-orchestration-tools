@@ -70,7 +70,7 @@ func RelPathToAbs(relPath string) string {
 	return ""
 }
 
-// StringFromFile returns a string containing the contents of a open file handle
+// StringFromFile returns a string using the contents of an existing filename
 func StringFromFile(fileName string) *string {
 	if fileName != "" {
 		file, err := os.Open(fileName)
