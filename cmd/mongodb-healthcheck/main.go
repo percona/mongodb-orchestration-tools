@@ -45,6 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
+	cnf.DialInfo.Password = common.PasswordFallbackFromFile(cnf.DialInfo.Password, "password")
 
 	session, err := db.GetSession(cnf)
 	if err != nil {

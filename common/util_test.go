@@ -15,6 +15,8 @@
 package common
 
 import (
+	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	gotesting "testing"
@@ -22,6 +24,26 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
+var (
+	testTmpfile     *os.File
+	testFileContent = "test123456"
+)
+
+func TestMain(m *gotesting.M) {
+	var err error
+	testTmpfile, err = ioutil.TempFile("", "dcos-mongo-tools")
+	if err != nil {
+		log.Fatalf("Error setting up test tmpfile: %v", err)
+	}
+	_, err = testTmpfile.Write([]byte(testFileContent))
+	if err != nil {
+		log.Fatalf("Error writing test tmpfile: %v", err)
+	}
+	exit := m.Run()
+	os.Remove(testTmpfile.Name())
+	os.Exit(exit)
+}
 
 func TestCommonDoStop(t *gotesting.T) {
 	stop := make(chan bool)
@@ -94,4 +116,17 @@ func TestCommonGetGroupID(t *gotesting.T) {
 	gid, err := GetGroupID(group.Name)
 	assert.NoError(t, err, ".GetGroupID() for current user group should not return an error")
 	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
+}
+
+func TestCommonStringFromFile(t *gotesting.T) {
+	assert.Equal(t, testFileContent, *StringFromFile(testTmpfile.Name()), ".StringFromFile() returned unexpected result")
+	assert.Nil(t, StringFromFile("/does/not/exist.file"), ".StringFromFile() returned unexpected result")
+}
+
+func TestCommonPasswordFallbackFromFile(t *gotesting.T) {
+	password := testFileContent
+	assert.Equal(t, testFileContent, PasswordFallbackFromFile(password, "test"), ".PasswordFallbackFromFile returned unexpected result")
+
+	password = "is-not-an-existing-file"
+	assert.Equal(t, password, PasswordFallbackFromFile(password, "test"), ".PasswordFallbackFromFile returned unexpected result")
 }

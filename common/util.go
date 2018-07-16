@@ -15,11 +15,15 @@
 package common
 
 import (
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // DoStop checks if a goroutine should stop, based on a boolean channel
@@ -64,4 +68,31 @@ func RelPathToAbs(relPath string) string {
 		}
 	}
 	return ""
+}
+
+// StringFromFile returns a string using the contents of an existing filename
+func StringFromFile(fileName string) *string {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+	bytes, err := ioutil.ReadAll(file)
+	if err == nil {
+		data := strings.TrimSpace(string(bytes))
+		return &data
+	}
+	return nil
+}
+
+// PasswordFallbackFromFile loads a password from file if it exists
+func PasswordFallbackFromFile(password string, passwordName string) string {
+	if _, err := os.Stat(password); err == nil {
+		log.Infof("Loading %s password from file %s", passwordName, password)
+		str := StringFromFile(password)
+		if str != nil {
+			return *str
+		}
+	}
+	return password
 }
