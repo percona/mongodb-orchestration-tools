@@ -21,6 +21,7 @@ const (
 	EnvTaskName         = "TASK_NAME"
 	EnvMesosSandbox     = "MESOS_SANDBOX"
 	EnvSchedulerAPIHost = "SCHEDULER_API_HOSTNAME"
+	EnvSecretsEnabled   = "SECRETS_ENABLED"
 
 	EnvMongoDBPrimaryAddr            = "MONGODB_PRIMARY_ADDR"
 	EnvMongoDBPort                   = "MONGODB_PORT"

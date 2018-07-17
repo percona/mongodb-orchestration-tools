@@ -33,8 +33,9 @@ import (
 )
 
 var (
-	GitCommit string
-	GitBranch string
+	GitCommit     string
+	GitBranch     string
+	enableSecrets bool
 )
 
 func handleMongoDB(app *kingpin.Application, cnf *config.Config) {
@@ -160,6 +161,10 @@ func main() {
 		"delayBackgroundJobs",
 		"Amount of time to delay running of executor background jobs",
 	).Default(config.DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
+	app.Flag(
+		"enableSecrets",
+		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
+	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	handleMongoDB(app, cnf)
 	handleMetrics(app, cnf)
@@ -170,7 +175,9 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 	cnf.NodeType = config.NodeType(nodeType)
-	cnf.DB.DialInfo.Password = common.PasswordFallbackFromFile(cnf.DB.DialInfo.Password, "password")
+	if enableSecrets {
+		cnf.DB.DialInfo.Password = common.PasswordFallbackFromFile(cnf.DB.DialInfo.Password, "password")
+	}
 
 	var daemon executor.Daemon
 	quit := make(chan bool)
