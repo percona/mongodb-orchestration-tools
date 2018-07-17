@@ -20,7 +20,6 @@ import (
 	"os"
 	"os/user"
 	gotesting "testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,52 +42,6 @@ func TestMain(m *gotesting.M) {
 	exit := m.Run()
 	os.Remove(testTmpfile.Name())
 	os.Exit(exit)
-}
-
-func TestCommonDoStop(t *gotesting.T) {
-	stop := make(chan bool)
-	stopped := make(chan bool)
-	go func(stop *chan bool, stopped chan bool) {
-		for !DoStop(stop) {
-			time.Sleep(time.Second)
-		}
-		stopped <- true
-	}(&stop, stopped)
-	stop <- true
-
-	var tries int
-	for tries < 3 {
-		select {
-		case _ = <-stopped:
-			return
-		default:
-			tries += 1
-		}
-	}
-	t.Error("Stop did not work")
-}
-
-func TestCommonDoStopFalse(t *gotesting.T) {
-	stop := make(chan bool)
-	stopped := make(chan bool)
-	go func(stop *chan bool, stopped chan bool) {
-		for !DoStop(stop) {
-			time.Sleep(time.Second)
-		}
-		stopped <- true
-	}(&stop, stopped)
-
-	var tries int
-	for tries < 3 {
-		select {
-		case _ = <-stopped:
-			tries += 1
-		default:
-			stop <- true
-			return
-		}
-	}
-	t.Error("Stop did not work")
 }
 
 func TestCommonGetUserID(t *gotesting.T) {

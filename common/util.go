@@ -26,16 +26,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// DoStop checks if a goroutine should stop, based on a boolean channel
-func DoStop(stop *chan bool) bool {
-	select {
-	case doStop := <-*stop:
-		return doStop
-	default:
-		return false
-	}
-}
-
 // GetUserID returns the numeric ID of a system user
 func GetUserID(userName string) (int, error) {
 	u, err := user.Lookup(userName)
