@@ -176,7 +176,11 @@ func main() {
 	}
 	cnf.NodeType = config.NodeType(nodeType)
 	if enableSecrets {
-		cnf.DB.DialInfo.Password = common.PasswordFallbackFromFile(cnf.DB.DialInfo.Password, "password")
+		cnf.DB.DialInfo.Password = common.PasswordFromFile(
+			os.Getenv(common.EnvMesosSandbox),
+			cnf.DB.DialInfo.Password,
+			"password",
+		)
 	}
 
 	var daemon executor.Daemon

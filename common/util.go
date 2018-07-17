@@ -62,27 +62,29 @@ func RelPathToAbs(relPath string) string {
 
 // StringFromFile returns a string using the contents of an existing filename
 func StringFromFile(fileName string) *string {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil
-	}
-	defer file.Close()
-	bytes, err := ioutil.ReadAll(file)
-	if err == nil {
-		data := strings.TrimSpace(string(bytes))
-		return &data
+	if _, err := os.Stat(fileName); err == nil {
+		file, err := os.Open(fileName)
+		if err != nil {
+			return nil
+		}
+		defer file.Close()
+		bytes, err := ioutil.ReadAll(file)
+		if err == nil {
+			data := strings.TrimSpace(string(bytes))
+			return &data
+		}
 	}
 	return nil
 }
 
-// PasswordFallbackFromFile loads a password from file if it exists
-func PasswordFallbackFromFile(password string, passwordName string) string {
-	if _, err := os.Stat(password); err == nil {
-		log.Infof("Loading %s password from file %s", passwordName, password)
-		str := StringFromFile(password)
-		if str != nil {
-			return *str
-		}
+// PasswordFromFile loads a password from file
+func PasswordFromFile(baseDir, password, passwordName string) string {
+	passwordFile := filepath.Join(baseDir, password)
+	passwd := StringFromFile(passwordFile)
+	if passwd != nil {
+		log.Infof("Loaded %s password from file %s", passwordName, passwordFile)
+		return *passwd
 	}
-	return password
+	log.Errorf("Cannot load %s password from file %s", passwordName, passwordFile)
+	return ""
 }

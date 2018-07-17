@@ -94,7 +94,11 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 	if enableSecrets {
-		cnf.Password = common.PasswordFallbackFromFile(cnf.Password, "userAdmin")
+		cnf.Password = common.PasswordFromFile(
+			os.Getenv(common.EnvMesosSandbox),
+			cnf.Password,
+			"userAdmin",
+		)
 	}
 
 	quit := make(chan bool)
