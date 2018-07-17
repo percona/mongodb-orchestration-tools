@@ -51,7 +51,11 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 	if enableSecrets {
-		cnf.DialInfo.Password = common.PasswordFallbackFromFile(cnf.DialInfo.Password, "password")
+		cnf.DialInfo.Password = common.PasswordFromFile(
+			os.Getenv(common.EnvMesosSandbox),
+			cnf.DialInfo.Password,
+			"password",
+		)
 	}
 
 	session, err := db.GetSession(cnf)
