@@ -31,7 +31,7 @@ import (
 var (
 	GitCommit        string
 	GitBranch        string
-	secretsEnabled   bool
+	enableSecrets    bool
 	cmdInit          *kingpin.CmdClause
 	cmdReplset       *kingpin.CmdClause
 	cmdUser          *kingpin.CmdClause
@@ -152,9 +152,9 @@ func main() {
 		"mongodb userAdmin password or path to file containing it, overridden by env var "+common.EnvMongoDBUserAdminPassword,
 	).Envar(common.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
 	app.Flag(
-		"secretsEnabled",
+		"enableSecrets",
 		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&secretsEnabled)
+	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	cnf.SSL = db.NewSSLConfig(app)
 
@@ -165,7 +165,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	if secretsEnabled {
+	if enableSecrets {
 		cnf.UserAdminUser = common.PasswordFallbackFromFile(cnf.UserAdminUser, "userAdmin")
 	}
 

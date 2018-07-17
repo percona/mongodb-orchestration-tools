@@ -29,9 +29,9 @@ import (
 )
 
 var (
-	GitCommit      string
-	GitBranch      string
-	secretsEnabled bool
+	GitCommit     string
+	GitBranch     string
+	enableSecrets bool
 )
 
 func main() {
@@ -55,9 +55,9 @@ func main() {
 		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
 	app.Flag(
-		"secretsEnabled",
+		"enableSecrets",
 		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&secretsEnabled)
+	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
 	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
@@ -93,7 +93,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	if secretsEnabled {
+	if enableSecrets {
 		cnf.Password = common.PasswordFallbackFromFile(cnf.Password, "userAdmin")
 	}
 
