@@ -93,6 +93,39 @@ func (s *State) VotingMembers() int {
 	return votingMembers
 }
 
+func isEven(i int) bool {
+	return i%2 == 0
+}
+
+func (s *State) removeVoteFromMaxIdMember() {
+	var maxIdVotingMember *rsConfig.Member
+	for _, member := range s.config.Members {
+		if member.Votes == 0 {
+			continue
+		}
+		if maxIdVotingMember == nil || member.Id > maxIdVotingMember.Id {
+			maxIdVotingMember = member
+		}
+	}
+	log.Errorf("Removing replica set vote from member: %s", maxIdVotingMember.Host)
+	maxIdVotingMember.Votes = 0
+}
+
+func (s *State) resetConfigVotes() {
+	totalMembers := len(s.config.Members)
+	votingMembers := s.VotingMembers()
+	if isEven(votingMembers) || votingMembers > MaxVotingMembers {
+		log.WithFields(log.Fields{
+			"total_members":  totalMembers,
+			"voting_members": votingMembers,
+			"voting_max":     MaxVotingMembers,
+		}).Error("Replica set config has too many voting members, disabling votes")
+		for isEven(votingMembers) || s.VotingMembers() > MaxVotingMembers {
+			s.removeVoteFromMaxIdMember()
+		}
+	}
+}
+
 // NewState returns a new State struct
 func NewState(replset string) *State {
 	return &State{
@@ -174,6 +207,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		configManager.AddMember(member)
 		s.doUpdate = true
 	}
+	s.resetConfigVotes()
 
 	err = s.updateConfig(configManager)
 	if err != nil {
@@ -200,6 +234,7 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 		configManager.RemoveMember(member)
 		s.doUpdate = true
 	}
+	s.resetConfigVotes()
 
 	err = s.updateConfig(configManager)
 	if err != nil {
