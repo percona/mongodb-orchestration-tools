@@ -52,6 +52,7 @@ func (s *State) updateConfig(configManager rsConfig.Manager) error {
 
 	err := configManager.Save()
 	if err != nil {
+		log.WithError(err).Error("Cannot save replset config")
 		return err
 	}
 	s.doUpdate = false
@@ -77,6 +78,87 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 
 	s.status = status
 	return nil
+}
+
+// VotingMembers returns the number of replset members with one or more votes
+func (s *State) VotingMembers() int {
+	if s.config == nil {
+		return -1
+	}
+	votingMembers := 0
+	for _, member := range s.config.Members {
+		if member.Votes > 0 {
+			votingMembers++
+		}
+	}
+	return votingMembers
+}
+
+func isEven(i int) bool {
+	return i%2 == 0
+}
+
+func (s *State) getMaxIDVotingMember() *rsConfig.Member {
+	var maxIDMember *rsConfig.Member
+	for _, member := range s.config.Members {
+		if member.Votes == 0 {
+			continue
+		}
+		if maxIDMember == nil || member.Id > maxIDMember.Id {
+			maxIDMember = member
+		}
+	}
+	return maxIDMember
+}
+
+func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
+	var minIDMember *rsConfig.Member
+	for _, member := range s.config.Members {
+		if member.Votes == 1 {
+			continue
+		}
+		if minIDMember == nil || member.Id < minIDMember.Id {
+			minIDMember = member
+		}
+	}
+	return minIDMember
+}
+
+func (s *State) resetConfigVotes() {
+	totalMembers := len(s.config.Members)
+	votingMembers := s.VotingMembers()
+
+	if !isEven(votingMembers) && votingMembers <= MaxVotingMembers && votingMembers >= MinVotingMembers {
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"total_members":  totalMembers,
+		"voting_members": votingMembers,
+		"voting_max":     MaxVotingMembers,
+	}).Error("Adjusting replica set voting members")
+
+	for isEven(votingMembers) || votingMembers > MaxVotingMembers {
+		if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
+			member := s.getMinIDNonVotingMember()
+			if member != nil && votingMembers < MaxVotingMembers {
+				log.Infof("Adding replica set vote to member: %s", member.Host)
+				member.Priority = 1
+				member.Votes = 1
+				votingMembers++
+			}
+		} else if votingMembers > MinVotingMembers {
+			member := s.getMaxIDVotingMember()
+			if member != nil {
+				log.Infof("Removing replica set vote from member: %s", member.Host)
+				member.Priority = 0
+				member.Votes = 0
+				votingMembers--
+			}
+		}
+	}
+
+	log.Infof("Replica set now has %d voting members", s.VotingMembers())
 }
 
 // NewState returns a new State struct
@@ -139,7 +221,16 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
 		}
+		if len(s.config.Members) >= MaxMembers {
+			log.Errorf("Maximum replset member count reached, cannot add member")
+			break
+		}
+		if s.VotingMembers() >= MaxVotingMembers {
+			log.Infof("Max replset voting members reached, disabling votes for new config member: %s", mongod.Name())
+			member.Votes = 0
+		}
 		if mongod.IsBackupNode() {
+			log.Infof("Adding dedicated backup mongod as a hidden-secondary: %s", mongod.Name())
 			member.Hidden = true
 			member.Priority = 0
 			member.Tags = &rsConfig.ReplsetTags{
@@ -151,6 +242,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		configManager.AddMember(member)
 		s.doUpdate = true
 	}
+	s.resetConfigVotes()
 
 	err = s.updateConfig(configManager)
 	if err != nil {
@@ -177,6 +269,7 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 		configManager.RemoveMember(member)
 		s.doUpdate = true
 	}
+	s.resetConfigVotes()
 
 	err = s.updateConfig(configManager)
 	if err != nil {

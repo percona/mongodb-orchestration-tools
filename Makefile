@@ -1,9 +1,17 @@
+NAME?=dcos-mongo-tools
 PLATFORM?=linux
 BASE_DIR?=$(shell readlink -f $(CURDIR))
-VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+"' version.go | tr -d \")
+VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+(-\S+)?"' version.go | tr -d \")
 GIT_COMMIT?=$(shell git rev-parse HEAD)
 GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
-DOCKERHUB_REPO?=percona/dcos-mongo-tools
+GITHUB_REPO?=percona/$(NAME)
+RELEASE_CACHE_DIR?=/tmp/$(NAME)_release.cache
+
+DOCKERHUB_REPO?=percona/$(NAME)
+DOCKERHUB_TAG?=$(VERSION)
+ifneq ($(GIT_BRANCH), master)
+	DOCKERHUB_TAG=$(VERSION)-$(GIT_BRANCH)
+endif
 
 GO_VERSION?=1.10
 GO_VERSION_MAJ_MIN=$(shell echo $(GO_VERSION) | cut -d. -f1-2)
@@ -23,7 +31,7 @@ TEST_SECONDARY2_PORT?=65219
 
 TEST_CODECOV?=false
 TEST_GO_EXTRA?=
-ifeq ($(TEST_CODECOV),true)
+ifeq ($(TEST_CODECOV), true)
 	TEST_GO_EXTRA=-coverprofile=cover.out -covermode=atomic
 endif
 
@@ -54,23 +62,9 @@ test-race: vendor
 	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v -race $(TEST_GO_EXTRA) ./...
 
 test/test-mongod.key:
-	openssl rand -base64 512 >test/test-mongod.key
-	chown $(TEST_MONGODB_DOCKER_UID):0 test/test-mongod.key
-	chmod 0600 test/test-mongod.key
+	openssl rand -base64 768 >test/test-mongod.key
 
-test/test-rootCA.crt: test/ssl/rootCA.crt
-	cp test/ssl/rootCA.crt test/test-rootCA.crt
-	chown $(TEST_MONGODB_DOCKER_UID):0 test/test-rootCA.crt
-	chmod 0600 test/test-rootCA.crt
-
-test/test-mongod.pem: test/ssl/mongodb.pem
-	cp test/ssl/mongodb.pem test/test-mongod.pem
-	chown $(TEST_MONGODB_DOCKER_UID):0 test/test-mongod.pem
-	chmod 0600 test/test-mongod.pem
-
-test-full-keys: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pem
-
-test-full-prepare: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pem
+test-full-prepare: test/ssl/mongodb.pem test/ssl/rootCA.crt test/test-mongod.key
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_MONGODB_DOCKERTAG=$(TEST_MONGODB_DOCKERTAG) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
@@ -78,11 +72,11 @@ test-full-prepare: test/test-mongod.key test/test-rootCA.crt test/test-mongod.pe
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	docker-compose up -d
+	docker-compose up -d --force-recreate
 	test/init-test-replset-wait.sh
 
 test-full-clean:
-	docker-compose down
+	docker-compose down -v
 
 test-full: vendor
 	ENABLE_MONGODB_TESTS=true \
@@ -93,31 +87,43 @@ test-full: vendor
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
+ifeq ($(TEST_CODECOV), true)
+	curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}
+endif
 
 release: clean
-	docker build --build-arg GO_VERSION=$(GO_VERSION_MAJ_MIN)-alpine -t dcos-mongo-tools_build -f Dockerfile.release .
+	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f Dockerfile.release .
 	docker run --rm --network=host \
-	-v $(BASE_DIR)/bin:/go/src/github.com/percona/dcos-mongo-tools/bin \
+	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
+	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
 	-e ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) \
+	-e TEST_CODECOV=$(TEST_CODECOV) \
+	-e CODECOV_TOKEN=$(CODECOV_TOKEN) \
 	-e TEST_RS_NAME=$(TEST_RS_NAME) \
 	-e TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
 	-e TEST_ADMIN_PASSWORD=$(TEST_ADMIN_PASSWORD) \
 	-e TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	-e TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	-e TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	-it dcos-mongo-tools_build
-	docker rmi -f dcos-mongo-tools_build
+	-i $(NAME)_release
+
+release-clean:
+	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
+	docker rmi -f $(NAME)_release 2>/dev/null
+	docker rmi -f $(NAME):$(DOCKERHUB_TAG) 2>/dev/null
 
 docker-build: release
-	docker build -t dcos-mongo-tools:$(VERSION) -f Dockerfile .
-	docker run --rm -it dcos-mongo-tools:$(VERSION) mongodb-controller-$(PLATFORM) --version
-	docker run --rm -it dcos-mongo-tools:$(VERSION) mongodb-watchdog-$(PLATFORM) --version
+	docker build -t $(NAME):$(DOCKERHUB_TAG) -f Dockerfile .
+	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
+	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
 
 docker-push:
-	docker tag dcos-mongo-tools:$(VERSION) $(DOCKERHUB_REPO):$(VERSION)
-	docker tag dcos-mongo-tools:$(VERSION) $(DOCKERHUB_REPO):latest
-	docker push $(DOCKERHUB_REPO):$(VERSION)
+	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
+	docker push $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
+ifeq ($(GIT_BRANCH), master)
+	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):latest
 	docker push $(DOCKERHUB_REPO):latest
+endif
 
 clean:
-	rm -rf bin coverage.txt test/test-*.* vendor 2>/dev/null || true
+	rm -rf bin cover.out test/test-mongod.key vendor 2>/dev/null || true

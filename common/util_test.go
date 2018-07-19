@@ -15,58 +15,33 @@
 package common
 
 import (
+	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	gotesting "testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonDoStop(t *gotesting.T) {
-	stop := make(chan bool)
-	stopped := make(chan bool)
-	go func(stop *chan bool, stopped chan bool) {
-		for !DoStop(stop) {
-			time.Sleep(time.Second)
-		}
-		stopped <- true
-	}(&stop, stopped)
-	stop <- true
+var (
+	testTmpfile     *os.File
+	testFileContent = "test123456"
+)
 
-	var tries int
-	for tries < 3 {
-		select {
-		case _ = <-stopped:
-			return
-		default:
-			tries += 1
-		}
+func TestMain(m *gotesting.M) {
+	var err error
+	testTmpfile, err = ioutil.TempFile("", "dcos-mongo-tools")
+	if err != nil {
+		log.Fatalf("Error setting up test tmpfile: %v", err)
 	}
-	t.Error("Stop did not work")
-}
-
-func TestCommonDoStopFalse(t *gotesting.T) {
-	stop := make(chan bool)
-	stopped := make(chan bool)
-	go func(stop *chan bool, stopped chan bool) {
-		for !DoStop(stop) {
-			time.Sleep(time.Second)
-		}
-		stopped <- true
-	}(&stop, stopped)
-
-	var tries int
-	for tries < 3 {
-		select {
-		case _ = <-stopped:
-			tries += 1
-		default:
-			stop <- true
-			return
-		}
+	_, err = testTmpfile.Write([]byte(testFileContent))
+	if err != nil {
+		log.Fatalf("Error writing test tmpfile: %v", err)
 	}
-	t.Error("Stop did not work")
+	exit := m.Run()
+	os.Remove(testTmpfile.Name())
+	os.Exit(exit)
 }
 
 func TestCommonGetUserID(t *gotesting.T) {
@@ -94,4 +69,14 @@ func TestCommonGetGroupID(t *gotesting.T) {
 	gid, err := GetGroupID(group.Name)
 	assert.NoError(t, err, ".GetGroupID() for current user group should not return an error")
 	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
+}
+
+func TestCommonStringFromFile(t *gotesting.T) {
+	assert.Equal(t, testFileContent, *StringFromFile(testTmpfile.Name()), ".StringFromFile() returned unexpected result")
+	assert.Nil(t, StringFromFile("/does/not/exist.file"), ".StringFromFile() returned unexpected result")
+}
+
+func TestCommonPasswordFromFile(t *gotesting.T) {
+	assert.Equal(t, testFileContent, PasswordFromFile("/", testTmpfile.Name(), "test"), ".PasswordFallbackFromFile returned unexpected result")
+	assert.Equal(t, "", PasswordFromFile("/", "is-not-an-existing-file", "test"), ".PasswordFallbackFromFile returned unexpected result")
 }

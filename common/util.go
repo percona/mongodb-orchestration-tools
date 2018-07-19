@@ -15,22 +15,16 @@
 package common
 
 import (
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strconv"
-)
+	"strings"
 
-// DoStop checks if a goroutine should stop, based on a boolean channel
-func DoStop(stop *chan bool) bool {
-	select {
-	case doStop := <-*stop:
-		return doStop
-	default:
-		return false
-	}
-}
+	log "github.com/sirupsen/logrus"
+)
 
 // GetUserID returns the numeric ID of a system user
 func GetUserID(userName string) (int, error) {
@@ -63,5 +57,34 @@ func RelPathToAbs(relPath string) string {
 			return path
 		}
 	}
+	return ""
+}
+
+// StringFromFile returns a string using the contents of an existing filename
+func StringFromFile(fileName string) *string {
+	if _, err := os.Stat(fileName); err == nil {
+		file, err := os.Open(fileName)
+		if err != nil {
+			return nil
+		}
+		defer file.Close()
+		bytes, err := ioutil.ReadAll(file)
+		if err == nil {
+			data := strings.TrimSpace(string(bytes))
+			return &data
+		}
+	}
+	return nil
+}
+
+// PasswordFromFile loads a password from file
+func PasswordFromFile(baseDir, password, passwordName string) string {
+	passwordFile := filepath.Join(baseDir, password)
+	passwd := StringFromFile(passwordFile)
+	if passwd != nil {
+		log.Infof("Loaded %s password from file %s", passwordName, passwordFile)
+		return *passwd
+	}
+	log.Errorf("Cannot load %s password from file %s", passwordName, passwordFile)
 	return ""
 }

@@ -26,12 +26,17 @@ import (
 )
 
 var (
-	GitCommit string
-	GitBranch string
+	GitCommit     string
+	GitBranch     string
+	enableSecrets bool
 )
 
 func main() {
 	app, _ := tool.New("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
+	app.Flag(
+		"enableSecrets",
+		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
+	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
@@ -44,6 +49,13 @@ func main() {
 	command, err := app.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
+	}
+	if enableSecrets {
+		cnf.DialInfo.Password = common.PasswordFromFile(
+			os.Getenv(common.EnvMesosSandbox),
+			cnf.DialInfo.Password,
+			"password",
+		)
 	}
 
 	session, err := db.GetSession(cnf)
