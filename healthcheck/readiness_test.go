@@ -15,10 +15,13 @@
 package healthcheck
 
 import (
+	"errors"
 	gotesting "testing"
 
+	"github.com/golang/mock/gomock"
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/pmgo"
+	"github.com/percona/pmgo/pmgomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,4 +32,12 @@ func TestHealthcheckReadinessCheck(t *gotesting.T) {
 	state, err := ReadinessCheck(pmgo.NewSessionManager(testDBSession))
 	assert.NoError(t, err, "healthcheck.ReadinessCheck() returned an error")
 	assert.Equal(t, state, StateOk, "healthcheck.ReadinessCheck() returned incorrect state")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSession := pmgomock.NewMockSessionManager(ctrl)
+	mockSession.EXPECT().Ping().Return(errors.New("fake ping failure"))
+	_, err = ReadinessCheck(mockSession)
+	assert.Error(t, err, "healthcheck.ReadinessCheck() did not return an expected error")
 }
