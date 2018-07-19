@@ -127,33 +127,38 @@ func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
 func (s *State) resetConfigVotes() {
 	totalMembers := len(s.config.Members)
 	votingMembers := s.VotingMembers()
-	if isEven(votingMembers) || votingMembers > MaxVotingMembers {
-		log.WithFields(log.Fields{
-			"total_members":  totalMembers,
-			"voting_members": votingMembers,
-			"voting_max":     MaxVotingMembers,
-		}).Error("Adjusting replica set voting members")
 
-		for isEven(votingMembers) || votingMembers > MaxVotingMembers {
-			if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
-				member := s.getMinIDNonVotingMember()
-				if member != nil && votingMembers < MaxVotingMembers {
-					log.Infof("Adding replica set vote to member: %s", member.Host)
-					member.Priority = 1
-					member.Votes = 1
-					votingMembers++
-				}
-			} else {
-				member := s.getMaxIDVotingMember()
-				if member != nil && votingMembers > MinVotingMembers {
-					log.Infof("Removing replica set vote from member: %s", member.Host)
-					member.Priority = 0
-					member.Votes = 0
-					votingMembers--
-				}
+	if !isEven(votingMembers) && votingMembers <= MaxVotingMembers {
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"total_members":  totalMembers,
+		"voting_members": votingMembers,
+		"voting_max":     MaxVotingMembers,
+	}).Error("Adjusting replica set voting members")
+
+	for isEven(votingMembers) || votingMembers > MaxVotingMembers {
+		if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
+			member := s.getMinIDNonVotingMember()
+			if member != nil && votingMembers < MaxVotingMembers {
+				log.Infof("Adding replica set vote to member: %s", member.Host)
+				member.Priority = 1
+				member.Votes = 1
+				votingMembers++
+			}
+		} else if votingMembers > MinVotingMembers {
+			member := s.getMaxIDVotingMember()
+			if member != nil {
+				log.Infof("Removing replica set vote from member: %s", member.Host)
+				member.Priority = 0
+				member.Votes = 0
+				votingMembers--
 			}
 		}
 	}
+
+	log.Infof("Replica set now has %d voting members", s.VotingMembers())
 }
 
 // NewState returns a new State struct
