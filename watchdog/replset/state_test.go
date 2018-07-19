@@ -102,3 +102,83 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 	assert.NotNil(t, member, "config.HasMember() returned no member")
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
 }
+
+func TestWatchdogReplsetStateGetMaxIDVotingMember(t *gotesting.T) {
+	maxIDMember := &rsConfig.Member{Id: 5, Votes: 1}
+	state := NewState("test")
+	state.config = &rsConfig.Config{
+		Members: []*rsConfig.Member{
+			{Id: 0, Votes: 1},
+			{Id: 1, Votes: 1},
+			maxIDMember,
+			{Id: 2, Votes: 1},
+		},
+	}
+	assert.Equal(t, maxIDMember, state.getMaxIDVotingMember(), ".getMaxIDMember() returned incorrect result or member")
+}
+
+func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *gotesting.T) {
+	minIDMember := &rsConfig.Member{Id: 1}
+	s := NewState("test")
+	s.config = &rsConfig.Config{
+		Members: []*rsConfig.Member{
+			{Id: 0, Votes: 1},
+			minIDMember,
+			{Id: 2},
+			{Id: 3, Votes: 1},
+			{Id: 4, Votes: 1},
+			{Id: 5},
+		},
+	}
+	assert.Equal(t, minIDMember, s.getMinIDNonVotingMember(), ".getMinIDNonVotingMember() returned incorrect result or member")
+}
+
+func TestWatchdogReplsetStateResetConfigVotes(t *gotesting.T) {
+	state := NewState("test")
+	state.config = &rsConfig.Config{
+		Members: []*rsConfig.Member{
+			{Id: 0, Votes: 1, Host: "test0"},
+			{Id: 1, Votes: 1, Host: "test1"},
+			{Id: 2, Votes: 1, Host: "test2"},
+			{Id: 3, Votes: 1, Host: "test3"},
+			{Id: 4, Votes: 1, Host: "test4"},
+			{Id: 5, Votes: 1, Host: "test5"},
+			{Id: 6, Votes: 1, Host: "test6"},
+			{Id: 7, Votes: 1, Host: "test7"},
+			{Id: 8, Votes: 1, Host: "test8"},
+		},
+	}
+
+	// test .restConfigVotes() will reduce voting members (9/too-many) to the max (7)
+	memberCnt := len(state.config.Members)
+	state.resetConfigVotes()
+	assert.Equal(t, MaxVotingMembers, state.VotingMembers())
+	assert.Len(t, state.config.Members, memberCnt)
+
+	// test .restConfigVotes() will reduce voting members when the number is even and adding votes is nott possible
+	// there should be 4 voting members before and 3 after
+	state.config = &rsConfig.Config{
+		Members: []*rsConfig.Member{
+			{Id: 0, Votes: 1, Host: "test0"},
+			{Id: 1, Votes: 1, Host: "test1"},
+			{Id: 2, Votes: 1, Host: "test2"},
+			{Id: 3, Votes: 1, Host: "test3"},
+		},
+	}
+	state.resetConfigVotes()
+	assert.Equal(t, 3, state.VotingMembers())
+
+	// test .restConfigVotes() will add voting members when the number is even and adding votes to non-voting members IS possible
+	// there should be 4 voting members before and 5 after
+	state.config = &rsConfig.Config{
+		Members: []*rsConfig.Member{
+			{Id: 0, Votes: 1, Host: "test0"},
+			{Id: 1, Votes: 1, Host: "test1"},
+			{Id: 2, Votes: 1, Host: "test2"},
+			{Id: 3, Votes: 1, Host: "test3"},
+			{Id: 4, Votes: 0, Host: "test4"},
+		},
+	}
+	state.resetConfigVotes()
+	assert.Equal(t, 5, state.VotingMembers())
+}
