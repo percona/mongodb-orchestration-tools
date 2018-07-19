@@ -17,6 +17,7 @@ GO_VERSION?=1.10
 GO_VERSION_MAJ_MIN=$(shell echo $(GO_VERSION) | cut -d. -f1-2)
 GO_LDFLAGS?=-s -w
 GO_LDFLAGS_FULL="${GO_LDFLAGS} -X main.GitCommit=${GIT_COMMIT} -X main.GitBranch=${GIT_BRANCH}"
+GO_TEST_PATH?=./...
 GOCACHE?=
 
 ENABLE_MONGODB_TESTS?=false
@@ -56,10 +57,10 @@ bin/mongodb-watchdog-$(PLATFORM): vendor cmd/mongodb-watchdog/main.go watchdog/*
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/mongodb-watchdog-$(PLATFORM) cmd/mongodb-watchdog/main.go
 
 test: vendor
-	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v $(TEST_GO_EXTRA) ./...
+	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v $(TEST_GO_EXTRA) $(GO_TEST_PATH)
 
 test-race: vendor
-	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v -race $(TEST_GO_EXTRA) ./...
+	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v -race $(TEST_GO_EXTRA) $(GO_TEST_PATH)
 
 test/test-mongod.key:
 	openssl rand -base64 768 >test/test-mongod.key
@@ -86,7 +87,7 @@ test-full: vendor
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) ./...
+	GOCACHE=$(GOCACHE) go test -v -race $(TEST_GO_EXTRA) $(GO_TEST_PATH)
 ifeq ($(TEST_CODECOV), true)
 	curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}
 endif

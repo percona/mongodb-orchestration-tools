@@ -15,6 +15,8 @@
 package watcher
 
 import (
+	"sync"
+
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
@@ -27,20 +29,26 @@ type Manager interface {
 }
 
 type WatcherManager struct {
-	config   *config.Config
-	stop     *chan bool
-	watchers map[string]*Watcher
+	sync.Mutex
+	config    *config.Config
+	stop      *chan bool
+	quitChans map[string]chan bool
+	watchers  map[string]*Watcher
 }
 
 func NewManager(config *config.Config, stop *chan bool) *WatcherManager {
 	return &WatcherManager{
-		config:   config,
-		stop:     stop,
-		watchers: make(map[string]*Watcher),
+		config:    config,
+		stop:      stop,
+		quitChans: make(map[string]chan bool),
+		watchers:  make(map[string]*Watcher),
 	}
 }
 
 func (wm *WatcherManager) HasWatcher(rsName string) bool {
+	wm.Lock()
+	defer wm.Unlock()
+
 	if _, ok := wm.watchers[rsName]; ok {
 		return true
 	}
@@ -53,12 +61,14 @@ func (wm *WatcherManager) Watch(rs *replset.Replset) {
 			"replset": rs.Name,
 		}).Info("Starting replset watcher")
 
-		wm.watchers[rs.Name] = New(
-			rs,
-			wm.config,
-			wm.stop,
-		)
+		wm.Lock()
+
+		quitChan := make(chan bool)
+		wm.quitChans[rs.Name] = quitChan
+		wm.watchers[rs.Name] = New(rs, wm.config, &quitChan)
 		go wm.watchers[rs.Name].Run()
+
+		wm.Unlock()
 	}
 }
 
@@ -67,4 +77,10 @@ func (wm *WatcherManager) Get(rsName string) *Watcher {
 		return nil
 	}
 	return wm.watchers[rsName]
+}
+
+func (wm *WatcherManager) Stop(rsName string) {
+	if wm.HasWatcher(rsName) {
+		wm.quitChans[rsName] <- true
+	}
 }

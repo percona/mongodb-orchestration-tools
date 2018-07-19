@@ -15,6 +15,7 @@
 package watcher
 
 import (
+	"errors"
 	"sync"
 	"time"
 
@@ -33,6 +34,7 @@ var (
 )
 
 type Watcher struct {
+	sync.Mutex
 	config            *config.Config
 	masterSession     *mgo.Session
 	sessionLock       sync.Mutex
@@ -43,15 +45,16 @@ type Watcher struct {
 	replset           *replset.Replset
 	state             *replset.State
 	configManager     rsConfig.Manager
-	stop              *chan bool
+	quit              *chan bool
+	running           bool
 }
 
-func New(rs *replset.Replset, config *config.Config, stop *chan bool) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit *chan bool) *Watcher {
 	return &Watcher{
 		config:            config,
 		replset:           rs,
-		stop:              stop,
 		state:             replset.NewState(rs.Name),
+		quit:              quit,
 		mongodAddQueue:    make(chan []*replset.Mongod),
 		mongodRemoveQueue: make(chan []*rsConfig.Member),
 	}
@@ -74,26 +77,32 @@ func (rw *Watcher) connectReplsetSession() error {
 	var err error
 	var session *mgo.Session
 	for {
-		rw.dbConfig = rw.replset.GetReplsetDBConfig(rw.config.SSL)
-		if len(rw.dbConfig.DialInfo.Addrs) >= 1 {
-			session, err = db.GetSession(rw.dbConfig)
-			if err == nil {
-				session.SetMode(replsetReadPreference, true)
-				break
-			}
-
-			log.WithFields(log.Fields{
-				"addrs":   rw.dbConfig.DialInfo.Addrs,
-				"replset": rw.replset.Name,
-				"ssl":     rw.dbConfig.SSL.Enabled,
-			}).Errorf("Error connecting to mongodb replset: %s", err)
-
+		ticker := time.NewTicker(rw.config.ReplsetPoll)
+		select {
+		case <-ticker.C:
 			rw.dbConfig = rw.replset.GetReplsetDBConfig(rw.config.SSL)
-			if session != nil {
-				session.Close()
+			if len(rw.dbConfig.DialInfo.Addrs) >= 1 {
+				session, err = db.GetSession(rw.dbConfig)
+				if err == nil {
+					session.SetMode(replsetReadPreference, true)
+					ticker.Stop()
+					break
+				}
+
+				log.WithFields(log.Fields{
+					"addrs":   rw.dbConfig.DialInfo.Addrs,
+					"replset": rw.replset.Name,
+					"ssl":     rw.dbConfig.SSL.Enabled,
+				}).Errorf("Error connecting to mongodb replset: %s", err)
+
+				if session != nil {
+					session.Close()
+				}
 			}
+		case <-*rw.quit:
+			return errors.New("received quit")
 		}
-		time.Sleep(rw.config.ReplsetPoll)
+		break
 	}
 
 	if rw.masterSession != nil {
@@ -261,6 +270,18 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	}
 }
 
+func (rw *Watcher) setRunning(running bool) {
+	rw.Lock()
+	defer rw.Unlock()
+	rw.running = running
+}
+
+func (rw *Watcher) IsRunning() bool {
+	rw.Lock()
+	defer rw.Unlock()
+	return rw.running
+}
+
 func (rw *Watcher) Run() {
 	log.WithFields(log.Fields{
 		"replset":  rw.replset.Name,
@@ -269,9 +290,10 @@ func (rw *Watcher) Run() {
 
 	err := rw.connectReplsetSession()
 	if err != nil {
-		log.Fatal("Cannot connect to replset")
-		return
+		log.WithError(err).Fatal("Cannot connect to replset")
 	}
+
+	rw.setRunning(true)
 
 	go rw.replsetConfigAdder(rw.mongodAddQueue)
 	go rw.replsetConfigRemover(rw.mongodRemoveQueue)
@@ -290,11 +312,16 @@ func (rw *Watcher) Run() {
 				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
 				rw.logReplsetState()
 			}
-		case <-*rw.stop:
+		case <-*rw.quit:
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,
 			}).Info("Stopping watcher for replset")
+
 			ticker.Stop()
+			close(rw.mongodAddQueue)
+			close(rw.mongodRemoveQueue)
+
+			rw.setRunning(false)
 			return
 		}
 	}
