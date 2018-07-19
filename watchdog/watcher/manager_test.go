@@ -40,29 +40,21 @@ func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
 	apiTask.On("State").Return(api.PodTaskStateRunning)
 
 	// primary
-	var port int
-	port, _ = strconv.Atoi(testing.MongodbPrimaryPort)
-	testWatchRs.UpdateMember(&replset.Mongod{
+	port, _ := strconv.Atoi(testing.MongodbPrimaryPort)
+	mongod := &replset.Mongod{
 		Host: testing.MongodbHost,
 		Port: port,
 		Task: apiTask,
-	})
+	}
+	testWatchRs.UpdateMember(mongod)
 
 	// secondary1
-	port, _ = strconv.Atoi(testing.MongodbSecondary1Port)
-	testWatchRs.UpdateMember(&replset.Mongod{
-		Host: testing.MongodbHost,
-		Port: port,
-		Task: apiTask,
-	})
+	mongod.Port, _ = strconv.Atoi(testing.MongodbSecondary1Port)
+	testWatchRs.UpdateMember(mongod)
 
 	// secondary2
-	port, _ = strconv.Atoi(testing.MongodbSecondary2Port)
-	testWatchRs.UpdateMember(&replset.Mongod{
-		Host: testing.MongodbHost,
-		Port: port,
-		Task: apiTask,
-	})
+	mongod.Port, _ = strconv.Atoi(testing.MongodbSecondary2Port)
+	testWatchRs.UpdateMember(mongod)
 
 	go testManager.Watch(testWatchRs)
 
