@@ -19,7 +19,7 @@ var (
 	testConfig  = &config.Config{
 		Username:    testing.MongodbAdminUser,
 		Password:    testing.MongodbAdminPassword,
-		ReplsetPoll: 250 * time.Millisecond,
+		ReplsetPoll: 350 * time.Millisecond,
 		SSL:         &db.SSLConfig{},
 	}
 	testStopChan = make(chan bool)
@@ -65,11 +65,16 @@ func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
 	})
 
 	go testManager.Watch(testWatchRs)
+
 	tries := 0
-	for tries < 50 && !testManager.HasWatcher(rsName) || !testManager.Get(rsName).IsRunning() {
+	for tries < 20 {
+		if testManager.HasWatcher(rsName) && testManager.Get(rsName).IsRunning() {
+			return
+		}
 		time.Sleep(time.Second)
 		tries++
 	}
+	assert.FailNow(t, "failed to start watcher after 20 tries")
 }
 
 func TestWatchdogWatcherManagerHasWatcher(t *gotesting.T) {
@@ -77,13 +82,22 @@ func TestWatchdogWatcherManagerHasWatcher(t *gotesting.T) {
 	assert.True(t, testManager.HasWatcher(rsName))
 }
 
+func TestWatchdogWatcherManagerGet(t *gotesting.T) {
+	assert.NotNil(t, testManager.Get(rsName), ".Get() returned nil for existing watcher")
+	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
+}
+
 func TestWatchdogWatcherManagerStop(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	testManager.Stop(rsName)
 	tries := 0
-	for tries < 20 && testManager.Get(rsName).IsRunning() {
+	for tries < 20 {
+		if !testManager.Get(rsName).IsRunning() {
+			return
+		}
 		time.Sleep(time.Second)
 		tries++
 	}
+	assert.FailNow(t, "Failed to stop watcher after 20 tries")
 }
