@@ -8,9 +8,8 @@ matrix:
   allow_failures:
     - go: master
 env:
-  - MONGODB_DOCKERTAG=percona/percona-server-mongodb:3.4
-  - MONGODB_DOCKERTAG=percona/percona-server-mongodb:3.6
-  - MONGODB_DOCKERTAG=mongo:4.0
+  - PSMDB_VERSION=3.4
+  - PSMDB_VERSION=3.6
 services:
   - docker
 install:
