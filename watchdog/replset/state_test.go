@@ -102,3 +102,27 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 	assert.NotNil(t, member, "config.HasMember() returned no member")
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
 }
+
+func TestRemoveVoteFromMaxIdMember(t *gotesting.T) {
+	maxIdMember := &rsConfig.Member{Id: 2, Votes: 1}
+	state := NewState("test")
+	state.config = &rsConfig.Config{
+		Name: "test",
+		Members: []*rsConfig.Member{
+			{Id: 0, Votes: 1},
+			{Id: 1, Votes: 1},
+			maxIdMember,
+		},
+	}
+
+	assert.Equal(t, 1, maxIdMember.Votes, ".removeVoteFromMaxIdMember() failed")
+	state.removeVoteFromMaxIdMember()
+	assert.Equal(t, 0, maxIdMember.Votes, ".removeVoteFromMaxIdMember() failed")
+
+	for _, member := range state.config.Members {
+		if member.Id == maxIdMember.Id {
+			continue
+		}
+		assert.Equal(t, 1, member.Votes, ".removeVoteFromMaxIdMember() changed wrong member")
+	}
+}
