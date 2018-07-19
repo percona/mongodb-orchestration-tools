@@ -52,6 +52,7 @@ func (s *State) updateConfig(configManager rsConfig.Manager) error {
 
 	err := configManager.Save()
 	if err != nil {
+		log.WithError(err).Error("Cannot save replset config")
 		return err
 	}
 	s.doUpdate = false
@@ -138,6 +139,7 @@ func (s *State) resetConfigVotes() {
 				member := s.getMinIDNonVotingMember()
 				if member != nil && votingMembers < MaxVotingMembers {
 					log.Infof("Adding replica set vote to member: %s", member.Host)
+					member.Priority = 1
 					member.Votes = 1
 					votingMembers++
 				}
@@ -145,6 +147,7 @@ func (s *State) resetConfigVotes() {
 				member := s.getMaxIDVotingMember()
 				if member != nil && votingMembers > MinVotingMembers {
 					log.Infof("Removing replica set vote from member: %s", member.Host)
+					member.Priority = 0
 					member.Votes = 0
 					votingMembers--
 				}
