@@ -153,7 +153,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
 		}
-		if len(s.config.Members) > MaxMembers {
+		if len(s.config.Members) >= MaxMembers {
 			log.Errorf("Maximum replset member count reached, cannot add member")
 			break
 		}
