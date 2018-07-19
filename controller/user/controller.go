@@ -20,6 +20,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
+	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
@@ -35,7 +36,7 @@ var (
 type Controller struct {
 	api             api.Client
 	dbConfig        *db.Config
-	session         *mgo.Session
+	sessionManager  pmgo.SessionManager
 	config          *controller.Config
 	maxConnectTries uint
 	retrySleep      time.Duration
@@ -53,7 +54,7 @@ func NewController(config *controller.Config, client api.Client) (*Controller, e
 	if err != nil {
 		return nil, err
 	}
-	uc.session, err = uc.getSession()
+	uc.sessionManager, err = uc.getSessionManager()
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +82,7 @@ func (uc *Controller) getDBConfig() (*db.Config, error) {
 	}, nil
 }
 
-func (uc *Controller) getSession() (*mgo.Session, error) {
+func (uc *Controller) getSessionManager() (pmgo.SessionManager, error) {
 	session, err := db.WaitForSession(uc.dbConfig, uc.maxConnectTries, uc.retrySleep)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -100,17 +101,17 @@ func (uc *Controller) getSession() (*mgo.Session, error) {
 		WMode: "majority",
 		FSync: true,
 	})
-	return session, err
+	return pmgo.NewSessionManager(session), err
 }
 
 func (uc *Controller) Close() {
-	if uc.session != nil {
+	if uc.sessionManager != nil {
 		log.WithFields(log.Fields{
 			"hosts":   uc.dbConfig.DialInfo.Addrs,
 			"replset": uc.config.Replset,
 		}).Info("Disconnecting from MongoDB host(s)")
-		uc.session.Close()
-		uc.session = nil
+		uc.sessionManager.Close()
+		uc.sessionManager = nil
 	}
 }
 
@@ -131,7 +132,7 @@ func (uc *Controller) UpdateUsers() error {
 			log.Errorf("Cannot change system user %s in database %s", uc.config.User.Username, uc.config.User.Database)
 			return ErrCannotChgSysUser
 		}
-		err = UpdateUser(uc.session, user, uc.config.User.Database)
+		err = UpdateUser(uc.sessionManager, user, uc.config.User.Database)
 		if err != nil {
 			return err
 		}
@@ -151,7 +152,7 @@ func (uc *Controller) RemoveUser() error {
 		return ErrCannotChgSysUser
 	}
 
-	err := removeUser(uc.session, uc.config.User.Username, uc.config.User.Database)
+	err := removeUser(uc.sessionManager, uc.config.User.Username, uc.config.User.Database)
 	if err != nil {
 		return err
 	}
@@ -161,7 +162,7 @@ func (uc *Controller) RemoveUser() error {
 }
 
 func (uc *Controller) ReloadSystemUsers() error {
-	err := UpdateUsers(uc.session, SystemUsers, "admin")
+	err := UpdateUsers(uc.sessionManager, SystemUsers, "admin")
 	if err != nil {
 		return err
 	}
