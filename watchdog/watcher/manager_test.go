@@ -73,6 +73,7 @@ func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
 }
 
 func TestWatchdogWatcherManagerHasWatcher(t *gotesting.T) {
+	testing.DoSkipTest(t)
 	assert.True(t, testManager.HasWatcher(rsName))
 }
 
