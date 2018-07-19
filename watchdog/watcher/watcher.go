@@ -274,7 +274,7 @@ func (rw *Watcher) replsetConfigVotesBalancer() {
 				rw.stateLock.Unlock()
 				continue
 			}
-			for !rw.state.VotingMembers() == replset.MaxVotingMembers {
+			if !rw.state.VotingMembers() == replset.MaxVotingMembers {
 				log.WithFields(log.Fields{
 					"votes":   rw.state.VotingMembers(),
 					"goal":    replset.MaxVotingMembers,
