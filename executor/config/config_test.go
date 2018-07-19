@@ -15,16 +15,12 @@
 package config
 
 import (
-	//"os"
 	gotesting "testing"
 
-	//"github.com/percona/dcos-mongo-tools/common"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorMesosSandboxPathOrFallback(t *gotesting.T) {
-	assert.Equal(t, "/tmp", MesosSandboxPathOrFallback("/tmp", "/tmp"))
-
-	//os.Setenv(common.EnvMesosSandbox, "/mnt/mesos/sandbox")
-	//assert.Equal(t, "/mnt/mesos/sandbox/tmp", MesosSandboxPathOrFallback("/tmp", "/tmp"))
+func TestExecutorConfigNodeTypeString(t *gotesting.T) {
+	assert.Equal(t, "mongod", NodeTypeMongod.String())
+	assert.Equal(t, "mongos", NodeTypeMongos.String())
 }
