@@ -81,6 +81,14 @@ func (wm *WatcherManager) Get(rsName string) *Watcher {
 
 func (wm *WatcherManager) Stop(rsName string) {
 	if wm.HasWatcher(rsName) {
-		wm.quitChans[rsName] <- true
+		wm.Lock()
+		defer wm.Unlock()
+		close(wm.quitChans[rsName])
+	}
+}
+
+func (wm *WatcherManager) Close() {
+	for rsName, _ := range wm.watchers {
+		wm.Stop(rsName)
 	}
 }
