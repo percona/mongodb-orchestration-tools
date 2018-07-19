@@ -1,5 +1,5 @@
 hash: 748c26f4415ddcac133b38e07047591b7577fcfdd0330cd40e140789fdd69b82
-updated: 2018-05-30T00:28:25.699160749+02:00
+updated: 2018-07-19T19:26:45.254114215+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -44,7 +44,7 @@ imports:
   subpackages:
   - config
 - name: github.com/timvaillancourt/go-mongodb-replset
-  version: 173aaa3b66aff9a03babec116e1f5a2570b8e4be
+  version: bb1351c879637ab0900e7a124597038301b4cbd8
   subpackages:
   - config
   - status
