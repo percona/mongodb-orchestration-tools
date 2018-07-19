@@ -79,6 +79,20 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 	return nil
 }
 
+// VotingMembers returns the number of replset members with one or more votes
+func (s *State) VotingMembers() int {
+	if s.config == nil {
+		return -1
+	}
+	votingMembers := 0
+	for _, member := range s.config.Members {
+		if member.Votes > 0 {
+			votingMembers++
+		}
+	}
+	return votingMembers
+}
+
 // NewState returns a new State struct
 func NewState(replset string) *State {
 	return &State{
@@ -139,7 +153,16 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
 		}
+		if len(s.config.Members) >= MaxMembers {
+			log.Errorf("Maximum replset member count reached, cannot add member")
+			break
+		}
+		if s.VotingMembers() >= MaxVotingMembers {
+			log.Infof("Max replset voting members reached, disabling votes for new config member: %s", mongod.Name())
+			member.Votes = 0
+		}
 		if mongod.IsBackupNode() {
+			log.Infof("Adding dedicated backup mongod as a hidden-secondary: %s", mongod.Name())
 			member.Hidden = true
 			member.Priority = 0
 			member.Tags = &rsConfig.ReplsetTags{
