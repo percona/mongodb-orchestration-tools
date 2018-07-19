@@ -81,10 +81,10 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 }
 
 func (s *State) votingMembers() int {
-	votingMembers := 0
 	if s.config == nil {
 		return -1
 	}
+	votingMembers := 0
 	for _, member := range s.config.Members {
 		if member.Votes > 0 {
 			votingMembers++
