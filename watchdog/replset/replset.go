@@ -24,6 +24,7 @@ import (
 
 const (
 	MaxMembers       = 50
+	MinVotingMembers = 1
 	MaxVotingMembers = 7
 )
 
