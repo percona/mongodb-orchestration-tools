@@ -131,7 +131,8 @@ func (s *State) resetConfigVotes() {
 			"total_members":  totalMembers,
 			"voting_members": votingMembers,
 			"voting_max":     MaxVotingMembers,
-		}).Error("Replica set config has too many voting members, disabling votes")
+		}).Error("Adjusting replica set voting members")
+
 		for isEven(votingMembers) || votingMembers > MaxVotingMembers {
 			if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
 				member := s.getMinIdNonVotingMember()
