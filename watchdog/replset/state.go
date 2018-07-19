@@ -128,7 +128,7 @@ func (s *State) resetConfigVotes() {
 	totalMembers := len(s.config.Members)
 	votingMembers := s.VotingMembers()
 
-	if !isEven(votingMembers) && votingMembers <= MaxVotingMembers {
+	if !isEven(votingMembers) && votingMembers <= MaxVotingMembers && votingMembers >= MinVotingMembers {
 		return
 	}
 
