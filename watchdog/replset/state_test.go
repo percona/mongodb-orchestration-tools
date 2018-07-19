@@ -150,8 +150,10 @@ func TestWatchdogReplsetStateResetConfigVotes(t *gotesting.T) {
 	}
 
 	// test .restConfigVotes() will reduce voting members (9/too-many) to the max (7)
+	memberCnt := len(state.config.Members)
 	state.resetConfigVotes()
 	assert.Equal(t, MaxVotingMembers, state.VotingMembers())
+	assert.Len(t, state.config.Members, memberCnt)
 
 	// test .restConfigVotes() will reduce voting members when the number is even and adding votes is nott possible
 	// there should be 4 voting members before and 3 after
