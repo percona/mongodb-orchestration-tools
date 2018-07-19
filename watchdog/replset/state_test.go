@@ -103,7 +103,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
 }
 
-func TestGetMaxIDVotingMember(t *gotesting.T) {
+func TestWatchdogReplsetStateGetMaxIDVotingMember(t *gotesting.T) {
 	maxIDMember := &rsConfig.Member{Id: 5, Votes: 1}
 	state := NewState("test")
 	state.config = &rsConfig.Config{
@@ -117,7 +117,7 @@ func TestGetMaxIDVotingMember(t *gotesting.T) {
 	assert.Equal(t, maxIDMember, state.getMaxIDVotingMember(), ".getMaxIDMember() returned incorrect result or member")
 }
 
-func TestGetMinIDNonVotingMember(t *gotesting.T) {
+func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *gotesting.T) {
 	minIDMember := &rsConfig.Member{Id: 1}
 	s := NewState("test")
 	s.config = &rsConfig.Config{
@@ -133,7 +133,7 @@ func TestGetMinIDNonVotingMember(t *gotesting.T) {
 	assert.Equal(t, minIDMember, s.getMinIDNonVotingMember(), ".getMinIDNonVotingMember() returned incorrect result or member")
 }
 
-func TestResetConfigVotes(t *gotesting.T) {
+func TestWatchdogReplsetStateResetConfigVotes(t *gotesting.T) {
 	state := NewState("test")
 	state.config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
