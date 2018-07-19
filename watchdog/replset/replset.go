@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	MaxMembers       = 50
-	MinVotingMembers = 1
-	MaxVotingMembers = 7
+	MaxMembers       int = 50
+	MinVotingMembers int = 1
+	MaxVotingMembers int = 7
 )
 
 type Replset struct {

@@ -97,18 +97,30 @@ func isEven(i int) bool {
 	return i%2 == 0
 }
 
-func (s *State) removeVoteFromMaxIdMember() {
-	var maxIdVotingMember *rsConfig.Member
+func (s *State) getMaxIdVotingMember() *rsConfig.Member {
+	var maxIdMember *rsConfig.Member
 	for _, member := range s.config.Members {
 		if member.Votes == 0 {
 			continue
 		}
-		if maxIdVotingMember == nil || member.Id > maxIdVotingMember.Id {
-			maxIdVotingMember = member
+		if maxIdMember == nil || member.Id > maxIdMember.Id {
+			maxIdMember = member
 		}
 	}
-	log.Errorf("Removing replica set vote from member: %s", maxIdVotingMember.Host)
-	maxIdVotingMember.Votes = 0
+	return maxIdMember
+}
+
+func (s *State) getMinIdNonVotingMember() *rsConfig.Member {
+	var minIdMember *rsConfig.Member
+	for _, member := range s.config.Members {
+		if member.Votes == 1 {
+			continue
+		}
+		if minIdMember == nil || member.Id < minIdMember.Id {
+			minIdMember = member
+		}
+	}
+	return minIdMember
 }
 
 func (s *State) resetConfigVotes() {
@@ -120,8 +132,22 @@ func (s *State) resetConfigVotes() {
 			"voting_members": votingMembers,
 			"voting_max":     MaxVotingMembers,
 		}).Error("Replica set config has too many voting members, disabling votes")
-		for isEven(votingMembers) || s.VotingMembers() > MaxVotingMembers {
-			s.removeVoteFromMaxIdMember()
+		for isEven(votingMembers) || votingMembers > MaxVotingMembers {
+			if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
+				member := s.getMinIdNonVotingMember()
+				if member != nil && votingMembers < MaxVotingMembers {
+					log.Infof("Adding replica set vote to member: %s", member.Host)
+					member.Votes = 1
+					votingMembers++
+				}
+			} else {
+				member := s.getMaxIdVotingMember()
+				if member != nil && votingMembers > MinVotingMembers {
+					log.Infof("Removing replica set vote from member: %s", member.Host)
+					member.Votes = 0
+					votingMembers--
+				}
+			}
 		}
 	}
 }
