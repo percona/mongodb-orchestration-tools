@@ -88,7 +88,7 @@ func (wm *WatcherManager) Stop(rsName string) {
 }
 
 func (wm *WatcherManager) Close() {
-	for rsName, _ := range wm.watchers {
+	for rsName := range wm.watchers {
 		wm.Stop(rsName)
 	}
 }
