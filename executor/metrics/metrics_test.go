@@ -15,38 +15,25 @@
 package metrics
 
 import (
+	//"errors"
 	gotesting "testing"
 	"time"
 
 	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/executor/metrics/mocks"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/mgo.v2"
+	//"gopkg.in/mgo.v2"
 )
 
-type MockPusher struct {
-	statusChan chan *mgostatsd.ServerStatus
-}
-
-func NewMockPusher(statusChan chan *mgostatsd.ServerStatus) *MockPusher {
-	return &MockPusher{
-		statusChan: statusChan,
-	}
-}
-
-func (p *MockPusher) GetServerStatus(session *mgo.Session) (*mgostatsd.ServerStatus, error) {
-	return mgostatsd.GetServerStatus(session)
-}
-
-func (p *MockPusher) Push(status *mgostatsd.ServerStatus) error {
-	p.statusChan <- status
-	return nil
-}
+var (
+	testStatsdMockPusher = &mocks.Pusher{}
+)
 
 func TestExecutorMetricsNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	testMetrics = New(testConfig, testSession, NewMockPusher(testMetricsChan))
+	testMetrics = New(testConfig, testSession, testStatsdMockPusher)
 	assert.NotNil(t, testMetrics, ".New() should not return nil")
 	assert.False(t, testMetrics.IsRunning(), ".IsRunning() should return false")
 }
@@ -71,11 +58,12 @@ func TestExecutorMetricsRun(t *gotesting.T) {
 
 	testLogBuffer.Reset()
 
+	testStatsdMockPusher.On("GetServerStatus").Return(mgostatsd.GetServerStatus(testSession))
+	testStatsdMockPusher.On("Push").Return(nil)
+
 	// start the metrics.Run() in a go routine and wait for ServerStatus struct
 	stop := make(chan bool)
 	go testMetrics.Run(&stop)
-	serverStatus := <-testMetricsChan
-	assert.NotZero(t, serverStatus.Uptime, "Uptime field in ServerStatus should be greater than zero")
 	stop <- true
 
 	// wait for the .Run() goroutine to stop

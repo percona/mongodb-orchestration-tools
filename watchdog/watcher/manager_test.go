@@ -7,24 +7,9 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/api/mocks"
-	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/testing"
-	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	testManager *WatcherManager
-	testConfig  = &config.Config{
-		Username:    testing.MongodbAdminUser,
-		Password:    testing.MongodbAdminPassword,
-		ReplsetPoll: 350 * time.Millisecond,
-		SSL:         &db.SSLConfig{},
-	}
-	testStopChan = make(chan bool)
-	testWatchRs  = replset.New(testConfig, testing.MongodbReplsetName)
-	rsName       = testing.MongodbReplsetName
 )
 
 func TestWatchdogWatcherNewManager(t *gotesting.T) {
