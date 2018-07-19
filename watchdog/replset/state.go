@@ -97,30 +97,30 @@ func isEven(i int) bool {
 	return i%2 == 0
 }
 
-func (s *State) getMaxIdVotingMember() *rsConfig.Member {
-	var maxIdMember *rsConfig.Member
+func (s *State) getMaxIDVotingMember() *rsConfig.Member {
+	var maxIDMember *rsConfig.Member
 	for _, member := range s.config.Members {
 		if member.Votes == 0 {
 			continue
 		}
-		if maxIdMember == nil || member.Id > maxIdMember.Id {
-			maxIdMember = member
+		if maxIDMember == nil || member.Id > maxIDMember.Id {
+			maxIDMember = member
 		}
 	}
-	return maxIdMember
+	return maxIDMember
 }
 
-func (s *State) getMinIdNonVotingMember() *rsConfig.Member {
-	var minIdMember *rsConfig.Member
+func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
+	var minIDMember *rsConfig.Member
 	for _, member := range s.config.Members {
 		if member.Votes == 1 {
 			continue
 		}
-		if minIdMember == nil || member.Id < minIdMember.Id {
-			minIdMember = member
+		if minIDMember == nil || member.Id < minIDMember.Id {
+			minIDMember = member
 		}
 	}
-	return minIdMember
+	return minIDMember
 }
 
 func (s *State) resetConfigVotes() {
@@ -135,14 +135,14 @@ func (s *State) resetConfigVotes() {
 
 		for isEven(votingMembers) || votingMembers > MaxVotingMembers {
 			if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
-				member := s.getMinIdNonVotingMember()
+				member := s.getMinIDNonVotingMember()
 				if member != nil && votingMembers < MaxVotingMembers {
 					log.Infof("Adding replica set vote to member: %s", member.Host)
 					member.Votes = 1
 					votingMembers++
 				}
 			} else {
-				member := s.getMaxIdVotingMember()
+				member := s.getMaxIDVotingMember()
 				if member != nil && votingMembers > MinVotingMembers {
 					log.Infof("Removing replica set vote from member: %s", member.Host)
 					member.Votes = 0
