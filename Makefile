@@ -73,7 +73,7 @@ test-full-prepare: test/ssl/mongodb.pem test/ssl/rootCA.crt test/test-mongod.key
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	docker-compose up --detatch --force-recreate --renew-anon-volumes
+	docker-compose up --detach --force-recreate --renew-anon-volumes
 	test/init-test-replset-wait.sh
 
 test-full-clean:
