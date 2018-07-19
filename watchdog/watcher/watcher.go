@@ -30,6 +30,7 @@ var (
 	directReadPreference               = mgo.Monotonic
 	replsetReadPreference              = mgo.PrimaryPreferred
 	waitForMongodAvailableRetries uint = 10
+	configVotesBalancerInterval        = time.Minute
 )
 
 type Watcher struct {
@@ -261,6 +262,39 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	}
 }
 
+func (rw *Watcher) replsetConfigVotesBalancer() {
+	ticker := time.NewTicker(configVotesBalancerInterval)
+	for {
+		select {
+		case <-ticker.C:
+			rw.stateLock.Lock()
+			config := rw.state.GetConfig()
+			totalMembers := len(config.Members)
+			if config == nil || totalMembers <= replset.MaxVotingMembers {
+				rw.stateLock.Unlock()
+				continue
+			}
+			for !rw.state.VotingMembers() == replset.MaxVotingMembers {
+				log.WithFields(log.Fields{
+					"votes":   rw.state.VotingMembers(),
+					"goal":    replset.MaxVotingMembers,
+					"members": totalMembers,
+				}).Info("Replset votes are too low, resetting votes")
+				for _, member := range config.Members {
+					if member.Votes == 0 && member.Priority > 0 && !member.Hidden {
+						member.Votes = 1
+						break
+					}
+				}
+			}
+			rw.stateLock.Unlock()
+		case <-*rw.stop:
+			ticker.Stop()
+			return
+		}
+	}
+}
+
 func (rw *Watcher) Run() {
 	log.WithFields(log.Fields{
 		"replset":  rw.replset.Name,
@@ -275,6 +309,7 @@ func (rw *Watcher) Run() {
 
 	go rw.replsetConfigAdder(rw.mongodAddQueue)
 	go rw.replsetConfigRemover(rw.mongodRemoveQueue)
+	go rw.replsetConfigVotesBalancer()
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {

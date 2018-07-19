@@ -26,7 +26,6 @@ import (
 
 const (
 	frameworkTagName = "dcosFramework"
-	maxVotingMembers = 7
 )
 
 // State is a struct reflecting the state of a MongoDB Replica Set
@@ -80,7 +79,8 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 	return nil
 }
 
-func (s *State) votingMembers() int {
+// VotingMembers returns the number of replset members with one or more votes
+func (s *State) VotingMembers() int {
 	if s.config == nil {
 		return -1
 	}
@@ -153,7 +153,11 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
 		}
-		if s.votingMembers() >= maxVotingMembers {
+		if len(s.config.Members) > MaxMembers {
+			log.Errorf("Maximum replset member count reached, cannot add member")
+			break
+		}
+		if s.VotingMembers() >= MaxVotingMembers {
 			log.Infof("Max replset voting members reached, disabling votes for new config member: %s", mongod.Name())
 			member.Votes = 0
 		}

@@ -22,6 +22,11 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+const (
+	MaxMembers       = 50
+	MaxVotingMembers = 7
+)
+
 type Replset struct {
 	sync.Mutex
 	Name    string
