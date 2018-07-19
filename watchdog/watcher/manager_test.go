@@ -7,24 +7,9 @@ import (
 
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/api/mocks"
-	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/testing"
-	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	testManager *WatcherManager
-	testConfig  = &config.Config{
-		Username:    testing.MongodbAdminUser,
-		Password:    testing.MongodbAdminPassword,
-		ReplsetPoll: 350 * time.Millisecond,
-		SSL:         &db.SSLConfig{},
-	}
-	testStopChan = make(chan bool)
-	testWatchRs  = replset.New(testConfig, testing.MongodbReplsetName)
-	rsName       = testing.MongodbReplsetName
 )
 
 func TestWatchdogWatcherNewManager(t *gotesting.T) {
@@ -40,29 +25,21 @@ func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
 	apiTask.On("State").Return(api.PodTaskStateRunning)
 
 	// primary
-	var port int
-	port, _ = strconv.Atoi(testing.MongodbPrimaryPort)
-	testWatchRs.UpdateMember(&replset.Mongod{
+	port, _ := strconv.Atoi(testing.MongodbPrimaryPort)
+	mongod := &replset.Mongod{
 		Host: testing.MongodbHost,
 		Port: port,
 		Task: apiTask,
-	})
+	}
+	testWatchRs.UpdateMember(mongod)
 
 	// secondary1
-	port, _ = strconv.Atoi(testing.MongodbSecondary1Port)
-	testWatchRs.UpdateMember(&replset.Mongod{
-		Host: testing.MongodbHost,
-		Port: port,
-		Task: apiTask,
-	})
+	mongod.Port, _ = strconv.Atoi(testing.MongodbSecondary1Port)
+	testWatchRs.UpdateMember(mongod)
 
 	// secondary2
-	port, _ = strconv.Atoi(testing.MongodbSecondary2Port)
-	testWatchRs.UpdateMember(&replset.Mongod{
-		Host: testing.MongodbHost,
-		Port: port,
-		Task: apiTask,
-	})
+	mongod.Port, _ = strconv.Atoi(testing.MongodbSecondary2Port)
+	testWatchRs.UpdateMember(mongod)
 
 	go testManager.Watch(testWatchRs)
 

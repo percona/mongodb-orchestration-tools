@@ -135,6 +135,9 @@ func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *gotesting.T) {
 
 func TestWatchdogReplsetStateResetConfigVotes(t *gotesting.T) {
 	state := NewState("test")
+
+	// test .restConfigVotes() will reduce voting members (9/too-many) to the max (7)
+	maxMember := &rsConfig.Member{Id: 8, Votes: 1, Host: "test8"}
 	state.config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1, Host: "test0"},
@@ -145,40 +148,43 @@ func TestWatchdogReplsetStateResetConfigVotes(t *gotesting.T) {
 			{Id: 5, Votes: 1, Host: "test5"},
 			{Id: 6, Votes: 1, Host: "test6"},
 			{Id: 7, Votes: 1, Host: "test7"},
-			{Id: 8, Votes: 1, Host: "test8"},
+			maxMember,
 		},
 	}
-
-	// test .restConfigVotes() will reduce voting members (9/too-many) to the max (7)
 	memberCnt := len(state.config.Members)
 	state.resetConfigVotes()
 	assert.Equal(t, MaxVotingMembers, state.VotingMembers())
+	assert.Equal(t, 0, maxMember.Votes)
 	assert.Len(t, state.config.Members, memberCnt)
 
 	// test .restConfigVotes() will reduce voting members when the number is even and adding votes is nott possible
 	// there should be 4 voting members before and 3 after
+	maxMember = &rsConfig.Member{Id: 3, Votes: 1, Host: "test3"}
 	state.config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1, Host: "test0"},
 			{Id: 1, Votes: 1, Host: "test1"},
 			{Id: 2, Votes: 1, Host: "test2"},
-			{Id: 3, Votes: 1, Host: "test3"},
+			maxMember,
 		},
 	}
 	state.resetConfigVotes()
-	assert.Equal(t, 3, state.VotingMembers())
+	assert.Equal(t, 3, state.VotingMembers(), ".resetConfigVotes() did not reduce to correct votes")
+	assert.Equal(t, 0, maxMember.Votes, ".resetConfigVotes() did not remove vote from max member")
 
 	// test .restConfigVotes() will add voting members when the number is even and adding votes to non-voting members IS possible
 	// there should be 4 voting members before and 5 after
+	maxMember = &rsConfig.Member{Id: 4, Votes: 0, Host: "test4"}
 	state.config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1, Host: "test0"},
 			{Id: 1, Votes: 1, Host: "test1"},
 			{Id: 2, Votes: 1, Host: "test2"},
 			{Id: 3, Votes: 1, Host: "test3"},
-			{Id: 4, Votes: 0, Host: "test4"},
+			maxMember,
 		},
 	}
 	state.resetConfigVotes()
 	assert.Equal(t, 5, state.VotingMembers())
+	assert.Equal(t, 1, maxMember.Votes, ".resetConfigVotes() did not increase vote of max member")
 }

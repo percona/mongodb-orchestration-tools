@@ -12,47 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package metrics
+package watcher
 
 import (
-	"bytes"
 	"os"
 	gotesting "testing"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/common/logger"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
-	//mgostatsd "github.com/scullxbones/mgo-statsd"
-	"gopkg.in/mgo.v2"
+	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/watchdog/config"
+	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 )
 
 var (
-	testMetrics   *Metrics
-	testLogBuffer = new(bytes.Buffer)
-	testSession   *mgo.Session
-	testInterval  = time.Duration(100) * time.Millisecond
-	testConfig    = &Config{
-		Enabled:    true,
-		StatsdHost: "localhost",
-		StatsdPort: 9999,
-		Interval:   testInterval,
+	testManager *WatcherManager
+	testConfig  = &config.Config{
+		Username:    testing.MongodbAdminUser,
+		Password:    testing.MongodbAdminPassword,
+		ReplsetPoll: 350 * time.Millisecond,
+		SSL:         &db.SSLConfig{},
 	}
+	testStopChan = make(chan bool)
+	testWatchRs  = replset.New(testConfig, testing.MongodbReplsetName)
+	rsName       = testing.MongodbReplsetName
 )
 
 func TestMain(m *gotesting.M) {
-	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
-
-	if testing.Enabled() {
-		var err error
-		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	exit := m.Run()
-	if testSession != nil {
-		testSession.Close()
-	}
-	os.Exit(exit)
+	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
+	os.Exit(m.Run())
 }
