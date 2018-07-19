@@ -104,13 +104,14 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 }
 
 func TestGetMaxIdVotingMember(t *gotesting.T) {
-	maxIdMember := &rsConfig.Member{Id: 2, Votes: 1}
+	maxIdMember := &rsConfig.Member{Id: 5, Votes: 1}
 	state := NewState("test")
 	state.config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1},
 			{Id: 1, Votes: 1},
 			maxIdMember,
+			{Id: 2, Votes: 1},
 		},
 	}
 	assert.Equal(t, maxIdMember, state.getMaxIdVotingMember(), ".getMaxIdMember() returned incorrect result or member")
