@@ -1,5 +1,5 @@
-hash: a59c196b244908affef7c8835c17db611b35983917d1eebbbf8b8b4db12f872f
-updated: 2018-07-19T23:02:36.408225784+02:00
+hash: e230f6b9ebd4f31b6891d17e292f877f1683c04ac04ab8fd59cd64483ad13486
+updated: 2018-07-19T23:09:00.430395005+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -17,8 +17,14 @@ imports:
   version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
   subpackages:
   - spew
+- name: github.com/golang/mock
+  version: c34cdb4725f4c3844d095133c6e40e448b86589b
+  subpackages:
+  - gomock
 - name: github.com/percona/pmgo
   version: 497d06e28f910fbe26d5d60f59d36284a6901c6f
+  subpackages:
+  - pmgomock
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -76,9 +82,5 @@ imports:
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports:
-- name: github.com/golang/mock
-  version: c34cdb4725f4c3844d095133c6e40e448b86589b
-  subpackages:
-  - gomock
 - name: github.com/mitchellh/go-ps
   version: 4fdf99ab29366514c69ccccddab5dc58b8d84062
