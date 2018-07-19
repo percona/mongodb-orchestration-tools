@@ -158,7 +158,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 			member.Votes = 0
 		}
 		if mongod.IsBackupNode() {
-			log.Debugf("Adding dedicated backup mongod: %s", mongod.Name())
+			log.Infof("Adding dedicated backup mongod as a hidden-secondary: %s", mongod.Name())
 			member.Hidden = true
 			member.Priority = 0
 			member.Tags = &rsConfig.ReplsetTags{
