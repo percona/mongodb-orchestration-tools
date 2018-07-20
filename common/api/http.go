@@ -23,10 +23,10 @@ import (
 )
 
 var (
-	DefaultHTTPTimeout      = "5s"
-	DefaultSchedulerHost    = "api.percona-mongo.marathon.l4lb.thisdcos.directory"
-	ErrEmptyBody            = errors.New("got empty body")
-	ErrNonSuccessStatusCode = errors.New("got non-success status code")
+	DefaultHTTPTimeout   = "5s"
+	DefaultSchedulerHost = "api.percona-mongo.marathon.l4lb.thisdcos.directory"
+	ErrEmptyBody         = errors.New("got empty body")
+	ErrNonSuccessCode    = errors.New("got non-success code")
 )
 
 // HTTPScheme is the scheme type to be used for HTTP calls
@@ -37,9 +37,7 @@ const (
 	HTTPSchemeSecure HTTPScheme = "https://"
 )
 
-var (
-	HTTPOkCodes = []int{200, 201, 301, 302}
-)
+var ()
 
 // String returns a string representation of the HTTPScheme
 func (s HTTPScheme) String() string {
@@ -75,14 +73,11 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 	timeout := time.Now().Add(c.config.Timeout)
 	client.DoDeadline(req, resp, timeout)
 
-	for _, code := range HTTPOkCodes {
-		if resp.StatusCode() != code {
-			continue
-		}
-		if len(resp.Body()) > 0 {
-			return json.Unmarshal(resp.Body(), out)
-		}
-		return ErrEmptyBody
+	if resp.StatusCode() != 200 {
+		return ErrNonSuccessCode
 	}
-	return ErrNonSuccessStatusCode
+	if len(resp.Body()) > 0 {
+		return json.Unmarshal(resp.Body(), out)
+	}
+	return ErrEmptyBody
 }
