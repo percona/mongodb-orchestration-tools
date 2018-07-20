@@ -1,5 +1,5 @@
-hash: e230f6b9ebd4f31b6891d17e292f877f1683c04ac04ab8fd59cd64483ad13486
-updated: 2018-07-19T23:09:00.430395005+02:00
+hash: 54d17d9dcf3490eb85233b4c41d289e80191a49d1b5f889167e71f0d397bb096
+updated: 2018-07-20T03:10:33.226555217+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -21,6 +21,14 @@ imports:
   version: c34cdb4725f4c3844d095133c6e40e448b86589b
   subpackages:
   - gomock
+- name: github.com/klauspost/compress
+  version: b939724e787a27c0005cabe3f78e7ed7987ac74f
+  subpackages:
+  - flate
+  - gzip
+  - zlib
+- name: github.com/klauspost/cpuid
+  version: e7e905edc00ea8827e58662220139109efea09db
 - name: github.com/percona/pmgo
   version: 497d06e28f910fbe26d5d60f59d36284a6901c6f
   subpackages:
@@ -54,6 +62,13 @@ imports:
   subpackages:
   - config
   - status
+- name: github.com/valyala/bytebufferpool
+  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
+- name: github.com/valyala/fasthttp
+  version: e5f51c11919d4f66400334047b897ef0a94c6f3c
+  subpackages:
+  - fasthttputil
+  - stackless
 - name: github.com/vharitonsky/iniflags
   version: a33cd0b5f3de9ef5e89c90ab2f1ebe3f71ad1ece
 - name: golang.org/x/crypto
