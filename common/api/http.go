@@ -17,6 +17,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/valyala/fasthttp"
 )
@@ -34,6 +35,10 @@ type HTTPScheme string
 const (
 	HTTPSchemePlain  HTTPScheme = "http://"
 	HTTPSchemeSecure HTTPScheme = "https://"
+)
+
+var (
+	HTTPOkCodes = []int{200, 201, 301, 302}
 )
 
 // String returns a string representation of the HTTPScheme
@@ -67,10 +72,13 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 
 	resp := fasthttp.AcquireResponse()
 	client := &fasthttp.Client{}
-	client.Do(req, resp)
+	timeout := time.Now().Add(c.config.Timeout)
+	client.DoDeadline(req, resp, timeout)
 
-	statusCode := resp.StatusCode()
-	if statusCode != 200 {
+	for _, code := range HTTPOkCodes {
+		if resp.StatusCode() != code {
+			continue
+		}
 		if len(resp.Body()) > 0 {
 			return json.Unmarshal(resp.Body(), out)
 		}

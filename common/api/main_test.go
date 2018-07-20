@@ -44,7 +44,6 @@ func TestCommonAPINew(t *gotesting.T) {
 	testAPI = New(common.DefaultFrameworkName, testAPIConfig)
 	assert.Equal(t, testAPIConfig, testAPI.config, "api.config is incorrect")
 	assert.Equal(t, common.DefaultFrameworkName, testAPI.FrameworkName, "api.FrameworkName is incorrect")
-	assert.Equal(t, testAPIConfig.Timeout, testAPI.client.Timeout, "api.client.Timeout is incorrect")
 	assert.Equal(t, HTTPSchemeSecure, testAPI.scheme, "api.scheme is incorrect")
 
 	testAPIConfig.Secure = false
