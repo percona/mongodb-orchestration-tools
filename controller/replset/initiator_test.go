@@ -52,6 +52,7 @@ func TestControllerReplsetInitiatorInitAdminUser(t *gotesting.T) {
 		},
 	}
 	assert.NoError(t, testInitiator.initAdminUser(testSession))
+	assert.NoError(t, user.RemoveUser(testSession, user.UserAdmin.Username, "admin"))
 }
 
 func TestControllerReplsetInitiatorInitUsers(t *gotesting.T) {
@@ -67,4 +68,5 @@ func TestControllerReplsetInitiatorInitUsers(t *gotesting.T) {
 		},
 	}
 	assert.NoError(t, testInitiator.initUsers(testSession))
+	assert.NoError(t, user.RemoveUser(testSession, user.SystemUsers[0].Username, "admin"))
 }

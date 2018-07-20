@@ -151,7 +151,7 @@ func (uc *Controller) RemoveUser() error {
 		return ErrCannotChgSysUser
 	}
 
-	err := removeUser(uc.session, uc.config.User.Username, uc.config.User.Database)
+	err := RemoveUser(uc.session, uc.config.User.Username, uc.config.User.Database)
 	if err != nil {
 		return err
 	}
