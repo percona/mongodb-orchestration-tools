@@ -70,7 +70,10 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 	resp := fasthttp.AcquireResponse()
 	client := &fasthttp.Client{}
 	timeout := time.Now().Add(c.config.Timeout)
-	client.DoDeadline(req, resp, timeout)
+	err := client.DoDeadline(req, resp, timeout)
+	if err != nil {
+		return err
+	}
 
 	if resp.StatusCode() != 200 {
 		return ErrNonSuccessCode
