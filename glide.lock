@@ -1,5 +1,5 @@
-hash: 54d17d9dcf3490eb85233b4c41d289e80191a49d1b5f889167e71f0d397bb096
-updated: 2018-07-20T03:10:33.226555217+02:00
+hash: 5fd4883af184467b89eac84f29b4638a5263ffbc223ea2dd6be057abc2b566d3
+updated: 2018-07-20T14:37:24.538218457+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -9,6 +9,10 @@ imports:
   - parse
 - name: github.com/alecthomas/units
   version: 2efee857e7cfd4f3d0138cc3cbb1b4966962b93a
+- name: github.com/beorn7/perks
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
+  subpackages:
+  - quantile
 - name: github.com/cactus/go-statsd-client
   version: 5e3c483eb9321a69283f0bb517894e46c108b88b
   subpackages:
@@ -18,9 +22,13 @@ imports:
   subpackages:
   - spew
 - name: github.com/golang/mock
-  version: c34cdb4725f4c3844d095133c6e40e448b86589b
+  version: 22bbf0ddf08105dfa364d0a2fa619dfa71014af5
   subpackages:
   - gomock
+- name: github.com/golang/protobuf
+  version: 14aad3d5ea4c323bcd7a2137e735da24a76e814c
+  subpackages:
+  - proto
 - name: github.com/klauspost/compress
   version: b939724e787a27c0005cabe3f78e7ed7987ac74f
   subpackages:
@@ -29,6 +37,10 @@ imports:
   - zlib
 - name: github.com/klauspost/cpuid
   version: e7e905edc00ea8827e58662220139109efea09db
+- name: github.com/matttproud/golang_protobuf_extensions
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  subpackages:
+  - pbutil
 - name: github.com/percona/pmgo
   version: 497d06e28f910fbe26d5d60f59d36284a6901c6f
   subpackages:
@@ -37,6 +49,27 @@ imports:
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
   - difflib
+- name: github.com/prometheus/client_golang
+  version: bcbbc08eb2ddff3af83bbf11e7ec13b4fd730b6e
+  subpackages:
+  - prometheus
+  - prometheus/promhttp
+- name: github.com/prometheus/client_model
+  version: 5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f
+  subpackages:
+  - go
+- name: github.com/prometheus/common
+  version: 7600349dcfe1abd18d72d3a1770870d9800a7801
+  subpackages:
+  - expfmt
+  - internal/bitbucket.org/ww/goautoneg
+  - model
+- name: github.com/prometheus/procfs
+  version: ae68e2d4c00fed4943b5f6698d504a5fe083da8a
+  subpackages:
+  - internal/util
+  - nfs
+  - xfs
 - name: github.com/Robpol86/logrus-custom-formatter
   version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
@@ -45,11 +78,11 @@ imports:
   subpackages:
   - .
 - name: github.com/sirupsen/logrus
-  version: ea8897e79973357ba785ac2533559a6297e83c44
+  version: a1f2e46d92096f9157fe71165f6f135d9f0b9c18
 - name: github.com/stretchr/objx
-  version: d1e4838ff99bdc9b78118344a62885513e090da5
+  version: b8b73a35e9830ae509858c10dec5866b4d5c8bff
 - name: github.com/stretchr/testify
-  version: c679ae2cc0cb27ec3293fea7e254e47386f05d69
+  version: f35b8ab0b5a2cef36673838d662e249dd9c94686
   subpackages:
   - assert
   - mock
@@ -58,7 +91,7 @@ imports:
   subpackages:
   - config
 - name: github.com/timvaillancourt/go-mongodb-replset
-  version: bb1351c879637ab0900e7a124597038301b4cbd8
+  version: 173aaa3b66aff9a03babec116e1f5a2570b8e4be
   subpackages:
   - config
   - status
@@ -72,20 +105,20 @@ imports:
 - name: github.com/vharitonsky/iniflags
   version: a33cd0b5f3de9ef5e89c90ab2f1ebe3f71ad1ece
 - name: golang.org/x/crypto
-  version: ab813273cd59e1333f7ae7bff5d027d4aadf528c
+  version: a2144134853fc9a27a7b1e3eb4f19f1a76df13c9
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: dfa909b99c79129e1100513e5cd36307665e5723
+  version: a680a1efc54dd51c040b3b5ce4939ea3cf2ea0d1
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: c11f84a56e43e20a78cee75a7c034031ecf57d1f
+  version: ac767d655b305d4e9612f5f6e33120b9176c4ad4
   subpackages:
   - unix
   - windows
 - name: gopkg.in/mgo.v2
-  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
+  version: 9856a29383ce1c59f308dd1cf0363a79b5bef6b5
   subpackages:
   - bson
   - dbtest

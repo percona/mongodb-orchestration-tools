@@ -86,6 +86,10 @@ func main() {
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
 	).BoolVar(&cnf.API.Secure)
+	app.Flag(
+		"metricsAddress",
+		"Prometheus Metrics listen address",
+	).Default(watchdog.DefaultMetricsAddress).StringVar(&cnf.MetricsAddress)
 
 	cnf.SSL = db.NewSSLConfig(app)
 

@@ -15,6 +15,7 @@
 package watchdog
 
 import (
+	"net/http"
 	"runtime"
 	"sync"
 	"time"
@@ -24,7 +25,13 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/percona/dcos-mongo-tools/watchdog/watcher"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	metricsPath           = "/metrics"
+	DefaultMetricsAddress = ":8080"
 )
 
 type Watchdog struct {
@@ -41,6 +48,15 @@ func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 		watcherManager: watcher.NewManager(config, quit),
 		quit:           quit,
 	}
+}
+
+func (w *Watchdog) runPrometheusMetricsServer() {
+	log.WithFields(log.Fields{
+		"address": w.config.MetricsAddress,
+		"path":    metricsPath,
+	}).Info("Starting Prometheus metrics server")
+	http.Handle(metricsPath, promhttp.Handler())
+	log.Fatal(http.ListenAndServe(w.config.MetricsAddress, nil))
 }
 
 func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {
@@ -128,6 +144,9 @@ func (w *Watchdog) Run() {
 		"framework": w.config.FrameworkName,
 		"go":        runtime.Version(),
 	}).Info("Starting watchdog")
+
+	// run the prometheus metrics server
+	w.runPrometheusMetricsServer()
 
 	// run the mongod update hander in a goroutine to receive updates
 	mongodUpdates := make(chan *replset.Mongod)
