@@ -23,7 +23,6 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
-	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -47,7 +46,7 @@ func NewInitiator(config *controller.Config) *Initiator {
 	}
 }
 
-func (i *Initiator) initReplset(session pmgo.SessionManager, rsCnfMan rsConfig.Manager) error {
+func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	if rsCnfMan.IsInitiated() {
 		return errors.New("Replset should not be initiated already! Exiting")
 	}
@@ -177,8 +176,7 @@ func (i *Initiator) getReplsetSession() (*mgo.Session, error) {
 }
 
 func (i *Initiator) prepareReplset(session *mgo.Session) error {
-	sessionManager := pmgo.NewSessionManager(session)
-	err := i.initReplset(sessionManager, rsConfig.New(session))
+	err := i.initReplset(rsConfig.New(session))
 	if err != nil {
 		log.WithError(err).Error("Error intiating replica set")
 		return err
