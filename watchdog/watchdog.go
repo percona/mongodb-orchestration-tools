@@ -15,6 +15,7 @@
 package watchdog
 
 import (
+	"net/http"
 	"runtime"
 	"sync"
 	"time"
@@ -24,7 +25,22 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/percona/dcos-mongo-tools/watchdog/watcher"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	metricsPath        = "/metrics"
+	DefaultMetricsPort = "8080"
+)
+
+var (
+	apiFetches = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Subsystem: "api",
+		Name:      "fetches_total",
+		Help:      "API fetches",
+	}, []string{"type"})
 )
 
 type Watchdog struct {
@@ -41,6 +57,15 @@ func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 		watcherManager: watcher.NewManager(config, quit),
 		quit:           quit,
 	}
+}
+
+func (w *Watchdog) runPrometheusMetricsServer() {
+	log.WithFields(log.Fields{
+		"port": w.config.MetricsPort,
+		"path": metricsPath,
+	}).Info("Starting Prometheus metrics server")
+	http.Handle(metricsPath, promhttp.Handler())
+	log.Fatal(http.ListenAndServe(":"+w.config.MetricsPort, nil))
 }
 
 func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {
@@ -71,6 +96,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 		}).Error("Error fetching DCOS pod tasks")
 		return
 	}
+	apiFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
 
 	for _, task := range tasks {
 		if task.IsMongodTask() != true {
@@ -110,6 +136,7 @@ func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 		}).Error("Error fetching DCOS pod list")
 		return
 	}
+	apiFetches.With(prometheus.Labels{"type": "get_pods"}).Inc()
 
 	var wg sync.WaitGroup
 	for _, podName := range *pods {
@@ -128,6 +155,10 @@ func (w *Watchdog) Run() {
 		"framework": w.config.FrameworkName,
 		"go":        runtime.Version(),
 	}).Info("Starting watchdog")
+
+	// run the prometheus metrics server
+	prometheus.MustRegister(apiFetches)
+	go w.runPrometheusMetricsServer()
 
 	// run the mongod update hander in a goroutine to receive updates
 	mongodUpdates := make(chan *replset.Mongod)
