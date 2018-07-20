@@ -19,7 +19,6 @@ import:
   - .
 - package: github.com/percona/pmgo
 - package: github.com/valyala/fasthttp
-  version: v20180529
 - package: github.com/klauspost/compress
   subpackages:
   - flate

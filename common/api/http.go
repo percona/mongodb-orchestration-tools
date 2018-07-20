@@ -37,8 +37,6 @@ const (
 	HTTPSchemeSecure HTTPScheme = "https://"
 )
 
-var ()
-
 // String returns a string representation of the HTTPScheme
 func (s HTTPScheme) String() string {
 	return string(s)
