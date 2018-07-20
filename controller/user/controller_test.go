@@ -34,9 +34,9 @@ func TestControllerUserNew(t *gotesting.T) {
 	testController, err = NewController(testControllerConfig, mockAPI)
 	assert.NoError(t, err, ".NewController() should not return an error")
 	assert.NotNil(t, testController, ".NewController() should return a Controller that is not nil")
-	assert.NotNil(t, testController.session, ".NewController() should return a Controller with a session field that is not nil")
-	assert.NoError(t, testController.session.Ping(), ".NewController() should return a Controller with a session that is pingable")
-	assert.Equal(t, mgo.Primary, testController.session.Mode(), ".NewController() should return a Controller with a session that is in mgo.Primary mode")
+	assert.NotNil(t, testController.sessionManager, ".NewController() should return a Controller with a session field that is not nil")
+	assert.NoError(t, testController.sessionManager.Ping(), ".NewController() should return a Controller with a session that is pingable")
+	assert.Equal(t, mgo.Primary, testController.sessionManager.Mode(), ".NewController() should return a Controller with a session that is in mgo.Primary mode")
 }
 
 func TestControllerUserUpdateUsers(t *gotesting.T) {
@@ -99,5 +99,5 @@ func TestControllerUserClose(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	testController.Close()
-	assert.Nil(t, testController.session, "Controller session should not nil after .Close()")
+	assert.Nil(t, testController.sessionManager, "Controller session should not nil after .Close()")
 }
