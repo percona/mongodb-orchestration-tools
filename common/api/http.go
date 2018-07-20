@@ -16,13 +16,17 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
+	"errors"
+	"time"
+
+	"github.com/valyala/fasthttp"
 )
 
 var (
 	DefaultHTTPTimeout   = "5s"
 	DefaultSchedulerHost = "api.percona-mongo.marathon.l4lb.thisdcos.directory"
+	ErrEmptyBody         = errors.New("got empty body")
+	ErrNonSuccessCode    = errors.New("got non-success code")
 )
 
 // HTTPScheme is the scheme type to be used for HTTP calls
@@ -43,7 +47,6 @@ type ClientHTTP struct {
 	FrameworkName string
 	config        *Config
 	scheme        HTTPScheme
-	client        *http.Client
 }
 
 // New creates a new ClientHTTP struct configured for use with the DC/OS SDK API
@@ -52,9 +55,6 @@ func New(frameworkName string, config *Config) *ClientHTTP {
 		FrameworkName: frameworkName,
 		config:        config,
 		scheme:        HTTPSchemePlain,
-		client: &http.Client{
-			Timeout: config.Timeout,
-		},
 	}
 	if config.Secure {
 		c.scheme = HTTPSchemeSecure
@@ -63,14 +63,22 @@ func New(frameworkName string, config *Config) *ClientHTTP {
 }
 
 func (c *ClientHTTP) get(url string, out interface{}) error {
-	resp, err := c.client.Get(url)
+	req := fasthttp.AcquireRequest()
+	req.SetRequestURI(url)
+	req.Header.SetContentType("application/json")
+
+	resp := fasthttp.AcquireResponse()
+	client := &fasthttp.Client{}
+	timeout := time.Now().Add(c.config.Timeout)
+	err := client.DoDeadline(req, resp, timeout)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+
+	if resp.StatusCode() != 200 {
+		return ErrNonSuccessCode
+	} else if len(resp.Body()) > 0 {
+		return json.Unmarshal(resp.Body(), out)
 	}
-	return json.Unmarshal(body, out)
+	return ErrEmptyBody
 }
