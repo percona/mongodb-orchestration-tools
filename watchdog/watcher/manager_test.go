@@ -56,10 +56,13 @@ func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
 
 func TestWatchdogWatcherManagerHasWatcher(t *gotesting.T) {
 	testing.DoSkipTest(t)
+
 	assert.True(t, testManager.HasWatcher(rsName))
 }
 
 func TestWatchdogWatcherManagerGet(t *gotesting.T) {
+	testing.DoSkipTest(t)
+
 	assert.NotNil(t, testManager.Get(rsName), ".Get() returned nil for existing watcher")
 	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
 }
