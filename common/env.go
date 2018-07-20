@@ -15,8 +15,6 @@
 package common
 
 const (
-	EnvPrometheusMetricsPort = "PROMETHEUS_METRICS_PORT"
-
 	EnvFrameworkName    = "FRAMEWORK_NAME"
 	EnvFrameworkHost    = "FRAMEWORK_HOST"
 	EnvPodName          = "POD_NAME"
@@ -44,6 +42,8 @@ const (
 	EnvMongoDBChangeUserDb           = "MONGODB_CHANGE_USER_DB"
 	EnvMongoDBChangeUserUsername     = "MONGODB_CHANGE_USER_USERNAME"
 	EnvMongoDBChangeUserNewPassword  = "MONGODB_CHANGE_USER_NEW_PASSWORD"
+
+	EnvWatchdogMetricsPort = "WATCHDOG_METRICS_PORT"
 
 	EnvPMMEnabled                    = "PMM_ENABLED"
 	EnvPMMEnableQueryAnalytics       = "PMM_ENABLE_QUERY_ANALYTICS"
