@@ -16,6 +16,14 @@ import:
 - package: github.com/alecthomas/kingpin
 - package: github.com/scullxbones/mgo-statsd
 - package: github.com/percona/pmgo
+  repo: https://github.com/timvaillancourt/pmgo
+- package: github.com/valyala/fasthttp
+- package: github.com/klauspost/compress
+  subpackages:
+  - flate
+  - gzip
+  - zlib
+- package: github.com/valyala/bytebufferpool
 testImport:
 - package: github.com/mitchellh/go-ps
 - package: github.com/stretchr/testify
