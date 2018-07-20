@@ -25,6 +25,10 @@ import:
   - gzip
   - zlib
 - package: github.com/valyala/bytebufferpool
+- package: github.com/prometheus/client_golang
+  subpackages:
+  - prometheus/promhttp
+  - prometheus
 testImport:
 - package: github.com/mitchellh/go-ps
 - package: github.com/stretchr/testify

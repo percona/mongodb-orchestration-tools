@@ -43,6 +43,8 @@ const (
 	EnvMongoDBChangeUserUsername     = "MONGODB_CHANGE_USER_USERNAME"
 	EnvMongoDBChangeUserNewPassword  = "MONGODB_CHANGE_USER_NEW_PASSWORD"
 
+	EnvWatchdogMetricsPort = "WATCHDOG_METRICS_PORT"
+
 	EnvPMMEnabled                    = "PMM_ENABLED"
 	EnvPMMEnableQueryAnalytics       = "PMM_ENABLE_QUERY_ANALYTICS"
 	EnvPMMServerAddress              = "PMM_SERVER_ADDRESS"
