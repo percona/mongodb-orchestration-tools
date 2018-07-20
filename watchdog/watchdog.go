@@ -158,7 +158,7 @@ func (w *Watchdog) Run() {
 
 	// run the prometheus metrics server
 	prometheus.MustRegister(apiFetches)
-	w.runPrometheusMetricsServer()
+	go w.runPrometheusMetricsServer()
 
 	// run the mongod update hander in a goroutine to receive updates
 	mongodUpdates := make(chan *replset.Mongod)
