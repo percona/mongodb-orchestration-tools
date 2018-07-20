@@ -65,6 +65,7 @@ func New(frameworkName string, config *Config) *ClientHTTP {
 func (c *ClientHTTP) get(url string, out interface{}) error {
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)
+	req.Header.SetContentType("application/json")
 
 	resp := fasthttp.AcquireResponse()
 	client := &fasthttp.Client{}
