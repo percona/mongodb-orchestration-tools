@@ -23,6 +23,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
+	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -46,8 +47,7 @@ func NewInitiator(config *controller.Config) *Initiator {
 	}
 }
 
-func (i *Initiator) initReplset(session *mgo.Session) error {
-	rsCnfMan := rsConfig.New(session)
+func (i *Initiator) initReplset(session pmgo.SessionManager, rsCnfMan rsConfig.Manager) error {
 	if rsCnfMan.IsInitiated() {
 		return errors.New("Replset should not be initiated already! Exiting")
 	}
@@ -105,16 +105,7 @@ func (i *Initiator) initUsers(session *mgo.Session) error {
 	return nil
 }
 
-func (i *Initiator) Run() error {
-	log.WithFields(log.Fields{
-		"framework": i.config.FrameworkName,
-	}).Info("Mongod replset initiator started")
-
-	log.WithFields(log.Fields{
-		"sleep": i.config.ReplsetInit.Delay,
-	}).Info("Waiting to start initiation")
-	time.Sleep(i.config.ReplsetInit.Delay)
-
+func (i *Initiator) getLocalhostNoAuthSession() (*mgo.Session, error) {
 	// if enabled, use an insecure SSL connection to avoid hostname validation error
 	// for the server hostname, only for the first connection.
 	sslCnfInsecure := db.SSLConfig{}
@@ -125,7 +116,7 @@ func (i *Initiator) Run() error {
 
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
 	localhostHost := "localhost:" + split[1]
-	localhostNoAuthSession, err := db.WaitForSession(
+	session, err := db.WaitForSession(
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
 				Addrs:    []string{localhostHost},
@@ -139,9 +130,8 @@ func (i *Initiator) Run() error {
 		i.config.ReplsetInit.RetrySleep,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer localhostNoAuthSession.Close()
 
 	log.WithFields(log.Fields{
 		"host":       localhostHost,
@@ -151,26 +141,11 @@ func (i *Initiator) Run() error {
 		"ssl_secure": !sslCnfInsecure.Insecure,
 	}).Info("Connected to MongoDB")
 
-	err = i.initReplset(localhostNoAuthSession)
-	if err != nil {
-		return err
-	}
+	return session, nil
+}
 
-	log.Info("Waiting for host to become primary")
-	err = db.WaitForPrimary(localhostNoAuthSession, i.config.ReplsetInit.MaxConnectTries, i.config.ReplsetInit.RetrySleep)
-	if err != nil {
-		return err
-	}
-
-	err = i.initAdminUser(localhostNoAuthSession)
-	if err != nil {
-		return err
-	}
-
-	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
-	localhostNoAuthSession.Close()
-
-	replsetAuthSession, err := db.WaitForSession(
+func (i *Initiator) getReplsetSession() (*mgo.Session, error) {
+	session, err := db.WaitForSession(
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
 				Addrs:          []string{i.config.ReplsetInit.PrimaryAddr},
@@ -187,9 +162,9 @@ func (i *Initiator) Run() error {
 		i.config.ReplsetInit.RetrySleep,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer replsetAuthSession.Close()
+
 	log.WithFields(log.Fields{
 		"host":       i.config.ReplsetInit.PrimaryAddr,
 		"auth":       true,
@@ -198,8 +173,71 @@ func (i *Initiator) Run() error {
 		"ssl_secure": !i.config.SSL.Insecure,
 	}).Info("Connected to MongoDB")
 
+	return session, nil
+}
+
+func (i *Initiator) prepareReplset(session *mgo.Session) error {
+	sessionManager := pmgo.NewSessionManager(session)
+	err := i.initReplset(sessionManager, rsConfig.New(session))
+	if err != nil {
+		log.WithError(err).Error("Error intiating replica set")
+		return err
+	}
+
+	log.Info("Waiting for host to become primary")
+	err = db.WaitForPrimary(session, i.config.ReplsetInit.MaxConnectTries, i.config.ReplsetInit.RetrySleep)
+	if err != nil {
+		log.WithError(err).Error("Error getting waiting for primary session")
+		return err
+	}
+
+	err = i.initAdminUser(session)
+	if err != nil {
+		log.WithError(err).Error("Error adding admin user")
+		return err
+	}
+	return nil
+}
+
+func (i *Initiator) Run() error {
+	log.WithFields(log.Fields{
+		"framework": i.config.FrameworkName,
+	}).Info("Mongod replset initiator started")
+
+	log.WithFields(log.Fields{
+		"sleep": i.config.ReplsetInit.Delay,
+	}).Info("Waiting to start initiation")
+	time.Sleep(i.config.ReplsetInit.Delay)
+
+	// First we must use a localhost, no-authentication session
+	// so that we can use the MongoDB Localhost Exception:
+	// https://docs.mongodb.com/manual/core/security-users/#localhost-exception
+	localhostNoAuthSession, err := i.getLocalhostNoAuthSession()
+	if err != nil {
+		log.WithError(err).Error("Error getting localhost no-auth session")
+		return err
+	}
+	defer localhostNoAuthSession.Close()
+
+	err = i.prepareReplset(localhostNoAuthSession)
+	if err != nil {
+		log.WithError(err).Error("Error preparing replset")
+		return err
+	}
+
+	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
+	localhostNoAuthSession.Close()
+
+	replsetAuthSession, err := i.getReplsetSession()
+	if err != nil {
+		log.WithError(err).Error("Error getting replica set session")
+		return err
+	}
+	defer replsetAuthSession.Close()
+
 	err = i.initUsers(replsetAuthSession)
 	if err != nil {
+		log.WithError(err).Error("Error adding system users")
 		return err
 	}
 
