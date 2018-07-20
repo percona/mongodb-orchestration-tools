@@ -73,8 +73,7 @@ func (c *ClientHTTP) get(url string, out interface{}) error {
 
 	if resp.StatusCode() != 200 {
 		return ErrNonSuccessCode
-	}
-	if len(resp.Body()) > 0 {
+	} else if len(resp.Body()) > 0 {
 		return json.Unmarshal(resp.Body(), out)
 	}
 	return ErrEmptyBody
