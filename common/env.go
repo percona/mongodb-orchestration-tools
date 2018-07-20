@@ -15,6 +15,8 @@
 package common
 
 const (
+	EnvPrometheusMetricsPort = "PROMETHEUS_METRICS_PORT"
+
 	EnvFrameworkName    = "FRAMEWORK_NAME"
 	EnvFrameworkHost    = "FRAMEWORK_HOST"
 	EnvPodName          = "POD_NAME"

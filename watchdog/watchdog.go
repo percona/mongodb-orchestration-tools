@@ -31,8 +31,8 @@ import (
 )
 
 const (
-	metricsPath           = "/metrics"
-	DefaultMetricsAddress = ":8080"
+	metricsPath        = "/metrics"
+	DefaultMetricsPort = "8080"
 )
 
 var (
@@ -61,11 +61,11 @@ func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
 
 func (w *Watchdog) runPrometheusMetricsServer() {
 	log.WithFields(log.Fields{
-		"address": w.config.MetricsAddress,
-		"path":    metricsPath,
+		"port": w.config.MetricsPort,
+		"path": metricsPath,
 	}).Info("Starting Prometheus metrics server")
 	http.Handle(metricsPath, promhttp.Handler())
-	log.Fatal(http.ListenAndServe(w.config.MetricsAddress, nil))
+	log.Fatal(http.ListenAndServe(":"+w.config.MetricsPort, nil))
 }
 
 func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {

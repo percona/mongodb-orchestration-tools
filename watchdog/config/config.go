@@ -39,5 +39,5 @@ type Config struct {
 	SSL            *db.SSLConfig
 	ReplsetPoll    time.Duration
 	ReplsetTimeout time.Duration
-	MetricsAddress string
+	MetricsPort    string
 }
