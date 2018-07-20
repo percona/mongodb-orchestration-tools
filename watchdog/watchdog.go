@@ -25,6 +25,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/percona/dcos-mongo-tools/watchdog/watcher"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
@@ -32,6 +33,14 @@ import (
 const (
 	metricsPath           = "/metrics"
 	DefaultMetricsAddress = ":8080"
+)
+
+var (
+	apiFetches = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Subsystem: "api",
+		Name:      "fetches_total",
+		Help:      "API fetches",
+	}, []string{"type"})
 )
 
 type Watchdog struct {
@@ -87,6 +96,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 		}).Error("Error fetching DCOS pod tasks")
 		return
 	}
+	apiFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
 
 	for _, task := range tasks {
 		if task.IsMongodTask() != true {
@@ -126,6 +136,7 @@ func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 		}).Error("Error fetching DCOS pod list")
 		return
 	}
+	apiFetches.With(prometheus.Labels{"type": "get_pods"}).Inc()
 
 	var wg sync.WaitGroup
 	for _, podName := range *pods {
@@ -146,6 +157,7 @@ func (w *Watchdog) Run() {
 	}).Info("Starting watchdog")
 
 	// run the prometheus metrics server
+	prometheus.MustRegister(apiFetches)
 	w.runPrometheusMetricsServer()
 
 	// run the mongod update hander in a goroutine to receive updates
