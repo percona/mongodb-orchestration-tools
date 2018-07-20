@@ -25,3 +25,6 @@ testImport:
   subpackages:
   - assert
   - mock
+- package: github.com/golang/mock
+  subpackages:
+  - gomock
