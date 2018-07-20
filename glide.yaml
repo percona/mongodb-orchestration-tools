@@ -15,10 +15,7 @@ import:
   - config
 - package: github.com/alecthomas/kingpin
 - package: github.com/scullxbones/mgo-statsd
-  subpackages:
-  - .
 - package: github.com/percona/pmgo
-  repo: https://github.com/timvaillancourt/pmgo
 testImport:
 - package: github.com/mitchellh/go-ps
 - package: github.com/stretchr/testify

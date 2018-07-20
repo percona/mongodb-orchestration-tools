@@ -1,5 +1,5 @@
-hash: e230f6b9ebd4f31b6891d17e292f877f1683c04ac04ab8fd59cd64483ad13486
-updated: 2018-07-20T13:17:45.970155195+02:00
+hash: d69d1eab006705568022369f23f4836c454ee220b5d7b728ccbc1ddbb153eaa6
+updated: 2018-07-20T13:32:33.745443019+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: a39589180ebd6bbf43076e514b55f20a95d43086
@@ -34,8 +34,6 @@ imports:
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - name: github.com/scullxbones/mgo-statsd
   version: 80350e71822057dec1b2f7a63276e2da510c7384
-  subpackages:
-  - .
 - name: github.com/sirupsen/logrus
   version: 92052687f8ec598ff0da626d2909478cfd1e3a3c
 - name: github.com/stretchr/objx
