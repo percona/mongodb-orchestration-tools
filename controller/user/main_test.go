@@ -16,6 +16,7 @@ package user
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	gotesting "testing"
@@ -38,7 +39,7 @@ const (
 )
 
 var (
-	testCheckSession   *mgo.Session
+	testSession        *mgo.Session
 	testController     *Controller
 	testLogBuffer      = new(bytes.Buffer)
 	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
@@ -62,7 +63,7 @@ var (
 	}
 )
 
-func checkUserExists(session *mgo.Session, user, db string) bool {
+func checkUserExists(session *mgo.Session, user, db string) error {
 	resp := struct {
 		Username string `bson:"user"`
 		Database string `bson:"db"`
@@ -71,10 +72,13 @@ func checkUserExists(session *mgo.Session, user, db string) bool {
 		"user": user,
 		"db":   db,
 	}).One(&resp)
-	if err == nil && resp.Username == user && resp.Database == db {
-		return true
+	if err != nil {
+		return err
 	}
-	return false
+	if resp.Username != user || resp.Database != db {
+		return errors.New("user does not match")
+	}
+	return nil
 }
 
 func TestMain(m *gotesting.M) {
@@ -82,15 +86,15 @@ func TestMain(m *gotesting.M) {
 
 	if testing.Enabled() {
 		var err error
-		testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	defer func() {
-		if testCheckSession != nil {
-			testCheckSession.Close()
+		if testSession != nil {
+			testSession.Close()
 		}
 		if testController != nil {
 			testController.Close()
