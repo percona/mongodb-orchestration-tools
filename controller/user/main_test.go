@@ -92,13 +92,13 @@ func TestMain(m *gotesting.M) {
 		}
 	}
 
-	defer func() {
-		if testSession != nil {
-			testSession.Close()
-		}
-		if testController != nil {
-			testController.Close()
-		}
-	}()
-	os.Exit(m.Run())
+	exit := m.Run()
+
+	if testSession != nil {
+		testSession.Close()
+	}
+	if testController != nil {
+		testController.Close()
+	}
+	os.Exit(exit)
 }
