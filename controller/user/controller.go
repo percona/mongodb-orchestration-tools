@@ -134,17 +134,17 @@ func (uc *Controller) UpdateUsers() error {
 		}
 		err := updateUser.Validate(uc.config.User.Database)
 		if err != nil {
-			log.WithError(err).Error("Cannot validate user %s", uc.config.User.Username)
+			log.WithError(err).Errorf("Cannot validate user %s", uc.config.User.Username)
 			return err
 		}
 		mgoUpdateUser, err := updateUser.ToMgoUser(uc.config.User.Database)
 		if err != nil {
-			log.WithError(err).Error("Cannot parse user %s", uc.config.User.Username)
+			log.WithError(err).Errorf("Cannot parse user %s", uc.config.User.Username)
 			return err
 		}
 		err = UpdateUser(uc.session, mgoUpdateUser, uc.config.User.Database)
 		if err != nil {
-			log.WithError(err).Error("Cannot update user %s", uc.config.User.Username)
+			log.WithError(err).Errorf("Cannot update user %s", uc.config.User.Username)
 			return err
 		}
 	}
