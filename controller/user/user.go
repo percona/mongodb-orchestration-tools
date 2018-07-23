@@ -15,13 +15,10 @@
 package user
 
 import (
-	"encoding/base64"
 	"errors"
-	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -70,26 +67,6 @@ func RemoveUser(session *mgo.Session, username, db string) error {
 		return nil
 	}
 	return err
-}
-
-func loadFromBase64BSONFile(file string) (*UserChangeData, error) {
-	payload := &UserChangeData{}
-
-	log.Infof("Loading mongodb user(s) from file %s", file)
-
-	bytes, err := ioutil.ReadFile(file)
-	if err != nil {
-		return payload, err
-	}
-
-	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(bytes)))
-	_, err = base64.StdEncoding.Decode(decoded, bytes)
-	if err != nil {
-		return payload, err
-	}
-
-	err = bson.Unmarshal(decoded, payload)
-	return payload, err
 }
 
 func isSystemUser(username, db string) bool {

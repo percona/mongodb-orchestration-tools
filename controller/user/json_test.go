@@ -44,17 +44,22 @@ func TestControllerUserJSONNewFromJSONFile(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestControllerUserJSONNewFromJSONBase64File(t *testing.T) {
-	_, err := NewFromJSONBase64File(testUserBase64File)
+func TestControllerUserJSONNewFromCLIPayloadFile(t *testing.T) {
+	// not json+base64
+	_, err := NewFromCLIPayloadFile(testUserFile)
+	assert.Error(t, err)
+
+	// good json+base64
+	_, err = NewFromCLIPayloadFile(testUserBase64File)
 	assert.NoError(t, err)
 }
 
 func TestControllerUserJSONValidate(t *testing.T) {
-	assert.NoError(t, testUserJSON.validate("admin"))
-	assert.Error(t, testUserJSON.validate("notadmin"))
+	assert.NoError(t, testUserJSON.Validate("admin"))
+	assert.Error(t, testUserJSON.Validate("notadmin"))
 
 	u, _ := NewFromJSONFile(testUserFileBroken)
-	assert.Error(t, u.validate("admin"))
+	assert.Error(t, u.Validate("admin"))
 }
 
 func TestControllerUserJSONToMgoUser(t *testing.T) {

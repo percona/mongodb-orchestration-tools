@@ -32,16 +32,16 @@ import (
 
 const (
 	testDirRelPath                    = "./test"
-	testBase64BSONFile                = "mongodbUserChange.bson.b64"
-	testBase64BSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
-	testBase64BSONFileMalformedBSON   = "mongodbUserChange-malformed_bson.bson.b64"
+	testBase64JSONFile                = "test-user.json.base64"
+	testBase64JSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
+	testBase64JSONFileMalformedJSON   = "mongodbUserChange-malformed_bson.bson.b64"
 )
 
 var (
 	testCheckSession   *mgo.Session
 	testController     *Controller
 	testLogBuffer      = new(bytes.Buffer)
-	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
+	testBase64JSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
 	testSystemUsers    = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}
@@ -49,8 +49,8 @@ var (
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
-			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64BSONFile)),
-			Username:        testBase64BSONUser.Username,
+			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
+			Username:        testBase64JSONUser.Username,
 			EndpointName:    common.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,

@@ -38,7 +38,11 @@ type UserJSON struct {
 	Roles    []*UserRoleJSON `json:"roles"`
 }
 
-func (user *UserJSON) validate(db string) error {
+type UserChangeJSON struct {
+	Users []*UserJSON `json:"users"`
+}
+
+func (user *UserJSON) Validate(db string) error {
 	if user.Username == "" {
 		return errors.New("'user' field is required")
 	} else if user.Password == "" {
@@ -59,39 +63,35 @@ func (user *UserJSON) validate(db string) error {
 	return nil
 }
 
-func jsonBytesToUserJSON(bytes []byte) (*UserJSON, error) {
-	user := &UserJSON{}
-	err := json.Unmarshal(bytes, user)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
-}
-
 func NewFromJSONFile(file string) (*UserJSON, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	return jsonBytesToUserJSON(bytes)
+	user := &UserJSON{}
+	err = json.Unmarshal(bytes, user)
+	return user, err
 }
 
-func NewFromJSONBase64File(file string) (*UserJSON, error) {
+func NewFromCLIPayloadFile(file string) ([]*UserJSON, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
+
 	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(bytes)))
 	_, err = base64.StdEncoding.Decode(decoded, bytes)
 	if err != nil {
 		return nil, err
-
 	}
-	return jsonBytesToUserJSON(bytes)
+
+	user := &UserChangeJSON{}
+	err = json.Unmarshal(decoded, user)
+	return user.Users, err
 }
 
 func (user *UserJSON) ToMgoUser(db string) (*mgo.User, error) {
-	err := user.validate(db)
+	err := user.Validate(db)
 	if err != nil {
 		return nil, err
 	}
