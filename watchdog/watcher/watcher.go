@@ -71,10 +71,6 @@ func (rw *Watcher) getReplsetSession() *mgo.Session {
 }
 
 func (rw *Watcher) connectReplsetSession() error {
-	rw.sessionLock.Lock()
-	defer rw.sessionLock.Unlock()
-
-	var err error
 	var session *mgo.Session
 	for {
 		ticker := time.NewTicker(rw.config.ReplsetPoll)
@@ -82,11 +78,16 @@ func (rw *Watcher) connectReplsetSession() error {
 		case <-ticker.C:
 			rw.dbConfig = rw.replset.GetReplsetDBConfig(rw.config.SSL)
 			if len(rw.dbConfig.DialInfo.Addrs) >= 1 {
-				session, err = db.GetSession(rw.dbConfig)
-				if err == nil {
+				var err error
+				if session == nil {
+					session, err = db.GetSession(rw.dbConfig)
+				}
+				if err == nil && session != nil {
 					session.SetMode(replsetReadPreference, true)
-					ticker.Stop()
-					break
+					if session.Ping() == nil {
+						ticker.Stop()
+						break
+					}
 				}
 
 				log.WithFields(log.Fields{
@@ -104,6 +105,9 @@ func (rw *Watcher) connectReplsetSession() error {
 		}
 		break
 	}
+
+	rw.sessionLock.Lock()
+	defer rw.sessionLock.Unlock()
 
 	if rw.masterSession != nil {
 		log.WithFields(log.Fields{
