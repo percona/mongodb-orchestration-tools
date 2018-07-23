@@ -40,12 +40,12 @@ var (
 	testSession    *mgo.Session
 	testController *Controller
 	testLogBuffer  = new(bytes.Buffer)
-	testCLIPayload = &UserChangeJSON{
-		Users: []*UserJSON{
+	testCLIPayload = &ChangeJSON{
+		Users: []*JSON{
 			{
 				Username: "prodapp",
 				Password: "123456",
-				Roles: []*UserRoleJSON{
+				Roles: []*RoleJSON{
 					{
 						Database: "app",
 						Role:     "readWrite",

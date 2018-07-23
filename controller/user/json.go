@@ -27,22 +27,22 @@ const (
 	adminDB = "admin"
 )
 
-type UserRoleJSON struct {
+type RoleJSON struct {
 	Role     string `json:"role"`
 	Database string `json:"db"`
 }
 
-type UserJSON struct {
-	Username string          `json:"user"`
-	Password string          `json:"pwd"`
-	Roles    []*UserRoleJSON `json:"roles"`
+type JSON struct {
+	Username string      `json:"user"`
+	Password string      `json:"pwd"`
+	Roles    []*RoleJSON `json:"roles"`
 }
 
-type UserChangeJSON struct {
-	Users []*UserJSON `json:"users"`
+type ChangeJSON struct {
+	Users []*JSON `json:"users"`
 }
 
-func (user *UserJSON) Validate(db string) error {
+func (user *JSON) Validate(db string) error {
 	if user.Username == "" {
 		return errors.New("'user' field is required")
 	} else if user.Password == "" {
@@ -63,17 +63,17 @@ func (user *UserJSON) Validate(db string) error {
 	return nil
 }
 
-func NewFromJSONFile(file string) (*UserJSON, error) {
+func NewFromJSONFile(file string) (*JSON, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	user := &UserJSON{}
+	user := &JSON{}
 	err = json.Unmarshal(bytes, user)
 	return user, err
 }
 
-func NewFromCLIPayloadFile(file string) ([]*UserJSON, error) {
+func NewFromCLIPayloadFile(file string) ([]*JSON, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -85,12 +85,12 @@ func NewFromCLIPayloadFile(file string) ([]*UserJSON, error) {
 		return nil, err
 	}
 
-	user := &UserChangeJSON{}
+	user := &ChangeJSON{}
 	err = json.Unmarshal(decoded, user)
 	return user.Users, err
 }
 
-func (user *UserJSON) ToMgoUser(db string) (*mgo.User, error) {
+func (user *JSON) ToMgoUser(db string) (*mgo.User, error) {
 	err := user.Validate(db)
 	if err != nil {
 		return nil, err
