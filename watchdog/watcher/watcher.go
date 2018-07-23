@@ -84,7 +84,8 @@ func (rw *Watcher) connectReplsetSession() error {
 				}
 				if err == nil && session != nil {
 					session.SetMode(replsetReadPreference, true)
-					if session.Ping() == nil {
+					err = session.Ping()
+					if err == nil {
 						ticker.Stop()
 						break
 					}
