@@ -71,10 +71,6 @@ func (rw *Watcher) getReplsetSession() *mgo.Session {
 }
 
 func (rw *Watcher) connectReplsetSession() error {
-	rw.sessionLock.Lock()
-	defer rw.sessionLock.Unlock()
-
-	var err error
 	var session *mgo.Session
 	for {
 		ticker := time.NewTicker(rw.config.ReplsetPoll)
@@ -82,11 +78,17 @@ func (rw *Watcher) connectReplsetSession() error {
 		case <-ticker.C:
 			rw.dbConfig = rw.replset.GetReplsetDBConfig(rw.config.SSL)
 			if len(rw.dbConfig.DialInfo.Addrs) >= 1 {
-				session, err = db.GetSession(rw.dbConfig)
-				if err == nil {
+				var err error
+				if session == nil {
+					session, err = db.GetSession(rw.dbConfig)
+				}
+				if err == nil && session != nil {
 					session.SetMode(replsetReadPreference, true)
-					ticker.Stop()
-					break
+					err = session.Ping()
+					if err == nil {
+						ticker.Stop()
+						break
+					}
 				}
 
 				log.WithFields(log.Fields{
@@ -105,6 +107,9 @@ func (rw *Watcher) connectReplsetSession() error {
 		break
 	}
 
+	rw.sessionLock.Lock()
+	defer rw.sessionLock.Unlock()
+
 	if rw.masterSession != nil {
 		log.WithFields(log.Fields{
 			"addrs":   rw.dbConfig.DialInfo.Addrs,
@@ -114,7 +119,6 @@ func (rw *Watcher) connectReplsetSession() error {
 		rw.masterSession.Close()
 	}
 	rw.masterSession = session
-	rw.configManager = rsConfig.New(rw.masterSession)
 
 	return nil
 }
@@ -222,7 +226,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 		session := rw.getReplsetSession()
 		if session != nil {
 			rw.stateLock.Lock()
-			rw.state.AddConfigMembers(session, rw.configManager, mongods)
+			rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
 			rw.stateLock.Unlock()
 		}
 		rw.reconnectReplsetSession()
@@ -238,7 +242,7 @@ func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member)
 		session := rw.getReplsetSession()
 		if session != nil {
 			rw.stateLock.Lock()
-			rw.state.RemoveConfigMembers(session, rw.configManager, members)
+			rw.state.RemoveConfigMembers(session, rsConfig.New(session), members)
 			rw.stateLock.Unlock()
 		}
 		rw.reconnectReplsetSession()
@@ -302,7 +306,11 @@ func (rw *Watcher) Run() {
 	for {
 		select {
 		case <-ticker.C:
-			err := rw.state.Fetch(rw.getReplsetSession(), rw.configManager)
+			session := rw.getReplsetSession()
+			if session == nil {
+				continue
+			}
+			err := rw.state.Fetch(session, rsConfig.New(session))
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
