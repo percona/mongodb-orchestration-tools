@@ -32,26 +32,37 @@ import (
 )
 
 const (
-	testDirRelPath                    = "./test"
-	testBase64BSONFile                = "mongodbUserChange.bson.b64"
-	testBase64BSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
-	testBase64BSONFileMalformedBSON   = "mongodbUserChange-malformed_bson.bson.b64"
+	testDirRelPath     = "./test"
+	testBase64JSONFile = "test-user.json.base64"
 )
 
 var (
-	testSession        *mgo.Session
-	testController     *Controller
-	testLogBuffer      = new(bytes.Buffer)
-	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
-	testSystemUsers    = []*mgo.User{
+	testSession    *mgo.Session
+	testController *Controller
+	testLogBuffer  = new(bytes.Buffer)
+	testCLIPayload = &ChangeJSON{
+		Users: []*JSON{
+			{
+				Username: "prodapp",
+				Password: "123456",
+				Roles: []*RoleJSON{
+					{
+						Database: "app",
+						Role:     "readWrite",
+					},
+				},
+			},
+		},
+	}
+	testSystemUsers = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}
 	testControllerConfig = &controller.Config{
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
-			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64BSONFile)),
-			Username:        testBase64BSONUser.Username,
+			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
+			Username:        testCLIPayload.Users[0].Username,
 			EndpointName:    common.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,

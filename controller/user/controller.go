@@ -121,18 +121,30 @@ func (uc *Controller) UpdateUsers() error {
 		return ErrNoDbProvided
 	}
 
-	payload, err := loadFromBase64BSONFile(uc.config.User.File)
+	users, err := NewFromCLIPayloadFile(uc.config.User.File)
 	if err != nil {
+		log.WithError(err).Errorf("Failed loading payload file: %s", uc.config.User.File)
 		return err
 	}
 
-	for _, user := range payload.Users {
-		if isSystemUser(user.Username, uc.config.User.Database) {
+	for _, updateUser := range users {
+		if isSystemUser(updateUser.Username, uc.config.User.Database) {
 			log.Errorf("Cannot change system user %s in database %s", uc.config.User.Username, uc.config.User.Database)
 			return ErrCannotChgSysUser
 		}
-		err = UpdateUser(uc.session, user, uc.config.User.Database)
+		err := updateUser.Validate(uc.config.User.Database)
 		if err != nil {
+			log.WithError(err).Errorf("Cannot validate user %s", uc.config.User.Username)
+			return err
+		}
+		mgoUpdateUser, err := updateUser.ToMgoUser(uc.config.User.Database)
+		if err != nil {
+			log.WithError(err).Errorf("Cannot parse user %s", uc.config.User.Username)
+			return err
+		}
+		err = UpdateUser(uc.session, mgoUpdateUser, uc.config.User.Database)
+		if err != nil {
+			log.WithError(err).Errorf("Cannot update user %s", uc.config.User.Username)
 			return err
 		}
 	}
