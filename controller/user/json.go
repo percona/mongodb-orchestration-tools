@@ -58,7 +58,7 @@ func (user *JSON) Validate(db string) error {
 			}
 		}
 	} else {
-		return errors.New("'roles' field is required. must be an array with one or more role documents!")
+		return errors.New("'roles' field is required, must be an array with one or more role documents")
 	}
 	return nil
 }

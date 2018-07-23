@@ -53,7 +53,7 @@ func TestControllerUserJSONNewFromJSONFile(t *testing.T) {
 	// malformed json
 	tmpfile, _ := ioutil.TempFile("", "TestControllerUserJSONNewFromJSONFile")
 	defer os.Remove(tmpfile.Name())
-	tmpfile.Write([]byte("notjson"))
+	_ = tmpfile.Write([]byte("notjson"))
 	_, err = NewFromJSONFile(tmpfile.Name())
 	assert.Error(t, err)
 }
