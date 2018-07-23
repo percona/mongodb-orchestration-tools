@@ -31,17 +31,15 @@ import (
 )
 
 const (
-	testDirRelPath                    = "./test"
-	testBase64JSONFile                = "test-user.json.base64"
-	testBase64JSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
-	testBase64JSONFileMalformedJSON   = "mongodbUserChange-malformed_bson.bson.b64"
+	testDirRelPath     = "./test"
+	testBase64JSONFile = "test-user.json.base64"
 )
 
 var (
 	testCheckSession   *mgo.Session
 	testController     *Controller
 	testLogBuffer      = new(bytes.Buffer)
-	testBase64JSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
+	testBase64JSONUser = &mgo.User{Username: "prodapp", Password: "123456", Roles: []mgo.Role{"root"}}
 	testSystemUsers    = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}

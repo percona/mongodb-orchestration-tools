@@ -15,6 +15,7 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/common/api"
@@ -127,6 +128,8 @@ func (uc *Controller) UpdateUsers() error {
 		return err
 	}
 
+	fmt.Printf("%v\n", users[0])
+
 	for _, updateUser := range users {
 		if isSystemUser(updateUser.Username, uc.config.User.Database) {
 			log.Errorf("Cannot change system user %s in database %s", uc.config.User.Username, uc.config.User.Database)
@@ -140,6 +143,7 @@ func (uc *Controller) UpdateUsers() error {
 		if err != nil {
 			return err
 		}
+		fmt.Printf("%v\n", mgoUpdateUser)
 		err = UpdateUser(uc.session, mgoUpdateUser, uc.config.User.Database)
 		if err != nil {
 			return err
