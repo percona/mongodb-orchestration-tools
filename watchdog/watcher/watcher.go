@@ -119,7 +119,6 @@ func (rw *Watcher) connectReplsetSession() error {
 		rw.masterSession.Close()
 	}
 	rw.masterSession = session
-	rw.configManager = rsConfig.New(rw.masterSession)
 
 	return nil
 }
@@ -227,7 +226,7 @@ func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
 		session := rw.getReplsetSession()
 		if session != nil {
 			rw.stateLock.Lock()
-			rw.state.AddConfigMembers(session, rw.configManager, mongods)
+			rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
 			rw.stateLock.Unlock()
 		}
 		rw.reconnectReplsetSession()
@@ -243,7 +242,7 @@ func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member)
 		session := rw.getReplsetSession()
 		if session != nil {
 			rw.stateLock.Lock()
-			rw.state.RemoveConfigMembers(session, rw.configManager, members)
+			rw.state.RemoveConfigMembers(session, rsConfig.New(session), members)
 			rw.stateLock.Unlock()
 		}
 		rw.reconnectReplsetSession()
@@ -307,7 +306,11 @@ func (rw *Watcher) Run() {
 	for {
 		select {
 		case <-ticker.C:
-			err := rw.state.Fetch(rw.getReplsetSession(), rw.configManager)
+			session := rw.getReplsetSession()
+			if session == nil {
+				continue
+			}
+			err := rw.state.Fetch(session, rsConfig.New(session))
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
 				continue
