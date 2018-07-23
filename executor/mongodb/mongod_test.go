@@ -57,9 +57,10 @@ func TestExecutorMongoDBMkdir(t *gotesting.T) {
 	gid, _ := strconv.Atoi(currentGroup.Gid)
 	assert.NoError(t, mkdir(dir, uid, gid, DefaultDirMode))
 	defer os.RemoveAll(dir)
-	if _, err := os.Stat(dir); err != nil {
+
+	stat, err := os.Stat(dir)
+	if err != nil {
 		assert.FailNow(t, ".mkdir() did not create a directory")
 	}
-	stat, _ := os.Stat(dir)
 	assert.True(t, stat.IsDir())
 }
