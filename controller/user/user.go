@@ -41,9 +41,10 @@ func UpdateUser(session *mgo.Session, user *mgo.User, dbName string) error {
 	}
 
 	log.WithFields(log.Fields{
-		"user":  user.Username,
-		"roles": user.Roles,
-		"db":    dbName,
+		"user":         user.Username,
+		"roles":        user.Roles,
+		"otherDBRoles": user.OtherDBRoles,
+		"db":           dbName,
 	}).Info("Adding/updating MongoDB user")
 
 	return session.DB(dbName).UpsertUser(user)
