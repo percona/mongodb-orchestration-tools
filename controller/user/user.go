@@ -36,7 +36,7 @@ func UpdateUser(session *mgo.Session, user *mgo.User, dbName string) error {
 	if user.Username == "" || user.Password == "" {
 		return errors.New("No username or password defined for user")
 	}
-	if len(user.Roles) <= 0 {
+	if len(user.Roles) < 1 && len(user.OtherDBRoles) < 1 {
 		return errors.New("No roles defined for user")
 	}
 

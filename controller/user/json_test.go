@@ -50,8 +50,10 @@ func TestControllerUserJSONNewFromCLIPayloadFile(t *testing.T) {
 	assert.Error(t, err)
 
 	// good json+base64
-	_, err = NewFromCLIPayloadFile(testUserBase64File)
+	u, err := NewFromCLIPayloadFile(testUserBase64File)
 	assert.NoError(t, err)
+	assert.Len(t, u, 1)
+	assert.Equal(t, testCLIPayload.Users, u)
 }
 
 func TestControllerUserJSONValidate(t *testing.T) {

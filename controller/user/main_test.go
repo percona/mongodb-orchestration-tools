@@ -16,6 +16,7 @@ package user
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	gotesting "testing"
@@ -36,11 +37,24 @@ const (
 )
 
 var (
-	testCheckSession   *mgo.Session
-	testController     *Controller
-	testLogBuffer      = new(bytes.Buffer)
-	testBase64JSONUser = &mgo.User{Username: "prodapp", Password: "123456", Roles: []mgo.Role{"root"}}
-	testSystemUsers    = []*mgo.User{
+	testSession    *mgo.Session
+	testController *Controller
+	testLogBuffer  = new(bytes.Buffer)
+	testCLIPayload = &UserChangeJSON{
+		Users: []*UserJSON{
+			{
+				Username: "prodapp",
+				Password: "123456",
+				Roles: []*UserRoleJSON{
+					{
+						Database: "app",
+						Role:     "readWrite",
+					},
+				},
+			},
+		},
+	}
+	testSystemUsers = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}
 	testControllerConfig = &controller.Config{
@@ -48,7 +62,7 @@ var (
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
 			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
-			Username:        testBase64JSONUser.Username,
+			Username:        testCLIPayload.Users[0].Username,
 			EndpointName:    common.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
@@ -60,7 +74,7 @@ var (
 	}
 )
 
-func checkUserExists(session *mgo.Session, user, db string) bool {
+func checkUserExists(session *mgo.Session, user, db string) error {
 	resp := struct {
 		Username string `bson:"user"`
 		Database string `bson:"db"`
@@ -69,10 +83,13 @@ func checkUserExists(session *mgo.Session, user, db string) bool {
 		"user": user,
 		"db":   db,
 	}).One(&resp)
-	if err == nil && resp.Username == user && resp.Database == db {
-		return true
+	if err != nil {
+		return err
 	}
-	return false
+	if resp.Username != user || resp.Database != db {
+		return errors.New("user does not match")
+	}
+	return nil
 }
 
 func TestMain(m *gotesting.M) {
@@ -80,19 +97,19 @@ func TestMain(m *gotesting.M) {
 
 	if testing.Enabled() {
 		var err error
-		testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	defer func() {
-		if testCheckSession != nil {
-			testCheckSession.Close()
-		}
-		if testController != nil {
-			testController.Close()
-		}
-	}()
-	os.Exit(m.Run())
+	exit := m.Run()
+
+	if testSession != nil {
+		testSession.Close()
+	}
+	if testController != nil {
+		testController.Close()
+	}
+	os.Exit(exit)
 }

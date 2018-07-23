@@ -25,14 +25,18 @@ var (
 func TestMain(m *gotesting.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
 
-	var err error
-	testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
-	if err != nil {
-		fmt.Printf("Error getting session: %v", err)
-		os.Exit(1)
+	if testing.Enabled() {
+		var err error
+		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		if err != nil {
+			fmt.Printf("Error getting session: %v", err)
+			os.Exit(1)
+		}
 	}
 	exit := m.Run()
-	testSession.Close()
+	if testSession != nil {
+		testSession.Close()
+	}
 	os.Exit(exit)
 }
 
