@@ -313,6 +313,7 @@ func (rw *Watcher) Run() {
 			err := rw.state.Fetch(session, rsConfig.New(session))
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
+				rw.reconnectReplsetSession()
 				continue
 			}
 			if rw.state.GetStatus() != nil {

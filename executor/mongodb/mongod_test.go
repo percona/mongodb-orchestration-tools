@@ -49,12 +49,13 @@ func TestExecutorMongoDBMkdir(t *gotesting.T) {
 		assert.FailNow(t, "dir should not exist before .mkdir()")
 	}
 
-	// bad uid + gid
-	assert.Error(t, mkdir(dir, 999999, 99999, 0777))
-
-	// good .mkdir()
 	uid, _ := strconv.Atoi(currentUser.Uid)
 	gid, _ := strconv.Atoi(currentGroup.Gid)
+
+	// bad path
+	assert.Error(t, mkdir("C://%$#$@R", uid, gid, DefaultDirMode))
+
+	// good .mkdir()
 	assert.NoError(t, mkdir(dir, uid, gid, DefaultDirMode))
 	defer os.RemoveAll(dir)
 

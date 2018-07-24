@@ -54,10 +54,10 @@ func main() {
 		"password",
 		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
 	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
-	app.Flag(
-		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
+	//app.Flag(
+	//	"enableSecrets",
+	//	"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
+	//).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
 	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
@@ -97,13 +97,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	if enableSecrets {
-		cnf.Password = common.PasswordFromFile(
-			os.Getenv(common.EnvMesosSandbox),
-			cnf.Password,
-			"userAdmin",
-		)
-	}
+	//if enableSecrets {
+	//	cnf.Password = common.PasswordFromFile(
+	//		os.Getenv(common.EnvMesosSandbox),
+	//		cnf.Password,
+	//		"userAdmin",
+	//	)
+	//}
 
 	quit := make(chan bool)
 	watchdog.New(cnf, &quit, api.New(
