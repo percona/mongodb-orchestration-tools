@@ -23,6 +23,7 @@ import (
 
 const (
 	RoleBackup         mgo.Role = "backup"
+	RoleRestore        mgo.Role = "restore"
 	RoleClusterAdmin   mgo.Role = mgo.RoleClusterAdmin
 	RoleClusterMonitor mgo.Role = "clusterMonitor"
 	RoleUserAdminAny   mgo.Role = mgo.RoleUserAdminAny

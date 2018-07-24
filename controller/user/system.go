@@ -60,6 +60,7 @@ var (
 			Roles: []mgo.Role{
 				RoleBackup,
 				RoleClusterMonitor,
+				RoleRestore,
 			},
 		},
 	}
