@@ -22,8 +22,12 @@ import (
 )
 
 var (
-	DefaultAPIPoll        = "10s"
-	DefaultIgnorePods     = []string{"admin-0", "mongodb-consistent-backup-0"}
+	DefaultAPIPoll    = "10s"
+	DefaultIgnorePods = []string{
+		"admin-0",
+		"restore-0",
+		"mongodb-consistent-backup-0",
+	}
 	DefaultReplsetPoll    = "5s"
 	DefaultReplsetTimeout = "3s"
 )
