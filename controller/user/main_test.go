@@ -27,7 +27,6 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/logger"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
-	user_json "github.com/percona/dcos-mongo-tools/controller/user/json"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -38,23 +37,9 @@ const (
 )
 
 var (
-	testSession    *mgo.Session
-	testController *Controller
-	testLogBuffer  = new(bytes.Buffer)
-	testCLIPayload = &user_json.CLIPayload{
-		Users: []*user_json.User{
-			{
-				Username: "prodapp",
-				Password: "123456",
-				Roles: []*user_json.Role{
-					{
-						Database: "app",
-						Role:     "readWrite",
-					},
-				},
-			},
-		},
-	}
+	testSession     *mgo.Session
+	testController  *Controller
+	testLogBuffer   = new(bytes.Buffer)
 	testSystemUsers = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}
@@ -63,7 +48,7 @@ var (
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
 			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
-			Username:        testCLIPayload.Users[0].Username,
+			Username:        "prodapp",
 			EndpointName:    common.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
