@@ -32,28 +32,14 @@ import (
 )
 
 const (
-	testDirRelPath     = "./test"
+	testDirRelPath     = "./json/test"
 	testBase64JSONFile = "test-user.json.base64"
 )
 
 var (
-	testSession    *mgo.Session
-	testController *Controller
-	testLogBuffer  = new(bytes.Buffer)
-	testCLIPayload = &ChangeJSON{
-		Users: []*JSON{
-			{
-				Username: "prodapp",
-				Password: "123456",
-				Roles: []*RoleJSON{
-					{
-						Database: "app",
-						Role:     "readWrite",
-					},
-				},
-			},
-		},
-	}
+	testSession     *mgo.Session
+	testController  *Controller
+	testLogBuffer   = new(bytes.Buffer)
 	testSystemUsers = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}
@@ -62,7 +48,7 @@ var (
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
 			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
-			Username:        testCLIPayload.Users[0].Username,
+			Username:        "prodapp",
 			EndpointName:    common.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,

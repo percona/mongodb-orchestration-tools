@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package user
+package json
 
 import (
 	"io/ioutil"
@@ -30,31 +30,45 @@ const (
 )
 
 var (
-	testUserJSON *JSON
+	testUser       *User
+	testCLIPayload = &CLIPayload{
+		Users: []*User{
+			{
+				Username: "prodapp",
+				Password: "123456",
+				Roles: []*Role{
+					{
+						Database: "app",
+						Role:     "readWrite",
+					},
+				},
+			},
+		},
+	}
 )
 
-func TestControllerUserJSONNewFromJSONFile(t *testing.T) {
+func TestControllerUserJSONNewFromFile(t *testing.T) {
 	var err error
 
 	// load valid file
-	testUserJSON, err = NewFromJSONFile(testUserFile)
+	testUser, err = NewFromFile(testUserFile)
 	assert.NoError(t, err)
-	assert.NotNil(t, testUserJSON)
-	assert.Equal(t, "testUser", testUserJSON.Username)
+	assert.NotNil(t, testUser)
+	assert.Equal(t, "testUser", testUser.Username)
 
 	// undefined file name
-	_, err = NewFromJSONFile("")
+	_, err = NewFromFile("")
 	assert.Error(t, err)
 
 	// non-existing file name
-	_, err = NewFromJSONFile("/does/not/exist")
+	_, err = NewFromFile("/does/not/exist")
 	assert.Error(t, err)
 
 	// malformed json
-	tmpfile, _ := ioutil.TempFile("", "TestControllerUserJSONNewFromJSONFile")
+	tmpfile, _ := ioutil.TempFile("", "TestControllerUserJSONNewFromFile")
 	defer os.Remove(tmpfile.Name())
 	_, _ = tmpfile.Write([]byte("notjson"))
-	_, err = NewFromJSONFile(tmpfile.Name())
+	_, err = NewFromFile(tmpfile.Name())
 	assert.Error(t, err)
 }
 
@@ -71,15 +85,15 @@ func TestControllerUserJSONNewFromCLIPayloadFile(t *testing.T) {
 }
 
 func TestControllerUserJSONValidate(t *testing.T) {
-	assert.NoError(t, testUserJSON.Validate("admin"))
-	assert.Error(t, testUserJSON.Validate("notadmin"))
+	assert.NoError(t, testUser.Validate("admin"))
+	assert.Error(t, testUser.Validate("notadmin"))
 
-	u, _ := NewFromJSONFile(testUserFileBroken)
+	u, _ := NewFromFile(testUserFileBroken)
 	assert.Error(t, u.Validate("admin"))
 }
 
 func TestControllerUserJSONToMgoUser(t *testing.T) {
-	mgoUser, err := testUserJSON.ToMgoUser("admin")
+	mgoUser, err := testUser.ToMgoUser("admin")
 	assert.NoError(t, err)
 	assert.NotNil(t, mgoUser)
 
@@ -93,6 +107,6 @@ func TestControllerUserJSONToMgoUser(t *testing.T) {
 	assert.Equal(t, mgo.RoleReadWrite, mgoUser.OtherDBRoles["testApp1"][0])
 
 	// ensure 'OtherDBRoles' logic fails if database is not "admin"
-	mgoUser, err = testUserJSON.ToMgoUser("testApp1")
+	mgoUser, err = testUser.ToMgoUser("testApp1")
 	assert.Error(t, err)
 }
