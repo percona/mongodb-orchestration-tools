@@ -31,7 +31,7 @@ const (
 
 var (
 	testUser       *User
-	TestCLIPayload = &CLIPayload{
+	testCLIPayload = &CLIPayload{
 		Users: []*User{
 			{
 				Username: "prodapp",
@@ -81,7 +81,7 @@ func TestControllerUserJSONNewFromCLIPayloadFile(t *testing.T) {
 	u, err := NewFromCLIPayloadFile(testUserBase64File)
 	assert.NoError(t, err)
 	assert.Len(t, u, 1)
-	assert.Equal(t, TestCLIPayload.Users, u)
+	assert.Equal(t, testCLIPayload.Users, u)
 }
 
 func TestControllerUserJSONValidate(t *testing.T) {
