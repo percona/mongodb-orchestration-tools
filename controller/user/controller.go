@@ -20,6 +20,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/api"
 	"github.com/percona/dcos-mongo-tools/common/db"
 	"github.com/percona/dcos-mongo-tools/controller"
+	user_json "github.com/percona/dcos-mongo-tools/controller/user/json"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
@@ -121,7 +122,7 @@ func (uc *Controller) UpdateUsers() error {
 		return ErrNoDbProvided
 	}
 
-	users, err := NewFromCLIPayloadFile(uc.config.User.File)
+	users, err := user_json.NewFromCLIPayloadFile(uc.config.User.File)
 	if err != nil {
 		log.WithError(err).Errorf("Failed loading payload file: %s", uc.config.User.File)
 		return err

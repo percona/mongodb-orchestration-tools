@@ -27,12 +27,13 @@ import (
 	"github.com/percona/dcos-mongo-tools/common/logger"
 	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
+	user_json "github.com/percona/dcos-mongo-tools/controller/user/json"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
-	testDirRelPath     = "./test"
+	testDirRelPath     = "./json/test"
 	testBase64JSONFile = "test-user.json.base64"
 )
 
@@ -40,12 +41,12 @@ var (
 	testSession    *mgo.Session
 	testController *Controller
 	testLogBuffer  = new(bytes.Buffer)
-	testCLIPayload = &ChangeJSON{
-		Users: []*JSON{
+	testCLIPayload = &user_json.CLIPayload{
+		Users: []*user_json.User{
 			{
 				Username: "prodapp",
 				Password: "123456",
-				Roles: []*RoleJSON{
+				Roles: []*user_json.Role{
 					{
 						Database: "app",
 						Role:     "readWrite",

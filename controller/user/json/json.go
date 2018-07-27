@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package user
+package json
 
 import (
 	"encoding/base64"
@@ -27,22 +27,22 @@ const (
 	adminDB = "admin"
 )
 
-type RoleJSON struct {
+type Role struct {
 	Role     string `json:"role"`
 	Database string `json:"db"`
 }
 
-type JSON struct {
-	Username string      `json:"user"`
-	Password string      `json:"pwd"`
-	Roles    []*RoleJSON `json:"roles"`
+type User struct {
+	Username string  `json:"user"`
+	Password string  `json:"pwd"`
+	Roles    []*Role `json:"roles"`
 }
 
-type ChangeJSON struct {
-	Users []*JSON `json:"users"`
+type CLIPayload struct {
+	Users []*User `json:"users"`
 }
 
-func (user *JSON) Validate(db string) error {
+func (user *User) Validate(db string) error {
 	if user.Username == "" {
 		return errors.New("'user' field is required")
 	} else if user.Password == "" {
@@ -63,17 +63,17 @@ func (user *JSON) Validate(db string) error {
 	return nil
 }
 
-func NewFromJSONFile(file string) (*JSON, error) {
+func NewFromFile(file string) (*User, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	user := &JSON{}
+	user := &User{}
 	err = json.Unmarshal(bytes, user)
 	return user, err
 }
 
-func NewFromCLIPayloadFile(file string) ([]*JSON, error) {
+func NewFromCLIPayloadFile(file string) ([]*User, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -85,12 +85,12 @@ func NewFromCLIPayloadFile(file string) ([]*JSON, error) {
 		return nil, err
 	}
 
-	user := &ChangeJSON{}
+	user := &CLIPayload{}
 	err = json.Unmarshal(decoded, user)
 	return user.Users, err
 }
 
-func (user *JSON) ToMgoUser(db string) (*mgo.User, error) {
+func (user *User) ToMgoUser(db string) (*mgo.User, error) {
 	err := user.Validate(db)
 	if err != nil {
 		return nil, err
