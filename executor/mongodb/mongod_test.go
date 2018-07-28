@@ -129,8 +129,9 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
 
 	var tries int
+	var maxTries int = 60
 	var session *mgo.Session
-	for tries < 60 {
+	for tries < maxTries {
 		if session == nil {
 			s, err := mgo.Dial(config.Net.BindIp + ":" + strconv.Itoa(config.Net.Port))
 			if err == nil {
@@ -143,7 +144,7 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 		time.Sleep(time.Second)
 		tries++
 	}
-	if tries > 30 {
+	if tries > maxTries {
 		assert.FailNowf(t, "could not connect to tmp mongod: %v", err.Error())
 	}
 
