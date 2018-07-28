@@ -159,8 +159,7 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	m.command.Start()
-	return nil
+	return m.command.Start()
 }
 
 func (m *Mongod) Wait() {
