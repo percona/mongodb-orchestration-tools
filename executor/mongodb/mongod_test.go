@@ -129,9 +129,14 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
 
 	var tries int
+	var session *mgo.Session
 	for tries < 60 {
-		session, err := mgo.Dial(config.Net.BindIp + ":" + strconv.Itoa(config.Net.Port))
-		if err == nil && session.Ping() == nil {
+		if session == nil {
+			s, err := mgo.Dial(config.Net.BindIp + ":" + strconv.Itoa(config.Net.Port))
+			if err == nil {
+				session = s
+			}
+		} else if session.Ping() == nil {
 			session.Close()
 			break
 		}
