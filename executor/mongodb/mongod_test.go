@@ -87,11 +87,13 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	// get tmpdir for mongod dbPath
 	tmpDBPath, err := ioutil.TempDir("", "TestExecutorMongoDBStartDBPath")
 	assert.NoError(t, err)
+	defer os.RemoveAll(tmpDBPath)
 
 	// get tmpdir
 	tmpPath, err := ioutil.TempDir("", "TestExecutorMongoDBStartTmpPath")
 	assert.NoError(t, err)
 	testConfig.TmpDir = tmpPath
+	defer os.RemoveAll(tmpPath)
 
 	// make the security.keyFile tmpfile
 	tmpKeyFile, err := ioutil.TempFile("", "TestExecutorMongoDBStartKeyFile")
@@ -99,19 +101,15 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	_, err = tmpKeyFile.Write([]byte("123456789101112"))
 	assert.NoError(t, err)
 	tmpKeyFile.Close()
+	defer os.Remove(tmpKeyFile.Name())
 
 	// make the config tmpdir
 	tmpConfigDir, err := ioutil.TempDir("", "TestExecutorMongoDBStartConfigDir")
 	assert.NoError(t, err)
 	testConfig.ConfigDir = tmpConfigDir
+	defer os.RemoveAll(tmpConfigDir)
 
-	defer func() {
-		os.Remove(tmpKeyFile.Name())
-		os.RemoveAll(tmpDBPath)
-		os.RemoveAll(tmpPath)
-		os.RemoveAll(tmpConfigDir)
-	}()
-
+	// write mongod config
 	config := &mdbconfig.Config{
 		Net: &mdbconfig.Net{
 			BindIp: "127.0.0.1",
@@ -124,16 +122,14 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 			DbPath: tmpDBPath,
 		},
 	}
-
-	err = config.Write(testConfig.ConfigDir + "/mongod.conf")
-	assert.NoError(t, err)
+	assert.NoError(t, config.Write(testConfig.ConfigDir+"/mongod.conf"))
 
 	testMongod = NewMongod(testConfig)
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
 	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
 
 	var tries int
-	for tries < 30 {
+	for tries < 60 {
 		session, err := mgo.Dial(config.Net.BindIp + ":" + strconv.Itoa(config.Net.Port))
 		if err == nil && session.Ping() == nil {
 			session.Close()
@@ -146,6 +142,7 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 		assert.FailNowf(t, "could not connect to tmp mongod: %v", err.Error())
 	}
 
+	assert.True(t, testMongod.IsStarted())
 	assert.NoError(t, testMongod.Kill())
 	testMongod.Wait()
 	assert.False(t, testMongod.IsStarted())
