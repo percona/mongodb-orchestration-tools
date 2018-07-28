@@ -77,7 +77,7 @@ func TestExecutorMongoDBIsStarted(t *gotesting.T) {
 
 func TestExecutorMongoDBStart(t *gotesting.T) {
 	// get random open TCP port for mongod
-	listener, err := net.Listen("tcp", ":0")
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		panic(err)
 	}
@@ -146,7 +146,7 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 		assert.FailNowf(t, "could not connect to tmp mongod: %v", err.Error())
 	}
 
-	testMongod.Kill()
+	assert.NoError(t, testMongod.Kill())
 	testMongod.Wait()
 	assert.False(t, testMongod.IsStarted())
 }
