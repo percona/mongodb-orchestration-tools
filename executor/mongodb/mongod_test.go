@@ -128,8 +128,8 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
 	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
 
-	var tries int
-	var maxTries int = 60
+	var tries = 0
+	var maxTries = 60
 	var session *mgo.Session
 	for tries < maxTries {
 		if session == nil {
