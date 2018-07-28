@@ -130,7 +130,7 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 
 	testMongod = NewMongod(testConfig)
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
-	go testMongod.Start()
+	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
 
 	var tries int
 	for tries < 30 {

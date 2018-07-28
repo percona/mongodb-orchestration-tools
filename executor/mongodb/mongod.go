@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"sync"
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/command"
@@ -32,6 +33,7 @@ const (
 )
 
 type Mongod struct {
+	sync.Mutex
 	config     *Config
 	configFile string
 	commandBin string
@@ -144,6 +146,9 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
+	m.Lock()
+	defer m.Unlock()
+
 	m.command, err = command.New(
 		m.commandBin,
 		[]string{"--config", m.configFile},
@@ -154,16 +159,23 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	return m.command.Start()
+	m.command.Start()
+	return nil
 }
 
 func (m *Mongod) Wait() {
+	m.Lock()
+	defer m.Unlock()
+
 	if m.command != nil && m.command.IsRunning() {
 		m.command.Wait()
 	}
 }
 
 func (m *Mongod) Kill() error {
+	m.Lock()
+	defer m.Unlock()
+
 	if m.command == nil {
 		return nil
 	}
