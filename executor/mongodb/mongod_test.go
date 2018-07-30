@@ -76,6 +76,11 @@ func TestExecutorMongoDBIsStarted(t *gotesting.T) {
 }
 
 func TestExecutorMongoDBStart(t *gotesting.T) {
+	if os.Getenv("TEST_EXECUTOR_MONGODB") != "true" {
+		t.Logf("Skipping test because TEST_EXECUTOR_MONGODB is not 'true'")
+		return
+	}
+
 	// get random open TCP port for mongod
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -85,29 +90,23 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	listener.Close()
 
 	// get tmpdir for mongod dbPath
-	tmpDBPath, err := ioutil.TempDir("", "TestExecutorMongoDBStartDBPath")
-	assert.NoError(t, err)
+	tmpDBPath, _ := ioutil.TempDir("", "TestExecutorMongoDBStartDBPath")
 	defer os.RemoveAll(tmpDBPath)
 
 	// get tmpdir
-	tmpPath, err := ioutil.TempDir("", "TestExecutorMongoDBStartTmpPath")
-	assert.NoError(t, err)
-	testConfig.TmpDir = tmpPath
-	defer os.RemoveAll(tmpPath)
+	testConfig.TmpDir, _ = ioutil.TempDir("", "TestExecutorMongoDBStartTmpPath")
+	defer os.RemoveAll(testConfig.TmpDir)
 
 	// make the security.keyFile tmpfile
-	tmpKeyFile, err := ioutil.TempFile("", "TestExecutorMongoDBStartKeyFile")
-	assert.NoError(t, err)
+	tmpKeyFile, _ := ioutil.TempFile("", "TestExecutorMongoDBStartKeyFile")
 	_, err = tmpKeyFile.Write([]byte("123456789101112"))
 	assert.NoError(t, err)
 	tmpKeyFile.Close()
 	defer os.Remove(tmpKeyFile.Name())
 
 	// make the config tmpdir
-	tmpConfigDir, err := ioutil.TempDir("", "TestExecutorMongoDBStartConfigDir")
-	assert.NoError(t, err)
-	testConfig.ConfigDir = tmpConfigDir
-	defer os.RemoveAll(tmpConfigDir)
+	testConfig.ConfigDir, err = ioutil.TempDir("", "TestExecutorMongoDBStartConfigDir")
+	defer os.RemoveAll(testConfig.ConfigDir)
 
 	// write mongod config
 	config := &mdbconfig.Config{

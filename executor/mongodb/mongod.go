@@ -44,7 +44,7 @@ func NewMongod(config *Config) *Mongod {
 	return &Mongod{
 		config:     config,
 		configFile: filepath.Join(config.ConfigDir, "mongod.conf"),
-		commandBin: filepath.Join(config.BinDir, "mongod"),
+		commandBin: filepath.Join(config.BinDir, "mongod2"),
 	}
 }
 
