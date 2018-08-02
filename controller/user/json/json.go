@@ -80,13 +80,13 @@ func NewFromCLIPayloadFile(file string) ([]*User, error) {
 	}
 
 	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(bytes)))
-	_, err = base64.StdEncoding.Decode(decoded, bytes)
+	decodedLen, err := base64.StdEncoding.Decode(decoded, bytes)
 	if err != nil {
 		return nil, err
 	}
 
 	user := &CLIPayload{}
-	err = json.Unmarshal(decoded, user)
+	err = json.Unmarshal(decoded[:decodedLen], user)
 	return user.Users, err
 }
 

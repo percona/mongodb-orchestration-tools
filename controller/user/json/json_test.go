@@ -24,9 +24,10 @@ import (
 )
 
 const (
-	testUserFile       = "test/test-user.json"
-	testUserBase64File = "test/test-user.json.base64"
-	testUserFileBroken = "test/test-user-broken.json"
+	testUserFile                   = "test/test-user.json"
+	testUserCLIPayloadFile         = "test/test-user.json.base64"
+	testUserCLIPayloadFileIssue218 = "test/test-user-issue218.json.base64"
+	testUserFileBroken             = "test/test-user-broken.json"
 )
 
 var (
@@ -78,10 +79,16 @@ func TestControllerUserJSONNewFromCLIPayloadFile(t *testing.T) {
 	assert.Error(t, err)
 
 	// good json+base64
-	u, err := NewFromCLIPayloadFile(testUserBase64File)
+	u, err := NewFromCLIPayloadFile(testUserCLIPayloadFile)
 	assert.NoError(t, err)
 	assert.Len(t, u, 1)
 	assert.Equal(t, testCLIPayload.Users, u)
+
+	// test for https://github.com/mesosphere/dcos-mongo/issues/218:
+	u, err = NewFromCLIPayloadFile(testUserCLIPayloadFileIssue218)
+	assert.NoError(t, err)
+	assert.Len(t, u, 1)
+	assert.Equal(t, "tim", u[0].Username)
 }
 
 func TestControllerUserJSONValidate(t *testing.T) {
