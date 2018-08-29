@@ -61,7 +61,7 @@ func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
 	// if the memory limit is equal to the noMemoryLimit const
 	limitFile, _ := ioutil.TempFile("", t.Name())
 	defer os.Remove(limitFile.Name())
-	data := []byte(strconv.Itoa(int(noMemoryLimit)))
+	data := []byte(strconv.Itoa(int(noMemoryLimit)) + "\n")
 	_, err = limitFile.Write(data)
 	assert.NoError(t, err)
 	_, err = getMemoryLimitBytes(limitFile.Name())
@@ -70,7 +70,7 @@ func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
 	// check we can write and read successfully without error
 	limitFile2, _ := ioutil.TempFile("", t.Name())
 	defer os.Remove(limitFile2.Name())
-	data2 := []byte(strconv.Itoa(int(gigaByte)))
+	data2 := []byte(strconv.Itoa(int(gigaByte)) + "\n")
 	_, err = limitFile2.Write(data2)
 	assert.NoError(t, err)
 	limit, err := getMemoryLimitBytes(limitFile2.Name())
