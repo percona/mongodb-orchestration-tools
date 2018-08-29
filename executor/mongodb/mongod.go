@@ -16,9 +16,13 @@ package mongodb
 
 import (
 	"errors"
+	"io/ioutil"
+	"math"
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/percona/dcos-mongo-tools/common"
 	"github.com/percona/dcos-mongo-tools/common/command"
@@ -27,9 +31,45 @@ import (
 )
 
 const (
-	DefaultDirMode = os.FileMode(0700)
-	DefaultKeyMode = os.FileMode(0400)
+	DefaultDirMode                   = os.FileMode(0700)
+	DefaultKeyMode                   = os.FileMode(0400)
+	minWiredTigerCacheSizeGB         = 0.25
+	noMemoryLimit            int64   = 9223372036854771712
+	gigaByte                 float64 = 1024 * 1024 * 1024
 )
+
+// getMemoryLimitBytes() returns the memory limit of a cgroup
+// or zero/0 if there is no limit
+func getMemoryLimitBytes() int64 {
+	file := "/sys/fs/cgroup/memory/memory.limit_in_bytes"
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		return 0
+	}
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return 0
+	}
+	limit32, _ := strconv.Atoi(strings.TrimSpace(string(bytes)))
+	limit := int64(limit32)
+	if limit == noMemoryLimit {
+		return 0
+	}
+	return limit
+}
+
+func mkdir(path string, uid int, gid int, mode os.FileMode) error {
+	if _, err := os.Stat(path); err != nil {
+		err = os.Mkdir(path, mode)
+		if err != nil {
+			return err
+		}
+	}
+	err := os.Chown(path, uid, gid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 type Mongod struct {
 	config     *Config
@@ -46,18 +86,23 @@ func NewMongod(config *Config) *Mongod {
 	}
 }
 
-func mkdir(path string, uid int, gid int, mode os.FileMode) error {
-	if _, err := os.Stat(path); err != nil {
-		err = os.Mkdir(path, mode)
-		if err != nil {
-			return err
-		}
+// The WiredTiger internal cache, by default, will use the larger of either 50% of
+// (RAM - 1 GB), or 256 MB. For example, on a system with a total of 4GB of RAM the
+// WiredTiger cache will use 1.5GB of RAM (0.5 * (4 GB - 1 GB) = 1.5 GB).
+//
+// https://docs.mongodb.com/manual/reference/configuration-options/#storage.wiredTiger.engineConfig.cacheSizeGB
+//
+func (m *Mongod) getWiredTigerCacheSizeGB() float64 {
+	limitBytes := getMemoryLimitBytes()
+	if limitBytes < 1 {
+		return 0
 	}
-	err := os.Chown(path, uid, gid)
-	if err != nil {
-		return err
+	size := math.Floor(m.config.WiredTigerCacheRatio * (float64(limitBytes) - gigaByte))
+	sizeGB := size / gigaByte
+	if sizeGB < minWiredTigerCacheSizeGB {
+		sizeGB = minWiredTigerCacheSizeGB
 	}
-	return nil
+	return sizeGB
 }
 
 func (m *Mongod) Name() string {
@@ -87,6 +132,30 @@ func (m *Mongod) Initiate() error {
 	}
 	if config.Security == nil || config.Security.KeyFile == "" || config.Storage == nil || config.Storage.DbPath == "" {
 		return errors.New("mongodb config file is not valid, must have security.keyFile and storage.dbPath defined!")
+	}
+
+	if config.Storage.Engine == "wiredTiger" {
+		cacheSizeGB := m.getWiredTigerCacheSizeGB()
+		if cacheSizeGB > 0 {
+			log.WithFields(log.Fields{
+				"size_gb": cacheSizeGB,
+				"ratio":   m.config.WiredTigerCacheRatio,
+			}).Infof("Setting WiredTiger cache size")
+
+			if config.Storage.WiredTiger == nil {
+				config.Storage.WiredTiger = &mongoConfig.StorageWiredTiger{}
+			}
+			if config.Storage.WiredTiger.EngineConfig == nil {
+				config.Storage.WiredTiger.EngineConfig = &mongoConfig.StorageWiredTigerEngineConfig{}
+			}
+			config.Storage.WiredTiger.EngineConfig.CacheSizeGB = cacheSizeGB
+
+			err = config.Write(m.configFile)
+			if err != nil {
+				log.Errorf("Error writing new mongodb configuration: %s", err)
+				return err
+			}
+		}
 	}
 
 	log.WithFields(log.Fields{
