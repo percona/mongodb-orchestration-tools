@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	testDirRelPath     = "./json/test"
+	testDirRelPath     = "./json/testdata"
 	testBase64JSONFile = "test-user.json.base64"
 )
 

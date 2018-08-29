@@ -24,10 +24,10 @@ import (
 )
 
 const (
-	testUserFile                   = "test/test-user.json"
-	testUserCLIPayloadFile         = "test/test-user.json.base64"
-	testUserCLIPayloadFileIssue218 = "test/test-user-issue218.json.base64"
-	testUserFileBroken             = "test/test-user-broken.json"
+	testUserFile                   = "testdata/test-user.json"
+	testUserCLIPayloadFile         = "testdata/test-user.json.base64"
+	testUserCLIPayloadFileIssue218 = "testdata/test-user-issue218.json.base64"
+	testUserFileBroken             = "testdata/test-user-broken.json"
 )
 
 var (
