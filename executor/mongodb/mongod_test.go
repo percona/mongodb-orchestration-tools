@@ -53,12 +53,9 @@ func TestExecutorMongoDBGetWiredTigerCacheSizeGB(t *gotesting.T) {
 }
 
 func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
-	var err error
-
 	// does not exist
-	limit, err := getMemoryLimitBytes("/does/not/exist")
+	_, err := getMemoryLimitBytes("/does/not/exist")
 	assert.Error(t, err)
-	assert.Equal(t, int64(0), limit)
 
 	// test that .getMemoryLimitBytes() returns 0 (and no error)
 	// if the memory limit is equal to the noMemoryLimit const
@@ -67,9 +64,8 @@ func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
 	data := []byte(strconv.Itoa(int(noMemoryLimit)))
 	_, err = limitFile.Write(data)
 	assert.NoError(t, err)
-	limit, err = getMemoryLimitBytes(limitFile.Name())
+	_, err = getMemoryLimitBytes(limitFile.Name())
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), limit)
 
 	// check we can write and read successfully without error
 	limitFile2, _ := ioutil.TempFile("", t.Name())
@@ -77,7 +73,7 @@ func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
 	data2 := []byte(strconv.Itoa(int(gigaByte)))
 	_, err = limitFile2.Write(data2)
 	assert.NoError(t, err)
-	limit, err = getMemoryLimitBytes(limitFile2.Name())
+	limit, err := getMemoryLimitBytes(limitFile2.Name())
 	assert.NoError(t, err)
 	assert.Equal(t, int64(gigaByte), limit)
 }
