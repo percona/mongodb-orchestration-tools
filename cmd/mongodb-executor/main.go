@@ -62,6 +62,10 @@ func handleMongoDB(app *kingpin.Application, cnf *config.Config) {
 		"mongodb.group",
 		"group to run mongodb instance as",
 	).Default(mongodb.DefaultGroup).StringVar(&cnf.MongoDB.Group)
+	app.Flag(
+		"mongodb.wiredTigerCacheRatio",
+		"the ratio of system memory to be used for wiredTiger cache",
+	).Default(mongodb.DefaultWiredTigerCacheRatio).Float64Var(&cnf.MongoDB.WiredTigerCacheRatio)
 }
 
 func handleMetrics(app *kingpin.Application, cnf *config.Config) {

@@ -15,17 +15,19 @@
 package mongodb
 
 const (
-	DefaultBinDir            = "/usr/bin"
-	DefaultTmpDirFallback    = "/tmp"
-	DefaultConfigDirFallback = "/etc"
-	DefaultUser              = "mongodb"
-	DefaultGroup             = "root"
+	DefaultBinDir               = "/usr/bin"
+	DefaultTmpDirFallback       = "/tmp"
+	DefaultConfigDirFallback    = "/etc"
+	DefaultUser                 = "mongodb"
+	DefaultGroup                = "root"
+	DefaultWiredTigerCacheRatio = "0.5"
 )
 
 type Config struct {
-	ConfigDir string
-	BinDir    string
-	TmpDir    string
-	User      string
-	Group     string
+	ConfigDir            string
+	BinDir               string
+	TmpDir               string
+	User                 string
+	Group                string
+	WiredTigerCacheRatio float64
 }
