@@ -41,15 +41,15 @@ func getDefaultMongoDBAddress() string {
 	hostname := DefaultMongoDBHost
 
 	// use the full hostname when using SSL mode
-	if os.Getenv(common.EnvMongoDBNetSSLEnabled) == "true" {
-		frameworkHost := os.Getenv(common.EnvFrameworkHost)
-		taskName := os.Getenv(common.EnvTaskName)
+	if os.Getenv(internal.EnvMongoDBNetSSLEnabled) == "true" {
+		frameworkHost := os.Getenv(internal.EnvFrameworkHost)
+		taskName := os.Getenv(internal.EnvTaskName)
 		if taskName != "" && frameworkHost != "" {
 			hostname = taskName + "." + frameworkHost
 		}
 	}
 
-	mongodbPort := os.Getenv(common.EnvMongoDBPort)
+	mongodbPort := os.Getenv(internal.EnvMongoDBPort)
 	if mongodbPort != "" {
 		return hostname + ":" + mongodbPort
 	}
@@ -66,8 +66,8 @@ func NewConfig(app *kingpin.Application, envUser string, envPassword string) *Co
 	).Default(getDefaultMongoDBAddress()).StringsVar(&db.DialInfo.Addrs)
 	app.Flag(
 		"replset",
-		"mongodb replica set name, overridden by env var "+common.EnvMongoDBReplset,
-	).Envar(common.EnvMongoDBReplset).StringVar(&db.DialInfo.ReplicaSetName)
+		"mongodb replica set name, overridden by env var "+internal.EnvMongoDBReplset,
+	).Envar(internal.EnvMongoDBReplset).StringVar(&db.DialInfo.ReplicaSetName)
 	app.Flag(
 		"timeout",
 		"mongodb server timeout",
@@ -101,20 +101,20 @@ func NewSSLConfig(app *kingpin.Application) *SSLConfig {
 	ssl := &SSLConfig{}
 	app.Flag(
 		"ssl",
-		"enable SSL secured mongodb connection, overridden by env var "+common.EnvMongoDBNetSSLEnabled,
-	).Envar(common.EnvMongoDBNetSSLEnabled).BoolVar(&ssl.Enabled)
+		"enable SSL secured mongodb connection, overridden by env var "+internal.EnvMongoDBNetSSLEnabled,
+	).Envar(internal.EnvMongoDBNetSSLEnabled).BoolVar(&ssl.Enabled)
 	app.Flag(
 		"sslPEMKeyFile",
-		"path to client SSL Certificate file (including key, in PEM format), overridden by env var "+common.EnvMongoDBNetSSLPEMKeyFile,
-	).Envar(common.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&ssl.PEMKeyFile)
+		"path to client SSL Certificate file (including key, in PEM format), overridden by env var "+internal.EnvMongoDBNetSSLPEMKeyFile,
+	).Envar(internal.EnvMongoDBNetSSLPEMKeyFile).ExistingFileVar(&ssl.PEMKeyFile)
 	app.Flag(
 		"sslCAFile",
-		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+common.EnvMongoDBNetSSLCAFile,
-	).Envar(common.EnvMongoDBNetSSLCAFile).ExistingFileVar(&ssl.CAFile)
+		"path to SSL Certificate Authority file (in PEM format), overridden by env var "+internal.EnvMongoDBNetSSLCAFile,
+	).Envar(internal.EnvMongoDBNetSSLCAFile).ExistingFileVar(&ssl.CAFile)
 	app.Flag(
 		"sslInsecure",
-		"skip validation of the SSL certificate and hostname, overridden by env var "+common.EnvMongoDBNetSSLInsecure,
-	).Envar(common.EnvMongoDBNetSSLInsecure).BoolVar(&ssl.Insecure)
+		"skip validation of the SSL certificate and hostname, overridden by env var "+internal.EnvMongoDBNetSSLInsecure,
+	).Envar(internal.EnvMongoDBNetSSLInsecure).BoolVar(&ssl.Insecure)
 	return ssl
 }
 

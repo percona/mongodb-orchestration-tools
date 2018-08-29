@@ -18,13 +18,13 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/percona/dcos-mongo-tools/controller"
+	"github.com/percona/dcos-mongo-tools/controller/replset"
+	"github.com/percona/dcos-mongo-tools/controller/user"
 	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/internal/tool"
-	"github.com/percona/dcos-mongo-tools/controller"
-	"github.com/percona/dcos-mongo-tools/controller/replset"
-	"github.com/percona/dcos-mongo-tools/controller/user"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,8 +47,8 @@ func handleReplsetCmd(app *kingpin.Application, cnf *controller.Config) {
 	// replset init
 	cmdInit.Flag(
 		"primaryAddr",
-		"mongodb primary (host:port) to use to initiate the replset, overridden by env var "+common.EnvMongoDBPrimaryAddr,
-	).Envar(common.EnvMongoDBPrimaryAddr).Required().StringVar(&cnf.ReplsetInit.PrimaryAddr)
+		"mongodb primary (host:port) to use to initiate the replset, overridden by env var "+internal.EnvMongoDBPrimaryAddr,
+	).Envar(internal.EnvMongoDBPrimaryAddr).Required().StringVar(&cnf.ReplsetInit.PrimaryAddr)
 	cmdInit.Flag(
 		"delay",
 		"amount of time to delay the init process, overridden by env var INIT_INITIATE_DELAY",
@@ -76,12 +76,12 @@ func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
 	// user
 	cmdUser.Flag(
 		"endpoint",
-		"DC/OS SDK service mongod endpoint name, overridden by env var "+common.EnvMongoDBMongodEndpointName,
-	).Default(common.DefaultMongoDBMongodEndpointName).Envar(common.EnvMongoDBMongodEndpointName).StringVar(&cnf.User.EndpointName)
+		"DC/OS SDK service mongod endpoint name, overridden by env var "+internal.EnvMongoDBMongodEndpointName,
+	).Default(internal.DefaultMongoDBMongodEndpointName).Envar(internal.EnvMongoDBMongodEndpointName).StringVar(&cnf.User.EndpointName)
 	cmdUser.Flag(
 		"apiHost",
-		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerAPIHost,
-	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerAPIHost).StringVar(&cnf.User.API.Host)
+		"DC/OS SDK API hostname, overridden by env var "+internal.EnvSchedulerAPIHost,
+	).Default(api.DefaultSchedulerHost).Envar(internal.EnvSchedulerAPIHost).StringVar(&cnf.User.API.Host)
 	cmdUser.Flag(
 		"apiTimeout",
 		"DC/OS SDK API timeout",
@@ -102,12 +102,12 @@ func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
 	// user remove
 	cmdUserRemove.Flag(
 		"user",
-		"the MongoDB user to be removed, system users will be skipped. this flag or env var "+common.EnvMongoDBChangeUserUsername+" is required",
-	).Envar(common.EnvMongoDBChangeUserUsername).Required().StringVar(&cnf.User.Username)
+		"the MongoDB user to be removed, system users will be skipped. this flag or env var "+internal.EnvMongoDBChangeUserUsername+" is required",
+	).Envar(internal.EnvMongoDBChangeUserUsername).Required().StringVar(&cnf.User.Username)
 	cmdUserRemove.Flag(
 		"db",
-		"the MongoDB database of the user, this flag or env var "+common.EnvMongoDBChangeUserDb+" is required",
-	).Envar(common.EnvMongoDBChangeUserDb).Required().StringVar(&cnf.User.Database)
+		"the MongoDB database of the user, this flag or env var "+internal.EnvMongoDBChangeUserDb+" is required",
+	).Envar(internal.EnvMongoDBChangeUserDb).Required().StringVar(&cnf.User.Database)
 
 	// user update
 	cmdUserUpdate.Arg(
@@ -116,8 +116,8 @@ func handleUserCmd(app *kingpin.Application, cnf *controller.Config) {
 	).Required().ExistingFileVar(&cnf.User.File)
 	cmdUserUpdate.Flag(
 		"db",
-		"the MongoDB database of the user, this flag or env var "+common.EnvMongoDBChangeUserDb+" is required",
-	).Envar(common.EnvMongoDBChangeUserDb).Required().StringVar(&cnf.User.Database)
+		"the MongoDB database of the user, this flag or env var "+internal.EnvMongoDBChangeUserDb+" is required",
+	).Envar(internal.EnvMongoDBChangeUserDb).Required().StringVar(&cnf.User.Database)
 }
 
 func handleFailed(err error) {
@@ -137,24 +137,24 @@ func main() {
 
 	app.Flag(
 		"framework",
-		"DC/OS SDK framework/service name, overridden by env var "+common.EnvFrameworkName,
-	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+		"DC/OS SDK framework/service name, overridden by env var "+internal.EnvFrameworkName,
+	).Default(internal.DefaultFrameworkName).Envar(internal.EnvFrameworkName).StringVar(&cnf.FrameworkName)
 	app.Flag(
 		"replset",
-		"mongodb replica set name, this flag or env var "+common.EnvMongoDBReplset+" is required",
-	).Envar(common.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)
+		"mongodb replica set name, this flag or env var "+internal.EnvMongoDBReplset+" is required",
+	).Envar(internal.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)
 	app.Flag(
 		"userAdminUser",
-		"mongodb userAdmin username, overridden by env var "+common.EnvMongoDBUserAdminUser,
-	).Envar(common.EnvMongoDBUserAdminUser).Required().StringVar(&cnf.UserAdminUser)
+		"mongodb userAdmin username, overridden by env var "+internal.EnvMongoDBUserAdminUser,
+	).Envar(internal.EnvMongoDBUserAdminUser).Required().StringVar(&cnf.UserAdminUser)
 	app.Flag(
 		"userAdminPassword",
-		"mongodb userAdmin password or path to file containing it, overridden by env var "+common.EnvMongoDBUserAdminPassword,
-	).Envar(common.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
+		"mongodb userAdmin password or path to file containing it, overridden by env var "+internal.EnvMongoDBUserAdminPassword,
+	).Envar(internal.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
 	app.Flag(
 		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
+		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
+	).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	cnf.SSL = db.NewSSLConfig(app)
 
@@ -166,8 +166,8 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 	if enableSecrets {
-		cnf.UserAdminUser = common.PasswordFromFile(
-			os.Getenv(common.EnvMesosSandbox),
+		cnf.UserAdminUser = internal.PasswordFromFile(
+			os.Getenv(internal.EnvMesosSandbox),
 			cnf.UserAdminUser,
 			"userAdmin",
 		)

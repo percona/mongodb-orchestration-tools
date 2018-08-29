@@ -87,7 +87,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 		Host:          hostPort[0],
 		Port:          port,
 		Replset:       testing.MongodbReplsetName,
-		FrameworkName: common.DefaultFrameworkName,
+		FrameworkName: internal.DefaultFrameworkName,
 		PodName:       "mongo",
 	}
 	config := testState.GetConfig()

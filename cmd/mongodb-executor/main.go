@@ -20,15 +20,15 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/tool"
 	"github.com/percona/dcos-mongo-tools/executor"
 	"github.com/percona/dcos-mongo-tools/executor/config"
 	"github.com/percona/dcos-mongo-tools/executor/job"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/mongodb"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/tool"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,15 +41,15 @@ var (
 func handleMongoDB(app *kingpin.Application, cnf *config.Config) {
 	app.Flag(
 		"mongodb.configDir",
-		"path to mongodb instance config file, defaults to $"+common.EnvMesosSandbox+" if available, otherwise "+mongodb.DefaultConfigDirFallback,
-	).Default(mongodb.DefaultConfigDirFallback).Envar(common.EnvMesosSandbox).StringVar(&cnf.MongoDB.ConfigDir)
+		"path to mongodb instance config file, defaults to $"+internal.EnvMesosSandbox+" if available, otherwise "+mongodb.DefaultConfigDirFallback,
+	).Default(mongodb.DefaultConfigDirFallback).Envar(internal.EnvMesosSandbox).StringVar(&cnf.MongoDB.ConfigDir)
 	app.Flag(
 		"mongodb.binDir",
 		"path to mongodb binary directory",
 	).Default(mongodb.DefaultBinDir).StringVar(&cnf.MongoDB.BinDir)
 	app.Flag(
 		"mongodb.tmpDir",
-		"path to mongodb temporary directory, defaults to $"+common.EnvMesosSandbox+"/tmp if available, otherwise "+mongodb.DefaultTmpDirFallback,
+		"path to mongodb temporary directory, defaults to $"+internal.EnvMesosSandbox+"/tmp if available, otherwise "+mongodb.DefaultTmpDirFallback,
 	).Default(config.MesosSandboxPathOrFallback(
 		"tmp",
 		mongodb.DefaultTmpDirFallback,
@@ -71,63 +71,63 @@ func handleMongoDB(app *kingpin.Application, cnf *config.Config) {
 func handleMetrics(app *kingpin.Application, cnf *config.Config) {
 	app.Flag(
 		"metrics.enable",
-		"Enable DC/OS Metrics monitoring for MongoDB, defaults to "+common.EnvMetricsEnabled+" env var",
-	).Envar(common.EnvMetricsEnabled).BoolVar(&cnf.Metrics.Enabled)
+		"Enable DC/OS Metrics monitoring for MongoDB, defaults to "+internal.EnvMetricsEnabled+" env var",
+	).Envar(internal.EnvMetricsEnabled).BoolVar(&cnf.Metrics.Enabled)
 	app.Flag(
 		"metrics.interval",
-		"The frequency to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsInterval+" env var",
-	).Default(metrics.DefaultInterval).Envar(common.EnvMetricsInterval).DurationVar(&cnf.Metrics.Interval)
+		"The frequency to send metrics to DC/OS Metrics service, defaults to "+internal.EnvMetricsInterval+" env var",
+	).Default(metrics.DefaultInterval).Envar(internal.EnvMetricsInterval).DurationVar(&cnf.Metrics.Interval)
 	app.Flag(
 		"metrics.statsd_host",
-		"The frequency to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsStatsdHost+" env var",
-	).Envar(common.EnvMetricsStatsdHost).StringVar(&cnf.Metrics.StatsdHost)
+		"The frequency to send metrics to DC/OS Metrics service, defaults to "+internal.EnvMetricsStatsdHost+" env var",
+	).Envar(internal.EnvMetricsStatsdHost).StringVar(&cnf.Metrics.StatsdHost)
 	app.Flag(
 		"metrics.statsd_port",
-		"The frequency to send metrics to DC/OS Metrics service, defaults to "+common.EnvMetricsStatsdPort+" env var",
-	).Envar(common.EnvMetricsStatsdPort).IntVar(&cnf.Metrics.StatsdPort)
+		"The frequency to send metrics to DC/OS Metrics service, defaults to "+internal.EnvMetricsStatsdPort+" env var",
+	).Envar(internal.EnvMetricsStatsdPort).IntVar(&cnf.Metrics.StatsdPort)
 }
 
 func handlePmm(app *kingpin.Application, cnf *config.Config) {
 	app.Flag(
 		"pmm.configDir",
-		"Directory containing the PMM client config file (pmm.yml), defaults to "+common.EnvMesosSandbox+" env var",
-	).Envar(common.EnvMesosSandbox).StringVar(&cnf.PMM.ConfigDir)
+		"Directory containing the PMM client config file (pmm.yml), defaults to "+internal.EnvMesosSandbox+" env var",
+	).Envar(internal.EnvMesosSandbox).StringVar(&cnf.PMM.ConfigDir)
 	app.Flag(
 		"pmm.enable",
-		"Enable Percona PMM monitoring for OS and MongoDB, defaults to "+common.EnvPMMEnabled+" env var",
-	).Envar(common.EnvPMMEnabled).BoolVar(&cnf.PMM.Enabled)
+		"Enable Percona PMM monitoring for OS and MongoDB, defaults to "+internal.EnvPMMEnabled+" env var",
+	).Envar(internal.EnvPMMEnabled).BoolVar(&cnf.PMM.Enabled)
 	app.Flag(
 		"pmm.enableQueryAnalytics",
-		"Enable Percona PMM query analytics (QAN) client/agent, defaults to "+common.EnvPMMEnableQueryAnalytics+" env var",
-	).Envar(common.EnvPMMEnableQueryAnalytics).BoolVar(&cnf.PMM.EnableQueryAnalytics)
+		"Enable Percona PMM query analytics (QAN) client/agent, defaults to "+internal.EnvPMMEnableQueryAnalytics+" env var",
+	).Envar(internal.EnvPMMEnableQueryAnalytics).BoolVar(&cnf.PMM.EnableQueryAnalytics)
 	app.Flag(
 		"pmm.serverAddress",
-		"Percona PMM server address, defaults to "+common.EnvPMMServerAddress+" env var",
-	).Envar(common.EnvPMMServerAddress).StringVar(&cnf.PMM.ServerAddress)
+		"Percona PMM server address, defaults to "+internal.EnvPMMServerAddress+" env var",
+	).Envar(internal.EnvPMMServerAddress).StringVar(&cnf.PMM.ServerAddress)
 	app.Flag(
 		"pmm.clientName",
-		"Percona PMM client address, defaults to "+common.EnvTaskName+" env var",
-	).Envar(common.EnvTaskName).StringVar(&cnf.PMM.ClientName)
+		"Percona PMM client address, defaults to "+internal.EnvTaskName+" env var",
+	).Envar(internal.EnvTaskName).StringVar(&cnf.PMM.ClientName)
 	app.Flag(
 		"pmm.serverSSL",
-		"Enable SSL communication between Percona PMM client and server, defaults to "+common.EnvPMMServerSSL+" env var",
-	).Envar(common.EnvPMMServerSSL).BoolVar(&cnf.PMM.ServerSSL)
+		"Enable SSL communication between Percona PMM client and server, defaults to "+internal.EnvPMMServerSSL+" env var",
+	).Envar(internal.EnvPMMServerSSL).BoolVar(&cnf.PMM.ServerSSL)
 	app.Flag(
 		"pmm.serverInsecureSSL",
-		"Enable insecure SSL communication between Percona PMM client and server, defaults to "+common.EnvPMMServerInsecureSSL+" env var",
-	).Envar(common.EnvPMMServerInsecureSSL).BoolVar(&cnf.PMM.ServerInsecureSSL)
+		"Enable insecure SSL communication between Percona PMM client and server, defaults to "+internal.EnvPMMServerInsecureSSL+" env var",
+	).Envar(internal.EnvPMMServerInsecureSSL).BoolVar(&cnf.PMM.ServerInsecureSSL)
 	app.Flag(
 		"pmm.linuxMetricsExporterPort",
-		"Port number for bind Percona PMM Linux Metrics exporter to, defaults to "+common.EnvPMMLinuxMetricsExporterPort+" env var",
-	).Envar(common.EnvPMMLinuxMetricsExporterPort).UintVar(&cnf.PMM.LinuxMetricsExporterPort)
+		"Port number for bind Percona PMM Linux Metrics exporter to, defaults to "+internal.EnvPMMLinuxMetricsExporterPort+" env var",
+	).Envar(internal.EnvPMMLinuxMetricsExporterPort).UintVar(&cnf.PMM.LinuxMetricsExporterPort)
 	app.Flag(
 		"pmm.mongodbMetricsExporterPort",
-		"Port number for bind Percona PMM MongoDB Metrics exporter to, defaults to "+common.EnvPMMMongoDBMetricsExporterPort+" env var",
-	).Envar(common.EnvPMMMongoDBMetricsExporterPort).UintVar(&cnf.PMM.MongoDBMetricsExporterPort)
+		"Port number for bind Percona PMM MongoDB Metrics exporter to, defaults to "+internal.EnvPMMMongoDBMetricsExporterPort+" env var",
+	).Envar(internal.EnvPMMMongoDBMetricsExporterPort).UintVar(&cnf.PMM.MongoDBMetricsExporterPort)
 	app.Flag(
 		"pmm.mongodb.clusterName",
-		"Percona PMM client mongodb cluster name, defaults to "+common.EnvFrameworkName+" env var",
-	).Envar(common.EnvFrameworkName).StringVar(&cnf.PMM.MongoDB.ClusterName)
+		"Percona PMM client mongodb cluster name, defaults to "+internal.EnvFrameworkName+" env var",
+	).Envar(internal.EnvFrameworkName).StringVar(&cnf.PMM.MongoDB.ClusterName)
 }
 
 func main() {
@@ -137,8 +137,8 @@ func main() {
 
 	dbConfig := db.NewConfig(
 		app,
-		common.EnvMongoDBClusterMonitorUser,
-		common.EnvMongoDBClusterMonitorPassword,
+		internal.EnvMongoDBClusterMonitorUser,
+		internal.EnvMongoDBClusterMonitorPassword,
 	)
 	cnf := &config.Config{
 		DB:      dbConfig,
@@ -155,8 +155,8 @@ func main() {
 
 	app.Flag(
 		"framework",
-		"dcos framework name, overridden by env var "+common.EnvFrameworkName,
-	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+		"dcos framework name, overridden by env var "+internal.EnvFrameworkName,
+	).Default(internal.DefaultFrameworkName).Envar(internal.EnvFrameworkName).StringVar(&cnf.FrameworkName)
 	app.Flag(
 		"connectRetrySleep",
 		"duration to wait between retries of the connection/ping to mongodb",
@@ -167,8 +167,8 @@ func main() {
 	).Default(config.DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
 	app.Flag(
 		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
+		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
+	).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	handleMongoDB(app, cnf)
 	handleMetrics(app, cnf)
@@ -180,8 +180,8 @@ func main() {
 	}
 	cnf.NodeType = config.NodeType(nodeType)
 	if enableSecrets {
-		cnf.DB.DialInfo.Password = common.PasswordFromFile(
-			os.Getenv(common.EnvMesosSandbox),
+		cnf.DB.DialInfo.Password = internal.PasswordFromFile(
+			os.Getenv(internal.EnvMesosSandbox),
 			cnf.DB.DialInfo.Password,
 			"password",
 		)

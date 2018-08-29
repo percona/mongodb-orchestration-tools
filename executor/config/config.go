@@ -19,11 +19,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/executor/metrics"
 	"github.com/percona/dcos-mongo-tools/executor/mongodb"
 	"github.com/percona/dcos-mongo-tools/executor/pmm"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 )
 
 const (
@@ -55,7 +55,7 @@ type Config struct {
 }
 
 func MesosSandboxPathOrFallback(path string, fallback string) string {
-	mesosSandbox := os.Getenv(common.EnvMesosSandbox)
+	mesosSandbox := os.Getenv(internal.EnvMesosSandbox)
 	if mesosSandbox != "" {
 		if _, err := os.Stat(mesosSandbox); err == nil {
 			return filepath.Join(mesosSandbox, path)
