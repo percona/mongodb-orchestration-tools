@@ -33,6 +33,7 @@ import (
 const (
 	DefaultDirMode                   = os.FileMode(0700)
 	DefaultKeyMode                   = os.FileMode(0400)
+	memoryLimitFile                  = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
 	minWiredTigerCacheSizeGB         = 0.25
 	noMemoryLimit            int64   = 9223372036854771712
 	gigaByte                 float64 = 1024 * 1024 * 1024
@@ -40,12 +41,11 @@ const (
 
 // getMemoryLimitBytes() returns the memory limit of a cgroup
 // or zero/0 if there is no limit
-func getMemoryLimitBytes() int64 {
-	file := "/sys/fs/cgroup/memory/memory.limit_in_bytes"
-	if _, err := os.Stat(file); os.IsNotExist(err) {
+func getMemoryLimitBytes(limitFile string) int64 {
+	if _, err := os.Stat(limitFile); os.IsNotExist(err) {
 		return 0
 	}
-	bytes, err := ioutil.ReadFile(file)
+	bytes, err := ioutil.ReadFile(limitFile)
 	if err != nil {
 		return 0
 	}
@@ -131,7 +131,7 @@ func (m *Mongod) Initiate() error {
 	}
 
 	if config.Storage.Engine == "wiredTiger" {
-		limitBytes := getMemoryLimitBytes()
+		limitBytes := getMemoryLimitBytes(memoryLimitFile)
 		if limitBytes > 0 {
 			cacheSizeGB := m.getWiredTigerCacheSizeGB(limitBytes)
 			log.WithFields(log.Fields{

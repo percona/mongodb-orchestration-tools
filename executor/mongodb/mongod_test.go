@@ -52,6 +52,16 @@ func TestExecutorMongoDBGetWiredTigerCacheSizeGB(t *gotesting.T) {
 	assert.Equal(t, 63.5, mongod.getWiredTigerCacheSizeGB(int64(128*gigaByte)))
 }
 
+func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
+	limitFile, _ := ioutil.TempFile("", t.Name())
+	defer os.Remove(limitFile.Name())
+	data := []byte(strconv.Itoa(int(gigaByte)))
+	_, err := limitFile.Write(data)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(gigaByte), getMemoryLimitBytes(limitFile.Name()))
+	assert.Equal(t, int64(0), getMemoryLimitBytes("/does/not/exist"))
+}
+
 func TestExecutorMongoDBMkdir(t *gotesting.T) {
 	dir, _ := ioutil.TempDir("", "TestExecutorMongoDBMkdir")
 	os.RemoveAll(dir)
