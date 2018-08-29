@@ -20,7 +20,7 @@ import (
 	gotesting "testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/internal/api"
 	"gopkg.in/mgo.v2"
 )
 

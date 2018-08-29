@@ -22,7 +22,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
-	"github.com/percona/dcos-mongo-tools/common/logger"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
 )
 
 // Author is the author used by kingpin

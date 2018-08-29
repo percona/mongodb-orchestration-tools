@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/internal"
 )
 
 type PodTaskState string

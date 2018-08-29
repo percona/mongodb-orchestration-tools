@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
 	log "github.com/sirupsen/logrus"

@@ -24,8 +24,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/command"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/command"
 	log "github.com/sirupsen/logrus"
 	mongoConfig "github.com/timvaillancourt/go-mongodb-config/config"
 )

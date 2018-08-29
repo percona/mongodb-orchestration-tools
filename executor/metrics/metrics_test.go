@@ -18,7 +18,7 @@ import (
 	gotesting "testing"
 	"time"
 
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	testing "github.com/percona/dcos-mongo-tools/internal/testing"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
