@@ -62,10 +62,7 @@ test: vendor
 test-race: vendor
 	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v -race $(TEST_GO_EXTRA) $(GO_TEST_PATH)
 
-test/test-mongod.key:
-	openssl rand -base64 768 >test/test-mongod.key
-
-test-full-prepare: test/ssl/mongodb.pem test/ssl/rootCA.crt test/test-mongod.key
+test-full-prepare:
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PSMDB_VERSION=$(TEST_PSMDB_VERSION) \
 	TEST_ADMIN_USER=$(TEST_ADMIN_USER) \
@@ -74,7 +71,7 @@ test-full-prepare: test/ssl/mongodb.pem test/ssl/rootCA.crt test/test-mongod.key
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	docker-compose up -d --force-recreate
-	test/init-test-replset-wait.sh
+	docker/test/init-test-replset-wait.sh
 
 test-full-clean:
 	docker-compose down --volumes
@@ -127,4 +124,4 @@ ifeq ($(GIT_BRANCH), master)
 endif
 
 clean:
-	rm -rf bin cover.out test/test-mongod.key vendor 2>/dev/null || true
+	rm -rf bin cover.out vendor 2>/dev/null || true
