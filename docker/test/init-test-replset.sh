@@ -6,9 +6,15 @@ tries=1
 max_tries=10
 sleep_secs=5
 
+cp /rootCA.crt /tmp/rootCA.crt
+cp /client.pem /tmp/client.pem
+chmod 400 /tmp/rootCA.crt /tmp/client.pem
+
+mongo_flags="--quiet --ssl --sslCAFile=/tmp/rootCA.crt --sslPEMKeyFile=/tmp/client.pem"
+
 sleep $sleep_secs
 while [ $tries -lt $max_tries ]; do
-	/usr/bin/mongo --quiet \
+	/usr/bin/mongo $mongo_flags \
 		--port ${TEST_PRIMARY_PORT} \
 		--eval 'rs.initiate({
 			_id: "'${TEST_RS_NAME}'",
@@ -31,7 +37,7 @@ fi
 sleep $sleep_secs
 tries=1
 while [ $tries -lt $max_tries ]; do
-	ISMASTER=$(/usr/bin/mongo --quiet \
+	ISMASTER=$(/usr/bin/mongo $mongo_flags \
 		--port ${TEST_PRIMARY_PORT} \
 		--eval 'printjson(db.isMaster().ismaster)' 2>/dev/null)
 	[ "$ISMASTER" == "true" ] && break
@@ -46,7 +52,7 @@ fi
 
 tries=1
 while [ $tries -lt $max_tries ]; do
-	/usr/bin/mongo --quiet \
+	/usr/bin/mongo $mongo_flags \
 		--port ${TEST_PRIMARY_PORT} \
 		--eval 'db.getSiblingDB("admin").createUser({
 				user: "'${TEST_ADMIN_USER}'",
