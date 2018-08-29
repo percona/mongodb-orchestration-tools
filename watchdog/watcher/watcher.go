@@ -19,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"

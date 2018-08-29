@@ -19,8 +19,8 @@ import (
 	"strings"
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal"
+	testing "github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )

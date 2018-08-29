@@ -5,9 +5,9 @@ import (
 	gotesting "testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/api/mocks"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
+	"github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 )

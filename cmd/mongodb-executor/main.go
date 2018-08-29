@@ -20,9 +20,9 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/tool"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/tool"
 	"github.com/percona/dcos-mongo-tools/executor"
 	"github.com/percona/dcos-mongo-tools/executor/config"
 	"github.com/percona/dcos-mongo-tools/executor/job"

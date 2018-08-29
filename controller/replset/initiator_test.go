@@ -5,9 +5,9 @@ import (
 	"os"
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
 	"github.com/stretchr/testify/assert"

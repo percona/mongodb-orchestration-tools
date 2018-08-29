@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/dcos-mongo-tools/common"
+	"github.com/percona/dcos-mongo-tools/internal"
 	"gopkg.in/mgo.v2"
 )
 

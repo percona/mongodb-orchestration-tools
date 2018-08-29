@@ -19,8 +19,8 @@ import (
 	gotesting "testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal"
+	testing "github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/stretchr/testify/assert"
 )
 

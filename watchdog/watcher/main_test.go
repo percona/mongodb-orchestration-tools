@@ -19,9 +19,9 @@ import (
 	gotesting "testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 )

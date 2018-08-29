@@ -17,7 +17,7 @@ package healthcheck
 import (
 	gotesting "testing"
 
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	testing "github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/stretchr/testify/assert"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
 )

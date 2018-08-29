@@ -17,7 +17,7 @@ package user
 import (
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )

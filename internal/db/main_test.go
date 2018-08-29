@@ -19,8 +19,8 @@ import (
 	"os"
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	testing "github.com/percona/dcos-mongo-tools/internal/testing"
 	"gopkg.in/mgo.v2"
 )
 

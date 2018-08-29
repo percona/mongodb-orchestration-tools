@@ -17,7 +17,7 @@ package replset
 import (
 	gotesting "testing"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/stretchr/testify/assert"
 )
 
