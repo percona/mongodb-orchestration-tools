@@ -92,11 +92,7 @@ func NewMongod(config *Config) *Mongod {
 //
 // https://docs.mongodb.com/manual/reference/configuration-options/#storage.wiredTiger.engineConfig.cacheSizeGB
 //
-func (m *Mongod) getWiredTigerCacheSizeGB() float64 {
-	limitBytes := getMemoryLimitBytes()
-	if limitBytes < 1 {
-		return 0
-	}
+func (m *Mongod) getWiredTigerCacheSizeGB(limitBytes int64) float64 {
 	size := math.Floor(m.config.WiredTigerCacheRatio * (float64(limitBytes) - gigaByte))
 	sizeGB := size / gigaByte
 	if sizeGB < minWiredTigerCacheSizeGB {
@@ -135,8 +131,9 @@ func (m *Mongod) Initiate() error {
 	}
 
 	if config.Storage.Engine == "wiredTiger" {
-		cacheSizeGB := m.getWiredTigerCacheSizeGB()
-		if cacheSizeGB > 0 {
+		limitBytes := getMemoryLimitBytes()
+		if limitBytes > 0 {
+			cacheSizeGB := m.getWiredTigerCacheSizeGB(limitBytes)
 			log.WithFields(log.Fields{
 				"size_gb": cacheSizeGB,
 				"ratio":   m.config.WiredTigerCacheRatio,

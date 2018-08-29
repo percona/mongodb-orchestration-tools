@@ -42,6 +42,16 @@ func TestExecutorMongoDBNewMongod(t *gotesting.T) {
 	assert.Contains(t, testMongod.configFile, testConfig.ConfigDir)
 }
 
+func TestExecutorMongoDBGetWiredTigerCacheSizeGB(t *gotesting.T) {
+	mongod := &Mongod{
+		config: &Config{WiredTigerCacheRatio: 0.5},
+	}
+	assert.Equal(t, minWiredTigerCacheSizeGB, mongod.getWiredTigerCacheSizeGB(int64(1*gigaByte)))
+	assert.Equal(t, 1.5, mongod.getWiredTigerCacheSizeGB(int64(4*gigaByte)))
+	assert.Equal(t, 31.5, mongod.getWiredTigerCacheSizeGB(int64(64*gigaByte)))
+	assert.Equal(t, 63.5, mongod.getWiredTigerCacheSizeGB(int64(128*gigaByte)))
+}
+
 func TestExecutorMongoDBMkdir(t *gotesting.T) {
 	dir, _ := ioutil.TempDir("", "TestExecutorMongoDBMkdir")
 	os.RemoveAll(dir)
