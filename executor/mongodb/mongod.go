@@ -40,21 +40,20 @@ const (
 )
 
 // getMemoryLimitBytes() returns the memory limit of a cgroup
-// or zero/0 if there is no limit
-func getMemoryLimitBytes(limitFile string) int64 {
+func getMemoryLimitBytes(limitFile string) (int64, error) {
 	if _, err := os.Stat(limitFile); os.IsNotExist(err) {
-		return 0
+		return 0, err
 	}
 	bytes, err := ioutil.ReadFile(limitFile)
 	if err != nil {
-		return 0
+		return 0, err
 	}
 	limit32, _ := strconv.Atoi(strings.TrimSpace(string(bytes)))
 	limit := int64(limit32)
 	if limit == noMemoryLimit {
-		return 0
+		return 0, nil
 	}
-	return limit
+	return limit, nil
 }
 
 func mkdir(path string, uid int, gid int, mode os.FileMode) error {
@@ -131,7 +130,11 @@ func (m *Mongod) Initiate() error {
 	}
 
 	if config.Storage.Engine == "wiredTiger" {
-		limitBytes := getMemoryLimitBytes(memoryLimitFile)
+		limitBytes, err := getMemoryLimitBytes(memoryLimitFile)
+		if err != nil {
+			log.Errorf("Error gathering memory limit: %s", err)
+			return err
+		}
 		if limitBytes > 0 {
 			cacheSizeGB := m.getWiredTigerCacheSizeGB(limitBytes)
 			log.WithFields(log.Fields{
