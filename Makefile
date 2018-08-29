@@ -90,7 +90,7 @@ ifeq ($(TEST_CODECOV), true)
 endif
 
 release: clean
-	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f Dockerfile.release .
+	docker build --build-arg GOLANG_DOCKERHUB_TAG=$(GO_VERSION_MAJ_MIN)-stretch -t $(NAME)_release -f docker/Dockerfile.release .
 	docker run --rm --network=host \
 	-v $(BASE_DIR)/bin:/go/src/github.com/$(GITHUB_REPO)/bin \
 	-v $(RELEASE_CACHE_DIR)/glide:/root/.glide/cache \
@@ -111,7 +111,7 @@ release-clean:
 	docker rmi -f $(NAME):$(DOCKERHUB_TAG) 2>/dev/null
 
 docker-build: release
-	docker build -t $(NAME):$(DOCKERHUB_TAG) -f Dockerfile .
+	docker build -t $(NAME):$(DOCKERHUB_TAG) -f docker/Dockerfile
 	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
 	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
 

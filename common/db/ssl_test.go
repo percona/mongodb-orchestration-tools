@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testSSLDirRelPath = "../../test/ssl"
+const testSSLDirRelPath = "../../docker/test/ssl"
 
 var (
 	sslCertFile = common.RelPathToAbs(filepath.Join(testSSLDirRelPath, "client.pem"))
