@@ -32,12 +32,12 @@ func TestWatchdogReplsetNewMongod(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	apiTask := &mocks.PodTask{}
-	apiTask.On("GetMongoHostname", common.DefaultFrameworkName).Return("test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
+	apiTask.On("GetMongoHostname", internal.DefaultFrameworkName).Return("test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
 	apiTask.On("GetMongoPort").Return(strconv.Atoi(testing.MongodbPrimaryPort))
 	apiTask.On("GetMongoReplsetName").Return(testing.MongodbReplsetName, nil)
 
 	var err error
-	testMongod, err = NewMongod(apiTask, common.DefaultFrameworkName, "mongo-"+testing.MongodbReplsetName)
+	testMongod, err = NewMongod(apiTask, internal.DefaultFrameworkName, "mongo-"+testing.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }
@@ -45,7 +45,7 @@ func TestWatchdogReplsetNewMongod(t *gotesting.T) {
 func TestWatchdogReplsetMongodName(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
-	expected := "test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testing.MongodbPrimaryPort
+	expected := "test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testing.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 

@@ -22,11 +22,11 @@ import (
 	gotesting "testing"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/internal/logger"
 	"github.com/percona/dcos-mongo-tools/internal/testing"
-	"github.com/percona/dcos-mongo-tools/controller"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -47,13 +47,13 @@ var (
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
-			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
+			File:            internal.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
 			Username:        "prodapp",
-			EndpointName:    common.DefaultMongoDBMongodEndpointName,
+			EndpointName:    internal.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		FrameworkName:     common.DefaultFrameworkName,
+		FrameworkName:     internal.DefaultFrameworkName,
 		Replset:           testing.MongodbReplsetName,
 		UserAdminUser:     testing.MongodbAdminUser,
 		UserAdminPassword: testing.MongodbAdminPassword,

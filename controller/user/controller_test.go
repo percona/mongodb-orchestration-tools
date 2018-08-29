@@ -28,7 +28,7 @@ func TestControllerUserNew(t *gotesting.T) {
 	testing.DoSkipTest(t)
 
 	mockAPI := &mocks.Client{}
-	mockAPI.On("GetEndpoint", common.DefaultMongoDBMongodEndpointName).Return(testing.GetMongoPortAPIEndpoint(), nil)
+	mockAPI.On("GetEndpoint", internal.DefaultMongoDBMongodEndpointName).Return(testing.GetMongoPortAPIEndpoint(), nil)
 
 	var err error
 	testController, err = NewController(testControllerConfig, mockAPI)

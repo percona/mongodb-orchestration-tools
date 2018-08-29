@@ -33,7 +33,7 @@ var (
 )
 
 func TestMain(m *gotesting.M) {
-	testAPI = New(common.DefaultFrameworkName, testAPIConfig)
+	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
 	os.Exit(m.Run())
 }
 
@@ -41,12 +41,12 @@ func TestCommonAPINew(t *gotesting.T) {
 	testAPI = nil
 	assert.Nil(t, testAPI)
 
-	testAPI = New(common.DefaultFrameworkName, testAPIConfig)
+	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
 	assert.Equal(t, testAPIConfig, testAPI.config, "api.config is incorrect")
-	assert.Equal(t, common.DefaultFrameworkName, testAPI.FrameworkName, "api.FrameworkName is incorrect")
+	assert.Equal(t, internal.DefaultFrameworkName, testAPI.FrameworkName, "api.FrameworkName is incorrect")
 	assert.Equal(t, HTTPSchemeSecure, testAPI.scheme, "api.scheme is incorrect")
 
 	testAPIConfig.Secure = false
-	testAPI = New(common.DefaultFrameworkName, testAPIConfig)
+	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
 	assert.Equal(t, HTTPSchemePlain, testAPI.scheme, "api.scheme is incorrect")
 }

@@ -109,7 +109,7 @@ func (task *PodTaskHTTP) GetEnvVar(variableName string) (string, error) {
 }
 
 func (task *PodTaskHTTP) GetMongoPort() (int, error) {
-	portStr, err := task.GetEnvVar(common.EnvMongoDBPort)
+	portStr, err := task.GetEnvVar(internal.EnvMongoDBPort)
 	if err != nil {
 		return 0, err
 	}
@@ -117,5 +117,5 @@ func (task *PodTaskHTTP) GetMongoPort() (int, error) {
 }
 
 func (task *PodTaskHTTP) GetMongoReplsetName() (string, error) {
-	return task.GetEnvVar(common.EnvMongoDBReplset)
+	return task.GetEnvVar(internal.EnvMongoDBReplset)
 }
