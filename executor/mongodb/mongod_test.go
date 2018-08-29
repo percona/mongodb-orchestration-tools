@@ -42,6 +42,8 @@ func TestExecutorMongoDBNewMongod(t *gotesting.T) {
 	assert.Contains(t, testMongod.configFile, testConfig.ConfigDir)
 }
 
+// Test .getWiredTigerCacheSizeGB() mimics the cache-sizing logic described in the documentation:
+// https://docs.mongodb.com/manual/reference/configuration-options/#storage.wiredTiger.engineConfig.cacheSizeGB
 func TestExecutorMongoDBGetWiredTigerCacheSizeGB(t *gotesting.T) {
 	mongod := &Mongod{
 		config: &Config{WiredTigerCacheRatio: 0.5},
