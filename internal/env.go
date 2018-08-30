@@ -23,6 +23,7 @@ const (
 	EnvSchedulerAPIHost = "SCHEDULER_API_HOSTNAME"
 	EnvSecretsEnabled   = "SECRETS_ENABLED"
 
+	EnvMongoDBMemoryMB               = "MONGODB_MEM"
 	EnvMongoDBPrimaryAddr            = "MONGODB_PRIMARY_ADDR"
 	EnvMongoDBPort                   = "MONGODB_PORT"
 	EnvMongoDBReplset                = "MONGODB_REPLSET"

@@ -40,6 +40,10 @@ var (
 
 func handleMongoDB(app *kingpin.Application, cnf *config.Config) {
 	app.Flag(
+		"mongodb.totalMemoryMB",
+		"the total amount of system memory, in megabytes",
+	).Envar(internal.EnvMongoDBMemoryMB).Required().UintVar(&cnf.MongoDB.TotalMemoryMB)
+	app.Flag(
 		"mongodb.configDir",
 		"path to mongodb instance config file, defaults to $"+internal.EnvMesosSandbox+" if available, otherwise "+mongodb.DefaultConfigDirFallback,
 	).Default(mongodb.DefaultConfigDirFallback).Envar(internal.EnvMesosSandbox).StringVar(&cnf.MongoDB.ConfigDir)
