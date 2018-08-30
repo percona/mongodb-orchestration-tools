@@ -46,38 +46,22 @@ func TestExecutorMongoDBNewMongod(t *gotesting.T) {
 // https://docs.mongodb.com/manual/reference/configuration-options/#storage.wiredTiger.engineConfig.cacheSizeGB
 func TestExecutorMongoDBGetWiredTigerCacheSizeGB(t *gotesting.T) {
 	mongod := &Mongod{
-		config: &Config{WiredTigerCacheRatio: 0.5},
+		config: &Config{
+			WiredTigerCacheRatio: 0.5,
+		},
 	}
-	assert.Equal(t, minWiredTigerCacheSizeGB, mongod.getWiredTigerCacheSizeGB(int64(1*gigaByte)))
-	assert.Equal(t, 1.5, mongod.getWiredTigerCacheSizeGB(int64(4*gigaByte)))
-	assert.Equal(t, 31.5, mongod.getWiredTigerCacheSizeGB(int64(64*gigaByte)))
-	assert.Equal(t, 63.5, mongod.getWiredTigerCacheSizeGB(int64(128*gigaByte)))
-}
 
-func TestExecutorMongoDBGetMemoryLimitBytes(t *gotesting.T) {
-	// does not exist
-	_, err := getMemoryLimitBytes("/does/not/exist")
-	assert.Error(t, err)
+	mongod.config.TotalMemoryMB = 1024
+	assert.Equal(t, minWiredTigerCacheSizeGB, mongod.getWiredTigerCacheSizeGB())
 
-	// test that .getMemoryLimitBytes() returns 0 (and no error)
-	// if the memory limit is equal to the noMemoryLimit const
-	limitFile, _ := ioutil.TempFile("", t.Name())
-	defer os.Remove(limitFile.Name())
-	data := []byte(strconv.Itoa(int(noMemoryLimit)) + "\n")
-	_, err = limitFile.Write(data)
-	assert.NoError(t, err)
-	_, err = getMemoryLimitBytes(limitFile.Name())
-	assert.NoError(t, err)
+	mongod.config.TotalMemoryMB = 4 * 1024
+	assert.Equal(t, 1.5, mongod.getWiredTigerCacheSizeGB())
 
-	// check we can write and read successfully without error
-	limitFile2, _ := ioutil.TempFile("", t.Name())
-	defer os.Remove(limitFile2.Name())
-	data2 := []byte(strconv.Itoa(int(gigaByte)) + "\n")
-	_, err = limitFile2.Write(data2)
-	assert.NoError(t, err)
-	limit, err := getMemoryLimitBytes(limitFile2.Name())
-	assert.NoError(t, err)
-	assert.Equal(t, int64(gigaByte), limit)
+	mongod.config.TotalMemoryMB = 64 * 1024
+	assert.Equal(t, 31.5, mongod.getWiredTigerCacheSizeGB())
+
+	mongod.config.TotalMemoryMB = 128 * 1024
+	assert.Equal(t, 63.5, mongod.getWiredTigerCacheSizeGB())
 }
 
 func TestExecutorMongoDBMkdir(t *gotesting.T) {

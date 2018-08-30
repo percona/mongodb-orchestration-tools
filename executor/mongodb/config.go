@@ -29,5 +29,6 @@ type Config struct {
 	TmpDir               string
 	User                 string
 	Group                string
+	TotalMemoryMB        uint
 	WiredTigerCacheRatio float64
 }
