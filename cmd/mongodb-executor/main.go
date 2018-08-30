@@ -69,7 +69,7 @@ func handleMongoDB(app *kingpin.Application, cnf *config.Config) {
 	app.Flag(
 		"mongodb.wiredTigerCacheRatio",
 		"the ratio of system memory to be used for wiredTiger cache",
-	).Default(mongodb.DefaultWiredTigerCacheRatio).Float64Var(&cnf.MongoDB.WiredTigerCacheRatio)
+	).Default(mongodb.DefaultWiredTigerCacheRatio).Envar(internal.EnvMongoDBWiredTigerCacheSizeRatio).Float64Var(&cnf.MongoDB.WiredTigerCacheRatio)
 }
 
 func handleMetrics(app *kingpin.Application, cnf *config.Config) {
