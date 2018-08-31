@@ -75,7 +75,7 @@ func unmarshalJSON(bytes []byte, out interface{}) error {
 			)
 		}
 	}
-	return nil
+	return err
 }
 
 func NewFromFile(file string) (*User, error) {
