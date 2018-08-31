@@ -231,9 +231,15 @@ func main() {
 	// wait for signals from the OS
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	sig := <-signals
-	log.Infof("Received %s signal, killing %s daemon and jobs", sig, cnf.NodeType)
 
-	// send quit to all goroutines
-	quit <- true
+	select {
+	case <-quit:
+		log.Infof("Received quit signal from daemon")
+		return
+	case sig := <-signals:
+		log.Infof("Received %s signal, killing %s daemon and jobs", sig, cnf.NodeType)
+		// send quit to all goroutines
+		quit <- true
+		return
+	}
 }
