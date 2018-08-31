@@ -73,11 +73,9 @@ func unmarshalJSON(bytes []byte, out interface{}) error {
 				"user json file syntax error (see https://docs.mesosphere.com/services/percona-mongo/): %v\n",
 				err,
 			)
-		default:
-			return err
 		}
 	}
-	return err
+	return nil
 }
 
 func NewFromFile(file string) (*User, error) {
