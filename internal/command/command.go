@@ -15,16 +15,19 @@
 package command
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"os/user"
 	"strconv"
+	"sync"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type Command struct {
+	sync.Mutex
 	Bin   string
 	Args  []string
 	User  *user.User
@@ -45,6 +48,8 @@ func New(bin string, args []string, user *user.User, group *user.Group) (*Comman
 }
 
 func (c *Command) IsRunning() bool {
+	c.Lock()
+	defer c.Unlock()
 	return c.running
 }
 
@@ -83,6 +88,9 @@ func (c *Command) prepare() error {
 }
 
 func (c *Command) Start() error {
+	c.Lock()
+	defer c.Unlock()
+
 	log.WithFields(log.Fields{
 		"command": c.Bin,
 		"args":    c.Args,
@@ -124,17 +132,28 @@ func (c *Command) Run() error {
 	return c.command.Run()
 }
 
-func (c *Command) Wait() {
+func (c *Command) Wait() (*os.ProcessState, error) {
 	if c.IsRunning() {
-		c.command.Wait()
-		c.running = false
+		c.Lock()
+		defer c.Unlock()
+
+		state, err := c.command.Process.Wait()
+		if err != nil {
+			return nil, err
+		}
+		c.running = !state.Exited()
+		return state, nil
 	}
+	return nil, errors.New("not running")
 }
 
 func (c *Command) Kill() error {
 	if c.command.Process == nil {
 		return nil
 	}
+
+	c.Lock()
+	defer c.Unlock()
 
 	err := c.command.Process.Kill()
 	if err != nil {

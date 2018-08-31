@@ -53,13 +53,15 @@ type Mongod struct {
 	configFile string
 	commandBin string
 	command    *command.Command
+	quit       *chan bool
 }
 
-func NewMongod(config *Config) *Mongod {
+func NewMongod(config *Config, quit *chan bool) *Mongod {
 	return &Mongod{
 		config:     config,
 		configFile: filepath.Join(config.ConfigDir, "mongod.conf"),
 		commandBin: filepath.Join(config.BinDir, "mongod"),
+		quit:       quit,
 	}
 }
 
@@ -195,7 +197,27 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	return m.command.Start()
+	err = m.command.Start()
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		state, err := m.command.Wait()
+		if err != nil {
+			log.Errorf("Error watching mongod: %s", err)
+		}
+		if state.Exited() {
+			if state.Success() {
+				log.Info("Received exit from mongod")
+			} else {
+				log.Error("Received unexpected exit from mongod")
+			}
+			*m.quit <- true
+		}
+	}()
+
+	return nil
 }
 
 func (m *Mongod) Wait() {

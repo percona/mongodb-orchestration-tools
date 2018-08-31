@@ -43,7 +43,9 @@ func TestCommonCommandIsRunning(t *gotesting.T) {
 }
 
 func TestCommonCommandWait(t *gotesting.T) {
-	testCommand.Wait()
+	state, err := testCommand.Wait()
+	assert.NoError(t, err)
+	assert.True(t, state.Exited())
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false after .Wait()")
 }
 
@@ -52,7 +54,6 @@ func TestCommonCommandKill(t *gotesting.T) {
 	assert.NoError(t, err, ".New() should not return an error")
 	assert.NoError(t, killCommand.Start(), ".Start() should not return an error")
 
-	// check process started
 	killCommandProc := killCommand.command.Process
 	proc, _ := ps.FindProcess(killCommandProc.Pid)
 	assert.NotNil(t, proc, "cannot find started process")

@@ -197,7 +197,7 @@ func main() {
 
 	switch cnf.NodeType {
 	case config.NodeTypeMongod:
-		daemon = mongodb.NewMongod(cnf.MongoDB)
+		daemon = mongodb.NewMongod(cnf.MongoDB, &quit)
 	case config.NodeTypeMongos:
 		log.Error("mongos nodes are not supported yet!")
 		return

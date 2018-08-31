@@ -28,6 +28,7 @@ var (
 	currentUser, _  = user.Current()
 	currentGroup, _ = user.LookupGroupId(currentUser.Gid)
 	testMongod      *Mongod
+	testMongodQuit  = make(chan bool)
 	testConfig      = &Config{
 		BinDir: "/usr/bin",
 		User:   currentUser.Name,
@@ -36,7 +37,7 @@ var (
 )
 
 func TestExecutorMongoDBNewMongod(t *gotesting.T) {
-	testMongod = NewMongod(testConfig)
+	testMongod = NewMongod(testConfig, &testMongodQuit)
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
 	assert.Contains(t, testMongod.commandBin, testConfig.BinDir)
 	assert.Contains(t, testMongod.configFile, testConfig.ConfigDir)
