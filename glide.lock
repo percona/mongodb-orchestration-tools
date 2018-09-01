@@ -1,8 +1,8 @@
-hash: 6cae10bb2910d6588506411d36a9eb63ee267afd2509a2590ae0babc38d5ef45
-updated: 2018-08-30T17:01:48.110132224+02:00
+hash: 2c522bc0cffee752e0304da51ad1f3e9b4e41b25ea6d50c81ec6f4cec2632d3f
+updated: 2018-09-01T02:07:08.705815651+02:00
 imports:
 - name: github.com/alecthomas/kingpin
-  version: a39589180ebd6bbf43076e514b55f20a95d43086
+  version: 947dcec5ba9c011838740e680966fd7087a71d0d
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
   subpackages:
@@ -18,13 +18,9 @@ imports:
   subpackages:
   - statsd
 - name: github.com/davecgh/go-spew
-  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
+  version: d8f796af33cc11cb798c1aaeb27a4ebc5099927d
   subpackages:
   - spew
-- name: github.com/gogo/protobuf
-  version: 3e657e582e841bf7cabdb3e28280e90b350b94f1
-  subpackages:
-  - proto
 - name: github.com/golang/mock
   version: 600781dde9cca80734169b9e969d9054ccc57937
   subpackages:
@@ -34,7 +30,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/klauspost/compress
-  version: b50017755d442260d792c34c7c43216d9ba7ffc7
+  version: b939724e787a27c0005cabe3f78e7ed7987ac74f
   subpackages:
   - flate
   - gzip
@@ -54,7 +50,7 @@ imports:
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: 676eaf6b948046fcd9dbbcf5cc9ff5077921aa81
+  version: c5b7fccd204277076155f10851dad72b76a49317
   subpackages:
   - prometheus
   - prometheus/promhttp
@@ -82,7 +78,7 @@ imports:
   subpackages:
   - .
 - name: github.com/sirupsen/logrus
-  version: 51df1d314861d341546c26e4354ce760fe4bb02b
+  version: 3e01752db0189b9157070a0e1668a620f9a85da2
 - name: github.com/stretchr/objx
   version: ef50b0de28773081167c97fc27cf29a0bf8b8c71
 - name: github.com/stretchr/testify
@@ -109,7 +105,7 @@ imports:
 - name: github.com/vharitonsky/iniflags
   version: a33cd0b5f3de9ef5e89c90ab2f1ebe3f71ad1ece
 - name: golang.org/x/crypto
-  version: 614d502a4dac94afa3a6ce146bd1736da82514c6
+  version: 182538f80094b6a8efaade63a8fd8e0d9d5843dd
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
@@ -117,7 +113,7 @@ imports:
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: d99a578cf41bfccdeaf48b0845c823a4b8b0ad5e
+  version: fa5fdf94c78965f1aa8423f0cc50b8b8d728b05a
   subpackages:
   - unix
   - windows
