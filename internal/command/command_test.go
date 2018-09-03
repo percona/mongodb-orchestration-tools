@@ -60,6 +60,8 @@ func TestCommonCommandKill(t *gotesting.T) {
 
 	// kill the process before it's done
 	assert.NoError(t, killCommand.Kill(), ".Kill() should not return an error")
+	_, err = killCommandProc.Wait()
+	assert.NoError(t, err)
 
 	// check the process died
 	proc, err = ps.FindProcess(killCommandProc.Pid)
