@@ -15,10 +15,10 @@
 package metrics
 
 import (
-	gotesting "testing"
+	"testing"
 	"time"
 
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -43,22 +43,22 @@ func (p *MockPusher) Push(status *mgostatsd.ServerStatus) error {
 	return nil
 }
 
-func TestExecutorMetricsNew(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestExecutorMetricsNew(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	testMetrics = New(testConfig, testSession, NewMockPusher(testMetricsChan))
 	assert.NotNil(t, testMetrics, ".New() should not return nil")
 	assert.False(t, testMetrics.IsRunning(), ".IsRunning() should return false")
 }
 
-func TestExecutorMetricsName(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestExecutorMetricsName(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.Equal(t, jobName, testMetrics.Name(), ".Name() has unexpected string")
 }
 
-func TestExecutorMetricsDoRun(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestExecutorMetricsDoRun(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.True(t, testMetrics.DoRun())
 
@@ -66,8 +66,8 @@ func TestExecutorMetricsDoRun(t *gotesting.T) {
 	assert.False(t, dontRun.DoRun())
 }
 
-func TestExecutorMetricsRun(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestExecutorMetricsRun(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	testLogBuffer.Reset()
 

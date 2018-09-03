@@ -19,14 +19,14 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -54,9 +54,9 @@ var (
 			RetrySleep:      time.Second,
 		},
 		FrameworkName:     internal.DefaultFrameworkName,
-		Replset:           testing.MongodbReplsetName,
-		UserAdminUser:     testing.MongodbAdminUser,
-		UserAdminPassword: testing.MongodbAdminPassword,
+		Replset:           testutils.MongodbReplsetName,
+		UserAdminUser:     testutils.MongodbAdminUser,
+		UserAdminPassword: testutils.MongodbAdminPassword,
 	}
 )
 
@@ -78,12 +78,12 @@ func checkUserExists(session *mgo.Session, user, db string) error {
 	return nil
 }
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 
-	if testing.Enabled() {
+	if testutils.Enabled() {
 		var err error
-		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}

@@ -17,14 +17,14 @@ package command
 import (
 	"os"
 	"os/user"
-	gotesting "testing"
+	"testing"
 )
 
 var testCommand *Command
 var testCurrentUser *user.User
 var testCurrentGroup *user.Group
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	var err error
 
 	testCurrentUser, err = user.Current()

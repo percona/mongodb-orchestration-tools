@@ -15,12 +15,12 @@
 package config
 
 import (
-	gotesting "testing"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorConfigNodeTypeString(t *gotesting.T) {
+func TestExecutorConfigNodeTypeString(t *testing.T) {
 	assert.Equal(t, "mongod", NodeTypeMongod.String())
 	assert.Equal(t, "mongos", NodeTypeMongos.String())
 }

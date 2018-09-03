@@ -19,7 +19,7 @@ import (
 	"log"
 	"os"
 	"os/user"
-	gotesting "testing"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -29,7 +29,7 @@ var (
 	testFileContent = "test123456"
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	var err error
 	testTmpfile, err = ioutil.TempFile("", "dcos-mongo-tools")
 	if err != nil {
@@ -44,7 +44,7 @@ func TestMain(m *gotesting.M) {
 	os.Exit(exit)
 }
 
-func TestCommonGetUserID(t *gotesting.T) {
+func TestCommonGetUserID(t *testing.T) {
 	_, err := GetUserID("this-user-should-not-exist")
 	assert.Error(t, err, ".GetUserID() should return error due to missing user")
 
@@ -57,7 +57,7 @@ func TestCommonGetUserID(t *gotesting.T) {
 	assert.NotZero(t, uid, ".GetUserID() should return a uid that is not zero")
 }
 
-func TestCommonGetGroupID(t *gotesting.T) {
+func TestCommonGetGroupID(t *testing.T) {
 	_, err := GetGroupID("this-group-should-not-exist")
 	assert.Error(t, err, ".GetGroupID() should return error due to missing group")
 
@@ -71,12 +71,12 @@ func TestCommonGetGroupID(t *gotesting.T) {
 	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
 }
 
-func TestCommonStringFromFile(t *gotesting.T) {
+func TestCommonStringFromFile(t *testing.T) {
 	assert.Equal(t, testFileContent, *StringFromFile(testTmpfile.Name()), ".StringFromFile() returned unexpected result")
 	assert.Nil(t, StringFromFile("/does/not/exist.file"), ".StringFromFile() returned unexpected result")
 }
 
-func TestCommonPasswordFromFile(t *gotesting.T) {
+func TestCommonPasswordFromFile(t *testing.T) {
 	assert.Equal(t, testFileContent, PasswordFromFile("/", testTmpfile.Name(), "test"), ".PasswordFallbackFromFile returned unexpected result")
 	assert.Equal(t, "", PasswordFromFile("/", "is-not-an-existing-file", "test"), ".PasswordFallbackFromFile returned unexpected result")
 }

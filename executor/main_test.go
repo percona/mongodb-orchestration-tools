@@ -16,7 +16,7 @@ package executor
 
 import (
 	"os"
-	gotesting "testing"
+	"testing"
 
 	"github.com/percona/dcos-mongo-tools/executor/config"
 )
@@ -31,7 +31,7 @@ var (
 	testQuitChan = make(chan bool)
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	exit := m.Run()
 	if testExecutorDaemon != nil {
 		testExecutorDaemon.Kill()

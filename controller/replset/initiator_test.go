@@ -3,13 +3,13 @@ package replset
 import (
 	"fmt"
 	"os"
-	gotesting "testing"
+	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
@@ -22,12 +22,12 @@ var (
 	}
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
 
-	if testing.Enabled() {
+	if testutils.Enabled() {
 		var err error
-		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			fmt.Printf("Error getting session: %v", err)
 			os.Exit(1)
@@ -40,13 +40,13 @@ func TestMain(m *gotesting.M) {
 	os.Exit(exit)
 }
 
-func TestNewInitiator(t *gotesting.T) {
+func TestNewInitiator(t *testing.T) {
 	testInitiator = NewInitiator(testConfig)
 	assert.NotNil(t, testInitiator)
 }
 
-func TestControllerReplsetInitiatorInitAdminUser(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerReplsetInitiatorInitAdminUser(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	user.UserAdmin = &mgo.User{
 		Username: "testAdmin",
@@ -59,8 +59,8 @@ func TestControllerReplsetInitiatorInitAdminUser(t *gotesting.T) {
 	assert.NoError(t, user.RemoveUser(testSession, user.UserAdmin.Username, "admin"))
 }
 
-func TestControllerReplsetInitiatorInitUsers(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerReplsetInitiatorInitUsers(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	user.SystemUsers = []*mgo.User{
 		{

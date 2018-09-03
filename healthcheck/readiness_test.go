@@ -16,17 +16,17 @@ package healthcheck
 
 import (
 	"errors"
-	gotesting "testing"
+	"testing"
 
 	"github.com/golang/mock/gomock"
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/percona/pmgo"
 	"github.com/percona/pmgo/pmgomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHealthcheckReadinessCheck(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestHealthcheckReadinessCheck(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.NoError(t, testDBSession.Ping(), "Database ping error")
 	state, err := ReadinessCheck(pmgo.NewSessionManager(testDBSession))
