@@ -1,5 +1,5 @@
-hash: 2c522bc0cffee752e0304da51ad1f3e9b4e41b25ea6d50c81ec6f4cec2632d3f
-updated: 2018-09-01T02:07:08.705815651+02:00
+hash: ddefecc1d10f7dbfab6791e38c39c744b9d64da0240b0f8126109367f7baea2c
+updated: 2018-09-03T13:45:01.648245581+02:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -30,7 +30,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/klauspost/compress
-  version: b939724e787a27c0005cabe3f78e7ed7987ac74f
+  version: b50017755d442260d792c34c7c43216d9ba7ffc7
   subpackages:
   - flate
   - gzip
