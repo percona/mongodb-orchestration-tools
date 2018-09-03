@@ -191,13 +191,15 @@ func main() {
 		)
 	}
 
-	var daemon executor.Daemon
 	quit := make(chan bool)
 	e := executor.New(cnf, &quit)
 
+	var daemon executor.Daemon
+	daemonState := make(chan *os.ProcessState)
+
 	switch cnf.NodeType {
 	case config.NodeTypeMongod:
-		daemon = mongodb.NewMongod(cnf.MongoDB, &quit)
+		daemon = mongodb.NewMongod(cnf.MongoDB, daemonState)
 	case config.NodeTypeMongos:
 		log.Error("mongos nodes are not supported yet!")
 		return
@@ -232,14 +234,22 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
+	// wait for OS signal or daemonState (*os.ProcessState)
 	select {
-	case <-quit:
-		log.Infof("Received quit signal from daemon")
-		return
-	case sig := <-signals:
-		log.Infof("Received %s signal, killing %s daemon and jobs", sig, cnf.NodeType)
-		// send quit to all goroutines
+	case state := <-daemonState:
 		quit <- true
-		return
+
+		log.WithFields(log.Fields{
+			"success": state.Success(),
+			"exited":  state.Exited(),
+		}).Infof("Daemon %s exited", daemon.Name())
+
+		if state.Success() && state.Exited() {
+			os.Exit(0)
+		}
+	case sig := <-signals:
+		quit <- true
+		log.Infof("Received %s signal, killing %s daemon and jobs", sig, daemon.Name())
 	}
+	os.Exit(1)
 }
