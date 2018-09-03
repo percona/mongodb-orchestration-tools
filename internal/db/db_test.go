@@ -15,34 +15,34 @@
 package db
 
 import (
-	gotesting "testing"
+	"testing"
 	"time"
 
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func TestCommonDBGetSession(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestCommonDBGetSession(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.False(t, testPrimaryDbConfig.SSL.Enabled, "SSL should be disabled")
 
 	// no auth
 	var err error
 	testPrimarySession, err = GetSession(testPrimaryDbConfig)
-	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testing.MongodbHost, testing.MongodbPrimaryPort, err)
+	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testutils.MongodbHost, testutils.MongodbPrimaryPort, err)
 	assert.NotNil(t, testPrimarySession, ".GetSession() should not return a nil testPrimarySession")
 	assert.Equal(t, mgo.Monotonic, testPrimarySession.Mode(), ".GetSession() must return a *mgo.Session with 'Monotonic' mode set")
 	assert.Len(t, testPrimarySession.LiveServers(), 1, ".GetSession() must return a *mgo.Session that is a direct connection")
 	testPrimarySession.Close()
 
 	// with auth
-	testPrimaryDbConfig.DialInfo.Username = testing.MongodbAdminUser
-	testPrimaryDbConfig.DialInfo.Password = testing.MongodbAdminPassword
+	testPrimaryDbConfig.DialInfo.Username = testutils.MongodbAdminUser
+	testPrimaryDbConfig.DialInfo.Password = testutils.MongodbAdminPassword
 	testPrimarySession, err = GetSession(testPrimaryDbConfig)
-	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testing.MongodbHost, testing.MongodbPrimaryPort, err)
+	assert.NoErrorf(t, err, ".GetSession() returned error for %s:%s: %s", testutils.MongodbHost, testutils.MongodbPrimaryPort, err)
 	assert.NotNil(t, testPrimarySession, ".GetSession() should not return a nil testPrimarySession")
 
 	// test auth was setup correctly by running a 'usersInfo' server command for self
@@ -52,7 +52,7 @@ func TestCommonDBGetSession(t *gotesting.T) {
 		} `bson:"users"`
 		Ok int `bson:"ok"`
 	}{}
-	err = testPrimarySession.Run(bson.D{{"usersInfo", testing.MongodbAdminUser}}, &resp)
+	err = testPrimarySession.Run(bson.D{{"usersInfo", testutils.MongodbAdminUser}}, &resp)
 	assert.NoError(t, err, "session returned by .GetSession() should succeed at running 'usersInfo'")
 	assert.NotNil(t, resp, "got empty response from 'usersInfo' server command")
 	assert.Equal(t, resp.Ok, 1, "got 'ok' code that is not 1")
@@ -60,8 +60,8 @@ func TestCommonDBGetSession(t *gotesting.T) {
 	assert.Equal(t, "admin", resp.Users[0].User, "'user' field of 'usersInfo' response is not correct")
 }
 
-func TestCommonDBWaitForSession(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestCommonDBWaitForSession(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	failConfig := &Config{
 		DialInfo: &mgo.DialInfo{
@@ -82,12 +82,12 @@ func TestCommonDBWaitForSession(t *gotesting.T) {
 	assert.NoError(t, session.Ping(), ".WaitForSession() should return a ping-able session")
 }
 
-func TestCommonDBWaitForPrimary(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestCommonDBWaitForPrimary(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.NoError(t, WaitForPrimary(testPrimarySession, 1, time.Second), ".WaitForPrimary() should return no error for primary")
 
-	secondarySession, err := testing.GetSession(testing.MongodbSecondary1Port)
+	secondarySession, err := testutils.GetSession(testutils.MongodbSecondary1Port)
 	assert.NoError(t, err, "could not get secondary-host session for testing .WaitForPrimary()")
 	assert.NotNil(t, secondarySession)
 	defer secondarySession.Close()

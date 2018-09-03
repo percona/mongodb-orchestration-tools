@@ -15,9 +15,9 @@
 package healthcheck
 
 import (
-	gotesting "testing"
+	"testing"
 
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/timvaillancourt/go-mongodb-replset/status"
 )
@@ -41,7 +41,7 @@ var (
 	}
 )
 
-func TestHealthcheckGetSelfMemberState(t *gotesting.T) {
+func TestHealthcheckGetSelfMemberState(t *testing.T) {
 	state := getSelfMemberState(testStatus)
 	assert.Equalf(t, *state, testMember.State, "healthcheck.getSelfMemberState() returned wrong result")
 
@@ -51,7 +51,7 @@ func TestHealthcheckGetSelfMemberState(t *gotesting.T) {
 	testStatus.Members[0].Health = status.MemberHealthUp
 }
 
-func TestHealthcheckIsMemberStateOk(t *gotesting.T) {
+func TestHealthcheckIsMemberStateOk(t *testing.T) {
 	state := getSelfMemberState(testStatus)
 	assert.Truef(t, isStateOk(state, OkMemberStates), "healthcheck.isStateOk(\"%s\") returned false", *state)
 
@@ -61,8 +61,8 @@ func TestHealthcheckIsMemberStateOk(t *gotesting.T) {
 	assert.Falsef(t, isStateOk(stateFail, OkMemberStates), "healthcheck.isStateOk(\"%s\") returned true", *stateFail)
 }
 
-func TestHealthcheckHealthCheck(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestHealthcheckHealthCheck(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	state, memberState, err := HealthCheck(testDBSession, OkMemberStates)
 	assert.NoError(t, err, "healthcheck.HealthCheck() returned an error")

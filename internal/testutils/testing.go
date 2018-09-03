@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package testing
+package testutils
 
 import (
 	"errors"
 	"os"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal/api"
@@ -108,7 +108,7 @@ func GetMongoPortAPIEndpoint() *api.Endpoint {
 }
 
 // DoSkipTest handles the conditional skipping of tests, based on the output of .Enabled()
-func DoSkipTest(t *gotesting.T) {
+func DoSkipTest(t *testing.T) {
 	if !Enabled() {
 		t.Skipf("Skipping test, env var %s is not 'true'", envEnableDBTests)
 	}

@@ -17,11 +17,11 @@ package replset
 import (
 	"bytes"
 	"os"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal/logger"
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	wdConfig "github.com/percona/dcos-mongo-tools/watchdog/config"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -49,11 +49,11 @@ var (
 	}
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
-	if testing.Enabled() {
+	if testutils.Enabled() {
 		var err error
-		testDBSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testDBSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}
