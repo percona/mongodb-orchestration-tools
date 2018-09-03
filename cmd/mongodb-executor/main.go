@@ -234,18 +234,19 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	// wait for OS signal or daemonState (*os.ProcessState)
+	// wait for OS signal or daemonState (*os.ProcessState from daemon process)
 	select {
 	case state := <-daemonState:
 		quit <- true
-
-		log.WithFields(log.Fields{
-			"success": state.Success(),
-			"exited":  state.Exited(),
-		}).Infof("Daemon %s exited", daemon.Name())
-
-		if state.Success() && state.Exited() {
-			os.Exit(0)
+		if stateSys, ok := state.Sys().(syscall.WaitStatus); ok {
+			exitCode := stateSys.ExitStatus()
+			log.WithFields(log.Fields{
+				"success": state.Success(),
+				"exited":  state.Exited(),
+			}).Infof("%s daemon exited with return code %d", daemon.Name(), exitCode)
+			if exitCode >= 0 {
+				os.Exit(exitCode)
+			}
 		}
 	case sig := <-signals:
 		quit <- true
