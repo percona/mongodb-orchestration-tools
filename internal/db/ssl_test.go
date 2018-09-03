@@ -16,11 +16,11 @@ package db
 
 import (
 	"path/filepath"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal"
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +31,7 @@ var (
 	sslCAFile   = internal.RelPathToAbs(filepath.Join(testSSLDirRelPath, "rootCA.crt"))
 )
 
-func TestCommonDBLoadCaCertificate(t *gotesting.T) {
+func TestCommonDBLoadCaCertificate(t *testing.T) {
 	sslConfig := &SSLConfig{
 		Enabled: true,
 		CAFile:  sslCAFile,
@@ -46,7 +46,7 @@ func TestCommonDBLoadCaCertificate(t *gotesting.T) {
 	assert.Error(t, err, ".loadCaCertificate() should return an error when given missing path")
 }
 
-func TestCommonDBConfigureSSLDialInfo(t *gotesting.T) {
+func TestCommonDBConfigureSSLDialInfo(t *testing.T) {
 	config := &Config{
 		DialInfo: testPrimaryDbConfig.DialInfo,
 		SSL: &SSLConfig{
@@ -63,8 +63,8 @@ func TestCommonDBConfigureSSLDialInfo(t *gotesting.T) {
 	assert.NotNil(t, config.DialInfo.DialServer, "config.DialInfo.DialServer should not be nil")
 }
 
-func TestCommonDBGetSessionSSL(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestCommonDBGetSessionSSL(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	testPrimaryDbConfig.SSL = &SSLConfig{
 		Enabled:    true,
@@ -84,7 +84,7 @@ func TestCommonDBGetSessionSSL(t *gotesting.T) {
 	assert.Contains(t, testLogBuffer.String(), "x509: cannot validate certificate for", ".GetSession() log output should contain ssl error")
 
 	// enable insecure mode (due to self-signed certs) and connect
-	testPrimaryDbConfig.DialInfo.Timeout = testing.MongodbTimeout
+	testPrimaryDbConfig.DialInfo.Timeout = testutils.MongodbTimeout
 	testPrimaryDbConfig.SSL.Insecure = true
 	testPrimarySessionSSL, err := GetSession(testPrimaryDbConfig)
 	assert.NoError(t, err, ".GetSession() should return no error")

@@ -15,45 +15,45 @@
 package replset
 
 import (
-	gotesting "testing"
+	"testing"
 
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWatchdogNewReplset(t *gotesting.T) {
+func TestWatchdogNewReplset(t *testing.T) {
 	testReplset = New(testWatchdogConfig, testReplsetName)
 	assert.Equal(t, testReplsetName, testReplset.Name, "replset.Name is incorrect")
 	assert.Len(t, testReplset.members, 0, "replset.members is not empty")
 }
 
-func TestWatchdogReplsetGetMemberFalse(t *gotesting.T) {
+func TestWatchdogReplsetGetMemberFalse(t *testing.T) {
 	assert.Nil(t, testReplset.GetMember(testReplsetMongod.Name()), "replset.GetMember() returned unexpected result")
 }
 
-func TestWatchdogReplsetHasMemberFalse(t *gotesting.T) {
+func TestWatchdogReplsetHasMemberFalse(t *testing.T) {
 	assert.False(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result")
 }
 
-func TestWatchdogReplsetUpdateMember(t *gotesting.T) {
+func TestWatchdogReplsetUpdateMember(t *testing.T) {
 	testReplset.UpdateMember(testReplsetMongod)
 	assert.Len(t, testReplset.members, 1, "replset.members length is not 1")
 }
 
-func TestWatchdogReplsetGetMember(t *gotesting.T) {
+func TestWatchdogReplsetGetMember(t *testing.T) {
 	member := testReplset.GetMember(testReplsetMongod.Name())
 	assert.Equal(t, testReplsetMongod, member, "replset.GetMember() returned unexpected result")
 }
 
-func TestWatchdogReplsetGetMembers(t *gotesting.T) {
+func TestWatchdogReplsetGetMembers(t *testing.T) {
 	assert.Len(t, testReplset.GetMembers(), 1, "replset.GetMembers() returned unexpected result")
 }
 
-func TestWatchdogReplsetHasMember(t *gotesting.T) {
+func TestWatchdogReplsetHasMember(t *testing.T) {
 	assert.True(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result")
 }
 
-func TestWatchdogReplsetGetReplsetDBConfig(t *gotesting.T) {
+func TestWatchdogReplsetGetReplsetDBConfig(t *testing.T) {
 	dbCnf := testReplset.GetReplsetDBConfig(&db.SSLConfig{Enabled: true})
 	assert.NotNil(t, dbCnf, "replset.GetReplsetDBConfig() returned nil")
 	assert.NotNil(t, dbCnf.SSL, "replset.GetReplsetDBConfig() returned nil 'SSL' config")
@@ -68,7 +68,7 @@ func TestWatchdogReplsetGetReplsetDBConfig(t *gotesting.T) {
 	assert.True(t, dbCnf.DialInfo.FailFast, "*mgo.DialInfo 'FailFast' must be true")
 }
 
-func TestWatchdogReplsetRemoveMember(t *gotesting.T) {
+func TestWatchdogReplsetRemoveMember(t *testing.T) {
 	testReplset.RemoveMember(testReplsetMongod)
 	assert.False(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result after replset.RemoveMember()")
 	assert.Len(t, testReplset.GetMembers(), 0, "replset.GetMembers() returned unexpected result after replset.RemoveMember()")

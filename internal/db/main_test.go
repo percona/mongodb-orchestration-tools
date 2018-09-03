@@ -17,10 +17,10 @@ package db
 import (
 	"bytes"
 	"os"
-	gotesting "testing"
+	"testing"
 
 	"github.com/percona/dcos-mongo-tools/internal/logger"
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
 )
 
@@ -29,15 +29,15 @@ var (
 	testLogBuffer       = new(bytes.Buffer)
 	testPrimaryDbConfig = &Config{
 		DialInfo: &mgo.DialInfo{
-			Addrs:   []string{testing.MongodbHost + ":" + testing.MongodbPrimaryPort},
+			Addrs:   []string{testutils.MongodbHost + ":" + testutils.MongodbPrimaryPort},
 			Direct:  true,
-			Timeout: testing.MongodbTimeout,
+			Timeout: testutils.MongodbTimeout,
 		},
 		SSL: &SSLConfig{},
 	}
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 	exit := m.Run()
 	if testPrimarySession != nil {

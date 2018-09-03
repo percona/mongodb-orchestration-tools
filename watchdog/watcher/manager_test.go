@@ -2,43 +2,43 @@ package watcher
 
 import (
 	"strconv"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
-	"github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWatchdogWatcherNewManager(t *gotesting.T) {
+func TestWatchdogWatcherNewManager(t *testing.T) {
 	testManager = NewManager(testConfig, &testStopChan)
 	assert.NotNil(t, testManager)
 }
 
-func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogWatcherManagerWatch(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	apiTask := &mocks.PodTask{}
 	apiTask.On("Name").Return("test")
 	apiTask.On("State").Return(api.PodTaskStateRunning)
 
 	// primary
-	port, _ := strconv.Atoi(testing.MongodbPrimaryPort)
+	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
 	mongod := &replset.Mongod{
-		Host: testing.MongodbHost,
+		Host: testutils.MongodbHost,
 		Port: port,
 		Task: apiTask,
 	}
 	testWatchRs.UpdateMember(mongod)
 
 	// secondary1
-	mongod.Port, _ = strconv.Atoi(testing.MongodbSecondary1Port)
+	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary1Port)
 	testWatchRs.UpdateMember(mongod)
 
 	// secondary2
-	mongod.Port, _ = strconv.Atoi(testing.MongodbSecondary2Port)
+	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary2Port)
 	testWatchRs.UpdateMember(mongod)
 
 	go testManager.Watch(testWatchRs)
@@ -54,21 +54,21 @@ func TestWatchdogWatcherManagerWatch(t *gotesting.T) {
 	assert.FailNow(t, "failed to start watcher after 20 tries")
 }
 
-func TestWatchdogWatcherManagerHasWatcher(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogWatcherManagerHasWatcher(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.True(t, testManager.HasWatcher(rsName))
 }
 
-func TestWatchdogWatcherManagerGet(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogWatcherManagerGet(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.NotNil(t, testManager.Get(rsName), ".Get() returned nil for existing watcher")
 	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
 }
 
-func TestWatchdogWatcherManagerStop(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogWatcherManagerStop(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	testManager.Stop(rsName)
 	tries := 0

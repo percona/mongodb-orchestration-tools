@@ -15,7 +15,7 @@
 package api
 
 import (
-	gotesting "testing"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -27,14 +27,14 @@ var (
 	}
 )
 
-func TestCommonAPIEndpointAddresses(t *gotesting.T) {
+func TestCommonAPIEndpointAddresses(t *testing.T) {
 	assert.Equal(t, testEndpoint.Addresses(), testEndpoint.Address, "&Endpoint{} struct .Addresses() is incorrect")
 }
 
-func TestCommonAPIEndpointHosts(t *gotesting.T) {
+func TestCommonAPIEndpointHosts(t *testing.T) {
 	assert.Equal(t, testEndpoint.Hosts(), testEndpoint.Dns, "&Endpoint{} struct .Hosts() is incorrect")
 }
 
-func TestCommonAPIGetEndpointsURL(t *gotesting.T) {
+func TestCommonAPIGetEndpointsURL(t *testing.T) {
 	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
 }

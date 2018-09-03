@@ -17,56 +17,56 @@ package replset
 import (
 	"strconv"
 	"strings"
-	gotesting "testing"
+	"testing"
 
 	"github.com/percona/dcos-mongo-tools/internal"
-	testing "github.com/percona/dcos-mongo-tools/internal/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
 
 var testMemberRemoved *rsConfig.Member
 
-func TestWatchdogReplsetNewState(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetNewState(t *testing.T) {
+	testutils.DoSkipTest(t)
 
-	testState = NewState(testing.MongodbReplsetName)
-	assert.Equal(t, testState.Replset, testing.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
+	testState = NewState(testutils.MongodbReplsetName)
+	assert.Equal(t, testState.Replset, testutils.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
 	assert.False(t, testState.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")
 }
 
-func TestWatchdogReplsetStateFetchConfig(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetStateFetchConfig(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	err := testState.fetchConfig(testRsConfigManager)
 	assert.NoError(t, err, ".fetchConfig() should not return an error")
 
 	config := testState.GetConfig()
 	assert.NotNil(t, config, ".GetConfig() should not return nil")
-	assert.Equal(t, config.Name, testing.MongodbReplsetName, "testState.Config.Name is incorrect")
+	assert.Equal(t, config.Name, testutils.MongodbReplsetName, "testState.Config.Name is incorrect")
 	assert.NotZero(t, config.Members, "testState.Config.Members has no members")
 }
 
-func TestWatchdogReplsetStateFetchStatus(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetStateFetchStatus(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	err := testState.fetchStatus(testDBSession)
 	assert.NoError(t, err, ".fetchStatus() should not return an error")
 
 	status := testState.GetStatus()
 	assert.NotNil(t, status, ".GetStatus() should not return nil")
-	assert.Equal(t, status.Set, testing.MongodbReplsetName, "testState.Status.Set is incorrect")
+	assert.Equal(t, status.Set, testutils.MongodbReplsetName, "testState.Status.Set is incorrect")
 	assert.NotZero(t, status.Members, "testState.Status.Members has no members")
 }
 
-func TestWatchdogReplsetStateFetch(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetStateFetch(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.NoError(t, testState.Fetch(testDBSession, testRsConfigManager), "testState.Fetch() failed with error")
 }
 
-func TestWatchdogReplsetStateRemoveConfigMembers(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetStateRemoveConfigMembers(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	config := testState.GetConfig()
 	assert.NotNil(t, config, ".GetConfig() should not return nil")
@@ -78,15 +78,15 @@ func TestWatchdogReplsetStateRemoveConfigMembers(t *gotesting.T) {
 	assert.Len(t, testState.GetConfig().Members, memberCount-1, "testState.Config.Members count did not reduce")
 }
 
-func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
 		Host:          hostPort[0],
 		Port:          port,
-		Replset:       testing.MongodbReplsetName,
+		Replset:       testutils.MongodbReplsetName,
 		FrameworkName: internal.DefaultFrameworkName,
 		PodName:       "mongo",
 	}
@@ -103,7 +103,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *gotesting.T) {
 	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
 }
 
-func TestWatchdogReplsetStateGetMaxIDVotingMember(t *gotesting.T) {
+func TestWatchdogReplsetStateGetMaxIDVotingMember(t *testing.T) {
 	maxIDMember := &rsConfig.Member{Id: 5, Votes: 1}
 	state := NewState("test")
 	state.config = &rsConfig.Config{
@@ -117,7 +117,7 @@ func TestWatchdogReplsetStateGetMaxIDVotingMember(t *gotesting.T) {
 	assert.Equal(t, maxIDMember, state.getMaxIDVotingMember(), ".getMaxIDMember() returned incorrect result or member")
 }
 
-func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *gotesting.T) {
+func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *testing.T) {
 	minIDMember := &rsConfig.Member{Id: 1}
 	s := NewState("test")
 	s.config = &rsConfig.Config{
@@ -133,7 +133,7 @@ func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *gotesting.T) {
 	assert.Equal(t, minIDMember, s.getMinIDNonVotingMember(), ".getMinIDNonVotingMember() returned incorrect result or member")
 }
 
-func TestWatchdogReplsetStateResetConfigVotes(t *gotesting.T) {
+func TestWatchdogReplsetStateResetConfigVotes(t *testing.T) {
 	state := NewState("test")
 
 	// test .restConfigVotes() will reduce voting members (9/too-many) to the max (7)

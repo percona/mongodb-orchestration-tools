@@ -15,13 +15,13 @@
 package command
 
 import (
-	gotesting "testing"
+	"testing"
 
 	ps "github.com/mitchellh/go-ps"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonCommandNew(t *gotesting.T) {
+func TestCommonCommandNew(t *testing.T) {
 	var err error
 	testCommand, err = New("echo", []string{"hello", "world"}, testCurrentUser, testCurrentGroup)
 	assert.NoError(t, err, ".New() should not return an error")
@@ -30,26 +30,26 @@ func TestCommonCommandNew(t *gotesting.T) {
 	assert.Equal(t, testCurrentGroup, testCommand.Group, ".New() has incorrect Group")
 }
 
-func TestCommonCommandIsRunningFalse(t *gotesting.T) {
+func TestCommonCommandIsRunningFalse(t *testing.T) {
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false")
 }
 
-func TestCommonCommandStart(t *gotesting.T) {
+func TestCommonCommandStart(t *testing.T) {
 	assert.NoError(t, testCommand.Start(), ".Start() should not return an error")
 }
 
-func TestCommonCommandIsRunning(t *gotesting.T) {
+func TestCommonCommandIsRunning(t *testing.T) {
 	assert.True(t, testCommand.IsRunning(), ".IsRunning() should be true")
 }
 
-func TestCommonCommandWait(t *gotesting.T) {
+func TestCommonCommandWait(t *testing.T) {
 	state, err := testCommand.Wait()
 	assert.NoError(t, err)
 	assert.True(t, state.Exited())
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false after .Wait()")
 }
 
-func TestCommonCommandKill(t *gotesting.T) {
+func TestCommonCommandKill(t *testing.T) {
 	killCommand, err := New("sleep", []string{"120"}, testCurrentUser, testCurrentGroup)
 	assert.NoError(t, err, ".New() should not return an error")
 	assert.NoError(t, killCommand.Start(), ".Start() should not return an error")
@@ -67,7 +67,7 @@ func TestCommonCommandKill(t *gotesting.T) {
 	assert.Nil(t, proc, "go-ps.FindProcess() should not find the killed process")
 }
 
-func TestCommonCommandCombinedOutput(t *gotesting.T) {
+func TestCommonCommandCombinedOutput(t *testing.T) {
 	coCommand, err := New("echo", []string{"hello", "world"}, testCurrentUser, testCurrentGroup)
 	assert.NoError(t, err, ".New() should not return an error")
 	bytes, err := coCommand.CombinedOutput()
