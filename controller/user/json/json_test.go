@@ -28,6 +28,7 @@ const (
 	testUserCLIPayloadFile         = "testdata/test-user.json.base64"
 	testUserCLIPayloadFileIssue218 = "testdata/test-user-issue218.json.base64"
 	testUserFileBroken             = "testdata/test-user-broken.json"
+	testUserFileNoQuotes           = "testdata/test-user-noquotes.json"
 )
 
 var (
@@ -60,6 +61,11 @@ func TestControllerUserJSONNewFromFile(t *testing.T) {
 	// undefined file name
 	_, err = NewFromFile("")
 	assert.Error(t, err)
+
+	// no quotes file (https://github.com/mesosphere/dcos-mongo/issues/257)
+	_, err = NewFromFile(testUserFileNoQuotes)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "user json file syntax error (see https://docs.mesosphere.com/services/percona-mongo/):")
 
 	// non-existing file name
 	_, err = NewFromFile("/does/not/exist")
