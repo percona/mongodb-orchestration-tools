@@ -16,7 +16,7 @@ package api
 
 import (
 	"os"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal"
@@ -32,12 +32,12 @@ var (
 	}
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
 	os.Exit(m.Run())
 }
 
-func TestCommonAPINew(t *gotesting.T) {
+func TestCommonAPINew(t *testing.T) {
 	testAPI = nil
 	assert.Nil(t, testAPI)
 

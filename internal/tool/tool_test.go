@@ -15,13 +15,13 @@
 package tool
 
 import (
-	gotesting "testing"
+	"testing"
 
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonToolNew(t *gotesting.T) {
+func TestCommonToolNew(t *testing.T) {
 	testApp, _ := New("test help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
 	assert.Contains(t, appModel.Version, "tool.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")
