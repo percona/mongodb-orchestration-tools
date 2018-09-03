@@ -19,12 +19,13 @@ import (
 	"errors"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/valyala/fasthttp"
 )
 
 var (
 	DefaultHTTPTimeout   = "5s"
-	DefaultSchedulerHost = "api.percona-mongo.marathon.l4lb.thisdcos.directory"
+	DefaultSchedulerHost = "api." + internal.DefaultFrameworkName + ".marathon.l4lb.thisdcos.directory"
 	ErrEmptyBody         = errors.New("got empty body")
 	ErrNonSuccessCode    = errors.New("got non-success code")
 )
