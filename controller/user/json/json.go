@@ -25,7 +25,8 @@ import (
 )
 
 const (
-	adminDB = "admin"
+	adminDB     = "admin"
+	htmlDocsURL = "https://docs.mesosphere.com/services/percona-server-mongodb/"
 )
 
 type Role struct {
@@ -70,7 +71,8 @@ func unmarshalJSON(bytes []byte, out interface{}) error {
 		switch err.(type) {
 		case *json.SyntaxError:
 			return fmt.Errorf(
-				"user json file syntax error (see https://docs.mesosphere.com/services/percona-mongo/): %v\n",
+				"user json file syntax error (see %s): %v\n",
+				htmlDocsURL,
 				err,
 			)
 		}
