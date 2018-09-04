@@ -15,6 +15,6 @@
 package internal
 
 const (
-	DefaultFrameworkName             = "percona-mongo"
+	DefaultFrameworkName             = "percona-server-mongodb"
 	DefaultMongoDBMongodEndpointName = "mongo-port"
 )

@@ -65,7 +65,7 @@ func TestControllerUserJSONNewFromFile(t *testing.T) {
 	// no quotes file (https://github.com/mesosphere/dcos-mongo/issues/257)
 	_, err = NewFromFile(testUserFileNoQuotes)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "user json file syntax error (see https://docs.mesosphere.com/services/percona-mongo/):")
+	assert.Contains(t, err.Error(), "user json file syntax error (see "+htmlDocsURL+"):")
 
 	// non-existing file name
 	_, err = NewFromFile("/does/not/exist")
