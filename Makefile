@@ -13,7 +13,7 @@ ifneq ($(GIT_BRANCH), master)
 	DOCKERHUB_TAG=$(VERSION)-$(GIT_BRANCH)
 endif
 
-GO_VERSION?=1.10
+GO_VERSION?=1.11
 GO_VERSION_MAJ_MIN=$(shell echo $(GO_VERSION) | cut -d. -f1-2)
 GO_LDFLAGS?=-s -w
 GO_LDFLAGS_FULL="${GO_LDFLAGS} -X main.GitCommit=${GIT_COMMIT} -X main.GitBranch=${GIT_BRANCH}"
@@ -111,7 +111,7 @@ release-clean:
 	docker rmi -f $(NAME):$(DOCKERHUB_TAG) 2>/dev/null
 
 docker-build: release
-	docker build -t $(NAME):$(DOCKERHUB_TAG) -f docker/Dockerfile
+	docker build -t $(NAME):$(DOCKERHUB_TAG) -f docker/Dockerfile .
 	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
 	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
 
