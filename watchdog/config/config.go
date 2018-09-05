@@ -17,13 +17,17 @@ package config
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 )
 
 var (
-	DefaultAPIPoll        = "10s"
-	DefaultIgnorePods     = []string{"admin-0", "mongodb-consistent-backup-0"}
+	DefaultAPIPoll    = "10s"
+	DefaultIgnorePods = []string{
+		"admin-0",
+		"restore-0",
+		"mongodb-consistent-backup-0",
+	}
 	DefaultReplsetPoll    = "5s"
 	DefaultReplsetTimeout = "3s"
 )

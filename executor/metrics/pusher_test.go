@@ -18,9 +18,9 @@ import (
 	"net"
 	"os"
 	"strconv"
-	gotesting "testing"
+	"testing"
 
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ var (
 	testServerStatus *mgostatsd.ServerStatus
 )
 
-func TestExecutorMetricsNewStatsdPusher(t *gotesting.T) {
+func TestExecutorMetricsNewStatsdPusher(t *testing.T) {
 	testStatsdPusher = NewStatsdPusher(mgostatsd.Statsd{
 		Host: testConfig.StatsdHost,
 		Port: testConfig.StatsdPort,
@@ -39,8 +39,8 @@ func TestExecutorMetricsNewStatsdPusher(t *gotesting.T) {
 	assert.False(t, testStatsdPusher.verbose, ".NewStatsdPusher() should return with a verbose set to false")
 }
 
-func TestExecutorMetricsPusherGetServerStatus(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestExecutorMetricsPusherGetServerStatus(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	var err error
 	testServerStatus, err = testStatsdPusher.GetServerStatus(testSession)
@@ -49,8 +49,8 @@ func TestExecutorMetricsPusherGetServerStatus(t *gotesting.T) {
 	assert.NotZero(t, testServerStatus.Uptime, ".GetServerStatus() should not return a ServerStatus struct with an Uptime greater than 1")
 }
 
-func TestExecutorMetricsPusherPush(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestExecutorMetricsPusherPush(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	addr, err := net.ResolveUDPAddr("udp", testConfig.StatsdHost+":"+strconv.Itoa(testConfig.StatsdPort))
 	if err != nil {
@@ -78,5 +78,5 @@ func TestExecutorMetricsPusherPush(t *gotesting.T) {
 
 	hostname, err := os.Hostname()
 	assert.NoError(t, testStatsdPusher.Push(testServerStatus), ".Push() should not return an error")
-	assert.Regexp(t, "^\\."+hostname+"-"+testing.MongodbPrimaryPort+"\\.connections.current:", string(<-data), ".Push() sent unexpected payload")
+	assert.Regexp(t, "^\\."+hostname+"-"+testutils.MongodbPrimaryPort+"\\.connections.current:", string(<-data), ".Push() sent unexpected payload")
 }

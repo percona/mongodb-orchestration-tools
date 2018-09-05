@@ -15,12 +15,12 @@
 package healthcheck
 
 import (
-	gotesting "testing"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHealthcheckExitCode(t *gotesting.T) {
+func TestHealthcheckExitCode(t *testing.T) {
 	assert.Equal(t, 0, State(0).ExitCode())
 	assert.Equal(t, 1, State(1).ExitCode())
 }

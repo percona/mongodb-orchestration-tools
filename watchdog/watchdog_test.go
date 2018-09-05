@@ -16,15 +16,14 @@ package watchdog
 
 import (
 	"os"
-	gotesting "testing"
+	"testing"
 	"time"
 
-	//"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/api/mocks"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/stretchr/testify/assert"
 )
@@ -34,8 +33,8 @@ var (
 	testQuitChan = make(chan bool)
 	testConfig   = &config.Config{
 		FrameworkName: "test",
-		Username:      testing.MongodbAdminUser,
-		Password:      testing.MongodbAdminPassword,
+		Username:      testutils.MongodbAdminUser,
+		Password:      testutils.MongodbAdminPassword,
 		APIPoll:       time.Millisecond * 100,
 		ReplsetPoll:   time.Millisecond * 100,
 		MetricsPort:   "65432",
@@ -44,39 +43,28 @@ var (
 	testAPIClient = &mocks.Client{}
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
 	os.Exit(m.Run())
 }
 
-func TestWatchdogNew(t *gotesting.T) {
+func TestWatchdogNew(t *testing.T) {
 	testWatchdog = New(testConfig, &testQuitChan, testAPIClient)
 	assert.NotNil(t, testWatchdog, ".New() returned nil")
 }
 
-func TestWatchdogDoIgnorePod(t *gotesting.T) {
+func TestWatchdogDoIgnorePod(t *testing.T) {
 	testConfig.IgnorePods = []string{"ignore-me"}
 	assert.True(t, testWatchdog.doIgnorePod("ignore-me"))
 	assert.False(t, testWatchdog.doIgnorePod("dont-ignore-me"))
 }
 
-func TestWatchdogRun(t *gotesting.T) {
+func TestWatchdogRun(t *testing.T) {
 	testAPIClient.On("GetPodURL").Return("http://test")
 	testAPIClient.On("GetPods").Return(&api.Pods{"test"}, nil)
 	testAPIClient.On("GetPodTasks", "test").Return([]api.PodTask{
 		&api.PodTaskHTTP{
-			Info: &api.PodTaskInfo{
-				//		Name: "test-mongod",
-				//		Command: &api.PodTaskCommand{
-				//		Environment: &api.PodTaskCommandEnvironment{
-				//		Variables: []*api.PodTaskCommandEnvironmentVariable{
-				//			{Name: common.EnvMongoDBPort, Value: testing.MongodbPrimaryPort},
-				//			{Name: common.EnvMongoDBReplset, Value: testing.MongodbReplsetName},
-				//		},
-				//	},
-				//	Value: "mongodb-executor-",
-				//},
-			},
+			Info: &api.PodTaskInfo{},
 		},
 	}, nil)
 

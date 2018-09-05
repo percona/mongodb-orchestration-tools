@@ -21,7 +21,7 @@ import (
 	"time"
 
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
-	"github.com/percona/dcos-mongo-tools/common/api"
+	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/percona/dcos-mongo-tools/watchdog/watcher"

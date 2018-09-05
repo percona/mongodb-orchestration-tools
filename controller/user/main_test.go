@@ -16,53 +16,51 @@ package user
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
-	gotesting "testing"
+	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
-	testDirRelPath                    = "./test"
-	testBase64BSONFile                = "mongodbUserChange.bson.b64"
-	testBase64BSONFileMalformedBase64 = "mongodbUserChange-malformed_b64.bson.b64"
-	testBase64BSONFileMalformedBSON   = "mongodbUserChange-malformed_bson.bson.b64"
+	testDirRelPath     = "./json/testdata"
+	testBase64JSONFile = "test-user.json.base64"
 )
 
 var (
-	testCheckSession   *mgo.Session
-	testController     *Controller
-	testLogBuffer      = new(bytes.Buffer)
-	testBase64BSONUser = &mgo.User{Username: "test123", Password: "123456", Roles: []mgo.Role{"root"}}
-	testSystemUsers    = []*mgo.User{
+	testSession     *mgo.Session
+	testController  *Controller
+	testLogBuffer   = new(bytes.Buffer)
+	testSystemUsers = []*mgo.User{
 		{Username: "testAdmin", Password: "123456", Roles: []mgo.Role{"root"}},
 	}
 	testControllerConfig = &controller.Config{
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
-			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64BSONFile)),
-			Username:        testBase64BSONUser.Username,
-			EndpointName:    common.DefaultMongoDBMongodEndpointName,
+			File:            internal.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
+			Username:        "prodapp",
+			EndpointName:    internal.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		FrameworkName:     common.DefaultFrameworkName,
-		Replset:           testing.MongodbReplsetName,
-		UserAdminUser:     testing.MongodbAdminUser,
-		UserAdminPassword: testing.MongodbAdminPassword,
+		FrameworkName:     internal.DefaultFrameworkName,
+		Replset:           testutils.MongodbReplsetName,
+		UserAdminUser:     testutils.MongodbAdminUser,
+		UserAdminPassword: testutils.MongodbAdminPassword,
 	}
 )
 
-func checkUserExists(session *mgo.Session, user, db string) bool {
+func checkUserExists(session *mgo.Session, user, db string) error {
 	resp := struct {
 		Username string `bson:"user"`
 		Database string `bson:"db"`
@@ -71,30 +69,33 @@ func checkUserExists(session *mgo.Session, user, db string) bool {
 		"user": user,
 		"db":   db,
 	}).One(&resp)
-	if err == nil && resp.Username == user && resp.Database == db {
-		return true
+	if err != nil {
+		return err
 	}
-	return false
+	if resp.Username != user || resp.Database != db {
+		return errors.New("user does not match")
+	}
+	return nil
 }
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 
-	if testing.Enabled() {
+	if testutils.Enabled() {
 		var err error
-		testCheckSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	defer func() {
-		if testCheckSession != nil {
-			testCheckSession.Close()
-		}
-		if testController != nil {
-			testController.Close()
-		}
-	}()
-	os.Exit(m.Run())
+	exit := m.Run()
+
+	if testSession != nil {
+		testSession.Close()
+	}
+	if testController != nil {
+		testController.Close()
+	}
+	os.Exit(exit)
 }

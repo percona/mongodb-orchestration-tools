@@ -15,18 +15,16 @@
 package user
 
 import (
-	"encoding/base64"
 	"errors"
-	"io/ioutil"
 
 	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 const (
 	RoleBackup         mgo.Role = "backup"
+	RoleRestore        mgo.Role = "restore"
 	RoleClusterAdmin   mgo.Role = mgo.RoleClusterAdmin
 	RoleClusterMonitor mgo.Role = "clusterMonitor"
 	RoleUserAdminAny   mgo.Role = mgo.RoleUserAdminAny
@@ -40,14 +38,15 @@ func UpdateUser(session pmgo.SessionManager, user *mgo.User, dbName string) erro
 	if user.Username == "" || user.Password == "" {
 		return errors.New("No username or password defined for user")
 	}
-	if len(user.Roles) <= 0 {
+	if len(user.Roles) < 1 && len(user.OtherDBRoles) < 1 {
 		return errors.New("No roles defined for user")
 	}
 
 	log.WithFields(log.Fields{
-		"user":  user.Username,
-		"roles": user.Roles,
-		"db":    dbName,
+		"user":         user.Username,
+		"roles":        user.Roles,
+		"otherDBRoles": user.OtherDBRoles,
+		"db":           dbName,
 	}).Info("Adding/updating MongoDB user")
 
 	return session.DB(dbName).UpsertUser(user)
@@ -71,26 +70,6 @@ func removeUser(session pmgo.SessionManager, username, db string) error {
 		return nil
 	}
 	return err
-}
-
-func loadFromBase64BSONFile(file string) (*UserChangeData, error) {
-	payload := &UserChangeData{}
-
-	log.Infof("Loading mongodb user(s) from file %s", file)
-
-	bytes, err := ioutil.ReadFile(file)
-	if err != nil {
-		return payload, err
-	}
-
-	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(bytes)))
-	_, err = base64.StdEncoding.Decode(decoded, bytes)
-	if err != nil {
-		return payload, err
-	}
-
-	err = bson.Unmarshal(decoded, payload)
-	return payload, err
 }
 
 func isSystemUser(username, db string) bool {

@@ -19,10 +19,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/tool"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/tool"
 	"github.com/percona/dcos-mongo-tools/watchdog"
 	config "github.com/percona/dcos-mongo-tools/watchdog/config"
 	log "github.com/sirupsen/logrus"
@@ -44,20 +44,20 @@ func main() {
 	}
 	app.Flag(
 		"framework",
-		"API framework name, this flag or env var "+common.EnvFrameworkName+" is required",
-	).Default(common.DefaultFrameworkName).Envar(common.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+		"API framework name, this flag or env var "+internal.EnvFrameworkName+" is required",
+	).Default(internal.DefaultFrameworkName).Envar(internal.EnvFrameworkName).StringVar(&cnf.FrameworkName)
 	app.Flag(
 		"username",
-		"MongoDB clusterAdmin username, this flag or env var "+common.EnvMongoDBClusterAdminUser+" is required",
-	).Envar(common.EnvMongoDBClusterAdminUser).Required().StringVar(&cnf.Username)
+		"MongoDB clusterAdmin username, this flag or env var "+internal.EnvMongoDBClusterAdminUser+" is required",
+	).Envar(internal.EnvMongoDBClusterAdminUser).Required().StringVar(&cnf.Username)
 	app.Flag(
 		"password",
-		"MongoDB clusterAdmin password, this flag or env var "+common.EnvMongoDBClusterAdminPassword+" is required",
-	).Envar(common.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
-	app.Flag(
-		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
+		"MongoDB clusterAdmin password, this flag or env var "+internal.EnvMongoDBClusterAdminPassword+" is required",
+	).Envar(internal.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
+	//app.Flag(
+	//	"enableSecrets",
+	//	"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
+	//).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
 	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
@@ -80,16 +80,16 @@ func main() {
 	).Default(config.DefaultReplsetTimeout).Envar("WATCHDOG_REPLSET_TIMEOUT").DurationVar(&cnf.ReplsetTimeout)
 	app.Flag(
 		"apiHost",
-		"DC/OS SDK API hostname, overridden by env var "+common.EnvSchedulerAPIHost,
-	).Default(api.DefaultSchedulerHost).Envar(common.EnvSchedulerAPIHost).StringVar(&cnf.API.Host)
+		"DC/OS SDK API hostname, overridden by env var "+internal.EnvSchedulerAPIHost,
+	).Default(api.DefaultSchedulerHost).Envar(internal.EnvSchedulerAPIHost).StringVar(&cnf.API.Host)
 	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
 	).BoolVar(&cnf.API.Secure)
 	app.Flag(
 		"metricsPort",
-		"Prometheus Metrics listen port, overridden by env var "+common.EnvWatchdogMetricsPort,
-	).Default(watchdog.DefaultMetricsPort).Envar(common.EnvWatchdogMetricsPort).StringVar(&cnf.MetricsPort)
+		"Prometheus Metrics listen port, overridden by env var "+internal.EnvWatchdogMetricsPort,
+	).Default(watchdog.DefaultMetricsPort).Envar(internal.EnvWatchdogMetricsPort).StringVar(&cnf.MetricsPort)
 
 	cnf.SSL = db.NewSSLConfig(app)
 
@@ -97,13 +97,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
-	if enableSecrets {
-		cnf.Password = common.PasswordFromFile(
-			os.Getenv(common.EnvMesosSandbox),
-			cnf.Password,
-			"userAdmin",
-		)
-	}
+	//if enableSecrets {
+	//	cnf.Password = internal.PasswordFromFile(
+	//		os.Getenv(internal.EnvMesosSandbox),
+	//		cnf.Password,
+	//		"userAdmin",
+	//	)
+	//}
 
 	quit := make(chan bool)
 	watchdog.New(cnf, &quit, api.New(
