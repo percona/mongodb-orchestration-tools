@@ -134,13 +134,13 @@ func (c *Command) Run() error {
 
 func (c *Command) Wait() (*os.ProcessState, error) {
 	if c.IsRunning() {
-		c.Lock()
-		defer c.Unlock()
-
 		state, err := c.command.Process.Wait()
 		if err != nil {
 			return nil, err
 		}
+
+		c.Lock()
+		defer c.Unlock()
 		c.running = !state.Exited()
 		return state, nil
 	}
@@ -161,6 +161,5 @@ func (c *Command) Kill() error {
 	}
 	c.running = false
 
-	_, err = c.command.Process.Wait()
 	return err
 }

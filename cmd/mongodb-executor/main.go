@@ -191,26 +191,25 @@ func main() {
 		)
 	}
 
-	var daemon executor.Daemon
-	quit := make(chan bool)
+	quit := make(chan bool, 1)
 	e := executor.New(cnf, &quit)
+
+	var daemon executor.Daemon
+	daemonState := make(chan *os.ProcessState, 1)
 
 	switch cnf.NodeType {
 	case config.NodeTypeMongod:
-		daemon = mongodb.NewMongod(cnf.MongoDB, &quit)
+		daemon = mongodb.NewMongod(cnf.MongoDB, daemonState)
 	case config.NodeTypeMongos:
-		log.Error("mongos nodes are not supported yet!")
-		return
+		log.Fatalf("mongos nodes are not supported yet!")
 	default:
-		log.Error("did not start anything, this is unexpected")
-		return
+		log.Fatalf("did not start anything, this is unexpected")
 	}
 
 	// start the daemon
 	err = e.Run(daemon)
 	if err != nil {
-		log.Errorf("Failed to start %s daemon: %s", daemon.Name(), err)
-		return
+		log.Fatalf("Failed to start %s daemon: %s", daemon.Name(), err)
 	}
 
 	// wait for Daemon to become available
@@ -220,8 +219,7 @@ func main() {
 		cnf.ConnectRetrySleep,
 	)
 	if err != nil {
-		log.Errorf("Error creating db session: %s", err.Error())
-		return
+		log.Fatalf("Error creating db session: %s", err.Error())
 	}
 	defer session.Close()
 
@@ -232,14 +230,24 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
+	// wait for OS signal or daemonState (*os.ProcessState from daemon process)
 	select {
-	case <-quit:
-		log.Infof("Received quit signal from daemon")
-		return
-	case sig := <-signals:
-		log.Infof("Received %s signal, killing %s daemon and jobs", sig, cnf.NodeType)
-		// send quit to all goroutines
+	case state := <-daemonState:
 		quit <- true
-		return
+
+		logFields := log.Fields{
+			"success": state.Success(),
+			"exited":  state.Exited(),
+		}
+
+		if state.String() == "exit status 0" {
+			log.WithFields(logFields).Infof("%s cleanly exited with status: %s", daemon.Name(), state.String())
+			os.Exit(0)
+		}
+
+		log.WithFields(logFields).Fatalf("Unexpected die/exit from %s with status: %s", daemon.Name(), state.String())
+	case sig := <-signals:
+		quit <- true
+		log.Infof("Received %s signal, killing %s daemon and jobs", sig, daemon.Name())
 	}
 }

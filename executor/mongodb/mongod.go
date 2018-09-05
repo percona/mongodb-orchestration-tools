@@ -53,15 +53,15 @@ type Mongod struct {
 	configFile string
 	commandBin string
 	command    *command.Command
-	quit       *chan bool
+	procState  chan *os.ProcessState
 }
 
-func NewMongod(config *Config, quit *chan bool) *Mongod {
+func NewMongod(config *Config, procState chan *os.ProcessState) *Mongod {
 	return &Mongod{
 		config:     config,
 		configFile: filepath.Join(config.ConfigDir, "mongod.conf"),
 		commandBin: filepath.Join(config.BinDir, "mongod"),
-		quit:       quit,
+		procState:  procState,
 	}
 }
 
@@ -79,6 +79,18 @@ func (m *Mongod) getWiredTigerCacheSizeGB() float64 {
 		sizeGB = minWiredTigerCacheSizeGB
 	}
 	return sizeGB
+}
+
+// monitorMongodCommand() waits for the mongod command to be killed or exit,
+// returning the *os.ProcessState of the completed process over the procState
+// channel
+func (m *Mongod) monitorMongodCommand() {
+	state, err := m.command.Wait()
+	if err != nil {
+		log.Errorf("Error receiving mongod exit-state: %s", err)
+		return
+	}
+	m.procState <- state
 }
 
 func (m *Mongod) Name() string {
@@ -202,21 +214,7 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	go func() {
-		state, err := m.command.Wait()
-		if err != nil {
-			log.Errorf("Error watching mongod: %s", err)
-		}
-		if state.Exited() {
-			if state.Success() {
-				log.Info("Received exit from mongod")
-			} else {
-				log.Error("Received unexpected exit from mongod")
-			}
-			*m.quit <- true
-		}
-	}()
-
+	go m.monitorMongodCommand()
 	return nil
 }
 
