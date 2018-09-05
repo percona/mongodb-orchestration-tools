@@ -144,7 +144,7 @@ func (uc *Controller) UpdateUsers() error {
 			log.WithError(err).Errorf("Cannot parse user %s", uc.config.User.Username)
 			return err
 		}
-		err = UpdateUser(uc.session, mgoUpdateUser, uc.config.User.Database)
+		err = UpdateUser(uc.sessionManager, mgoUpdateUser, uc.config.User.Database)
 		if err != nil {
 			log.WithError(err).Errorf("Cannot update user %s", uc.config.User.Username)
 			return err
