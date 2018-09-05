@@ -9,7 +9,6 @@ matrix:
   allow_failures:
     - go: master
 env:
-  - PSMDB_VERSION=3.4
   - PSMDB_VERSION=3.6
 services:
   - docker
