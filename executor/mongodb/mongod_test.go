@@ -94,11 +94,11 @@ func TestExecutorMongoDBMkdir(t *testing.T) {
 	assert.True(t, stat.IsDir())
 }
 
-func TestExecutorMongoDBIsStarted(t *gotesting.T) {
+func TestExecutorMongoDBIsStarted(t *testing.T) {
 	assert.False(t, testMongod.IsStarted())
 }
 
-func TestExecutorMongoDBStart(t *gotesting.T) {
+func TestExecutorMongoDBStart(t *testing.T) {
 	if os.Getenv("TEST_EXECUTOR_MONGODB") != "true" {
 		t.Logf("Skipping test because TEST_EXECUTOR_MONGODB is not 'true'")
 		return
@@ -146,7 +146,8 @@ func TestExecutorMongoDBStart(t *gotesting.T) {
 	}
 	assert.NoError(t, config.Write(testConfig.ConfigDir+"/mongod.conf"))
 
-	testMongod = NewMongod(testConfig)
+	testStateChan := make(chan *os.ProcessState)
+	testMongod = NewMongod(testConfig, testStateChan)
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
 	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
 

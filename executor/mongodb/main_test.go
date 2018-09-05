@@ -16,12 +16,12 @@ package mongodb
 
 import (
 	"os"
-	gotesting "testing"
+	"testing"
 
-	"github.com/percona/dcos-mongo-tools/common/logger"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
 	os.Exit(m.Run())
 }
