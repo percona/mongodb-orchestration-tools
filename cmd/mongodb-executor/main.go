@@ -191,28 +191,25 @@ func main() {
 		)
 	}
 
-	quit := make(chan bool)
+	quit := make(chan bool, 1)
 	e := executor.New(cnf, &quit)
 
 	var daemon executor.Daemon
-	daemonState := make(chan *os.ProcessState)
+	daemonState := make(chan *os.ProcessState, 1)
 
 	switch cnf.NodeType {
 	case config.NodeTypeMongod:
 		daemon = mongodb.NewMongod(cnf.MongoDB, daemonState)
 	case config.NodeTypeMongos:
-		log.Error("mongos nodes are not supported yet!")
-		return
+		log.Fatalf("mongos nodes are not supported yet!")
 	default:
-		log.Error("did not start anything, this is unexpected")
-		return
+		log.Fatalf("did not start anything, this is unexpected")
 	}
 
 	// start the daemon
 	err = e.Run(daemon)
 	if err != nil {
-		log.Errorf("Failed to start %s daemon: %s", daemon.Name(), err)
-		return
+		log.Fatalf("Failed to start %s daemon: %s", daemon.Name(), err)
 	}
 
 	// wait for Daemon to become available
@@ -222,8 +219,7 @@ func main() {
 		cnf.ConnectRetrySleep,
 	)
 	if err != nil {
-		log.Errorf("Error creating db session: %s", err.Error())
-		return
+		log.Fatalf("Error creating db session: %s", err.Error())
 	}
 	defer session.Close()
 
@@ -238,19 +234,20 @@ func main() {
 	select {
 	case state := <-daemonState:
 		quit <- true
-		if stateSys, ok := state.Sys().(syscall.WaitStatus); ok {
-			exitCode := stateSys.ExitStatus()
-			log.WithFields(log.Fields{
-				"success": state.Success(),
-				"exited":  state.Exited(),
-			}).Infof("%s daemon exited with return code %d", daemon.Name(), exitCode)
-			if exitCode >= 0 {
-				os.Exit(exitCode)
-			}
+
+		logFields := log.Fields{
+			"success": state.Success(),
+			"exited":  state.Exited(),
 		}
+
+		if state.String() == "exit status 0" {
+			log.WithFields(logFields).Infof("%s cleanly exited with status: %s", daemon.Name(), state.String())
+			os.Exit(0)
+		}
+
+		log.WithFields(logFields).Fatalf("Unexpected die/exit from %s with status: %s", daemon.Name(), state.String())
 	case sig := <-signals:
 		quit <- true
 		log.Infof("Received %s signal, killing %s daemon and jobs", sig, daemon.Name())
 	}
-	os.Exit(1)
 }
