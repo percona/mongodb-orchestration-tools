@@ -81,6 +81,25 @@ func (m *Mongod) getWiredTigerCacheSizeGB() float64 {
 	return sizeGB
 }
 
+// monitorMongodCommand() waits for the mongod command to be killed or exit,
+// returning the *os.ProcessState of the completed process over the procState
+// channel
+func (m *Mongod) monitorMongodCommand() {
+	// REMOVEME
+	log.Info("Starting mongod monitor")
+
+	state, err := m.command.Wait()
+	if err != nil {
+		log.Errorf("Error receiving mongod exit-state: %s", err)
+		return
+	}
+
+	// REMOVEME
+	log.Infof("Received exit/kill from mongod: %v", state)
+
+	m.procState <- state
+}
+
 func (m *Mongod) Name() string {
 	return "mongod"
 }
@@ -202,14 +221,7 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	go func() {
-		state, err := m.command.Wait()
-		if err != nil {
-			log.Errorf("Error receiving mongod exit-state: %s", err)
-		}
-		m.procState <- state
-	}()
-
+	go m.monitorMongodCommand()
 	return nil
 }
 
