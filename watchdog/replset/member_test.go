@@ -16,41 +16,41 @@ package replset
 
 import (
 	"strconv"
-	gotesting "testing"
+	"testing"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/api/mocks"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
 // This test needs a mock of common/api PodTask
-func TestWatchdogReplsetNewMongod(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetNewMongod(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	apiTask := &mocks.PodTask{}
-	apiTask.On("GetMongoHostname", common.DefaultFrameworkName).Return("test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
-	apiTask.On("GetMongoPort").Return(strconv.Atoi(testing.MongodbPrimaryPort))
-	apiTask.On("GetMongoReplsetName").Return(testing.MongodbReplsetName, nil)
+	apiTask.On("GetMongoHostname", internal.DefaultFrameworkName).Return("test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
+	apiTask.On("GetMongoPort").Return(strconv.Atoi(testutils.MongodbPrimaryPort))
+	apiTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
-	testMongod, err = NewMongod(apiTask, common.DefaultFrameworkName, "mongo-"+testing.MongodbReplsetName)
+	testMongod, err = NewMongod(apiTask, internal.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }
 
-func TestWatchdogReplsetMongodName(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetMongodName(t *testing.T) {
+	testutils.DoSkipTest(t)
 
-	expected := "test." + common.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testing.MongodbPrimaryPort
+	expected := "test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testutils.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 
-func TestWatchdogReplsetMongodIsBackupNode(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetMongodIsBackupNode(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.False(t, testMongod.IsBackupNode(), "mongod.IsBackupNode() should be false")
 	mongod := &Mongod{
@@ -61,8 +61,8 @@ func TestWatchdogReplsetMongodIsBackupNode(t *gotesting.T) {
 	assert.True(t, mongod.IsBackupNode(), "mongod.IsBackupNode() should be true")
 }
 
-func TestWatchdogReplsetMongodDBConfig(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestWatchdogReplsetMongodDBConfig(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	sslConfig := &db.SSLConfig{}
 	assert.Equal(t, testMongod.DBConfig(sslConfig), &db.Config{

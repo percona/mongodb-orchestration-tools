@@ -17,11 +17,11 @@ package metrics
 import (
 	"bytes"
 	"os"
-	gotesting "testing"
+	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"gopkg.in/mgo.v2"
 )
@@ -40,12 +40,12 @@ var (
 	}
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 
-	if testing.Enabled() {
+	if testutils.Enabled() {
 		var err error
-		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}

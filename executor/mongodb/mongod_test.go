@@ -20,7 +20,7 @@ import (
 	"os"
 	"os/user"
 	"strconv"
-	gotesting "testing"
+	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -40,14 +40,37 @@ var (
 	}
 )
 
-func TestExecutorMongoDBNewMongod(t *gotesting.T) {
-	testMongod = NewMongod(testConfig)
+func TestExecutorMongoDBNewMongod(t *testing.T) {
+	testStateChan := make(chan *os.ProcessState)
+	testMongod = NewMongod(testConfig, testStateChan)
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
 	assert.Contains(t, testMongod.commandBin, testConfig.BinDir)
 	assert.Contains(t, testMongod.configFile, testConfig.ConfigDir)
 }
 
-func TestExecutorMongoDBMkdir(t *gotesting.T) {
+// Test .getWiredTigerCacheSizeGB() mimics the cache-sizing logic described in the documentation:
+// https://docs.mongodb.com/manual/reference/configuration-options/#storage.wiredTiger.engineConfig.cacheSizeGB
+func TestExecutorMongoDBGetWiredTigerCacheSizeGB(t *testing.T) {
+	mongod := &Mongod{
+		config: &Config{
+			WiredTigerCacheRatio: 0.5,
+		},
+	}
+
+	mongod.config.TotalMemoryMB = 1024
+	assert.Equal(t, minWiredTigerCacheSizeGB, mongod.getWiredTigerCacheSizeGB())
+
+	mongod.config.TotalMemoryMB = 4 * 1024
+	assert.Equal(t, 1.5, mongod.getWiredTigerCacheSizeGB())
+
+	mongod.config.TotalMemoryMB = 64 * 1024
+	assert.Equal(t, 31.5, mongod.getWiredTigerCacheSizeGB())
+
+	mongod.config.TotalMemoryMB = 128 * 1024
+	assert.Equal(t, 63.5, mongod.getWiredTigerCacheSizeGB())
+}
+
+func TestExecutorMongoDBMkdir(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "TestExecutorMongoDBMkdir")
 	os.RemoveAll(dir)
 	if _, err := os.Stat(dir); err == nil {

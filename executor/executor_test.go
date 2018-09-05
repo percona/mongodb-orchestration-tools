@@ -15,7 +15,7 @@
 package executor
 
 import (
-	gotesting "testing"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -41,12 +41,12 @@ func (d *MockDaemon) Kill() error {
 	return nil
 }
 
-func TestExecutorNew(t *gotesting.T) {
+func TestExecutorNew(t *testing.T) {
 	testExecutor = New(testExecutorConfig, &testQuitChan)
 	assert.NotNil(t, testExecutor, ".New() should not return nil")
 }
 
-func TestExecutorRun(t *gotesting.T) {
+func TestExecutorRun(t *testing.T) {
 	testExecutorDaemon = &MockDaemon{}
 	err := testExecutor.Run(testExecutorDaemon)
 	assert.NoError(t, err, ".Run() should not return an error")

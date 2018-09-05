@@ -1,40 +1,32 @@
 package: github.com/percona/dcos-mongo-tools
 import:
 - package: github.com/sirupsen/logrus
+  version: ~v1.0.6
 - package: github.com/Robpol86/logrus-custom-formatter
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
+- package: github.com/alecthomas/kingpin
+  version: ~v2.2.6
 - package: gopkg.in/mgo.v2
   subpackages:
   - bson
 - package: github.com/timvaillancourt/go-mongodb-replset
+  version: ~0.2.0
   subpackages:
   - config
   - status
 - package: github.com/timvaillancourt/go-mongodb-config
+  version: ~0.2.0
   subpackages:
   - config
-- package: github.com/alecthomas/kingpin
+- package: github.com/prometheus/client_golang
+  version: ~0.8.0
 - package: github.com/scullxbones/mgo-statsd
   subpackages:
   - .
-- package: github.com/percona/pmgo
 - package: github.com/valyala/fasthttp
-- package: github.com/klauspost/compress
-  subpackages:
-  - flate
-  - gzip
-  - zlib
-- package: github.com/valyala/bytebufferpool
-- package: github.com/prometheus/client_golang
-  subpackages:
-  - prometheus/promhttp
-  - prometheus
+  version: ~20180529.0.0
+- package: github.com/percona/pmgo
+  version: ~0.5.2
 testImport:
-- package: github.com/mitchellh/go-ps
 - package: github.com/stretchr/testify
-  subpackages:
-  - assert
-  - mock
-- package: github.com/golang/mock
-  subpackages:
-  - gomock
+- package: github.com/mitchellh/go-ps

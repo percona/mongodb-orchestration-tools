@@ -16,18 +16,18 @@ package healthcheck
 
 import (
 	"os"
-	gotesting "testing"
+	"testing"
 
-	testing "github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
 )
 
 var testDBSession *mgo.Session
 
-func TestMain(m *gotesting.M) {
-	if testing.Enabled() {
+func TestMain(m *testing.M) {
+	if testutils.Enabled() {
 		var err error
-		testDBSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testDBSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}

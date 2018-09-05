@@ -18,13 +18,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 
 	"gopkg.in/mgo.v2"
 )
 
 const (
-	adminDB = "admin"
+	adminDB     = "admin"
+	htmlDocsURL = "https://docs.mesosphere.com/services/percona-server-mongodb/"
 )
 
 type Role struct {
@@ -63,13 +65,28 @@ func (user *User) Validate(db string) error {
 	return nil
 }
 
+func unmarshalJSON(bytes []byte, out interface{}) error {
+	err := json.Unmarshal(bytes, out)
+	if err != nil {
+		switch err.(type) {
+		case *json.SyntaxError:
+			return fmt.Errorf(
+				"user json file syntax error (see %s): %v\n",
+				htmlDocsURL,
+				err,
+			)
+		}
+	}
+	return err
+}
+
 func NewFromFile(file string) (*User, error) {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
 	user := &User{}
-	err = json.Unmarshal(bytes, user)
+	err = unmarshalJSON(bytes, user)
 	return user, err
 }
 
@@ -80,14 +97,14 @@ func NewFromCLIPayloadFile(file string) ([]*User, error) {
 	}
 
 	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(bytes)))
-	_, err = base64.StdEncoding.Decode(decoded, bytes)
+	decodedLen, err := base64.StdEncoding.Decode(decoded, bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	user := &CLIPayload{}
-	err = json.Unmarshal(decoded, user)
-	return user.Users, err
+	payload := &CLIPayload{}
+	err = unmarshalJSON(decoded[:decodedLen], payload)
+	return payload.Users, err
 }
 
 func (user *User) ToMgoUser(db string) (*mgo.User, error) {

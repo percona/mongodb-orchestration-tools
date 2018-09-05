@@ -15,20 +15,20 @@
 package user
 
 import (
-	gotesting "testing"
+	"testing"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/api/mocks"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
-func TestControllerUserNew(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserNew(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	mockAPI := &mocks.Client{}
-	mockAPI.On("GetEndpoint", common.DefaultMongoDBMongodEndpointName).Return(testing.GetMongoPortAPIEndpoint(), nil)
+	mockAPI.On("GetEndpoint", internal.DefaultMongoDBMongodEndpointName).Return(testutils.GetMongoPortAPIEndpoint(), nil)
 
 	var err error
 	testController, err = NewController(testControllerConfig, mockAPI)
@@ -39,8 +39,8 @@ func TestControllerUserNew(t *gotesting.T) {
 	assert.Equal(t, mgo.Primary, testController.session.Mode(), ".NewController() should return a Controller with a session that is in mgo.Primary mode")
 }
 
-func TestControllerUserControllerUpdateUsers(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserControllerUpdateUsers(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.Error(
 		t,
@@ -55,8 +55,8 @@ func TestControllerUserControllerUpdateUsers(t *gotesting.T) {
 	)
 }
 
-func TestControllerUserControllerRemoveUser(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserControllerRemoveUser(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	assert.NoError(t, testController.RemoveUser(), ".RemoveUser() should not return an error")
 	assert.Error(
@@ -66,8 +66,8 @@ func TestControllerUserControllerRemoveUser(t *gotesting.T) {
 	)
 }
 
-func TestControllerUserControllerReloadSystemUsers(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserControllerReloadSystemUsers(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	for _, user := range testSystemUsers {
 		assert.Error(
@@ -95,8 +95,8 @@ func TestControllerUserControllerReloadSystemUsers(t *gotesting.T) {
 	}
 }
 
-func TestControllerUserControllerClose(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserControllerClose(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	testController.Close()
 	assert.Nil(t, testController.session, "Controller session should not nil after .Close()")

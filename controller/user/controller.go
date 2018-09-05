@@ -17,8 +17,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/api"
-	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	user_json "github.com/percona/dcos-mongo-tools/controller/user/json"
 	log "github.com/sirupsen/logrus"

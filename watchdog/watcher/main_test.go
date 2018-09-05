@@ -16,12 +16,12 @@ package watcher
 
 import (
 	"os"
-	gotesting "testing"
+	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 )
@@ -29,17 +29,17 @@ import (
 var (
 	testManager *WatcherManager
 	testConfig  = &config.Config{
-		Username:    testing.MongodbAdminUser,
-		Password:    testing.MongodbAdminPassword,
+		Username:    testutils.MongodbAdminUser,
+		Password:    testutils.MongodbAdminPassword,
 		ReplsetPoll: 350 * time.Millisecond,
 		SSL:         &db.SSLConfig{},
 	}
 	testStopChan = make(chan bool)
-	testWatchRs  = replset.New(testConfig, testing.MongodbReplsetName)
-	rsName       = testing.MongodbReplsetName
+	testWatchRs  = replset.New(testConfig, testutils.MongodbReplsetName)
+	rsName       = testutils.MongodbReplsetName
 )
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
 	os.Exit(m.Run())
 }

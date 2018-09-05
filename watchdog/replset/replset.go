@@ -17,7 +17,7 @@ package replset
 import (
 	"sync"
 
-	"github.com/percona/dcos-mongo-tools/common/db"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"gopkg.in/mgo.v2"
 )

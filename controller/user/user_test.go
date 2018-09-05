@@ -15,22 +15,22 @@
 package user
 
 import (
-	gotesting "testing"
+	"testing"
 
-	"github.com/percona/dcos-mongo-tools/common/testing"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
-func TestControllerUserIsSystemUser(t *gotesting.T) {
+func TestControllerUserIsSystemUser(t *testing.T) {
 	SystemUsernames = []string{"admin"}
 	assert.True(t, isSystemUser("admin", SystemUserDatabase))
 	assert.False(t, isSystemUser("notadmin", SystemUserDatabase))
 	assert.False(t, isSystemUser(SystemUsernames[0], "test"))
 }
 
-func TestControllerUserUpdateUser(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserUpdateUser(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	// TODO: use mock of pmgo.SessionManager
 	// ensure fixes for https://github.com/mesosphere/dcos-mongo/issues/218
@@ -62,8 +62,8 @@ func TestControllerUserUpdateUser(t *gotesting.T) {
 	RemoveUser(testSession, "testUserUpdate", "admin")
 }
 
-func TestControllerUserRemoveUser(t *gotesting.T) {
-	testing.DoSkipTest(t)
+func TestControllerUserRemoveUser(t *testing.T) {
+	testutils.DoSkipTest(t)
 
 	// valid user
 	assert.NoError(t, UpdateUser(testSession, &mgo.User{

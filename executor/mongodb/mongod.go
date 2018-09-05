@@ -16,37 +16,24 @@ package mongodb
 
 import (
 	"errors"
+	"math"
 	"os"
 	"os/user"
 	"path/filepath"
 	"sync"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/command"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/command"
 	log "github.com/sirupsen/logrus"
 	mongoConfig "github.com/timvaillancourt/go-mongodb-config/config"
 )
 
 const (
-	DefaultDirMode = os.FileMode(0700)
-	DefaultKeyMode = os.FileMode(0400)
+	DefaultDirMode                = os.FileMode(0700)
+	DefaultKeyMode                = os.FileMode(0400)
+	minWiredTigerCacheSizeGB      = 0.25
+	gigaByte                 uint = 1024 * 1024 * 1024
 )
-
-type Mongod struct {
-	sync.Mutex
-	config     *Config
-	configFile string
-	commandBin string
-	command    *command.Command
-}
-
-func NewMongod(config *Config) *Mongod {
-	return &Mongod{
-		config:     config,
-		configFile: filepath.Join(config.ConfigDir, "mongod.conf"),
-		commandBin: filepath.Join(config.BinDir, "mongod2"),
-	}
-}
 
 func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 	if _, err := os.Stat(path); err != nil {
@@ -62,18 +49,64 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 	return nil
 }
 
+type Mongod struct {
+	sync.Mutex
+	config     *Config
+	configFile string
+	commandBin string
+	command    *command.Command
+	procState  chan *os.ProcessState
+}
+
+func NewMongod(config *Config, procState chan *os.ProcessState) *Mongod {
+	return &Mongod{
+		config:     config,
+		configFile: filepath.Join(config.ConfigDir, "mongod.conf"),
+		commandBin: filepath.Join(config.BinDir, "mongod"),
+		procState:  procState,
+	}
+}
+
+// The WiredTiger internal cache, by default, will use the larger of either 50% of
+// (RAM - 1 GB), or 256 MB. For example, on a system with a total of 4GB of RAM the
+// WiredTiger cache will use 1.5GB of RAM (0.5 * (4 GB - 1 GB) = 1.5 GB).
+//
+// https://docs.mongodb.com/manual/reference/configuration-options/#storage.wiredTiger.engineConfig.cacheSizeGB
+//
+func (m *Mongod) getWiredTigerCacheSizeGB() float64 {
+	limitBytes := m.config.TotalMemoryMB * 1024 * 1024
+	size := math.Floor(m.config.WiredTigerCacheRatio * float64(limitBytes-gigaByte))
+	sizeGB := size / float64(gigaByte)
+	if sizeGB < minWiredTigerCacheSizeGB {
+		sizeGB = minWiredTigerCacheSizeGB
+	}
+	return sizeGB
+}
+
+// monitorMongodCommand() waits for the mongod command to be killed or exit,
+// returning the *os.ProcessState of the completed process over the procState
+// channel
+func (m *Mongod) monitorMongodCommand() {
+	state, err := m.command.Wait()
+	if err != nil {
+		log.Errorf("Error receiving mongod exit-state: %s", err)
+		return
+	}
+	m.procState <- state
+}
+
 func (m *Mongod) Name() string {
 	return "mongod"
 }
 
 func (m *Mongod) Initiate() error {
-	uid, err := common.GetUserID(m.config.User)
+	uid, err := internal.GetUserID(m.config.User)
 	if err != nil {
 		log.Errorf("Could not get user %s UID: %s\n", m.config.User, err)
 		return err
 	}
 
-	gid, err := common.GetGroupID(m.config.Group)
+	gid, err := internal.GetGroupID(m.config.Group)
 	if err != nil {
 		log.Errorf("Could not get group %s GID: %s\n", m.config.Group, err)
 		return err
@@ -89,6 +122,28 @@ func (m *Mongod) Initiate() error {
 	}
 	if config.Security == nil || config.Security.KeyFile == "" || config.Storage == nil || config.Storage.DbPath == "" {
 		return errors.New("mongodb config file is not valid, must have security.keyFile and storage.dbPath defined!")
+	}
+
+	if config.Storage.Engine == "wiredTiger" {
+		cacheSizeGB := m.getWiredTigerCacheSizeGB()
+		log.WithFields(log.Fields{
+			"size_gb": cacheSizeGB,
+			"ratio":   m.config.WiredTigerCacheRatio,
+		}).Infof("Setting WiredTiger cache size")
+
+		if config.Storage.WiredTiger == nil {
+			config.Storage.WiredTiger = &mongoConfig.StorageWiredTiger{}
+		}
+		if config.Storage.WiredTiger.EngineConfig == nil {
+			config.Storage.WiredTiger.EngineConfig = &mongoConfig.StorageWiredTigerEngineConfig{}
+		}
+		config.Storage.WiredTiger.EngineConfig.CacheSizeGB = cacheSizeGB
+
+		err = config.Write(m.configFile)
+		if err != nil {
+			log.Errorf("Error writing new mongodb configuration: %s", err)
+			return err
+		}
 	}
 
 	log.WithFields(log.Fields{
@@ -159,7 +214,13 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	return m.command.Start()
+	err = m.command.Start()
+	if err != nil {
+		return err
+	}
+
+	go m.monitorMongodCommand()
+	return nil
 }
 
 func (m *Mongod) Wait() {

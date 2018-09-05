@@ -19,20 +19,20 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	gotesting "testing"
+	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/logger"
-	"github.com/percona/dcos-mongo-tools/common/testing"
 	"github.com/percona/dcos-mongo-tools/controller"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
-	testDirRelPath     = "./json/test"
+	testDirRelPath     = "./json/testdata"
 	testBase64JSONFile = "test-user.json.base64"
 )
 
@@ -47,16 +47,16 @@ var (
 		SSL: &db.SSLConfig{},
 		User: &controller.ConfigUser{
 			Database:        SystemUserDatabase,
-			File:            common.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
+			File:            internal.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
 			Username:        "prodapp",
-			EndpointName:    common.DefaultMongoDBMongodEndpointName,
+			EndpointName:    internal.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		FrameworkName:     common.DefaultFrameworkName,
-		Replset:           testing.MongodbReplsetName,
-		UserAdminUser:     testing.MongodbAdminUser,
-		UserAdminPassword: testing.MongodbAdminPassword,
+		FrameworkName:     internal.DefaultFrameworkName,
+		Replset:           testutils.MongodbReplsetName,
+		UserAdminUser:     testutils.MongodbAdminUser,
+		UserAdminPassword: testutils.MongodbAdminPassword,
 	}
 )
 
@@ -78,12 +78,12 @@ func checkUserExists(session *mgo.Session, user, db string) error {
 	return nil
 }
 
-func TestMain(m *gotesting.M) {
+func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
 
-	if testing.Enabled() {
+	if testutils.Enabled() {
 		var err error
-		testSession, err = testing.GetSession(testing.MongodbPrimaryPort)
+		testSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
 		if err != nil {
 			panic(err)
 		}

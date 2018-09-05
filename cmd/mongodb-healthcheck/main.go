@@ -17,10 +17,10 @@ package main
 import (
 	"os"
 
-	"github.com/percona/dcos-mongo-tools/common"
-	"github.com/percona/dcos-mongo-tools/common/db"
-	"github.com/percona/dcos-mongo-tools/common/tool"
 	"github.com/percona/dcos-mongo-tools/healthcheck"
+	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/tool"
 	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 )
@@ -35,15 +35,15 @@ func main() {
 	app, _ := tool.New("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
 	app.Flag(
 		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+common.EnvSecretsEnabled,
-	).Envar(common.EnvSecretsEnabled).BoolVar(&enableSecrets)
+		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
+	).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	health := app.Command("health", "Run DCOS health check")
 	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
 	cnf := db.NewConfig(
 		app,
-		common.EnvMongoDBClusterMonitorUser,
-		common.EnvMongoDBClusterMonitorPassword,
+		internal.EnvMongoDBClusterMonitorUser,
+		internal.EnvMongoDBClusterMonitorPassword,
 	)
 
 	command, err := app.Parse(os.Args[1:])
@@ -51,8 +51,8 @@ func main() {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
 	if enableSecrets {
-		cnf.DialInfo.Password = common.PasswordFromFile(
-			os.Getenv(common.EnvMesosSandbox),
+		cnf.DialInfo.Password = internal.PasswordFromFile(
+			os.Getenv(internal.EnvMesosSandbox),
 			cnf.DialInfo.Password,
 			"password",
 		)

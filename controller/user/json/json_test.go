@@ -24,9 +24,11 @@ import (
 )
 
 const (
-	testUserFile       = "test/test-user.json"
-	testUserBase64File = "test/test-user.json.base64"
-	testUserFileBroken = "test/test-user-broken.json"
+	testUserFile                   = "testdata/test-user.json"
+	testUserCLIPayloadFile         = "testdata/test-user.json.base64"
+	testUserCLIPayloadFileIssue218 = "testdata/test-user-issue218.json.base64"
+	testUserFileBroken             = "testdata/test-user-broken.json"
+	testUserFileNoQuotes           = "testdata/test-user-noquotes.json"
 )
 
 var (
@@ -60,6 +62,11 @@ func TestControllerUserJSONNewFromFile(t *testing.T) {
 	_, err = NewFromFile("")
 	assert.Error(t, err)
 
+	// no quotes file (https://github.com/mesosphere/dcos-mongo/issues/257)
+	_, err = NewFromFile(testUserFileNoQuotes)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "user json file syntax error (see "+htmlDocsURL+"):")
+
 	// non-existing file name
 	_, err = NewFromFile("/does/not/exist")
 	assert.Error(t, err)
@@ -78,10 +85,16 @@ func TestControllerUserJSONNewFromCLIPayloadFile(t *testing.T) {
 	assert.Error(t, err)
 
 	// good json+base64
-	u, err := NewFromCLIPayloadFile(testUserBase64File)
+	u, err := NewFromCLIPayloadFile(testUserCLIPayloadFile)
 	assert.NoError(t, err)
 	assert.Len(t, u, 1)
 	assert.Equal(t, testCLIPayload.Users, u)
+
+	// test for https://github.com/mesosphere/dcos-mongo/issues/218:
+	u, err = NewFromCLIPayloadFile(testUserCLIPayloadFileIssue218)
+	assert.NoError(t, err)
+	assert.Len(t, u, 1)
+	assert.Equal(t, "tim", u[0].Username)
 }
 
 func TestControllerUserJSONValidate(t *testing.T) {
