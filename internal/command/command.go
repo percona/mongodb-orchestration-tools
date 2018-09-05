@@ -65,6 +65,12 @@ func (c *Command) doChangeUser() bool {
 }
 
 func (c *Command) prepare() error {
+	_, err := exec.LookPath(c.Bin)
+	if err != nil {
+		if _, err := os.Stat(c.Bin); os.IsNotExist(err) {
+			return err
+		}
+	}
 	c.command = exec.Command(c.Bin, c.Args...)
 	if c.doChangeUser() {
 		uid, err := strconv.Atoi(c.User.Uid)

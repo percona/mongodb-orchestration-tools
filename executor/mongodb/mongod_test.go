@@ -16,12 +16,16 @@ package mongodb
 
 import (
 	"io/ioutil"
+	"net"
 	"os"
 	"os/user"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	mdbconfig "github.com/timvaillancourt/go-mongodb-config/config"
+	"gopkg.in/mgo.v2"
 )
 
 var (
@@ -29,9 +33,10 @@ var (
 	currentGroup, _ = user.LookupGroupId(currentUser.Gid)
 	testMongod      *Mongod
 	testConfig      = &Config{
-		BinDir: "/usr/bin",
-		User:   currentUser.Name,
-		Group:  currentGroup.Name,
+		BinDir:    "/usr/bin",
+		ConfigDir: "test",
+		User:      currentUser.Name,
+		Group:     currentGroup.Name,
 	}
 )
 
@@ -87,4 +92,87 @@ func TestExecutorMongoDBMkdir(t *testing.T) {
 		assert.FailNow(t, ".mkdir() did not create a directory")
 	}
 	assert.True(t, stat.IsDir())
+}
+
+func TestExecutorMongoDBIsStarted(t *testing.T) {
+	assert.False(t, testMongod.IsStarted())
+}
+
+func TestExecutorMongoDBStart(t *testing.T) {
+	if os.Getenv("TEST_EXECUTOR_MONGODB") != "true" {
+		t.Logf("Skipping test because TEST_EXECUTOR_MONGODB is not 'true'")
+		return
+	}
+
+	// get random open TCP port for mongod
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		panic(err)
+	}
+	listenPort := listener.Addr().(*net.TCPAddr).Port
+	listener.Close()
+
+	// get tmpdir for mongod dbPath
+	tmpDBPath, _ := ioutil.TempDir("", "TestExecutorMongoDBStartDBPath")
+	defer os.RemoveAll(tmpDBPath)
+
+	// get tmpdir
+	testConfig.TmpDir, _ = ioutil.TempDir("", "TestExecutorMongoDBStartTmpPath")
+	defer os.RemoveAll(testConfig.TmpDir)
+
+	// make the security.keyFile tmpfile
+	tmpKeyFile, _ := ioutil.TempFile("", "TestExecutorMongoDBStartKeyFile")
+	_, err = tmpKeyFile.Write([]byte("123456789101112"))
+	assert.NoError(t, err)
+	tmpKeyFile.Close()
+	defer os.Remove(tmpKeyFile.Name())
+
+	// make the config tmpdir
+	testConfig.ConfigDir, err = ioutil.TempDir("", "TestExecutorMongoDBStartConfigDir")
+	defer os.RemoveAll(testConfig.ConfigDir)
+
+	// write mongod config
+	config := &mdbconfig.Config{
+		Net: &mdbconfig.Net{
+			BindIp: "127.0.0.1",
+			Port:   listenPort,
+		},
+		Security: &mdbconfig.Security{
+			KeyFile: tmpKeyFile.Name(),
+		},
+		Storage: &mdbconfig.Storage{
+			DbPath: tmpDBPath,
+		},
+	}
+	assert.NoError(t, config.Write(testConfig.ConfigDir+"/mongod.conf"))
+
+	testStateChan := make(chan *os.ProcessState)
+	testMongod = NewMongod(testConfig, testStateChan)
+	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
+	assert.NoError(t, testMongod.Start(), ".Start() should not return an error")
+
+	var tries = 0
+	var maxTries = 60
+	var session *mgo.Session
+	for tries < maxTries {
+		if session == nil {
+			s, err := mgo.Dial(config.Net.BindIp + ":" + strconv.Itoa(config.Net.Port))
+			if err == nil {
+				session = s
+			}
+		} else if session.Ping() == nil {
+			session.Close()
+			break
+		}
+		time.Sleep(time.Second)
+		tries++
+	}
+	if tries > maxTries {
+		assert.FailNowf(t, "could not connect to tmp mongod: %v", err.Error())
+	}
+
+	assert.True(t, testMongod.IsStarted())
+	assert.NoError(t, testMongod.Kill())
+	testMongod.Wait()
+	assert.False(t, testMongod.IsStarted())
 }

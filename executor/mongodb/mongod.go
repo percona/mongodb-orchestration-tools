@@ -20,6 +20,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"sync"
 
 	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/percona/dcos-mongo-tools/internal/command"
@@ -49,6 +50,7 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 }
 
 type Mongod struct {
+	sync.Mutex
 	config     *Config
 	configFile string
 	commandBin string
@@ -199,6 +201,9 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
+	m.Lock()
+	defer m.Unlock()
+
 	m.command, err = command.New(
 		m.commandBin,
 		[]string{"--config", m.configFile},
@@ -219,12 +224,18 @@ func (m *Mongod) Start() error {
 }
 
 func (m *Mongod) Wait() {
+	m.Lock()
+	defer m.Unlock()
+
 	if m.command != nil && m.command.IsRunning() {
 		m.command.Wait()
 	}
 }
 
 func (m *Mongod) Kill() error {
+	m.Lock()
+	defer m.Unlock()
+
 	if m.command == nil {
 		return nil
 	}
