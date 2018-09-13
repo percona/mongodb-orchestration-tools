@@ -41,7 +41,6 @@ type Watcher struct {
 	dbConfig      *db.Config
 	replset       *replset.Replset
 	state         *replset.State
-	configManager rsConfig.Manager
 	quit          *chan bool
 	running       bool
 }
