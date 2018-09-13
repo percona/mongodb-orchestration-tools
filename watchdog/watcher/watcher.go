@@ -134,24 +134,28 @@ func (rw *Watcher) logReplsetState() {
 	if status == nil {
 		return
 	}
+
 	primary := status.Primary()
-	member := rw.replset.GetMember(primary.Name)
+	rsPrimary := rw.replset.GetMember(primary.Name)
 
 	log.WithFields(log.Fields{
 		"replset":    rw.replset.Name,
 		"host":       primary.Name,
-		"task":       member.Task.Name(),
-		"task_state": member.Task.State(),
-	}).Info("Replset Primary")
+		"task":       rsPrimary.Task.Name(),
+		"task_state": rsPrimary.Task.State(),
+	}).Infof("Replset %s", primary.State)
 
-	for _, secondary := range status.Secondaries() {
-		member = rw.replset.GetMember(secondary.Name)
+	for _, member := range status.Members {
+		if member.Name == primary.Name {
+			continue
+		}
+		rsMember := rw.replset.GetMember(member.Name)
 		log.WithFields(log.Fields{
 			"replset":    rw.replset.Name,
-			"host":       secondary.Name,
-			"task":       member.Task.Name(),
-			"task_state": member.Task.State(),
-		}).Info("Replset Secondary")
+			"host":       member.Name,
+			"task":       rsMember.Task.Name(),
+			"task_state": rsMember.Task.State(),
+		}).Info("Replset %s", member.State)
 	}
 }
 
