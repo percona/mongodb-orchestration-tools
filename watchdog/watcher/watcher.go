@@ -248,9 +248,11 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	if rw.replset.HasMember(mongod.Name()) {
 		//debug
 		status := rw.state.GetStatus()
-		statusMember := status.GetMember(mongod.Name())
-		if statusMember.State == rsStatus.MemberStateDown {
-			fmt.Printf("down member task status: %v\n", mongod.Task)
+		if status != nil {
+			statusMember := status.GetMember(mongod.Name())
+			if statusMember != nil && statusMember.State == rsStatus.MemberStateDown {
+				fmt.Printf("down member task status: %v\n", mongod.Task)
+			}
 		}
 
 		if mongod.Task.IsRemovedMongod() {
