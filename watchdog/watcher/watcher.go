@@ -16,6 +16,7 @@ package watcher
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -218,7 +219,6 @@ func (rw *Watcher) replsetConfigAdder(add []*replset.Mongod) {
 	if len(mongods) == 0 {
 		return
 	}
-
 	session := rw.getReplsetSession()
 	if session != nil {
 		rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
@@ -230,7 +230,6 @@ func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) {
 	if rw.state == nil || len(remove) == 0 {
 		return
 	}
-
 	session := rw.getReplsetSession()
 	if session != nil {
 		rw.state.RemoveConfigMembers(session, rsConfig.New(session), remove)
@@ -247,6 +246,13 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	}
 
 	if rw.replset.HasMember(mongod.Name()) {
+		//debug
+		status := rw.state.GetStatus()
+		statusMember := status.GetMember(mongod.Name())
+		if statusMember.State == rsStatus.MemberStateDown {
+			fmt.Printf("down member task status: %v\n", mongod.Task)
+		}
+
 		if mongod.Task.IsRemovedMongod() {
 			log.WithFields(fields).Info("Removing completed mongod task")
 			rw.replset.RemoveMember(mongod)
