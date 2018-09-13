@@ -68,20 +68,7 @@ func (w *Watchdog) runPrometheusMetricsServer() {
 	log.Fatal(http.ListenAndServe(":"+w.config.MetricsPort, nil))
 }
 
-func (w *Watchdog) mongodUpdateHandler(mongodUpdates <-chan *replset.Mongod) {
-	for mongodUpdate := range mongodUpdates {
-		// ensure the replset has a watcher started
-		if !w.watcherManager.HasWatcher(mongodUpdate.Replset) {
-			rs := replset.New(w.config, mongodUpdate.Replset)
-			w.watcherManager.Watch(rs)
-		}
-
-		// send the update to the watcher for the given replset
-		w.watcherManager.Get(mongodUpdate.Replset).UpdateMongod(mongodUpdate)
-	}
-}
-
-func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMongod chan *replset.Mongod) {
+func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	log.WithFields(log.Fields{
@@ -99,9 +86,10 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 	apiFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
 
 	for _, task := range tasks {
-		if task.IsMongodTask() != true {
+		if !task.IsMongodTask() {
 			continue
 		}
+
 		mongod, err := replset.NewMongod(task, w.config.FrameworkName, podName)
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -110,7 +98,15 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup, updateMo
 			}).Error("Error creating mongod object")
 			return
 		}
-		updateMongod <- mongod
+
+		// ensure the replset has a watcher started
+		if !w.watcherManager.HasWatcher(mongod.Replset) {
+			rs := replset.New(w.config, mongod.Replset)
+			w.watcherManager.Watch(rs)
+		}
+
+		// send the update to the watcher for the given replset
+		w.watcherManager.Get(mongod.Replset).UpdateMongod(mongod)
 	}
 }
 
@@ -123,7 +119,7 @@ func (w *Watchdog) doIgnorePod(podName string) bool {
 	return false
 }
 
-func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
+func (w *Watchdog) fetchPods() {
 	log.WithFields(log.Fields{
 		"url": w.api.GetPodURL(),
 	}).Info("Getting pods from url")
@@ -144,7 +140,7 @@ func (w *Watchdog) fetchPods(mongodUpdates chan *replset.Mongod) {
 			continue
 		}
 		wg.Add(1)
-		go w.podMongodFetcher(podName, &wg, mongodUpdates)
+		go w.podMongodFetcher(podName, &wg)
 	}
 	wg.Wait()
 }
@@ -160,15 +156,11 @@ func (w *Watchdog) Run() {
 	prometheus.MustRegister(apiFetches)
 	go w.runPrometheusMetricsServer()
 
-	// run the mongod update hander in a goroutine to receive updates
-	mongodUpdates := make(chan *replset.Mongod)
-	go w.mongodUpdateHandler(mongodUpdates)
-
 	ticker := time.NewTicker(w.config.APIPoll)
 	for {
 		select {
 		case <-ticker.C:
-			w.fetchPods(mongodUpdates)
+			w.fetchPods()
 		case <-*w.quit:
 			log.Info("Stopping watchers")
 			ticker.Stop()
