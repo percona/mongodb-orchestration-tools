@@ -155,7 +155,7 @@ func (rw *Watcher) logReplsetState() {
 			"host":       member.Name,
 			"task":       rsMember.Task.Name(),
 			"task_state": rsMember.Task.State(),
-		}).Info("Replset %s", member.State)
+		}).Infof("Replset %s", member.State)
 	}
 }
 
