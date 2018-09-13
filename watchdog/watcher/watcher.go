@@ -24,6 +24,7 @@ import (
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
+	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
 	"gopkg.in/mgo.v2"
 )
 
@@ -174,16 +175,15 @@ func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
 }
 
 func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
-	orphanedMembers := make([]*rsConfig.Member, 0)
-	replsetConfig := rw.state.GetConfig()
-	if rw.state != nil && replsetConfig != nil {
-		for _, member := range replsetConfig.Members {
-			if rw.replset.HasMember(member.Host) != true {
-				orphanedMembers = append(orphanedMembers, member)
-			}
+	orphans := make([]*rsConfig.Member, 0)
+	status := rw.state.GetStatus()
+	config := rw.state.GetConfig()
+	for _, member := range status.GetMembersByState(rsStatus.MemberStateDown, 0) {
+		if !rw.replset.HasMember(member.Name) {
+			orphans = append(orphans, config.GetMember(member.Name))
 		}
 	}
-	return orphanedMembers
+	return orphans
 }
 
 func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
