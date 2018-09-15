@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonToolNew(t *testing.T) {
+func TestInternalToolNew(t *testing.T) {
 	testApp, _ := New("test help", "git-commit-here", "branch-name-here")
 	appModel := testApp.Model()
 	assert.Contains(t, appModel.Version, "tool.test version "+dcosmongotools.Version+"\ngit commit git-commit-here, branch branch-name-here\ngo version", "kingpin.Application version is unexpected")

@@ -21,7 +21,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-func TestCommonDBUri(t *testing.T) {
+func TestInternalDBUri(t *testing.T) {
 	config := &Config{
 		DialInfo: &mgo.DialInfo{
 			Addrs:    []string{"test:1234"},

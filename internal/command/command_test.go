@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonCommandNew(t *testing.T) {
+func TestInternalCommandNew(t *testing.T) {
 	var err error
 	testCommand, err = New("echo", []string{"hello", "world"}, testCurrentUser, testCurrentGroup)
 	assert.NoError(t, err, ".New() should not return an error")
@@ -30,26 +30,26 @@ func TestCommonCommandNew(t *testing.T) {
 	assert.Equal(t, testCurrentGroup, testCommand.Group, ".New() has incorrect Group")
 }
 
-func TestCommonCommandIsRunningFalse(t *testing.T) {
+func TestInternalCommandIsRunningFalse(t *testing.T) {
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false")
 }
 
-func TestCommonCommandStart(t *testing.T) {
+func TestInternalCommandStart(t *testing.T) {
 	assert.NoError(t, testCommand.Start(), ".Start() should not return an error")
 }
 
-func TestCommonCommandIsRunning(t *testing.T) {
+func TestInternalCommandIsRunning(t *testing.T) {
 	assert.True(t, testCommand.IsRunning(), ".IsRunning() should be true")
 }
 
-func TestCommonCommandWait(t *testing.T) {
+func TestInternalCommandWait(t *testing.T) {
 	state, err := testCommand.Wait()
 	assert.NoError(t, err)
 	assert.True(t, state.Exited())
 	assert.False(t, testCommand.IsRunning(), ".IsRunning() should be false after .Wait()")
 }
 
-func TestCommonCommandKill(t *testing.T) {
+func TestInternalCommandKill(t *testing.T) {
 	killCommand, err := New("sleep", []string{"120"}, testCurrentUser, testCurrentGroup)
 	assert.NoError(t, err, ".New() should not return an error")
 	assert.NoError(t, killCommand.Start(), ".Start() should not return an error")
@@ -69,7 +69,7 @@ func TestCommonCommandKill(t *testing.T) {
 	assert.Nil(t, proc, "go-ps.FindProcess() should not find the killed process")
 }
 
-func TestCommonCommandCombinedOutput(t *testing.T) {
+func TestInternalCommandCombinedOutput(t *testing.T) {
 	coCommand, err := New("echo", []string{"hello", "world"}, testCurrentUser, testCurrentGroup)
 	assert.NoError(t, err, ".New() should not return an error")
 	bytes, err := coCommand.CombinedOutput()

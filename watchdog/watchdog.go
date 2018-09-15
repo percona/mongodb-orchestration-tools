@@ -134,8 +134,14 @@ func (w *Watchdog) fetchPods() {
 	}
 	apiFetches.With(prometheus.Labels{"type": "get_pods"}).Inc()
 
+	if pods == nil {
+		return
+	}
+	podNames := *pods
+
+	// get updated pods list
 	var wg sync.WaitGroup
-	for _, podName := range *pods {
+	for _, podName := range podNames {
 		if w.doIgnorePod(podName) {
 			continue
 		}
@@ -143,6 +149,13 @@ func (w *Watchdog) fetchPods() {
 		go w.podMongodFetcher(podName, &wg)
 	}
 	wg.Wait()
+
+	// remove watcherManager watcher for stale pods
+	for _, watcherName := range w.watcherManager.Watchers() {
+		if !podNames.HasPod(watcherName) {
+			w.watcherManager.Stop(watcherName)
+		}
+	}
 }
 
 func (w *Watchdog) Run() {
