@@ -106,7 +106,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 func TestWatchdogReplsetStateGetMaxIDVotingMember(t *testing.T) {
 	maxIDMember := &rsConfig.Member{Id: 5, Votes: 1}
 	state := NewState("test")
-	state.config = &rsConfig.Config{
+	state.Config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1},
 			{Id: 1, Votes: 1},
@@ -120,7 +120,7 @@ func TestWatchdogReplsetStateGetMaxIDVotingMember(t *testing.T) {
 func TestWatchdogReplsetStateGetMinIDNonVotingMember(t *testing.T) {
 	minIDMember := &rsConfig.Member{Id: 1}
 	s := NewState("test")
-	s.config = &rsConfig.Config{
+	s.Config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1},
 			minIDMember,
@@ -138,7 +138,7 @@ func TestWatchdogReplsetStateResetConfigVotes(t *testing.T) {
 
 	// test .restConfigVotes() will reduce voting members (9/too-many) to the max (7)
 	maxMember := &rsConfig.Member{Id: 8, Votes: 1, Host: "test8"}
-	state.config = &rsConfig.Config{
+	state.Config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1, Host: "test0"},
 			{Id: 1, Votes: 1, Host: "test1"},
@@ -151,16 +151,16 @@ func TestWatchdogReplsetStateResetConfigVotes(t *testing.T) {
 			maxMember,
 		},
 	}
-	memberCnt := len(state.config.Members)
+	memberCnt := len(state.Config.Members)
 	state.resetConfigVotes()
 	assert.Equal(t, MaxVotingMembers, state.VotingMembers())
 	assert.Equal(t, 0, maxMember.Votes)
-	assert.Len(t, state.config.Members, memberCnt)
+	assert.Len(t, state.Config.Members, memberCnt)
 
 	// test .restConfigVotes() will reduce voting members when the number is even and adding votes is nott possible
 	// there should be 4 voting members before and 3 after
 	maxMember = &rsConfig.Member{Id: 3, Votes: 1, Host: "test3"}
-	state.config = &rsConfig.Config{
+	state.Config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1, Host: "test0"},
 			{Id: 1, Votes: 1, Host: "test1"},
@@ -175,7 +175,7 @@ func TestWatchdogReplsetStateResetConfigVotes(t *testing.T) {
 	// test .restConfigVotes() will add voting members when the number is even and adding votes to non-voting members IS possible
 	// there should be 4 voting members before and 5 after
 	maxMember = &rsConfig.Member{Id: 4, Votes: 0, Host: "test4"}
-	state.config = &rsConfig.Config{
+	state.Config = &rsConfig.Config{
 		Members: []*rsConfig.Member{
 			{Id: 0, Votes: 1, Host: "test0"},
 			{Id: 1, Votes: 1, Host: "test1"},

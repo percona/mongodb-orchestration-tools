@@ -162,7 +162,7 @@ func (rw *Watcher) logReplsetState() {
 	}
 }
 
-func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
+func (rw *Watcher) getMissingReplsetMembers() []*replset.Mongod {
 	notInReplset := make([]*replset.Mongod, 0)
 	replsetConfig := rw.state.GetConfig()
 	if rw.state != nil && replsetConfig != nil {
@@ -176,17 +176,17 @@ func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
 	return notInReplset
 }
 
-func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
-	orphans := make([]*rsConfig.Member, 0)
+func (rw *Watcher) getScaledDownMembers() []*rsConfig.Member {
+	scaledDown := make([]*rsConfig.Member, 0)
 	status := rw.state.GetStatus()
 	config := rw.state.GetConfig()
 	for _, member := range status.GetMembersByState(rsStatus.MemberStateDown, 0) {
 		rsMember := rw.replset.GetMember(member.Name)
 		if !rw.activePods.HasPod(rsMember.PodName) {
-			orphans = append(orphans, config.GetMember(member.Name))
+			scaledDown = append(scaledDown, config.GetMember(member.Name))
 		}
 	}
-	return orphans
+	return scaledDown
 }
 
 func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
@@ -304,25 +304,30 @@ func (rw *Watcher) Run() {
 			if session == nil {
 				continue
 			}
+
 			err := rw.state.Fetch(session, rsConfig.New(session))
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
 				rw.reconnectReplsetSession()
 				continue
 			}
+
 			if rw.state.GetStatus() == nil {
 				continue
 			}
-			err = rw.replsetConfigAdder(rw.getMongodsNotInReplsetConfig())
+
+			err = rw.replsetConfigAdder(rw.getMissingReplsetMembers())
 			if err != nil {
 				log.Errorf("Error adding missing member(s): %s", err)
 				continue
 			}
-			err = rw.replsetConfigRemover(rw.getOrphanedMembersFromReplsetConfig())
+
+			err = rw.replsetConfigRemover(rw.getScaledDownMembers())
 			if err != nil {
 				log.Errorf("Error removing stale member(s): %s", err)
 				continue
 			}
+
 			rw.logReplsetState()
 		case <-*rw.quit:
 			log.WithFields(log.Fields{
