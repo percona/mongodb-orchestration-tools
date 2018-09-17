@@ -18,8 +18,10 @@ func TestGetScaledDownMembers(t *testing.T) {
 		PodName: "testPod",
 	})
 
+	pods := NewPods()
+	pods.Set(&api.Pods{"testPod"})
 	w := &Watcher{
-		activePods: &api.Pods{"testPod"},
+		activePods: pods,
 		replset:    rs,
 		state: &replset.State{
 			Config: &rsConfig.Config{
@@ -46,7 +48,7 @@ func TestGetScaledDownMembers(t *testing.T) {
 
 	// test scaled down (1 down host AND pod doesnt exist in 'activePods')
 	// this test simulates a scaling-down of replset members/tasks
-	w.activePods = &api.Pods{}
+	w.activePods.Set(&api.Pods{})
 	scaledDown := w.getScaledDownMembers()
 	assert.Len(t, scaledDown, 1)
 	assert.Equal(t, "scaled-down:27017", scaledDown[0].Host)

@@ -19,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
@@ -44,10 +43,10 @@ type Watcher struct {
 	state         *replset.State
 	quit          *chan bool
 	running       bool
-	activePods    *api.Pods
+	activePods    *Pods
 }
 
-func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *api.Pods) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *Pods) *Watcher {
 	return &Watcher{
 		config:     config,
 		replset:    rs,
@@ -185,7 +184,7 @@ func (rw *Watcher) getScaledDownMembers() []*rsConfig.Member {
 	config := rw.state.GetConfig()
 	for _, member := range status.GetMembersByState(rsStatus.MemberStateDown, 0) {
 		rsMember := rw.replset.GetMember(member.Name)
-		if !rw.activePods.HasPod(rsMember.PodName) {
+		if !rw.activePods.Has(rsMember.PodName) {
 			scaledDown = append(scaledDown, config.GetMember(member.Name))
 		}
 	}
@@ -265,19 +264,12 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 		"host":    mongod.Name(),
 		"state":   string(mongod.Task.State()),
 	}
-
-	if rw.replset.HasMember(mongod.Name()) {
-		if mongod.Task.IsRemovedMongod() {
-			log.WithFields(fields).Info("Removing completed mongod task")
-			rw.replset.RemoveMember(mongod.Name())
-		} else if mongod.Task.IsRunning() {
-			log.WithFields(fields).Info("Updating running mongod task")
-			rw.replset.UpdateMember(mongod)
-		}
+	if rw.replset.HasMember(mongod.Name()) && mongod.Task.IsRunning() {
+		log.WithFields(fields).Info("Updating running mongod task")
 	} else if mongod.Task.HasState() && mongod.Task.IsRunning() {
 		log.WithFields(fields).Info("Adding new mongod task")
-		rw.replset.UpdateMember(mongod)
 	}
+	rw.replset.UpdateMember(mongod)
 }
 
 func (rw *Watcher) setRunning(running bool) {
