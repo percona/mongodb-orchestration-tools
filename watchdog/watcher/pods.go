@@ -26,7 +26,9 @@ type Pods struct {
 }
 
 func NewPods() *Pods {
-	return &Pods{pods: &api.Pods{}}
+	return &Pods{
+		pods: &api.Pods{},
+	}
 }
 
 func (p *Pods) Get() api.Pods {
@@ -44,8 +46,5 @@ func (p *Pods) Set(pods *api.Pods) {
 func (p *Pods) Has(name string) bool {
 	p.Lock()
 	defer p.Unlock()
-	if p.pods == nil {
-		return false
-	}
 	return p.pods.HasPod(name)
 }
