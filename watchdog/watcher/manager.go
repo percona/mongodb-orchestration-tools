@@ -17,31 +17,36 @@ package watcher
 import (
 	"sync"
 
+	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
 )
 
 type Manager interface {
+	Close()
 	Get(rsName string) *Watcher
 	HasWatcher(rsName string) bool
+	Stop(rsName string)
 	Watch(rs *replset.Replset)
 }
 
 type WatcherManager struct {
 	sync.Mutex
-	config    *config.Config
-	stop      *chan bool
-	quitChans map[string]chan bool
-	watchers  map[string]*Watcher
+	config     *config.Config
+	stop       *chan bool
+	quitChans  map[string]chan bool
+	watchers   map[string]*Watcher
+	activePods *api.Pods
 }
 
-func NewManager(config *config.Config, stop *chan bool) *WatcherManager {
+func NewManager(config *config.Config, stop *chan bool, activePods *api.Pods) *WatcherManager {
 	return &WatcherManager{
-		config:    config,
-		stop:      stop,
-		quitChans: make(map[string]chan bool),
-		watchers:  make(map[string]*Watcher),
+		config:     config,
+		stop:       stop,
+		activePods: activePods,
+		quitChans:  make(map[string]chan bool),
+		watchers:   make(map[string]*Watcher),
 	}
 }
 
@@ -65,7 +70,7 @@ func (wm *WatcherManager) Watch(rs *replset.Replset) {
 
 		quitChan := make(chan bool)
 		wm.quitChans[rs.Name] = quitChan
-		wm.watchers[rs.Name] = New(rs, wm.config, &quitChan)
+		wm.watchers[rs.Name] = New(rs, wm.config, &quitChan, wm.activePods)
 		go wm.watchers[rs.Name].Run()
 
 		wm.Unlock()
@@ -84,6 +89,7 @@ func (wm *WatcherManager) Stop(rsName string) {
 		wm.Lock()
 		defer wm.Unlock()
 		close(wm.quitChans[rsName])
+		delete(wm.quitChans, rsName)
 	}
 }
 

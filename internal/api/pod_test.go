@@ -20,6 +20,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonAPIGetPodURL(t *testing.T) {
+func TestInternalAPIGetPodURL(t *testing.T) {
 	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
+}
+
+func TestInternalAPIPodsHasPod(t *testing.T) {
+	pods := Pods{"test1"}
+	assert.True(t, pods.HasPod("test1"))
+	assert.False(t, pods.HasPod("not here"))
 }

@@ -16,6 +16,15 @@ package api
 
 type Pods []string
 
+func (p Pods) HasPod(name string) bool {
+	for _, pod := range p {
+		if pod == name {
+			return true
+		}
+	}
+	return false
+}
+
 type PodTaskCommandEnvironmentVariable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`

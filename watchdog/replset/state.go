@@ -32,8 +32,8 @@ const (
 type State struct {
 	sync.Mutex
 	Replset  string
-	config   *rsConfig.Config
-	status   *rsStatus.Status
+	Config   *rsConfig.Config
+	Status   *rsStatus.Status
 	doUpdate bool
 }
 
@@ -66,7 +66,7 @@ func (s *State) fetchConfig(configManager rsConfig.Manager) error {
 		return err
 	}
 
-	s.config = configManager.Get()
+	s.Config = configManager.Get()
 	return nil
 }
 
@@ -76,17 +76,17 @@ func (s *State) fetchStatus(session *mgo.Session) error {
 		return err
 	}
 
-	s.status = status
+	s.Status = status
 	return nil
 }
 
 // VotingMembers returns the number of replset members with one or more votes
 func (s *State) VotingMembers() int {
-	if s.config == nil {
+	if s.Config == nil {
 		return -1
 	}
 	votingMembers := 0
-	for _, member := range s.config.Members {
+	for _, member := range s.Config.Members {
 		if member.Votes > 0 {
 			votingMembers++
 		}
@@ -100,7 +100,7 @@ func isEven(i int) bool {
 
 func (s *State) getMaxIDVotingMember() *rsConfig.Member {
 	var maxIDMember *rsConfig.Member
-	for _, member := range s.config.Members {
+	for _, member := range s.Config.Members {
 		if member.Votes == 0 {
 			continue
 		}
@@ -113,7 +113,7 @@ func (s *State) getMaxIDVotingMember() *rsConfig.Member {
 
 func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
 	var minIDMember *rsConfig.Member
-	for _, member := range s.config.Members {
+	for _, member := range s.Config.Members {
 		if member.Votes == 1 {
 			continue
 		}
@@ -125,7 +125,7 @@ func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
 }
 
 func (s *State) resetConfigVotes() {
-	totalMembers := len(s.config.Members)
+	totalMembers := len(s.Config.Members)
 	votingMembers := s.VotingMembers()
 
 	if !isEven(votingMembers) && votingMembers <= MaxVotingMembers && votingMembers >= MinVotingMembers {
@@ -190,7 +190,7 @@ func (s *State) GetConfig() *rsConfig.Config {
 	s.Lock()
 	defer s.Unlock()
 
-	return s.config
+	return s.Config
 }
 
 // GetStatus returns a Status struct representing the status of a MongoDB Replica Set
@@ -198,13 +198,13 @@ func (s *State) GetStatus() *rsStatus.Status {
 	s.Lock()
 	defer s.Unlock()
 
-	return s.status
+	return s.Status
 }
 
 // AddConfigMembers adds members to the MongoDB Replica Set config
-func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*Mongod) {
+func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*Mongod) error {
 	if len(members) == 0 {
-		return
+		return nil
 	}
 
 	s.Lock()
@@ -213,7 +213,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 	err := s.fetchConfig(configManager)
 	if err != nil {
 		log.Errorf("Error fetching config while adding members: '%s'", err.Error())
-		return
+		return err
 	}
 
 	for _, mongod := range members {
@@ -221,7 +221,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 		member.Tags = &rsConfig.ReplsetTags{
 			frameworkTagName: mongod.FrameworkName,
 		}
-		if len(s.config.Members) >= MaxMembers {
+		if len(s.Config.Members) >= MaxMembers {
 			log.Errorf("Maximum replset member count reached, cannot add member")
 			break
 		}
@@ -244,16 +244,13 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 	}
 	s.resetConfigVotes()
 
-	err = s.updateConfig(configManager)
-	if err != nil {
-		log.WithError(err).Error("Got error adding member")
-	}
+	return s.updateConfig(configManager)
 }
 
 // RemoveConfigMembers removes members from the MongoDB Replica Set config
-func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*rsConfig.Member) {
+func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*rsConfig.Member) error {
 	if len(members) == 0 {
-		return
+		return nil
 	}
 
 	s.Lock()
@@ -262,7 +259,7 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 	err := s.fetchConfig(configManager)
 	if err != nil {
 		log.Errorf("Error fetching config while removing members: '%s'", err.Error())
-		return
+		return err
 	}
 
 	for _, member := range members {
@@ -271,8 +268,5 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 	}
 	s.resetConfigVotes()
 
-	err = s.updateConfig(configManager)
-	if err != nil {
-		log.WithError(err).Error("Got error removing member")
-	}
+	return s.updateConfig(configManager)
 }

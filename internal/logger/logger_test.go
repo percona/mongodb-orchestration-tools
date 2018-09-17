@@ -24,14 +24,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommonLoggerSetupLogger(t *testing.T) {
+func TestInternalLoggerSetupLogger(t *testing.T) {
 	assert.Equal(t, log.InfoLevel, log.GetLevel(), "logrus.GetLevel() should return info level")
 	formatter := GetLogFormatter("test")
 	SetupLogger(nil, formatter, os.Stdout)
 	assert.Equal(t, formatter, formatter, "logrus.StandarLogger().Formatter is incorrect")
 }
 
-func TestCommonLoggerLogInfo(t *testing.T) {
+func TestInternalLoggerLogInfo(t *testing.T) {
 	buf := new(bytes.Buffer)
 	formatter := GetLogFormatter("test")
 	SetupLogger(nil, formatter, buf)

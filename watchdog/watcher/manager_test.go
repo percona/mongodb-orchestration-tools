@@ -13,7 +13,7 @@ import (
 )
 
 func TestWatchdogWatcherNewManager(t *testing.T) {
-	testManager = NewManager(testConfig, &testStopChan)
+	testManager = NewManager(testConfig, &testStopChan, &api.Pods{"test"})
 	assert.NotNil(t, testManager)
 }
 

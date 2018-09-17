@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 	os.Exit(exit)
 }
 
-func TestCommonGetUserID(t *testing.T) {
+func TestInternalGetUserID(t *testing.T) {
 	_, err := GetUserID("this-user-should-not-exist")
 	assert.Error(t, err, ".GetUserID() should return error due to missing user")
 
@@ -57,7 +57,7 @@ func TestCommonGetUserID(t *testing.T) {
 	assert.NotZero(t, uid, ".GetUserID() should return a uid that is not zero")
 }
 
-func TestCommonGetGroupID(t *testing.T) {
+func TestInternalGetGroupID(t *testing.T) {
 	_, err := GetGroupID("this-group-should-not-exist")
 	assert.Error(t, err, ".GetGroupID() should return error due to missing group")
 
@@ -71,12 +71,12 @@ func TestCommonGetGroupID(t *testing.T) {
 	assert.NotEqual(t, -1, gid, ".GetGroupID() should return a gid that is not zero")
 }
 
-func TestCommonStringFromFile(t *testing.T) {
+func TestInternalStringFromFile(t *testing.T) {
 	assert.Equal(t, testFileContent, *StringFromFile(testTmpfile.Name()), ".StringFromFile() returned unexpected result")
 	assert.Nil(t, StringFromFile("/does/not/exist.file"), ".StringFromFile() returned unexpected result")
 }
 
-func TestCommonPasswordFromFile(t *testing.T) {
+func TestInternalPasswordFromFile(t *testing.T) {
 	assert.Equal(t, testFileContent, PasswordFromFile("/", testTmpfile.Name(), "test"), ".PasswordFallbackFromFile returned unexpected result")
 	assert.Equal(t, "", PasswordFromFile("/", "is-not-an-existing-file", "test"), ".PasswordFallbackFromFile returned unexpected result")
 }

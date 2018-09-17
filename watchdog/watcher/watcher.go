@@ -19,11 +19,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
+	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
 	"gopkg.in/mgo.v2"
 )
 
@@ -35,28 +37,23 @@ var (
 
 type Watcher struct {
 	sync.Mutex
-	config            *config.Config
-	masterSession     *mgo.Session
-	sessionLock       sync.Mutex
-	stateLock         sync.Mutex
-	mongodAddQueue    chan []*replset.Mongod
-	mongodRemoveQueue chan []*rsConfig.Member
-	dbConfig          *db.Config
-	replset           *replset.Replset
-	state             *replset.State
-	configManager     rsConfig.Manager
-	quit              *chan bool
-	running           bool
+	config        *config.Config
+	masterSession *mgo.Session
+	dbConfig      *db.Config
+	replset       *replset.Replset
+	state         *replset.State
+	quit          *chan bool
+	running       bool
+	activePods    *api.Pods
 }
 
-func New(rs *replset.Replset, config *config.Config, quit *chan bool) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *api.Pods) *Watcher {
 	return &Watcher{
-		config:            config,
-		replset:           rs,
-		state:             replset.NewState(rs.Name),
-		quit:              quit,
-		mongodAddQueue:    make(chan []*replset.Mongod),
-		mongodRemoveQueue: make(chan []*rsConfig.Member),
+		config:     config,
+		replset:    rs,
+		state:      replset.NewState(rs.Name),
+		quit:       quit,
+		activePods: activePods,
 	}
 }
 
@@ -107,8 +104,8 @@ func (rw *Watcher) connectReplsetSession() error {
 		break
 	}
 
-	rw.sessionLock.Lock()
-	defer rw.sessionLock.Unlock()
+	rw.Lock()
+	defer rw.Unlock()
 
 	if rw.masterSession != nil {
 		log.WithFields(log.Fields{
@@ -140,28 +137,35 @@ func (rw *Watcher) logReplsetState() {
 	if status == nil {
 		return
 	}
+
 	primary := status.Primary()
-	member := rw.replset.GetMember(primary.Name)
+	rsPrimary := rw.replset.GetMember(primary.Name)
 
 	log.WithFields(log.Fields{
 		"replset":    rw.replset.Name,
 		"host":       primary.Name,
-		"task":       member.Task.Name(),
-		"task_state": member.Task.State(),
-	}).Info("Replset Primary")
+		"task":       rsPrimary.Task.Name(),
+		"task_state": rsPrimary.Task.State(),
+	}).Infof("Replset %s", primary.State)
 
-	for _, secondary := range status.Secondaries() {
-		member = rw.replset.GetMember(secondary.Name)
+	for _, member := range status.Members {
+		if member.Name == primary.Name {
+			continue
+		}
+		rsMember := rw.replset.GetMember(member.Name)
+		if rsMember == nil || rsMember.Task == nil {
+			continue
+		}
 		log.WithFields(log.Fields{
 			"replset":    rw.replset.Name,
-			"host":       secondary.Name,
-			"task":       member.Task.Name(),
-			"task_state": member.Task.State(),
-		}).Info("Replset Secondary")
+			"host":       member.Name,
+			"task":       rsMember.Task.Name(),
+			"task_state": rsMember.Task.State(),
+		}).Infof("Replset %s", member.State)
 	}
 }
 
-func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
+func (rw *Watcher) getMissingReplsetMembers() []*replset.Mongod {
 	notInReplset := make([]*replset.Mongod, 0)
 	replsetConfig := rw.state.GetConfig()
 	if rw.state != nil && replsetConfig != nil {
@@ -175,17 +179,17 @@ func (rw *Watcher) getMongodsNotInReplsetConfig() []*replset.Mongod {
 	return notInReplset
 }
 
-func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
-	orphanedMembers := make([]*rsConfig.Member, 0)
-	replsetConfig := rw.state.GetConfig()
-	if rw.state != nil && replsetConfig != nil {
-		for _, member := range replsetConfig.Members {
-			if rw.replset.HasMember(member.Host) != true {
-				orphanedMembers = append(orphanedMembers, member)
-			}
+func (rw *Watcher) getScaledDownMembers() []*rsConfig.Member {
+	scaledDown := make([]*rsConfig.Member, 0)
+	status := rw.state.GetStatus()
+	config := rw.state.GetConfig()
+	for _, member := range status.GetMembersByState(rsStatus.MemberStateDown, 0) {
+		rsMember := rw.replset.GetMember(member.Name)
+		if !rw.activePods.HasPod(rsMember.PodName) {
+			scaledDown = append(scaledDown, config.GetMember(member.Name))
 		}
 	}
-	return orphanedMembers
+	return scaledDown
 }
 
 func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
@@ -201,58 +205,60 @@ func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
 	return nil
 }
 
-func (rw *Watcher) replsetConfigAdder(add <-chan []*replset.Mongod) {
-	for members := range add {
-		mongods := make([]*replset.Mongod, 0)
-		for _, mongod := range members {
-			err := rw.waitForMongodAvailable(mongod)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"host":    mongod.Name(),
-					"retries": waitForMongodAvailableRetries,
-				}).Error(err)
-				continue
-			}
+func (rw *Watcher) replsetConfigAdder(add []*replset.Mongod) error {
+	mongods := make([]*replset.Mongod, 0)
+	for _, mongod := range add {
+		err := rw.waitForMongodAvailable(mongod)
+		if err != nil {
 			log.WithFields(log.Fields{
-				"replset": rw.replset.Name,
 				"host":    mongod.Name(),
-			}).Info("Mongod not present in replset config, adding it to replset")
-			mongods = append(mongods, mongod)
-		}
-		if len(mongods) == 0 {
+				"retries": waitForMongodAvailableRetries,
+			}).Error(err)
 			continue
 		}
-
-		session := rw.getReplsetSession()
-		if session != nil {
-			rw.stateLock.Lock()
-			rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
-			rw.stateLock.Unlock()
-		}
-		rw.reconnectReplsetSession()
+		log.WithFields(log.Fields{
+			"replset": rw.replset.Name,
+			"host":    mongod.Name(),
+		}).Info("Mongod not present in replset config, adding it to replset")
+		mongods = append(mongods, mongod)
 	}
+	if len(mongods) == 0 {
+		return nil
+	}
+	session := rw.getReplsetSession()
+	if session != nil {
+		err := rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
+		if err != nil {
+			return err
+		}
+	}
+	rw.reconnectReplsetSession()
+	return nil
 }
 
-func (rw *Watcher) replsetConfigRemover(removeMembers <-chan []*rsConfig.Member) {
-	for members := range removeMembers {
-		if rw.state == nil || len(members) == 0 {
-			continue
-		}
-
-		session := rw.getReplsetSession()
-		if session != nil {
-			rw.stateLock.Lock()
-			rw.state.RemoveConfigMembers(session, rsConfig.New(session), members)
-			rw.stateLock.Unlock()
-		}
-		rw.reconnectReplsetSession()
+func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) error {
+	if rw.state == nil || len(remove) == 0 {
+		return nil
 	}
+	session := rw.getReplsetSession()
+	if session != nil {
+		for _, member := range remove {
+			log.WithFields(log.Fields{
+				"replset": rw.replset.Name,
+				"host":    member.Host,
+			}).Info("Removing removed/scaled-down replset member")
+			rw.replset.RemoveMember(member.Host)
+			err := rw.state.RemoveConfigMembers(session, rsConfig.New(session), []*rsConfig.Member{member})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	rw.reconnectReplsetSession()
+	return nil
 }
 
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
-	rw.stateLock.Lock()
-	defer rw.stateLock.Unlock()
-
 	fields := log.Fields{
 		"replset": rw.replset.Name,
 		"name":    mongod.Task.Name(),
@@ -263,7 +269,7 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	if rw.replset.HasMember(mongod.Name()) {
 		if mongod.Task.IsRemovedMongod() {
 			log.WithFields(fields).Info("Removing completed mongod task")
-			rw.replset.RemoveMember(mongod)
+			rw.replset.RemoveMember(mongod.Name())
 		} else if mongod.Task.IsRunning() {
 			log.WithFields(fields).Info("Updating running mongod task")
 			rw.replset.UpdateMember(mongod)
@@ -298,9 +304,7 @@ func (rw *Watcher) Run() {
 	}
 
 	rw.setRunning(true)
-
-	go rw.replsetConfigAdder(rw.mongodAddQueue)
-	go rw.replsetConfigRemover(rw.mongodRemoveQueue)
+	defer rw.setRunning(false)
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
@@ -310,27 +314,36 @@ func (rw *Watcher) Run() {
 			if session == nil {
 				continue
 			}
+
 			err := rw.state.Fetch(session, rsConfig.New(session))
 			if err != nil {
 				log.Errorf("Error fetching replset state: %s", err)
 				rw.reconnectReplsetSession()
 				continue
 			}
-			if rw.state.GetStatus() != nil {
-				rw.mongodAddQueue <- rw.getMongodsNotInReplsetConfig()
-				rw.mongodRemoveQueue <- rw.getOrphanedMembersFromReplsetConfig()
-				rw.logReplsetState()
+
+			if rw.state.GetStatus() == nil {
+				continue
 			}
+
+			err = rw.replsetConfigAdder(rw.getMissingReplsetMembers())
+			if err != nil {
+				log.Errorf("Error adding missing member(s): %s", err)
+				continue
+			}
+
+			err = rw.replsetConfigRemover(rw.getScaledDownMembers())
+			if err != nil {
+				log.Errorf("Error removing stale member(s): %s", err)
+				continue
+			}
+
+			rw.logReplsetState()
 		case <-*rw.quit:
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,
 			}).Info("Stopping watcher for replset")
-
 			ticker.Stop()
-			close(rw.mongodAddQueue)
-			close(rw.mongodRemoveQueue)
-
-			rw.setRunning(false)
 			return
 		}
 	}
