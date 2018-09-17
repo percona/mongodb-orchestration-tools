@@ -294,6 +294,7 @@ func (rw *Watcher) Run() {
 	}
 
 	rw.setRunning(true)
+	defer rw.setRunning(false)
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
@@ -309,26 +310,25 @@ func (rw *Watcher) Run() {
 				rw.reconnectReplsetSession()
 				continue
 			}
-			if rw.state.GetStatus() != nil {
-				err = rw.replsetConfigAdder(rw.getMongodsNotInReplsetConfig())
-				if err != nil {
-					log.Errorf("Error adding missing member(s): %s", err)
-					continue
-				}
-				err = rw.replsetConfigRemover(rw.getOrphanedMembersFromReplsetConfig())
-				if err != nil {
-					log.Errorf("Error removing stale member(s): %s", err)
-					continue
-				}
-				rw.logReplsetState()
+			if rw.state.GetStatus() == nil {
+				continue
 			}
+			err = rw.replsetConfigAdder(rw.getMongodsNotInReplsetConfig())
+			if err != nil {
+				log.Errorf("Error adding missing member(s): %s", err)
+				continue
+			}
+			err = rw.replsetConfigRemover(rw.getOrphanedMembersFromReplsetConfig())
+			if err != nil {
+				log.Errorf("Error removing stale member(s): %s", err)
+				continue
+			}
+			rw.logReplsetState()
 		case <-*rw.quit:
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,
 			}).Info("Stopping watcher for replset")
-
 			ticker.Stop()
-			rw.setRunning(false)
 			return
 		}
 	}
