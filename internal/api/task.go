@@ -43,7 +43,6 @@ type PodTask interface {
 	HasState() bool
 	IsMongodTask() bool
 	IsMongosTask() bool
-	IsRemovedMongod() bool
 	IsRunning() bool
 	Name() string
 	State() PodTaskState
@@ -85,12 +84,6 @@ func (task *PodTaskHTTP) IsMongosTask() bool {
 		return strings.Contains(task.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
-}
-
-// Asking for a better way to detect a removed task here: https://github.com/mesosphere/dcos-mongo/issues/112
-// for now we will use the lack of a task state to determine a task is intentionally removed (for scale-down, etc)
-func (task *PodTaskHTTP) IsRemovedMongod() bool {
-	return task.IsMongodTask() && task.HasState() == false
 }
 
 func (task *PodTaskHTTP) GetMongoHostname(frameworkName string) string {

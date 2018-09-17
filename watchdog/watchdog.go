@@ -48,11 +48,11 @@ type Watchdog struct {
 	api            api.Client
 	watcherManager watcher.Manager
 	quit           *chan bool
-	activePods     *api.Pods
+	activePods     *watcher.Pods
 }
 
 func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
-	activePods := &api.Pods{}
+	activePods := watcher.NewPods()
 	return &Watchdog{
 		config:         config,
 		api:            client,
@@ -140,11 +140,11 @@ func (w *Watchdog) fetchPods() {
 	if pods == nil {
 		return
 	}
-	w.activePods = pods
+	w.activePods.Set(pods)
 
 	// get updated pods list
 	var wg sync.WaitGroup
-	for _, podName := range *w.activePods {
+	for _, podName := range w.activePods.Get() {
 		if w.doIgnorePod(podName) {
 			continue
 		}
