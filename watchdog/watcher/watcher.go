@@ -202,7 +202,7 @@ func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
 	return nil
 }
 
-func (rw *Watcher) replsetConfigAdder(add []*replset.Mongod) {
+func (rw *Watcher) replsetConfigAdder(add []*replset.Mongod) error {
 	mongods := make([]*replset.Mongod, 0)
 	for _, mongod := range add {
 		err := rw.waitForMongodAvailable(mongod)
@@ -220,24 +220,32 @@ func (rw *Watcher) replsetConfigAdder(add []*replset.Mongod) {
 		mongods = append(mongods, mongod)
 	}
 	if len(mongods) == 0 {
-		return
+		return nil
 	}
 	session := rw.getReplsetSession()
 	if session != nil {
-		rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
+		err := rw.state.AddConfigMembers(session, rsConfig.New(session), mongods)
+		if err != nil {
+			return err
+		}
 	}
 	rw.reconnectReplsetSession()
+	return nil
 }
 
-func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) {
+func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) error {
 	if rw.state == nil || len(remove) == 0 {
-		return
+		return nil
 	}
 	session := rw.getReplsetSession()
 	if session != nil {
-		rw.state.RemoveConfigMembers(session, rsConfig.New(session), remove)
+		err := rw.state.RemoveConfigMembers(session, rsConfig.New(session), remove)
+		if err != nil {
+			return err
+		}
 	}
 	rw.reconnectReplsetSession()
+	return nil
 }
 
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {

@@ -202,9 +202,9 @@ func (s *State) GetStatus() *rsStatus.Status {
 }
 
 // AddConfigMembers adds members to the MongoDB Replica Set config
-func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*Mongod) {
+func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*Mongod) error {
 	if len(members) == 0 {
-		return
+		return nil
 	}
 
 	s.Lock()
@@ -213,7 +213,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 	err := s.fetchConfig(configManager)
 	if err != nil {
 		log.Errorf("Error fetching config while adding members: '%s'", err.Error())
-		return
+		return err
 	}
 
 	for _, mongod := range members {
@@ -244,16 +244,13 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 	}
 	s.resetConfigVotes()
 
-	err = s.updateConfig(configManager)
-	if err != nil {
-		log.WithError(err).Error("Got error adding member")
-	}
+	return s.updateConfig(configManager)
 }
 
 // RemoveConfigMembers removes members from the MongoDB Replica Set config
-func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*rsConfig.Member) {
+func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig.Manager, members []*rsConfig.Member) error {
 	if len(members) == 0 {
-		return
+		return nil
 	}
 
 	s.Lock()
@@ -262,7 +259,7 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 	err := s.fetchConfig(configManager)
 	if err != nil {
 		log.Errorf("Error fetching config while removing members: '%s'", err.Error())
-		return
+		return err
 	}
 
 	for _, member := range members {
@@ -271,8 +268,5 @@ func (s *State) RemoveConfigMembers(session *mgo.Session, configManager rsConfig
 	}
 	s.resetConfigVotes()
 
-	err = s.updateConfig(configManager)
-	if err != nil {
-		log.WithError(err).Error("Got error removing member")
-	}
+	return s.updateConfig(configManager)
 }
