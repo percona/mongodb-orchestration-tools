@@ -310,8 +310,16 @@ func (rw *Watcher) Run() {
 				continue
 			}
 			if rw.state.GetStatus() != nil {
-				rw.replsetConfigAdder(rw.getMongodsNotInReplsetConfig())
-				rw.replsetConfigRemover(rw.getOrphanedMembersFromReplsetConfig())
+				err = rw.replsetConfigAdder(rw.getMongodsNotInReplsetConfig())
+				if err != nil {
+					log.Errorf("Error adding missing member(s): %s", err)
+					continue
+				}
+				err = rw.replsetConfigRemover(rw.getOrphanedMembersFromReplsetConfig())
+				if err != nil {
+					log.Errorf("Error removing stale member(s): %s", err)
+					continue
+				}
 				rw.logReplsetState()
 			}
 		case <-*rw.quit:
