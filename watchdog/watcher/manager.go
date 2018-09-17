@@ -29,7 +29,6 @@ type Manager interface {
 	HasWatcher(rsName string) bool
 	Stop(rsName string)
 	Watch(rs *replset.Replset)
-	Watchers() []string
 }
 
 type WatcherManager struct {
@@ -49,17 +48,6 @@ func NewManager(config *config.Config, stop *chan bool, activePods *api.Pods) *W
 		quitChans:  make(map[string]chan bool),
 		watchers:   make(map[string]*Watcher),
 	}
-}
-
-func (wm *WatcherManager) Watchers() []string {
-	wm.Lock()
-	defer wm.Unlock()
-
-	watchers := []string{}
-	for name := range wm.watchers {
-		watchers = append(watchers, name)
-	}
-	return watchers
 }
 
 func (wm *WatcherManager) HasWatcher(rsName string) bool {
