@@ -36,14 +36,18 @@ func TestGetScaledDownMembers(t *testing.T) {
 		},
 	}
 
-	// test empty result (no down hosts and pod exists)
+	// test empty result (zero down hosts)
 	assert.Len(t, w.getScaledDownMembers(), 0)
 
-	// test empty result (1 down host but pod still exists)
+	// test empty result (1 down host but pod still exists in 'activePods')
+	// this test simulates an unplanned member/task failure
 	w.state.Status.Members[0].State = rsStatus.MemberStateDown
 	assert.Len(t, w.getScaledDownMembers(), 0)
 
-	// test scaled down (1 down host AND pod doesnt exist)
+	// test scaled down (1 down host AND pod doesnt exist in 'activePods')
+	// this test simulates a scaling-down of replset members/tasks
 	w.activePods = &api.Pods{}
-	assert.Len(t, w.getScaledDownMembers(), 1)
+	scaledDown := w.getScaledDownMembers()
+	assert.Len(t, scaledDown, 1)
+	assert.Equal(t, "scaled-down:27017", scaledDown[0].Host)
 }
