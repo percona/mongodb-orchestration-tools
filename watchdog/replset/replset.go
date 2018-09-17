@@ -60,11 +60,11 @@ func (r *Replset) UpdateMember(member *Mongod) {
 }
 
 // RemoveMember removes the state of a MongoDB instance from a Replica Set
-func (r *Replset) RemoveMember(member *Mongod) {
+func (r *Replset) RemoveMember(name string) {
 	r.Lock()
 	defer r.Unlock()
 
-	delete(r.members, member.Name())
+	delete(r.members, name)
 }
 
 // HasMember returns a boolean reflecting whether or not the state of a MongoDB instance exists in Replica Set

@@ -69,7 +69,7 @@ func TestWatchdogReplsetGetReplsetDBConfig(t *testing.T) {
 }
 
 func TestWatchdogReplsetRemoveMember(t *testing.T) {
-	testReplset.RemoveMember(testReplsetMongod)
+	testReplset.RemoveMember(testReplsetMongod.Name())
 	assert.False(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result after replset.RemoveMember()")
 	assert.Len(t, testReplset.GetMembers(), 0, "replset.GetMembers() returned unexpected result after replset.RemoveMember()")
 }
