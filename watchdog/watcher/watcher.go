@@ -153,6 +153,9 @@ func (rw *Watcher) logReplsetState() {
 			continue
 		}
 		rsMember := rw.replset.GetMember(member.Name)
+		if rsMember == nil || rsMember.Task == nil {
+			continue
+		}
 		log.WithFields(log.Fields{
 			"replset":    rw.replset.Name,
 			"host":       member.Name,
