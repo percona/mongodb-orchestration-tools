@@ -48,14 +48,17 @@ type Watchdog struct {
 	api            api.Client
 	watcherManager watcher.Manager
 	quit           *chan bool
+	activePods     *api.Pods
 }
 
 func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
+	activePods := &api.Pods{}
 	return &Watchdog{
 		config:         config,
 		api:            client,
-		watcherManager: watcher.NewManager(config, quit),
+		watcherManager: watcher.NewManager(config, quit, activePods),
 		quit:           quit,
+		activePods:     activePods,
 	}
 }
 
@@ -137,11 +140,11 @@ func (w *Watchdog) fetchPods() {
 	if pods == nil {
 		return
 	}
-	podNames := *pods
+	w.activePods = pods
 
 	// get updated pods list
 	var wg sync.WaitGroup
-	for _, podName := range podNames {
+	for _, podName := range *w.activePods {
 		if w.doIgnorePod(podName) {
 			continue
 		}
@@ -149,13 +152,6 @@ func (w *Watchdog) fetchPods() {
 		go w.podMongodFetcher(podName, &wg)
 	}
 	wg.Wait()
-
-	// remove watcherManager watcher for stale pods
-	for _, watcherName := range w.watcherManager.Watchers() {
-		if !podNames.HasPod(watcherName) {
-			w.watcherManager.Stop(watcherName)
-		}
-	}
 }
 
 func (w *Watchdog) Run() {

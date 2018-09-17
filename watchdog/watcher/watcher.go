@@ -16,10 +16,10 @@ package watcher
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
+	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
@@ -44,14 +44,16 @@ type Watcher struct {
 	state         *replset.State
 	quit          *chan bool
 	running       bool
+	activePods    *api.Pods
 }
 
-func New(rs *replset.Replset, config *config.Config, quit *chan bool) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *api.Pods) *Watcher {
 	return &Watcher{
-		config:  config,
-		replset: rs,
-		state:   replset.NewState(rs.Name),
-		quit:    quit,
+		config:     config,
+		replset:    rs,
+		state:      replset.NewState(rs.Name),
+		quit:       quit,
+		activePods: activePods,
 	}
 }
 
@@ -179,7 +181,8 @@ func (rw *Watcher) getOrphanedMembersFromReplsetConfig() []*rsConfig.Member {
 	status := rw.state.GetStatus()
 	config := rw.state.GetConfig()
 	for _, member := range status.GetMembersByState(rsStatus.MemberStateDown, 0) {
-		if !rw.replset.HasMember(member.Name) {
+		rsMember := rw.replset.GetMember(member.Name)
+		if !rw.activePods.HasPod(rsMember.PodName) {
 			orphans = append(orphans, config.GetMember(member.Name))
 		}
 	}
@@ -246,15 +249,6 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 	}
 
 	if rw.replset.HasMember(mongod.Name()) {
-		//debug
-		status := rw.state.GetStatus()
-		if status != nil {
-			statusMember := status.GetMember(mongod.Name())
-			if statusMember != nil && statusMember.State == rsStatus.MemberStateDown {
-				fmt.Printf("down member task status: %v\n", mongod.Task)
-			}
-		}
-
 		if mongod.Task.IsRemovedMongod() {
 			log.WithFields(fields).Info("Removing completed mongod task")
 			rw.replset.RemoveMember(mongod)
