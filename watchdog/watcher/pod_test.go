@@ -23,6 +23,7 @@ import (
 
 func TestWatchdogWatcherPods(t *testing.T) {
 	pods := NewPods()
+	assert.Len(t, pods.Get(), 0)
 	pods.Set(&api.Pods{"test"})
 
 	assert.Len(t, pods.Get(), 1)
