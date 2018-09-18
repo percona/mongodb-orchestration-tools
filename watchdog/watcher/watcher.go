@@ -264,11 +264,10 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 		"host":    mongod.Name(),
 		"state":   string(mongod.Task.State()),
 	}
-	if !mongod.Task.IsRunning() {
-		return
-	}
 	if rw.replset.HasMember(mongod.Name()) {
 		log.WithFields(fields).Info("Updating running mongod task")
+	} else if !mongod.Task.IsRunning() {
+		return
 	} else if mongod.Task.HasState() {
 		log.WithFields(fields).Info("Adding new mongod task")
 	}
