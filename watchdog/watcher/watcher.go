@@ -247,10 +247,10 @@ func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) error {
 				"host":    member.Host,
 			}).Info("Removing removed/scaled-down replset member")
 			rw.replset.RemoveMember(member.Host)
-			err := rw.state.RemoveConfigMembers(session, rsConfig.New(session), []*rsConfig.Member{member})
-			if err != nil {
-				return err
-			}
+		}
+		err := rw.state.RemoveConfigMembers(session, rsConfig.New(session), remove)
+		if err != nil {
+			return err
 		}
 	}
 	rw.reconnectReplsetSession()
@@ -264,9 +264,12 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 		"host":    mongod.Name(),
 		"state":   string(mongod.Task.State()),
 	}
-	if rw.replset.HasMember(mongod.Name()) && mongod.Task.IsRunning() {
+	if !mongod.Task.IsRunning() {
+		return
+	}
+	if rw.replset.HasMember(mongod.Name()) {
 		log.WithFields(fields).Info("Updating running mongod task")
-	} else if mongod.Task.HasState() && mongod.Task.IsRunning() {
+	} else if mongod.Task.HasState() {
 		log.WithFields(fields).Info("Adding new mongod task")
 	}
 	rw.replset.UpdateMember(mongod)
