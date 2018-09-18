@@ -20,9 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -57,13 +58,13 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 		"dcosFramework": i.config.FrameworkName,
 	}
 	config.AddMember(member)
-	rsCnfMan.Set(config)
+	configManager.Set(config)
 
 	log.Info("Initiating replset")
 	fmt.Println(config)
 
 	for i.replInitTries <= i.config.ReplsetInit.MaxReplTries {
-		err := rsCnfMan.Initiate()
+		err := configManager.Initiate()
 		if err == nil {
 			log.WithFields(log.Fields{
 				"version": config.Version,
@@ -86,7 +87,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	return nil
 }
 
-func (i *Initiator) initAdminUser(session *mgo.Session) error {
+func (i *Initiator) initAdminUser(session pmgo.SessionManager) error {
 	err := user.UpdateUser(session, user.UserAdmin, "admin")
 	if err != nil {
 		log.Errorf("Error adding admin user: %s", err)
@@ -95,7 +96,7 @@ func (i *Initiator) initAdminUser(session *mgo.Session) error {
 	return nil
 }
 
-func (i *Initiator) initUsers(session *mgo.Session) error {
+func (i *Initiator) initUsers(session pmgo.SessionManager) error {
 	err := user.UpdateUsers(session, user.SystemUsers, "admin")
 	if err != nil {
 		log.Errorf("Error adding system users: %s", err)
@@ -140,6 +141,24 @@ func (i *Initiator) getLocalhostNoAuthSession() (*mgo.Session, error) {
 		"ssl_secure": !sslCnfInsecure.Insecure,
 	}).Info("Connected to MongoDB")
 
+	err = i.initReplset(rsConfigManager, sessionManager)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Waiting for host to become primary")
+	err = db.WaitForPrimary(localhostNoAuthSession, i.config.ReplsetInit.MaxConnectTries, i.config.ReplsetInit.RetrySleep)
+	if err != nil {
+		return err
+	}
+
+	err = i.initAdminUser(sessionManager)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
+	localhostNoAuthSession.Close()
 	return session, nil
 }
 

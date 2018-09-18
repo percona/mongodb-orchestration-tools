@@ -17,6 +17,7 @@ package user
 import (
 	"errors"
 
+	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
@@ -33,7 +34,7 @@ type UserChangeData struct {
 	Users []*mgo.User `bson:"users"`
 }
 
-func UpdateUser(session *mgo.Session, user *mgo.User, dbName string) error {
+func UpdateUser(session pmgo.SessionManager, user *mgo.User, dbName string) error {
 	if user.Username == "" || user.Password == "" {
 		return errors.New("No username or password defined for user")
 	}
@@ -51,7 +52,7 @@ func UpdateUser(session *mgo.Session, user *mgo.User, dbName string) error {
 	return session.DB(dbName).UpsertUser(user)
 }
 
-func UpdateUsers(session *mgo.Session, users []*mgo.User, dbName string) error {
+func UpdateUsers(session pmgo.SessionManager, users []*mgo.User, dbName string) error {
 	for _, user := range users {
 		err := UpdateUser(session, user, dbName)
 		if err != nil {
@@ -61,7 +62,7 @@ func UpdateUsers(session *mgo.Session, users []*mgo.User, dbName string) error {
 	return nil
 }
 
-func RemoveUser(session *mgo.Session, username, db string) error {
+func removeUser(session pmgo.SessionManager, username, db string) error {
 	log.Infof("Removing user %s from db %s", username, db)
 	err := session.DB(db).RemoveUser(username)
 	if err == mgo.ErrNotFound {
