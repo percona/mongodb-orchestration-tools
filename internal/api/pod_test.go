@@ -17,15 +17,20 @@ package api
 import (
 	"testing"
 
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInternalAPIGetPodURL(t *testing.T) {
-	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
+	assert.Equal(t,
+		testAPI.GetPodURL(),
+		testAPI.scheme.String()+testAPI.config.Host+"/"+SDKAPIVersion+"/pod",
+		"api.GetPodURL() is incorrect",
+	)
 }
 
 func TestInternalAPIPodsHasPod(t *testing.T) {
-	pods := Pods{"test1"}
+	pods := &pod.Pods{"test1"}
 	assert.True(t, pods.HasPod("test1"))
 	assert.False(t, pods.HasPod("not here"))
 }

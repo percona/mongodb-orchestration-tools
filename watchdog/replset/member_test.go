@@ -22,6 +22,8 @@ import (
 	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
 	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/dcos-mongo-tools/internal/pod/dcos"
 	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -31,10 +33,10 @@ import (
 func TestWatchdogReplsetNewMongod(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	apiTask := &mocks.PodTask{}
-	apiTask.On("GetMongoHostname", internal.DefaultFrameworkName).Return("test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
-	apiTask.On("GetMongoPort").Return(strconv.Atoi(testutils.MongodbPrimaryPort))
-	apiTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
+	podTask := &pod.Task{}
+	podTask.On("GetMongoHostname", internal.DefaultFrameworkName).Return("test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
+	podTask.On("GetMongoPort").Return(strconv.Atoi(testutils.MongodbPrimaryPort))
+	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
 	testMongod, err = NewMongod(apiTask, internal.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)

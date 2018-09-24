@@ -15,7 +15,8 @@
 package k8s
 
 import (
-	"github.com/percona/dcos-mongo-tools/watchdog/pod"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
 type K8STask struct{}
@@ -32,8 +33,8 @@ func (task *K8STask) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
-func (task *K8STask) GetMongoAddr() (*pod.MongoAddr, error) {
-	addr := &pod.MongoAddr{}
+func (task *K8STask) GetMongoAddr() (*db.Addr, error) {
+	addr := &db.Addr{}
 	return addr, nil
 }
 
