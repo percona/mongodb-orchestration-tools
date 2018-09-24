@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
 	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/internal/logger"
@@ -64,13 +63,14 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 func TestWatchdogRun(t *testing.T) {
 	testAPIClient.On("GetPodURL").Return("http://test")
 	testAPIClient.On("GetPods").Return(&pod.Pods{"test"}, nil)
-	testAPIClient.On("GetPodTasks", "test").Return([]pod.Task{
-		&dcos.DCOSTask{
-			data: &dcos.DCOSTaskData{
-				Info: &dcos.DCOSTaskInfo{},
-			},
+
+	tasks := make([]pod.Task, 0)
+	tasks = append(tasks, &dcos.DCOSTask{
+		Data: &dcos.DCOSTaskData{
+			Info: &dcos.DCOSTaskInfo{},
 		},
-	}, nil)
+	})
+	testAPIClient.On("GetPodTasks", "test").Return(tasks, nil)
 
 	go testWatchdog.Run()
 	time.Sleep(time.Millisecond * 150)

@@ -39,7 +39,7 @@ var (
 
 type DCOSTask struct {
 	frameworkName string
-	data          *DCOSTaskData
+	Data          *DCOSTaskData
 }
 
 type DCOSTaskData struct {
@@ -71,7 +71,7 @@ type DCOSTaskStatus struct {
 }
 
 func (task *DCOSTask) Name() string {
-	return task.data.Info.Name
+	return task.Data.Info.Name
 }
 
 func (task *DCOSTask) Framework() string {
@@ -86,12 +86,12 @@ func (task *DCOSTask) SetFramework(name string) {
 }
 
 func (task *DCOSTask) HasState() bool {
-	return task.data.Status != nil && task.data.Status.State != nil
+	return task.Data.Status != nil && task.Data.Status.State != nil
 }
 
 func (task *DCOSTask) State() DCOSTaskState {
 	if task.HasState() {
-		return *task.data.Status.State
+		return *task.Data.Status.State
 	}
 	return DCOSTaskStateUnknown
 }
@@ -101,15 +101,15 @@ func (task *DCOSTask) IsRunning() bool {
 }
 
 func (task *DCOSTask) IsTaskType(taskType pod.TaskType) bool {
-	if task.data.Info != nil && strings.HasSuffix(task.data.Info.Name, "-"+taskType.String()) {
-		return strings.Contains(task.data.Info.Command.Value, "mongodb-executor-")
+	if task.Data.Info != nil && strings.HasSuffix(task.Data.Info.Name, "-"+taskType.String()) {
+		return strings.Contains(task.Data.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
 }
 
 func (task *DCOSTask) getEnvVar(variableName string) (string, error) {
-	if task.data.Info.Command != nil && task.data.Info.Command.Environment != nil {
-		for _, variable := range task.data.Info.Command.Environment.Variables {
+	if task.Data.Info.Command != nil && task.Data.Info.Command.Environment != nil {
+		for _, variable := range task.Data.Info.Command.Environment.Variables {
 			if variable.Name == variableName {
 				return variable.Value, nil
 			}
@@ -120,7 +120,7 @@ func (task *DCOSTask) getEnvVar(variableName string) (string, error) {
 
 func (task *DCOSTask) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
-		Host: task.data.Info.Name + "." + task.Framework() + "." + DCOSAutoIPDnsSuffix,
+		Host: task.Data.Info.Name + "." + task.Framework() + "." + DCOSAutoIPDnsSuffix,
 	}
 	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)
 	if err != nil {

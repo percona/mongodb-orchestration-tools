@@ -17,19 +17,19 @@ package watcher
 import (
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWatchdogWatcherPods(t *testing.T) {
 	pods := NewPods()
 	assert.Len(t, pods.Get(), 0)
-	pods.Set(&api.Pods{"test"})
+	pods.Set(&pod.Pods{"test"})
 
 	assert.Len(t, pods.Get(), 1)
 	assert.Equal(t, "test", pods.Get()[0])
 
 	assert.True(t, pods.Has("test"))
-	pods.Set(&api.Pods{"false"})
+	pods.Set(&pod.Pods{"false"})
 	assert.False(t, pods.Has("test"))
 }
