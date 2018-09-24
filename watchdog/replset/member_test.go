@@ -32,8 +32,11 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 	testutils.DoSkipTest(t)
 
 	podTask := &mocks.Task{}
-	podTask.On("GetMongoHostname", internal.DefaultFrameworkName).Return("test." + internal.DefaultFrameworkName + "." + dcos.DCOSAutoIPDnsSuffix)
-	podTask.On("GetMongoPort").Return(strconv.Atoi(testutils.MongodbPrimaryPort))
+	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
+	podTask.On("GetMongoAddr").Return(&db.Addr{
+		Host: "test." + internal.DefaultFrameworkName + "." + dcos.DCOSAutoIPDnsSuffix,
+		Port: port,
+	}, nil)
 	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
