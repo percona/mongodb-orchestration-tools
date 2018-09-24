@@ -30,6 +30,10 @@ var (
 )
 
 func GetSession(cnf *Config) (*mgo.Session, error) {
+	if cnf.SSL == nil {
+		cnf.SSL = &SSLConfig{}
+	}
+
 	log.WithFields(log.Fields{
 		"hosts":      cnf.DialInfo.Addrs,
 		"ssl":        cnf.SSL.Enabled,
@@ -75,7 +79,7 @@ func WaitForSession(cnf *Config, maxRetries uint, sleepDuration time.Duration) (
 			return session, err
 		}
 		time.Sleep(sleepDuration)
-		tries += 1
+		tries++
 	}
 	if err == nil {
 		return nil, ErrSessionTimeout
@@ -96,7 +100,7 @@ func WaitForPrimary(session *mgo.Session, maxRetries uint, sleepDuration time.Du
 			return nil
 		}
 		time.Sleep(sleepDuration)
-		tries += 1
+		tries++
 	}
 	if err == nil {
 		return ErrPrimaryTimeout
