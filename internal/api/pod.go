@@ -14,23 +14,27 @@
 
 package api
 
+import (
+	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/dcos-mongo-tools/internal/pod/dcos"
+)
+
 // GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
-func (c *ClientHTTP) GetPodURL() string {
-	return c.scheme.String() + c.config.Host + "/" + DCOSAPIVersion + "/pod"
+func (c *SDKClient) GetPodURL() string {
+	return c.scheme.String() + c.config.Host + "/" + SDKAPIVersion + "/pod"
 }
 
 // GetPods returns a slice of existing Pods in the DC/OS SDK
-func (c *ClientHTTP) GetPods() (*pod.Pods, error) {
+func (c *SDKClient) GetPods() (*pod.Pods, error) {
 	pods := &pod.Pods{}
 	err := c.get(c.GetPodURL(), pods)
 	return pods, err
 }
 
 // GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
-func (c *ClientHTTP) GetPodTasks(podName string) ([]pod.Task, error) {
-	tasks := make([]PodTask, 0)
-
-	tasksHTTP := make([]*PodTaskHTTP, 0)
+func (c *SDKClient) GetPodTasks(podName string) ([]pod.Task, error) {
+	tasks := make([]pod.Task, 0)
+	tasksHTTP := make([]*dcos.DCOSTask, 0)
 	podURL := c.GetPodURL() + "/" + podName + "/info"
 	err := c.get(podURL, &tasksHTTP)
 	if err != nil {

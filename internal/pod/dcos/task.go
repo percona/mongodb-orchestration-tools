@@ -20,7 +20,8 @@ import (
 	"strings"
 
 	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/watchdog/pod"
+	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
 type DCOSTaskState string
@@ -117,8 +118,8 @@ func (task *DCOSTask) getEnvVar(variableName string) (string, error) {
 	return "", errors.New("Could not find env variable: " + variableName)
 }
 
-func (task *DCOSTask) GetMongoAddr() (*pod.MongoAddr, error) {
-	addr := &pod.MongoAddr{
+func (task *DCOSTask) GetMongoAddr() (*db.Addr, error) {
+	addr := &db.Addr{
 		Host: task.data.Info.Name + "." + task.Framework() + "." + DCOSAutoIPDnsSuffix,
 	}
 	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)

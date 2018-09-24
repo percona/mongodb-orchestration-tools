@@ -23,8 +23,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// DCOSAPIVersion is the version of the DC/OS SDK API
-var DCOSAPIVersion = "v1"
+// SDKAPIVersion is the version of the DC/OS SDK API
+var SDKAPIVersion = "v1"
 
 var (
 	DefaultHTTPTimeout   = "5s"
@@ -33,16 +33,16 @@ var (
 	ErrNonSuccessCode    = errors.New("got non-success code")
 )
 
-// DCOSClient is an HTTP client for the DC/OS SDK API
-type DCOSClient struct {
+// SDKClient is an HTTP client for the DC/OS SDK API
+type SDKClient struct {
 	FrameworkName string
 	config        *Config
 	scheme        HTTPScheme
 }
 
-// New creates a new DCOSClient struct configured for use with the DC/OS SDK API
-func New(frameworkName string, config *Config) *DCOSClient {
-	c := &DCOSClient{
+// New creates a new SDKClient struct configured for use with the DC/OS SDK API
+func New(frameworkName string, config *Config) *SDKClient {
+	c := &SDKClient{
 		FrameworkName: frameworkName,
 		config:        config,
 		scheme:        HTTPSchemePlain,
@@ -53,7 +53,7 @@ func New(frameworkName string, config *Config) *DCOSClient {
 	return c
 }
 
-func (c *DCOSClient) get(url string, out interface{}) error {
+func (c *SDKClient) get(url string, out interface{}) error {
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)
 	req.Header.SetContentType("application/json")

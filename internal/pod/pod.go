@@ -25,6 +25,12 @@ func (p Pods) HasPod(name string) bool {
 	return false
 }
 
+type Source interface {
+	GetPodURL() string
+	GetPods() (*Pods, error)
+	GetPodTasks(podName string) ([]Task, error)
+}
+
 //// GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
 //func (c *ClientHTTP) GetPodURL() string {
 //	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/pod"

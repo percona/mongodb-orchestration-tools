@@ -17,27 +17,27 @@ package watcher
 import (
 	"sync"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
 type Pods struct {
 	sync.Mutex
-	pods *api.Pods
+	pods *pod.Pods
 }
 
 func NewPods() *Pods {
 	return &Pods{
-		pods: &api.Pods{},
+		pods: &pod.Pods{},
 	}
 }
 
-func (p *Pods) Get() api.Pods {
+func (p *Pods) Get() pod.Pods {
 	p.Lock()
 	defer p.Unlock()
 	return *p.pods
 }
 
-func (p *Pods) Set(pods *api.Pods) {
+func (p *Pods) Set(pods *pod.Pods) {
 	p.Lock()
 	defer p.Unlock()
 	p.pods = pods

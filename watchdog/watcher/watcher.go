@@ -138,13 +138,13 @@ func (rw *Watcher) logReplsetState() {
 	}
 
 	primary := status.Primary()
-	rsPrimary := rw.replset.GetMember(primary.Name)
+	//rsPrimary := rw.replset.GetMember(primary.Name)
 
 	log.WithFields(log.Fields{
-		"replset":    rw.replset.Name,
-		"host":       primary.Name,
-		"task":       rsPrimary.Task.Name(),
-		"task_state": rsPrimary.Task.State(),
+		"replset": rw.replset.Name,
+		"host":    primary.Name,
+		//"task":       rsPrimary.Task.Name(),
+		//"task_state": rsPrimary.Task.State(),
 	}).Infof("Replset %s", primary.State)
 
 	for _, member := range status.Members {
@@ -156,10 +156,10 @@ func (rw *Watcher) logReplsetState() {
 			continue
 		}
 		log.WithFields(log.Fields{
-			"replset":    rw.replset.Name,
-			"host":       member.Name,
-			"task":       rsMember.Task.Name(),
-			"task_state": rsMember.Task.State(),
+			"replset": rw.replset.Name,
+			"host":    member.Name,
+			//	"task":       rsMember.Task.Name(),
+			//	"task_state": rsMember.Task.State(),
 		}).Infof("Replset %s", member.State)
 	}
 }
@@ -262,14 +262,14 @@ func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
 		"replset": rw.replset.Name,
 		"name":    mongod.Task.Name(),
 		"host":    mongod.Name(),
-		"state":   string(mongod.Task.State()),
+		//"state":   string(mongod.Task.State()),
 	}
 	if rw.replset.HasMember(mongod.Name()) {
 		log.WithFields(fields).Info("Updating running mongod task")
 	} else if !mongod.Task.IsRunning() {
 		return
-	} else if mongod.Task.HasState() {
-		log.WithFields(fields).Info("Adding new mongod task")
+		//} else if mongod.Task.HasState() {
+		//	log.WithFields(fields).Info("Adding new mongod task")
 	}
 	rw.replset.UpdateMember(mongod)
 }

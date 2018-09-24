@@ -14,7 +14,9 @@
 
 package pod
 
-import "strconv"
+import (
+	"github.com/percona/dcos-mongo-tools/internal/db"
+)
 
 type TaskType string
 
@@ -27,19 +29,10 @@ func (t TaskType) String() string {
 	return string(t)
 }
 
-type MongoAddr struct {
-	Host string
-	Port int
-}
-
-func (a MongoAddr) String() string {
-	return a.Host + ":" + strconv.Itoa(a.Port)
-}
-
 type Task interface {
 	Name() string
 	IsRunning() bool
 	IsTaskType(taskType TaskType) bool
-	GetMongoAddr() (*MongoAddr, error)
+	GetMongoAddr() (*db.Addr, error)
 	GetMongoReplsetName() (string, error)
 }
