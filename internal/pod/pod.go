@@ -30,32 +30,3 @@ type Source interface {
 	GetPods() (*Pods, error)
 	GetPodTasks(podName string) ([]Task, error)
 }
-
-//// GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
-//func (c *ClientHTTP) GetPodURL() string {
-//	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/pod"
-//}
-//
-//// GetPods returns a slice of existing Pods in the DC/OS SDK
-//func (c *ClientHTTP) GetPods() (*Pods, error) {
-//	pods := &Pods{}
-//	err := c.get(c.GetPodURL(), pods)
-//	return pods, err
-//}
-//
-//// GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
-//func (c *ClientHTTP) GetPodTasks(podName string) ([]PodTask, error) {
-//	tasks := make([]PodTask, 0)
-//
-//	tasksHTTP := make([]*PodTaskHTTP, 0)
-//	podURL := c.GetPodURL() + "/" + podName + "/info"
-//	err := c.get(podURL, &tasksHTTP)
-//	if err != nil {
-//		return tasks, err
-//	}
-//
-//	for _, task := range tasksHTTP {
-//		tasks = append(tasks, task)
-//	}
-//	return tasks, nil
-//}
