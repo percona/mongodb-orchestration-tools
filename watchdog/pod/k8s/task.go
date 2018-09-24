@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pod
+package k8s
+
+import (
+	"github.com/percona/dcos-mongo-tools/watchdog/pod"
+)
 
 type K8STask struct{}
 
@@ -24,12 +28,12 @@ func (task *K8STask) IsRunning() bool {
 	return false
 }
 
-func (task *K8STask) IsTaskType(taskType TaskType) bool {
+func (task *K8STask) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
-func (task *K8STask) GetMongoAddr() (*MongoAddr, error) {
-	addr := &MongoAddr{}
+func (task *K8STask) GetMongoAddr() (*pod.MongoAddr, error) {
+	addr := &pod.MongoAddr{}
 	return addr, nil
 }
 

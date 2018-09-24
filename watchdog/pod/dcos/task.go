@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pod
+package dcos
 
 import (
 	"errors"
@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/dcos-mongo-tools/watchdog/pod"
 )
 
 type DCOSTaskState string
@@ -98,7 +99,7 @@ func (task *DCOSTask) IsRunning() bool {
 	return task.State() == DCOSTaskStateRunning
 }
 
-func (task *DCOSTask) IsTaskType(taskType TaskType) bool {
+func (task *DCOSTask) IsTaskType(taskType pod.TaskType) bool {
 	if task.data.Info != nil && strings.HasSuffix(task.data.Info.Name, "-"+taskType.String()) {
 		return strings.Contains(task.data.Info.Command.Value, "mongodb-executor-")
 	}
@@ -116,8 +117,8 @@ func (task *DCOSTask) getEnvVar(variableName string) (string, error) {
 	return "", errors.New("Could not find env variable: " + variableName)
 }
 
-func (task *DCOSTask) GetMongoAddr() (*MongoAddr, error) {
-	addr := &MongoAddr{
+func (task *DCOSTask) GetMongoAddr() (*pod.MongoAddr, error) {
+	addr := &pod.MongoAddr{
 		Host: task.data.Info.Name + "." + task.Framework() + "." + DCOSAutoIPDnsSuffix,
 	}
 	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)
