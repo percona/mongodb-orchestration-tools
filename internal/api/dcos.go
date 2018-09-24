@@ -23,6 +23,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// DCOSAPIVersion is the version of the DC/OS SDK API
+var DCOSAPIVersion = "v1"
+
 var (
 	DefaultHTTPTimeout   = "5s"
 	DefaultSchedulerHost = "api." + internal.DefaultFrameworkName + ".marathon.l4lb.thisdcos.directory"
@@ -30,29 +33,16 @@ var (
 	ErrNonSuccessCode    = errors.New("got non-success code")
 )
 
-// HTTPScheme is the scheme type to be used for HTTP calls
-type HTTPScheme string
-
-const (
-	HTTPSchemePlain  HTTPScheme = "http://"
-	HTTPSchemeSecure HTTPScheme = "https://"
-)
-
-// String returns a string representation of the HTTPScheme
-func (s HTTPScheme) String() string {
-	return string(s)
-}
-
-// ClientHTTP is an HTTP client for the DC/OS SDK API
-type ClientHTTP struct {
+// DCOSClient is an HTTP client for the DC/OS SDK API
+type DCOSClient struct {
 	FrameworkName string
 	config        *Config
 	scheme        HTTPScheme
 }
 
-// New creates a new ClientHTTP struct configured for use with the DC/OS SDK API
-func New(frameworkName string, config *Config) *ClientHTTP {
-	c := &ClientHTTP{
+// New creates a new DCOSClient struct configured for use with the DC/OS SDK API
+func New(frameworkName string, config *Config) *DCOSClient {
+	c := &DCOSClient{
 		FrameworkName: frameworkName,
 		config:        config,
 		scheme:        HTTPSchemePlain,
@@ -63,7 +53,7 @@ func New(frameworkName string, config *Config) *ClientHTTP {
 	return c
 }
 
-func (c *ClientHTTP) get(url string, out interface{}) error {
+func (c *DCOSClient) get(url string, out interface{}) error {
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)
 	req.Header.SetContentType("application/json")

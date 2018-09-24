@@ -14,54 +14,20 @@
 
 package api
 
-type Pods []string
-
-func (p Pods) HasPod(name string) bool {
-	for _, pod := range p {
-		if pod == name {
-			return true
-		}
-	}
-	return false
-}
-
-type PodTaskCommandEnvironmentVariable struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type PodTaskCommandEnvironment struct {
-	Variables []*PodTaskCommandEnvironmentVariable `json:"variables"`
-}
-
-type PodTaskCommand struct {
-	Environment *PodTaskCommandEnvironment `json:"environment"`
-	Value       string                     `json:"value"`
-}
-
-type PodTaskInfo struct {
-	Name    string          `json:"name"`
-	Command *PodTaskCommand `json:"command"`
-}
-
-type PodTaskStatus struct {
-	State *PodTaskState `json:"state"`
-}
-
 // GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
 func (c *ClientHTTP) GetPodURL() string {
-	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/pod"
+	return c.scheme.String() + c.config.Host + "/" + DCOSAPIVersion + "/pod"
 }
 
 // GetPods returns a slice of existing Pods in the DC/OS SDK
-func (c *ClientHTTP) GetPods() (*Pods, error) {
-	pods := &Pods{}
+func (c *ClientHTTP) GetPods() (*pod.Pods, error) {
+	pods := &pod.Pods{}
 	err := c.get(c.GetPodURL(), pods)
 	return pods, err
 }
 
 // GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
-func (c *ClientHTTP) GetPodTasks(podName string) ([]PodTask, error) {
+func (c *ClientHTTP) GetPodTasks(podName string) ([]pod.Task, error) {
 	tasks := make([]PodTask, 0)
 
 	tasksHTTP := make([]*PodTaskHTTP, 0)
