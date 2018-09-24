@@ -1,3 +1,4 @@
+// Copyright 2018 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +18,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
-	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	user_json "github.com/percona/dcos-mongo-tools/controller/user/json"
+	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )
