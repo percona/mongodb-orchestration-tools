@@ -24,8 +24,22 @@ import (
 //	assert.Equal(t, testAPI.GetPodURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/pod", "api.GetPodURL() is incorrect")
 //}
 
-func TestInternalAPIPodsHasPod(t *testing.T) {
+func TestInternalPodHasPod(t *testing.T) {
 	pods := Pods{"test1"}
 	assert.True(t, pods.HasPod("test1"))
 	assert.False(t, pods.HasPod("not here"))
+}
+
+func TestInternalPodActivePods(t *testing.T) {
+	activePods := NewActivePods()
+	assert.Len(t, *activePods.Get(), 0)
+	activePods.Set(&Pods{"test"})
+
+	pods := *activePods.Get()
+	assert.Len(t, pods, 1)
+	assert.Equal(t, "test", pods[0])
+
+	assert.True(t, activePods.Has("test"))
+	activePods.Set(&Pods{"false"})
+	assert.False(t, activePods.Has("test"))
 }

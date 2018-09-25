@@ -14,6 +14,8 @@
 
 package pod
 
+import "sync"
+
 type Pods []string
 
 func (p Pods) HasPod(name string) bool {
@@ -23,6 +25,33 @@ func (p Pods) HasPod(name string) bool {
 		}
 	}
 	return false
+}
+
+type ActivePods struct {
+	sync.Mutex
+	pods *Pods
+}
+
+func NewActivePods() *ActivePods {
+	return &ActivePods{pods: &Pods{}}
+}
+
+func (p *ActivePods) Get() *Pods {
+	p.Lock()
+	defer p.Unlock()
+	return p.pods
+}
+
+func (p *ActivePods) Set(pods *Pods) {
+	p.Lock()
+	defer p.Unlock()
+	p.pods = pods
+}
+
+func (p *ActivePods) Has(name string) bool {
+	p.Lock()
+	defer p.Unlock()
+	return p.pods.HasPod(name)
 }
 
 type Source interface {

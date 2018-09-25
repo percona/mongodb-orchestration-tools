@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
@@ -43,10 +44,10 @@ type Watcher struct {
 	state         *replset.State
 	quit          *chan bool
 	running       bool
-	activePods    *Pods
+	activePods    *pod.ActivePods
 }
 
-func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *Pods) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *pod.ActivePods) *Watcher {
 	return &Watcher{
 		config:     config,
 		replset:    rs,
@@ -138,12 +139,12 @@ func (rw *Watcher) logReplsetState() {
 	}
 
 	primary := status.Primary()
-	//rsPrimary := rw.replset.GetMember(primary.Name)
+	rsPrimary := rw.replset.GetMember(primary.Name)
 
 	log.WithFields(log.Fields{
 		"replset": rw.replset.Name,
 		"host":    primary.Name,
-		//"task":       rsPrimary.Task.Name(),
+		"task":    rsPrimary.Task.Name(),
 		//"task_state": rsPrimary.Task.State(),
 	}).Infof("Replset %s", primary.State)
 
@@ -158,7 +159,7 @@ func (rw *Watcher) logReplsetState() {
 		log.WithFields(log.Fields{
 			"replset": rw.replset.Name,
 			"host":    member.Name,
-			//	"task":       rsMember.Task.Name(),
+			"task":    rsMember.Task.Name(),
 			//	"task_state": rsMember.Task.State(),
 		}).Infof("Replset %s", member.State)
 	}

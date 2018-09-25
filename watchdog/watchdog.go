@@ -48,11 +48,11 @@ type Watchdog struct {
 	podSource      pod.Source
 	watcherManager watcher.Manager
 	quit           *chan bool
-	activePods     *watcher.Pods
+	activePods     *pod.ActivePods
 }
 
 func New(config *config.Config, quit *chan bool, podSource pod.Source) *Watchdog {
-	activePods := watcher.NewPods()
+	activePods := pod.NewActivePods()
 	return &Watchdog{
 		config:         config,
 		podSource:      podSource,
@@ -144,7 +144,7 @@ func (w *Watchdog) fetchPods() {
 
 	// get updated pods list
 	var wg sync.WaitGroup
-	for _, podName := range w.activePods.Get() {
+	for _, podName := range *w.activePods.Get() {
 		if w.doIgnorePod(podName) {
 			continue
 		}

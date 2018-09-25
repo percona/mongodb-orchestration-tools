@@ -17,6 +17,7 @@ package watcher
 import (
 	"sync"
 
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
@@ -36,10 +37,10 @@ type WatcherManager struct {
 	stop       *chan bool
 	quitChans  map[string]chan bool
 	watchers   map[string]*Watcher
-	activePods *Pods
+	activePods *pod.ActivePods
 }
 
-func NewManager(config *config.Config, stop *chan bool, activePods *Pods) *WatcherManager {
+func NewManager(config *config.Config, stop *chan bool, activePods *pod.ActivePods) *WatcherManager {
 	return &WatcherManager{
 		config:     config,
 		stop:       stop,
