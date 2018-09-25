@@ -26,6 +26,9 @@ import (
 // SDKAPIVersion is the version of the DC/OS SDK API
 var SDKAPIVersion = "v1"
 
+// SDKClientName is the name of the DC/OS SDK API client
+var SDKClientName = "dcos"
+
 var (
 	DefaultHTTPTimeout   = "5s"
 	DefaultSchedulerHost = "api." + internal.DefaultFrameworkName + ".marathon.l4lb.thisdcos.directory"
@@ -54,7 +57,7 @@ func New(frameworkName string, config *Config) *SDKClient {
 }
 
 func (c *SDKClient) Name() string {
-	return "dcos"
+	return SDKClientName
 }
 
 func (c *SDKClient) get(url string, out interface{}) error {

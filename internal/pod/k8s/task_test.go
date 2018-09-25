@@ -21,6 +21,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestK8STaskInterface(t *testing.T) {
-	assert.Implements(t, (*pod.Task)(nil), &K8STask{})
+func TestInternalPodK8STask(t *testing.T) {
+	assert.Implements(t, (*pod.Task)(nil), &Task{})
 }

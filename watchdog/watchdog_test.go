@@ -61,6 +61,7 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 }
 
 func TestWatchdogRun(t *testing.T) {
+	testAPIClient.On("Name").Return("test")
 	testAPIClient.On("GetPodURL").Return("http://test")
 	testAPIClient.On("GetPods").Return(&pod.Pods{"test"}, nil)
 
