@@ -78,6 +78,17 @@ func NewTask(data *TaskData, frameworkName string) *Task {
 	return &Task{Data: data, FrameworkName: frameworkName}
 }
 
+func (task *Task) getEnvVar(variableName string) (string, error) {
+	if task.Data.Info.Command != nil && task.Data.Info.Command.Environment != nil {
+		for _, variable := range task.Data.Info.Command.Environment.Variables {
+			if variable.Name == variableName {
+				return variable.Value, nil
+			}
+		}
+	}
+	return "", errors.New("Could not find env variable: " + variableName)
+}
+
 func (task *Task) Name() string {
 	return task.Data.Info.Name
 }
@@ -102,17 +113,6 @@ func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 		return strings.Contains(task.Data.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
-}
-
-func (task *Task) getEnvVar(variableName string) (string, error) {
-	if task.Data.Info.Command != nil && task.Data.Info.Command.Environment != nil {
-		for _, variable := range task.Data.Info.Command.Environment.Variables {
-			if variable.Name == variableName {
-				return variable.Value, nil
-			}
-		}
-	}
-	return "", errors.New("Could not find env variable: " + variableName)
 }
 
 func (task *Task) GetMongoAddr() (*db.Addr, error) {
