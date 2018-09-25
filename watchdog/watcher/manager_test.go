@@ -36,7 +36,10 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 
 	apiTask := &mocks.Task{}
 	apiTask.On("Name").Return("test")
-	//apiTask.On("State").Return(api.PodTaskStateRunning)
+
+	apiTaskState := &mocks.TaskState{}
+	apiTaskState.On("String").Return("OK")
+	apiTask.On("State").Return(apiTaskState)
 
 	// primary
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)

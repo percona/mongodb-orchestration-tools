@@ -29,8 +29,14 @@ func (t TaskType) String() string {
 	return string(t)
 }
 
+type TaskState interface {
+	String() string
+}
+
 type Task interface {
 	Name() string
+	State() TaskState
+	HasState() bool
 	IsRunning() bool
 	IsTaskType(taskType TaskType) bool
 	GetMongoAddr() (*db.Addr, error)

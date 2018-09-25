@@ -19,7 +19,28 @@ import (
 	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
-type Task struct{}
+type TaskState string
+
+var (
+	TaskStateRunning TaskState = "running"
+	TaskStateStopped TaskState = "stopped"
+)
+
+func (s TaskState) String() string {
+	return string(s)
+}
+
+type Task struct {
+	state *TaskState
+}
+
+func (task *Task) State() pod.TaskState {
+	return task.state
+}
+
+func (task *Task) HasState() bool {
+	return false
+}
 
 func (task *Task) Name() string {
 	return "test"

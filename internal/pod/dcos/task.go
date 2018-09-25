@@ -37,6 +37,10 @@ var (
 	TaskStateUnknown  TaskState = "UNKNOWN"
 )
 
+func (s TaskState) String() string {
+	return string(s)
+}
+
 type Task struct {
 	FrameworkName string
 	Data          *TaskData
@@ -82,11 +86,11 @@ func (task *Task) HasState() bool {
 	return task.Data.Status != nil && task.Data.Status.State != nil
 }
 
-func (task *Task) State() TaskState {
+func (task *Task) State() pod.TaskState {
 	if task.HasState() {
-		return *task.Data.Status.State
+		return task.Data.Status.State
 	}
-	return TaskStateUnknown
+	return &TaskStateUnknown
 }
 
 func (task *Task) IsRunning() bool {
