@@ -12,39 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package watcher
+package dcos
 
 import (
-	"sync"
+	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/stretchr/testify/assert"
 )
 
-type Pods struct {
-	sync.Mutex
-	pods *api.Pods
+func TestInternalPodDCOSTask(t *testing.T) {
+	assert.Implements(t, (*pod.Task)(nil), &Task{})
 }
 
-func NewPods() *Pods {
-	return &Pods{
-		pods: &api.Pods{},
-	}
-}
-
-func (p *Pods) Get() api.Pods {
-	p.Lock()
-	defer p.Unlock()
-	return *p.pods
-}
-
-func (p *Pods) Set(pods *api.Pods) {
-	p.Lock()
-	defer p.Unlock()
-	p.pods = pods
-}
-
-func (p *Pods) Has(name string) bool {
-	p.Lock()
-	defer p.Unlock()
-	return p.pods.HasPod(name)
+func TestInternalPodDCOSTaskState(t *testing.T) {
+	assert.Implements(t, (*pod.TaskState)(nil), TaskStateRunning)
+	task := NewTask(&TaskData{
+		Status: &TaskStatus{
+			State: &TaskStateRunning,
+		},
+	}, "test")
+	assert.NotNil(t, task.State())
+	assert.Equal(t, string(TaskStateRunning), task.State().String())
 }

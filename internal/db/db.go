@@ -16,12 +16,22 @@ package db
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
+
+type Addr struct {
+	Host string
+	Port int
+}
+
+func (a Addr) String() string {
+	return a.Host + ":" + strconv.Itoa(a.Port)
+}
 
 var (
 	ErrMsgAuthFailedStr string = "server returned error on SASL authentication step: Authentication failed."
@@ -30,6 +40,10 @@ var (
 )
 
 func GetSession(cnf *Config) (*mgo.Session, error) {
+	if cnf.SSL == nil {
+		cnf.SSL = &SSLConfig{}
+	}
+
 	log.WithFields(log.Fields{
 		"hosts":      cnf.DialInfo.Addrs,
 		"ssl":        cnf.SSL.Enabled,
@@ -75,7 +89,7 @@ func WaitForSession(cnf *Config, maxRetries uint, sleepDuration time.Duration) (
 			return session, err
 		}
 		time.Sleep(sleepDuration)
-		tries += 1
+		tries++
 	}
 	if err == nil {
 		return nil, ErrSessionTimeout
@@ -96,7 +110,7 @@ func WaitForPrimary(session *mgo.Session, maxRetries uint, sleepDuration time.Du
 			return nil
 		}
 		time.Sleep(sleepDuration)
-		tries += 1
+		tries++
 	}
 	if err == nil {
 		return ErrPrimaryTimeout

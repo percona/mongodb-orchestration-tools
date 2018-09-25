@@ -16,10 +16,22 @@ package api
 
 import (
 	"time"
+
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
-// APIVersion is the version of the DC/OS SDK API
-var APIVersion = "v1"
+// HTTPScheme is the scheme type to be used for HTTP calls
+type HTTPScheme string
+
+const (
+	HTTPSchemePlain  HTTPScheme = "http://"
+	HTTPSchemeSecure HTTPScheme = "https://"
+)
+
+// String returns a string representation of the HTTPScheme
+func (s HTTPScheme) String() string {
+	return string(s)
+}
 
 // Config is a struct of configuration options for the API
 type Config struct {
@@ -30,9 +42,10 @@ type Config struct {
 
 // Client is an interface describing a DC/OS SDK API Client
 type Client interface {
+	Name() string
 	GetPodURL() string
-	GetPods() (*Pods, error)
-	GetPodTasks(podName string) ([]PodTask, error)
+	GetPods() (*pod.Pods, error)
+	GetPodTasks(podName string) ([]pod.Task, error)
 	GetEndpoints() (*Endpoints, error)
 	GetEndpoint(endpointName string) (*Endpoint, error)
 }

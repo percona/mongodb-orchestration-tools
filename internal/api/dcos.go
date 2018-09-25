@@ -23,6 +23,12 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// SDKAPIVersion is the version of the DC/OS SDK API
+var SDKAPIVersion = "v1"
+
+// SDKClientName is the name of the DC/OS SDK API client
+var SDKClientName = "dcos"
+
 var (
 	DefaultHTTPTimeout   = "5s"
 	DefaultSchedulerHost = "api." + internal.DefaultFrameworkName + ".marathon.l4lb.thisdcos.directory"
@@ -30,29 +36,16 @@ var (
 	ErrNonSuccessCode    = errors.New("got non-success code")
 )
 
-// HTTPScheme is the scheme type to be used for HTTP calls
-type HTTPScheme string
-
-const (
-	HTTPSchemePlain  HTTPScheme = "http://"
-	HTTPSchemeSecure HTTPScheme = "https://"
-)
-
-// String returns a string representation of the HTTPScheme
-func (s HTTPScheme) String() string {
-	return string(s)
-}
-
-// ClientHTTP is an HTTP client for the DC/OS SDK API
-type ClientHTTP struct {
+// SDKClient is an HTTP client for the DC/OS SDK API
+type SDKClient struct {
 	FrameworkName string
 	config        *Config
 	scheme        HTTPScheme
 }
 
-// New creates a new ClientHTTP struct configured for use with the DC/OS SDK API
-func New(frameworkName string, config *Config) *ClientHTTP {
-	c := &ClientHTTP{
+// New creates a new SDKClient struct configured for use with the DC/OS SDK API
+func New(frameworkName string, config *Config) *SDKClient {
+	c := &SDKClient{
 		FrameworkName: frameworkName,
 		config:        config,
 		scheme:        HTTPSchemePlain,
@@ -63,7 +56,11 @@ func New(frameworkName string, config *Config) *ClientHTTP {
 	return c
 }
 
-func (c *ClientHTTP) get(url string, out interface{}) error {
+func (c *SDKClient) Name() string {
+	return SDKClientName
+}
+
+func (c *SDKClient) get(url string, out interface{}) error {
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)
 	req.Header.SetContentType("application/json")

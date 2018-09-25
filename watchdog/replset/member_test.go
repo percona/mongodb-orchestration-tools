@@ -19,9 +19,9 @@ import (
 	"testing"
 
 	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/api"
-	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
 	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod/dcos"
+	"github.com/percona/dcos-mongo-tools/internal/pod/mocks"
 	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -31,13 +31,16 @@ import (
 func TestWatchdogReplsetNewMongod(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	apiTask := &mocks.PodTask{}
-	apiTask.On("GetMongoHostname", internal.DefaultFrameworkName).Return("test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix)
-	apiTask.On("GetMongoPort").Return(strconv.Atoi(testutils.MongodbPrimaryPort))
-	apiTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
+	podTask := &mocks.Task{}
+	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
+	podTask.On("GetMongoAddr").Return(&db.Addr{
+		Host: "test." + internal.DefaultFrameworkName + "." + dcos.AutoIPDNSSuffix,
+		Port: port,
+	}, nil)
+	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
-	testMongod, err = NewMongod(apiTask, internal.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)
+	testMongod, err = NewMongod(podTask, internal.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }
@@ -45,7 +48,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 func TestWatchdogReplsetMongodName(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	expected := "test." + internal.DefaultFrameworkName + "." + api.AutoIPDnsSuffix + ":" + testutils.MongodbPrimaryPort
+	expected := "test." + internal.DefaultFrameworkName + "." + dcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 

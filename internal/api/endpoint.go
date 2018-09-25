@@ -33,19 +33,19 @@ func (e *Endpoint) Hosts() []string {
 	return e.Dns
 }
 
-func (c *ClientHTTP) getEndpointsURL() string {
-	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/endpoints"
+func (c *SDKClient) getEndpointsURL() string {
+	return c.scheme.String() + c.config.Host + "/" + SDKAPIVersion + "/endpoints"
 }
 
 // GetEndpoints returns a slice of DC/OS SDK Service Endpoints
-func (c *ClientHTTP) GetEndpoints() (*Endpoints, error) {
+func (c *SDKClient) GetEndpoints() (*Endpoints, error) {
 	endpoints := &Endpoints{}
 	err := c.get(c.getEndpointsURL(), endpoints)
 	return endpoints, err
 }
 
 // GetEndpoint returns an DC/OS SDK Service Endpoint by name
-func (c *ClientHTTP) GetEndpoint(endpointName string) (*Endpoint, error) {
+func (c *SDKClient) GetEndpoint(endpointName string) (*Endpoint, error) {
 	endpointURL := c.getEndpointsURL() + "/" + endpointName
 	endpoint := &Endpoint{}
 	err := c.get(endpointURL, endpoint)

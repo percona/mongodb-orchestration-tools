@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
 	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"gopkg.in/mgo.v2"
 )
 
@@ -39,21 +39,21 @@ type Mongod struct {
 	Replset       string
 	FrameworkName string
 	PodName       string
-	Task          api.PodTask
+	Task          pod.Task
 }
 
-func NewMongod(task api.PodTask, frameworkName string, podName string) (*Mongod, error) {
+func NewMongod(task pod.Task, frameworkName string, podName string) (*Mongod, error) {
+	addr, err := task.GetMongoAddr()
+	if err != nil {
+		return nil, err
+	}
+
 	mongod := &Mongod{
 		FrameworkName: frameworkName,
 		PodName:       podName,
 		Task:          task,
-		Host:          task.GetMongoHostname(frameworkName),
-	}
-
-	var err error
-	mongod.Port, err = task.GetMongoPort()
-	if err != nil {
-		return mongod, err
+		Host:          addr.Host,
+		Port:          addr.Port,
 	}
 
 	mongod.Replset, err = task.GetMongoReplsetName()

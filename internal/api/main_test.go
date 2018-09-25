@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	testAPI       = &ClientHTTP{}
+	testAPI       = &SDKClient{}
 	testAPIConfig = &Config{
 		Host:    DefaultSchedulerHost,
 		Timeout: time.Second,

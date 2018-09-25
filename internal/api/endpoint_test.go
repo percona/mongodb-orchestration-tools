@@ -36,5 +36,9 @@ func TestInternalAPIEndpointHosts(t *testing.T) {
 }
 
 func TestInternalAPIGetEndpointsURL(t *testing.T) {
-	assert.Equal(t, testAPI.getEndpointsURL(), testAPI.scheme.String()+testAPI.config.Host+"/"+APIVersion+"/endpoints", "api.GetEndpointsURL() is incorrect")
+	assert.Equal(t,
+		testAPI.getEndpointsURL(),
+		testAPI.scheme.String()+testAPI.config.Host+"/"+SDKAPIVersion+"/endpoints",
+		"api.GetEndpointsURL() is incorrect",
+	)
 }

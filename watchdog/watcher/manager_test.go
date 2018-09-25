@@ -19,24 +19,27 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
-	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/dcos-mongo-tools/internal/pod/mocks"
 	"github.com/percona/dcos-mongo-tools/internal/testutils"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWatchdogWatcherNewManager(t *testing.T) {
-	testManager = NewManager(testConfig, &testStopChan, NewPods())
+	testManager = NewManager(testConfig, &testStopChan, pod.NewActivePods())
 	assert.NotNil(t, testManager)
 }
 
 func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	apiTask := &mocks.PodTask{}
+	apiTask := &mocks.Task{}
 	apiTask.On("Name").Return("test")
-	apiTask.On("State").Return(api.PodTaskStateRunning)
+
+	apiTaskState := &mocks.TaskState{}
+	apiTaskState.On("String").Return("OK")
+	apiTask.On("State").Return(apiTaskState)
 
 	// primary
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)

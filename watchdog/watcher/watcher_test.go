@@ -17,7 +17,7 @@ package watcher
 import (
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
@@ -32,8 +32,8 @@ func TestGetScaledDownMembers(t *testing.T) {
 		PodName: "testPod",
 	})
 
-	pods := NewPods()
-	pods.Set(&api.Pods{"testPod"})
+	pods := pod.NewActivePods()
+	pods.Set(&pod.Pods{"testPod"})
 	w := &Watcher{
 		activePods: pods,
 		replset:    rs,
@@ -62,7 +62,7 @@ func TestGetScaledDownMembers(t *testing.T) {
 
 	// test scaled down (1 down host AND pod doesnt exist in 'activePods')
 	// this test simulates a scaling-down of replset members/tasks
-	w.activePods.Set(&api.Pods{})
+	w.activePods.Set(&pod.Pods{})
 	scaledDown := w.getScaledDownMembers()
 	assert.Len(t, scaledDown, 1)
 	assert.Equal(t, "scaled-down:27017", scaledDown[0].Host)

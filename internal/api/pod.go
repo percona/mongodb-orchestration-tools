@@ -14,65 +14,34 @@
 
 package api
 
-type Pods []string
-
-func (p Pods) HasPod(name string) bool {
-	for _, pod := range p {
-		if pod == name {
-			return true
-		}
-	}
-	return false
-}
-
-type PodTaskCommandEnvironmentVariable struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type PodTaskCommandEnvironment struct {
-	Variables []*PodTaskCommandEnvironmentVariable `json:"variables"`
-}
-
-type PodTaskCommand struct {
-	Environment *PodTaskCommandEnvironment `json:"environment"`
-	Value       string                     `json:"value"`
-}
-
-type PodTaskInfo struct {
-	Name    string          `json:"name"`
-	Command *PodTaskCommand `json:"command"`
-}
-
-type PodTaskStatus struct {
-	State *PodTaskState `json:"state"`
-}
+import (
+	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/dcos-mongo-tools/internal/pod/dcos"
+)
 
 // GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
-func (c *ClientHTTP) GetPodURL() string {
-	return c.scheme.String() + c.config.Host + "/" + APIVersion + "/pod"
+func (c *SDKClient) GetPodURL() string {
+	return c.scheme.String() + c.config.Host + "/" + SDKAPIVersion + "/pod"
 }
 
 // GetPods returns a slice of existing Pods in the DC/OS SDK
-func (c *ClientHTTP) GetPods() (*Pods, error) {
-	pods := &Pods{}
+func (c *SDKClient) GetPods() (*pod.Pods, error) {
+	pods := &pod.Pods{}
 	err := c.get(c.GetPodURL(), pods)
 	return pods, err
 }
 
 // GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
-func (c *ClientHTTP) GetPodTasks(podName string) ([]PodTask, error) {
-	tasks := make([]PodTask, 0)
-
-	tasksHTTP := make([]*PodTaskHTTP, 0)
+func (c *SDKClient) GetPodTasks(podName string) ([]pod.Task, error) {
+	tasks := make([]pod.Task, 0)
+	tasksData := make([]*dcos.TaskData, 0)
 	podURL := c.GetPodURL() + "/" + podName + "/info"
-	err := c.get(podURL, &tasksHTTP)
+	err := c.get(podURL, &tasksData)
 	if err != nil {
 		return tasks, err
 	}
-
-	for _, task := range tasksHTTP {
-		tasks = append(tasks, task)
+	for _, taskData := range tasksData {
+		tasks = append(tasks, dcos.NewTask(taskData, c.FrameworkName))
 	}
 	return tasks, nil
 }

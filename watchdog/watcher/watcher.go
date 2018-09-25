@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
@@ -43,10 +44,10 @@ type Watcher struct {
 	state         *replset.State
 	quit          *chan bool
 	running       bool
-	activePods    *Pods
+	activePods    *pod.ActivePods
 }
 
-func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *Pods) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *pod.ActivePods) *Watcher {
 	return &Watcher{
 		config:     config,
 		replset:    rs,
@@ -258,17 +259,19 @@ func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) error {
 }
 
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
+	state := mongod.Task.State()
+	if state == nil || !mongod.Task.IsRunning() {
+		return
+	}
 	fields := log.Fields{
 		"replset": rw.replset.Name,
 		"name":    mongod.Task.Name(),
 		"host":    mongod.Name(),
-		"state":   string(mongod.Task.State()),
+		"state":   state.String(),
 	}
 	if rw.replset.HasMember(mongod.Name()) {
 		log.WithFields(fields).Info("Updating running mongod task")
-	} else if !mongod.Task.IsRunning() {
-		return
-	} else if mongod.Task.HasState() {
+	} else {
 		log.WithFields(fields).Info("Adding new mongod task")
 	}
 	rw.replset.UpdateMember(mongod)

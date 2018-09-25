@@ -12,4 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pmm
+package pod
+
+import (
+	"github.com/percona/dcos-mongo-tools/internal/db"
+)
+
+type TaskType string
+
+var (
+	TaskTypeMongod TaskType = "mongod"
+	TaskTypeMongos TaskType = "mongos"
+)
+
+func (t TaskType) String() string {
+	return string(t)
+}
+
+type TaskState interface {
+	String() string
+}
+
+type Task interface {
+	Name() string
+	State() TaskState
+	HasState() bool
+	IsRunning() bool
+	IsTaskType(taskType TaskType) bool
+	GetMongoAddr() (*db.Addr, error)
+	GetMongoReplsetName() (string, error)
+}

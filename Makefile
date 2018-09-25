@@ -123,5 +123,8 @@ ifeq ($(GIT_BRANCH), master)
 	docker push $(DOCKERHUB_REPO):latest
 endif
 
+mocks:
+	bash $(CURDIR)/genmocks.sh
+
 clean:
 	rm -rf bin cover.out vendor 2>/dev/null || true

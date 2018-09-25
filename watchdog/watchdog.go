@@ -21,7 +21,7 @@ import (
 	"time"
 
 	dcosmongotools "github.com/percona/dcos-mongo-tools"
-	"github.com/percona/dcos-mongo-tools/internal/api"
+	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/percona/dcos-mongo-tools/watchdog/config"
 	"github.com/percona/dcos-mongo-tools/watchdog/replset"
 	"github.com/percona/dcos-mongo-tools/watchdog/watcher"
@@ -45,17 +45,17 @@ var (
 
 type Watchdog struct {
 	config         *config.Config
-	api            api.Client
+	podSource      pod.Source
 	watcherManager watcher.Manager
 	quit           *chan bool
-	activePods     *watcher.Pods
+	activePods     *pod.ActivePods
 }
 
-func New(config *config.Config, quit *chan bool, client api.Client) *Watchdog {
-	activePods := watcher.NewPods()
+func New(config *config.Config, quit *chan bool, podSource pod.Source) *Watchdog {
+	activePods := pod.NewActivePods()
 	return &Watchdog{
 		config:         config,
-		api:            client,
+		podSource:      podSource,
 		watcherManager: watcher.NewManager(config, quit, activePods),
 		quit:           quit,
 		activePods:     activePods,
@@ -78,7 +78,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 		"pod": podName,
 	}).Info("Getting tasks for pod")
 
-	tasks, err := w.api.GetPodTasks(podName)
+	tasks, err := w.podSource.GetPodTasks(podName)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"pod":   podName,
@@ -89,7 +89,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 	apiFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
 
 	for _, task := range tasks {
-		if !task.IsMongodTask() {
+		if !task.IsTaskType(pod.TaskTypeMongod) {
 			continue
 		}
 
@@ -124,13 +124,13 @@ func (w *Watchdog) doIgnorePod(podName string) bool {
 
 func (w *Watchdog) fetchPods() {
 	log.WithFields(log.Fields{
-		"url": w.api.GetPodURL(),
+		"url": w.podSource.GetPodURL(),
 	}).Info("Getting pods from url")
 
-	pods, err := w.api.GetPods()
+	pods, err := w.podSource.GetPods()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"url":   w.api.GetPodURL(),
+			"url":   w.podSource.GetPodURL(),
 			"error": err,
 		}).Error("Error fetching DCOS pod list")
 		return
@@ -144,7 +144,7 @@ func (w *Watchdog) fetchPods() {
 
 	// get updated pods list
 	var wg sync.WaitGroup
-	for _, podName := range w.activePods.Get() {
+	for _, podName := range *w.activePods.Get() {
 		if w.doIgnorePod(podName) {
 			continue
 		}
@@ -159,6 +159,7 @@ func (w *Watchdog) Run() {
 		"version":   dcosmongotools.Version,
 		"framework": w.config.FrameworkName,
 		"go":        runtime.Version(),
+		"source":    w.podSource.Name(),
 	}).Info("Starting watchdog")
 
 	// run the prometheus metrics server
