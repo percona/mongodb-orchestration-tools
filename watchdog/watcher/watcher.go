@@ -259,17 +259,19 @@ func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) error {
 }
 
 func (rw *Watcher) UpdateMongod(mongod *replset.Mongod) {
+	state := mongod.Task.State()
+	if state == nil || !mongod.Task.IsRunning() {
+		return
+	}
 	fields := log.Fields{
 		"replset": rw.replset.Name,
 		"name":    mongod.Task.Name(),
 		"host":    mongod.Name(),
-		"state":   mongod.Task.State().String(),
+		"state":   state.String(),
 	}
 	if rw.replset.HasMember(mongod.Name()) {
 		log.WithFields(fields).Info("Updating running mongod task")
-	} else if !mongod.Task.IsRunning() {
-		return
-	} else if mongod.Task.HasState() {
+	} else {
 		log.WithFields(fields).Info("Adding new mongod task")
 	}
 	rw.replset.UpdateMember(mongod)
