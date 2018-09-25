@@ -27,12 +27,6 @@ const (
 	backupPodNamePrefix = "backup-"
 )
 
-type Member interface {
-	Name() string
-	IsBackupNode() bool
-	DBConfig(sslCnf *db.SSLConfig) *db.Config
-}
-
 type Mongod struct {
 	Host          string
 	Port          int

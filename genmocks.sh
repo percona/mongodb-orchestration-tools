@@ -10,11 +10,11 @@ set -e
 CURDIR=$(readlink -f $(dirname $0))
 REPO=github.com/percona/dcos-mongo-tools
 
-for SUBPATH in "internal/api" "internal/pod"; do
+for SUBPATH in "executor" "executor/job" "executor/metrics" "internal/api" "internal/pod" "watchdog/watcher"; do
 	pushd $CURDIR/$SUBPATH
-		mockery -all
-		for mock in $CURDIR/$SUBPATH/mocks/*.go; do
-			sed -i -e s@"${CURDIR}/${SUBPATH}/"@"${REPO}/${SUBPATH}"@g $mock
+		$GOPATH/bin/mockery -all
+		for MOCK in mocks/*.go; do
+			sed -i -e s@"${CURDIR}/${SUBPATH}/"@"${REPO}/${SUBPATH}"@g $MOCK
 		done
 	popd
 done
