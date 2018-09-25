@@ -30,7 +30,6 @@ import (
 )
 
 var (
-	directReadPreference               = mgo.Monotonic
 	replsetReadPreference              = mgo.PrimaryPreferred
 	waitForMongodAvailableRetries uint = 10
 )

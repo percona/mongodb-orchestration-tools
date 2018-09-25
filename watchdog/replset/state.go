@@ -136,7 +136,7 @@ func (s *State) resetConfigVotes() {
 		"total_members":  totalMembers,
 		"voting_members": votingMembers,
 		"voting_max":     MaxVotingMembers,
-	}).Error("Adjusting replica set voting members")
+	}).Info("Adjusting replica set votes")
 
 	for isEven(votingMembers) || votingMembers > MaxVotingMembers {
 		if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
