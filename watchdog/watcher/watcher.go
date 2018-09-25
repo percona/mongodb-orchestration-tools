@@ -192,9 +192,9 @@ func (rw *Watcher) getScaledDownMembers() []*rsConfig.Member {
 	return scaledDown
 }
 
-func (rw *Watcher) waitForMongodAvailable(member replset.Member) error {
+func (rw *Watcher) waitForMongodAvailable(mongod *replset.Mongod) error {
 	session, err := db.WaitForSession(
-		member.DBConfig(rw.config.SSL),
+		mongod.DBConfig(rw.config.SSL),
 		waitForMongodAvailableRetries,
 		rw.config.ReplsetPoll,
 	)

@@ -17,12 +17,22 @@ package dcos
 import (
 	"testing"
 
+	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/percona/dcos-mongo-tools/internal/pod"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInternalPodDCOSTask(t *testing.T) {
-	assert.Implements(t, (*pod.Task)(nil), &Task{})
+	task := NewTask(&TaskData{
+		Info: &TaskInfo{
+			Name: t.Name(),
+		},
+	}, "test")
+	assert.Implements(t, (*pod.Task)(nil), task)
+	assert.Equal(t, t.Name(), task.Name())
+
+	_, err := task.getEnvVar("not here")
+	assert.Error(t, err)
 }
 
 func TestInternalPodDCOSTaskState(t *testing.T) {
@@ -34,4 +44,68 @@ func TestInternalPodDCOSTaskState(t *testing.T) {
 	}, "test")
 	assert.NotNil(t, task.State())
 	assert.Equal(t, string(TaskStateRunning), task.State().String())
+	assert.True(t, task.IsRunning())
+
+	emptyTask := &Task{data: &TaskData{}}
+	assert.True(t, task.HasState())
+	assert.False(t, emptyTask.HasState())
+}
+
+func TestInternalPodDCOSTaskIsTaskType(t *testing.T) {
+	task := NewTask(&TaskData{
+		Info: &TaskInfo{
+			Name: "not a mongod",
+			Command: &TaskCommand{
+				Value: "mongodb-executor-linux",
+			},
+		},
+	}, "test")
+	assert.False(t, task.IsTaskType(pod.TaskTypeMongod))
+
+	task.data.Info.Name = "mongodb-rs-mongod"
+	assert.True(t, task.IsTaskType(pod.TaskTypeMongod))
+}
+
+func TestInternalPodDCOSTaskGetMongoAddr(t *testing.T) {
+	task := NewTask(&TaskData{
+		Info: &TaskInfo{
+			Name: t.Name(),
+			Command: &TaskCommand{
+				Environment: &TaskCommandEnvironment{
+					Variables: []*TaskCommandEnvironmentVariable{},
+				},
+			},
+		},
+	}, "test")
+	_, err := task.GetMongoAddr()
+	assert.Error(t, err)
+
+	task.data.Info.Command.Environment.Variables = []*TaskCommandEnvironmentVariable{{
+		Name:  internal.EnvMongoDBPort,
+		Value: "27017",
+	}}
+	addr, err := task.GetMongoAddr()
+	assert.NoError(t, err)
+	assert.Equal(t, t.Name()+".test."+AutoIPDNSSuffix, addr.Host)
+	assert.Equal(t, 27017, addr.Port)
+}
+
+func TestInternalPodDCOSTaskGetReplsetName(t *testing.T) {
+	task := NewTask(&TaskData{
+		Info: &TaskInfo{
+			Command: &TaskCommand{
+				Environment: &TaskCommandEnvironment{
+					Variables: []*TaskCommandEnvironmentVariable{
+						{
+							Name:  internal.EnvMongoDBReplset,
+							Value: "rs",
+						},
+					},
+				},
+			},
+		},
+	}, "test")
+	rsName, err := task.GetMongoReplsetName()
+	assert.NoError(t, err)
+	assert.Equal(t, "rs", rsName)
 }
