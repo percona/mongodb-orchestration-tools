@@ -38,7 +38,7 @@ var (
 )
 
 type Task struct {
-	frameworkName string
+	FrameworkName string
 	Data          *TaskData
 }
 
@@ -72,17 +72,6 @@ type TaskStatus struct {
 
 func (task *Task) Name() string {
 	return task.Data.Info.Name
-}
-
-func (task *Task) Framework() string {
-	if task.frameworkName == "" {
-		task.frameworkName = internal.DefaultFrameworkName
-	}
-	return task.frameworkName
-}
-
-func (task *Task) SetFramework(name string) {
-	task.frameworkName = name
 }
 
 func (task *Task) HasState() bool {
@@ -120,7 +109,7 @@ func (task *Task) getEnvVar(variableName string) (string, error) {
 
 func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
-		Host: task.Data.Info.Name + "." + task.Framework() + "." + AutoIPDNSSuffix,
+		Host: task.Data.Info.Name + "." + task.FrameworkName + "." + AutoIPDNSSuffix,
 	}
 	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)
 	if err != nil {
