@@ -26,6 +26,7 @@ func (p Pods) HasPod(name string) bool {
 }
 
 type Source interface {
+	Name() string
 	GetPodURL() string
 	GetPods() (*Pods, error)
 	GetPodTasks(podName string) ([]Task, error)

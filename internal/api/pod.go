@@ -34,7 +34,7 @@ func (c *SDKClient) GetPods() (*pod.Pods, error) {
 // GetPodTasks returns a slice of PodTask for a given DC/OS SDK Pod by name
 func (c *SDKClient) GetPodTasks(podName string) ([]pod.Task, error) {
 	tasks := make([]pod.Task, 0)
-	tasksHTTP := make([]*dcos.DCOSTask, 0)
+	tasksHTTP := make([]*dcos.Task, 0)
 	podURL := c.GetPodURL() + "/" + podName + "/info"
 	err := c.get(podURL, &tasksHTTP)
 	if err != nil {

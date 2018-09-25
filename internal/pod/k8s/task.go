@@ -19,25 +19,25 @@ import (
 	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
-type K8STask struct{}
+type Task struct{}
 
-func (task *K8STask) Name() string {
+func (task *Task) Name() string {
 	return "test"
 }
 
-func (task *K8STask) IsRunning() bool {
+func (task *Task) IsRunning() bool {
 	return false
 }
 
-func (task *K8STask) IsTaskType(taskType pod.TaskType) bool {
+func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
-func (task *K8STask) GetMongoAddr() (*db.Addr, error) {
+func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{}
 	return addr, nil
 }
 
-func (task *K8STask) GetMongoReplsetName() (string, error) {
+func (task *Task) GetMongoReplsetName() (string, error) {
 	return "rs", nil
 }

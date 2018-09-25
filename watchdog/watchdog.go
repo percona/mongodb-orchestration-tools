@@ -159,6 +159,7 @@ func (w *Watchdog) Run() {
 		"version":   dcosmongotools.Version,
 		"framework": w.config.FrameworkName,
 		"go":        runtime.Version(),
+		"podSource": w.podSource.Name(),
 	}).Info("Starting watchdog")
 
 	// run the prometheus metrics server

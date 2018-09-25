@@ -53,6 +53,10 @@ func New(frameworkName string, config *Config) *SDKClient {
 	return c
 }
 
+func (c *SDKClient) Name() string {
+	return "dcos"
+}
+
 func (c *SDKClient) get(url string, out interface{}) error {
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)

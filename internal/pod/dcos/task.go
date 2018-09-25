@@ -24,90 +24,90 @@ import (
 	"github.com/percona/dcos-mongo-tools/internal/pod"
 )
 
-type DCOSTaskState string
+type TaskState string
 
 var (
-	DCOSAutoIPDnsSuffix   string        = "autoip.dcos.thisdcos.directory"
-	DCOSTaskStateError    DCOSTaskState = "TASK_ERROR"
-	DCOSTaskStateFailed   DCOSTaskState = "TASK_FAILED"
-	DCOSTaskStateFinished DCOSTaskState = "TASK_FINISHED"
-	DCOSTaskStateKilled   DCOSTaskState = "TASK_KILLED"
-	DCOSTaskStateLost     DCOSTaskState = "TASK_LOST"
-	DCOSTaskStateRunning  DCOSTaskState = "TASK_RUNNING"
-	DCOSTaskStateUnknown  DCOSTaskState = "UNKNOWN"
+	AutoIPDNSSuffix   string    = "autoip.dcos.thisdcos.directory"
+	TaskStateError    TaskState = "TASK_ERROR"
+	TaskStateFailed   TaskState = "TASK_FAILED"
+	TaskStateFinished TaskState = "TASK_FINISHED"
+	TaskStateKilled   TaskState = "TASK_KILLED"
+	TaskStateLost     TaskState = "TASK_LOST"
+	TaskStateRunning  TaskState = "TASK_RUNNING"
+	TaskStateUnknown  TaskState = "UNKNOWN"
 )
 
-type DCOSTask struct {
+type Task struct {
 	frameworkName string
-	Data          *DCOSTaskData
+	Data          *TaskData
 }
 
-type DCOSTaskData struct {
-	Info   *DCOSTaskInfo   `json:"info"`
-	Status *DCOSTaskStatus `json:"status"`
+type TaskData struct {
+	Info   *TaskInfo   `json:"info"`
+	Status *TaskStatus `json:"status"`
 }
 
-type DCOSTaskCommandEnvironmentVariable struct {
+type TaskCommandEnvironmentVariable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-type DCOSTaskCommandEnvironment struct {
-	Variables []*DCOSTaskCommandEnvironmentVariable `json:"variables"`
+type TaskCommandEnvironment struct {
+	Variables []*TaskCommandEnvironmentVariable `json:"variables"`
 }
 
-type DCOSTaskCommand struct {
-	Environment *DCOSTaskCommandEnvironment `json:"environment"`
-	Value       string                      `json:"value"`
+type TaskCommand struct {
+	Environment *TaskCommandEnvironment `json:"environment"`
+	Value       string                  `json:"value"`
 }
 
-type DCOSTaskInfo struct {
-	Name    string           `json:"name"`
-	Command *DCOSTaskCommand `json:"command"`
+type TaskInfo struct {
+	Name    string       `json:"name"`
+	Command *TaskCommand `json:"command"`
 }
 
-type DCOSTaskStatus struct {
-	State *DCOSTaskState `json:"state"`
+type TaskStatus struct {
+	State *TaskState `json:"state"`
 }
 
-func (task *DCOSTask) Name() string {
+func (task *Task) Name() string {
 	return task.Data.Info.Name
 }
 
-func (task *DCOSTask) Framework() string {
+func (task *Task) Framework() string {
 	if task.frameworkName == "" {
 		task.frameworkName = internal.DefaultFrameworkName
 	}
 	return task.frameworkName
 }
 
-func (task *DCOSTask) SetFramework(name string) {
+func (task *Task) SetFramework(name string) {
 	task.frameworkName = name
 }
 
-func (task *DCOSTask) HasState() bool {
+func (task *Task) HasState() bool {
 	return task.Data.Status != nil && task.Data.Status.State != nil
 }
 
-func (task *DCOSTask) State() DCOSTaskState {
+func (task *Task) State() TaskState {
 	if task.HasState() {
 		return *task.Data.Status.State
 	}
-	return DCOSTaskStateUnknown
+	return TaskStateUnknown
 }
 
-func (task *DCOSTask) IsRunning() bool {
-	return task.State() == DCOSTaskStateRunning
+func (task *Task) IsRunning() bool {
+	return task.State() == TaskStateRunning
 }
 
-func (task *DCOSTask) IsTaskType(taskType pod.TaskType) bool {
+func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	if task.Data.Info != nil && strings.HasSuffix(task.Data.Info.Name, "-"+taskType.String()) {
 		return strings.Contains(task.Data.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
 }
 
-func (task *DCOSTask) getEnvVar(variableName string) (string, error) {
+func (task *Task) getEnvVar(variableName string) (string, error) {
 	if task.Data.Info.Command != nil && task.Data.Info.Command.Environment != nil {
 		for _, variable := range task.Data.Info.Command.Environment.Variables {
 			if variable.Name == variableName {
@@ -118,9 +118,9 @@ func (task *DCOSTask) getEnvVar(variableName string) (string, error) {
 	return "", errors.New("Could not find env variable: " + variableName)
 }
 
-func (task *DCOSTask) GetMongoAddr() (*db.Addr, error) {
+func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
-		Host: task.Data.Info.Name + "." + task.Framework() + "." + DCOSAutoIPDnsSuffix,
+		Host: task.Data.Info.Name + "." + task.Framework() + "." + AutoIPDNSSuffix,
 	}
 	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)
 	if err != nil {
@@ -130,6 +130,6 @@ func (task *DCOSTask) GetMongoAddr() (*db.Addr, error) {
 	return addr, err
 }
 
-func (task *DCOSTask) GetMongoReplsetName() (string, error) {
+func (task *Task) GetMongoReplsetName() (string, error) {
 	return task.getEnvVar(internal.EnvMongoDBReplset)
 }

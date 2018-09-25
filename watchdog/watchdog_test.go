@@ -65,9 +65,9 @@ func TestWatchdogRun(t *testing.T) {
 	testAPIClient.On("GetPods").Return(&pod.Pods{"test"}, nil)
 
 	tasks := make([]pod.Task, 0)
-	tasks = append(tasks, &dcos.DCOSTask{
-		Data: &dcos.DCOSTaskData{
-			Info: &dcos.DCOSTaskInfo{},
+	tasks = append(tasks, &dcos.Task{
+		Data: &dcos.TaskData{
+			Info: &dcos.TaskInfo{},
 		},
 	})
 	testAPIClient.On("GetPodTasks", "test").Return(tasks, nil)

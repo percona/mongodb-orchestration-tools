@@ -21,6 +21,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDCOSTaskInterface(t *testing.T) {
-	assert.Implements(t, (*pod.Task)(nil), &DCOSTask{})
+func TestInternalPodDCOSTask(t *testing.T) {
+	assert.Implements(t, (*pod.Task)(nil), &Task{})
 }

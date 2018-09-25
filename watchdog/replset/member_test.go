@@ -34,7 +34,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 	podTask := &mocks.Task{}
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
 	podTask.On("GetMongoAddr").Return(&db.Addr{
-		Host: "test." + internal.DefaultFrameworkName + "." + dcos.DCOSAutoIPDnsSuffix,
+		Host: "test." + internal.DefaultFrameworkName + "." + dcos.AutoIPDNSSuffix,
 		Port: port,
 	}, nil)
 	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
@@ -48,7 +48,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 func TestWatchdogReplsetMongodName(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	expected := "test." + internal.DefaultFrameworkName + "." + dcos.DCOSAutoIPDnsSuffix + ":" + testutils.MongodbPrimaryPort
+	expected := "test." + internal.DefaultFrameworkName + "." + dcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 
