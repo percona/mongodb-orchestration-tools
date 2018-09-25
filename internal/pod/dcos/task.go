@@ -70,6 +70,10 @@ type TaskStatus struct {
 	State *TaskState `json:"state"`
 }
 
+func NewTask(data *TaskData, frameworkName string) *Task {
+	return &Task{Data: data, FrameworkName: frameworkName}
+}
+
 func (task *Task) Name() string {
 	return task.Data.Info.Name
 }

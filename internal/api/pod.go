@@ -41,10 +41,7 @@ func (c *SDKClient) GetPodTasks(podName string) ([]pod.Task, error) {
 		return tasks, err
 	}
 	for _, taskData := range tasksData {
-		tasks = append(tasks, &dcos.Task{
-			Data:          taskData,
-			FrameworkName: c.FrameworkName,
-		})
+		tasks = append(tasks, dcos.NewTask(taskData, c.FrameworkName))
 	}
 	return tasks, nil
 }
