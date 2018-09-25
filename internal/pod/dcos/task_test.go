@@ -24,3 +24,14 @@ import (
 func TestInternalPodDCOSTask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
 }
+
+func TestInternalPodDCOSTaskState(t *testing.T) {
+	assert.Implements(t, (*pod.TaskState)(nil), TaskStateRunning)
+	task := NewTask(&TaskData{
+		Status: &TaskStatus{
+			State: &TaskStateRunning,
+		},
+	}, "test")
+	assert.NotNil(t, task.State())
+	assert.Equal(t, string(TaskStateRunning), task.State().String())
+}

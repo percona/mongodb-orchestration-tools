@@ -42,8 +42,8 @@ func (s TaskState) String() string {
 }
 
 type Task struct {
-	FrameworkName string
-	Data          *TaskData
+	frameworkName string
+	data          *TaskData
 }
 
 type TaskData struct {
@@ -75,12 +75,12 @@ type TaskStatus struct {
 }
 
 func NewTask(data *TaskData, frameworkName string) *Task {
-	return &Task{Data: data, FrameworkName: frameworkName}
+	return &Task{data: data, frameworkName: frameworkName}
 }
 
 func (task *Task) getEnvVar(variableName string) (string, error) {
-	if task.Data.Info.Command != nil && task.Data.Info.Command.Environment != nil {
-		for _, variable := range task.Data.Info.Command.Environment.Variables {
+	if task.data.Info.Command != nil && task.data.Info.Command.Environment != nil {
+		for _, variable := range task.data.Info.Command.Environment.Variables {
 			if variable.Name == variableName {
 				return variable.Value, nil
 			}
@@ -90,18 +90,18 @@ func (task *Task) getEnvVar(variableName string) (string, error) {
 }
 
 func (task *Task) Name() string {
-	return task.Data.Info.Name
+	return task.data.Info.Name
 }
 
 func (task *Task) HasState() bool {
-	return task.Data.Status != nil && task.Data.Status.State != nil
+	return task.data.Status != nil && task.data.Status.State != nil
 }
 
 func (task *Task) State() pod.TaskState {
 	if task.HasState() {
-		return task.Data.Status.State
+		return *task.data.Status.State
 	}
-	return &TaskStateUnknown
+	return TaskStateUnknown
 }
 
 func (task *Task) IsRunning() bool {
@@ -109,15 +109,15 @@ func (task *Task) IsRunning() bool {
 }
 
 func (task *Task) IsTaskType(taskType pod.TaskType) bool {
-	if task.Data.Info != nil && strings.HasSuffix(task.Data.Info.Name, "-"+taskType.String()) {
-		return strings.Contains(task.Data.Info.Command.Value, "mongodb-executor-")
+	if task.data.Info != nil && strings.HasSuffix(task.data.Info.Name, "-"+taskType.String()) {
+		return strings.Contains(task.data.Info.Command.Value, "mongodb-executor-")
 	}
 	return false
 }
 
 func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
-		Host: task.Data.Info.Name + "." + task.FrameworkName + "." + AutoIPDNSSuffix,
+		Host: task.data.Info.Name + "." + task.frameworkName + "." + AutoIPDNSSuffix,
 	}
 	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)
 	if err != nil {
