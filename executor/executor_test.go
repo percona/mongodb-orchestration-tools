@@ -15,31 +15,12 @@
 package executor
 
 import (
+	"errors"
 	"testing"
 
+	"github.com/percona/dcos-mongo-tools/executor/mocks"
 	"github.com/stretchr/testify/assert"
 )
-
-type MockDaemon struct{}
-
-func (d *MockDaemon) Name() string {
-	return "MockDaemon"
-}
-
-func (d *MockDaemon) IsStarted() bool {
-	return false
-}
-
-func (d *MockDaemon) Start() error {
-	return nil
-}
-
-func (d *MockDaemon) Wait() {
-}
-
-func (d *MockDaemon) Kill() error {
-	return nil
-}
 
 func TestExecutorNew(t *testing.T) {
 	testExecutor = New(testExecutorConfig, &testQuitChan)
@@ -47,7 +28,16 @@ func TestExecutorNew(t *testing.T) {
 }
 
 func TestExecutorRun(t *testing.T) {
-	testExecutorDaemon = &MockDaemon{}
+	testExecutorDaemon = &mocks.Daemon{}
+	testExecutorDaemon.On("Kill").Return(nil)
+
+	// test successful .Start()
+	testExecutorDaemon.On("Start").Return(nil).Once()
 	err := testExecutor.Run(testExecutorDaemon)
 	assert.NoError(t, err, ".Run() should not return an error")
+
+	// test failed .Start()
+	testExecutorDaemon.On("Start").Return(errors.New("test failure"))
+	err = testExecutor.Run(testExecutorDaemon)
+	assert.Error(t, err, ".Run() should return an error after failed .Start()")
 }

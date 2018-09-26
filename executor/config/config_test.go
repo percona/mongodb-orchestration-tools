@@ -15,12 +15,24 @@
 package config
 
 import (
+	"os"
 	"testing"
 
+	"github.com/percona/dcos-mongo-tools/internal"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExecutorConfigNodeTypeString(t *testing.T) {
 	assert.Equal(t, "mongod", NodeTypeMongod.String())
 	assert.Equal(t, "mongos", NodeTypeMongos.String())
+}
+
+func TestMesosSandboxPathOrFallback(t *testing.T) {
+	err := os.Setenv(internal.EnvMesosSandbox, "/tmp")
+	assert.NoError(t, err)
+	assert.Equal(t, "/tmp/test", MesosSandboxPathOrFallback("test", "/fallback/path"))
+
+	err = os.Unsetenv(internal.EnvMesosSandbox)
+	assert.NoError(t, err)
+	assert.Equal(t, "/fallback/path", MesosSandboxPathOrFallback("test", "/fallback/path"))
 }
