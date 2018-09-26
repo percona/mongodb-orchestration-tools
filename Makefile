@@ -74,7 +74,7 @@ test-full-prepare:
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
 	docker-compose up -d \
 	--force-recreate \
-	--remove-orphans \
+	--remove-orphans
 	docker/test/init-test-replset-wait.sh
 
 test-full-clean:
