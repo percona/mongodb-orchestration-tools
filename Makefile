@@ -72,7 +72,10 @@ test-full-prepare:
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
 	TEST_SECONDARY1_PORT=$(TEST_SECONDARY1_PORT) \
 	TEST_SECONDARY2_PORT=$(TEST_SECONDARY2_PORT) \
-	docker-compose up -d --force-recreate
+	docker-compose up -d \
+	--force-recreate \
+	--always-recreate-deps \
+	--renew-anon-volumes
 	docker/test/init-test-replset-wait.sh
 
 test-full-clean:
