@@ -19,6 +19,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -84,6 +85,6 @@ func TestInternalPasswordFromFile(t *testing.T) {
 
 func TestInternalRelPathToAbs(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
-	assert.Equal(t, filename, RelPathToAbs("util_test.go"))
+	assert.Equal(t, filename, RelPathToAbs(filepath.Base(filename)))
 	assert.Equal(t, "", RelPathToAbs("does/not/exist"))
 }
