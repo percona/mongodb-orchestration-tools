@@ -2,7 +2,7 @@ ARG GOLANG_DOCKERHUB_TAG
 
 FROM golang:$GOLANG_DOCKERHUB_TAG
 
-WORKDIR /go/src/github.com/percona/dcos-mongo-tools
+WORKDIR /go/src/github.com/percona/mongodb-orchestration-tools
 COPY . .
 
 RUN apt-get update && \
@@ -11,6 +11,4 @@ RUN apt-get update && \
 
 CMD make test-full && \
     make && \
-    upx bin/* && \
-    zip -j bin/dcos-mongo-tools_mongod.zip bin/dcos-mongodb-executor && \
-    zip -j bin/dcos-mongo-tools_mongod.zip bin/dcos-mongodb-healthcheck
+    upx bin/*
