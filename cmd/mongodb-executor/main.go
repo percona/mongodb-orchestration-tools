@@ -171,7 +171,7 @@ func main() {
 	).Default(config.DefaultDelayBackgroundJob).DurationVar(&cnf.DelayBackgroundJob)
 	app.Flag(
 		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
+		"enable secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
 	).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	handleMongoDB(app, cnf)

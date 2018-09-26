@@ -11,9 +11,9 @@ Go-based tools for the [DC/OS 'percona-server-mongodb' service](https://docs.mes
 
 **Tools**:
 - **mongodb-executor**: tool for executing tasks on the local mongod/mongos container
-- **mongodb-controller**: tool for controlling the replica set initiation and adding system MongoDB users
-- **mongodb-healthcheck**: tool for running DC/OS health and readiness checks on a MongoDB task
-- **mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
+- **mongodb-healthcheck**: tool for running MongoDB health and readiness checks
+- **dcos-mongodb-controller**: tool for controlling the replica set initiation and adding system MongoDB users
+- **dcos-mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
 
 ## Use Case / Required
 The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) by using the [DC/OS SDK API](https://mesosphere.github.io/dcos-commons/reference/swagger-api/), etc.

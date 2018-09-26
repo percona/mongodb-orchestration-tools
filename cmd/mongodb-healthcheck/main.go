@@ -32,14 +32,14 @@ var (
 )
 
 func main() {
-	app, _ := tool.New("Performs DC/OS health and readiness checks for MongoDB", GitCommit, GitBranch)
+	app, _ := tool.New("Performs health and readiness checks for MongoDB", GitCommit, GitBranch)
 	app.Flag(
 		"enableSecrets",
-		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
+		"enable secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
 	).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
-	health := app.Command("health", "Run DCOS health check")
-	readiness := app.Command("readiness", "Run DCOS readiness check").Default()
+	health := app.Command("health", "Run MongoDB health check")
+	readiness := app.Command("readiness", "Run MongoDB readiness check").Default()
 	cnf := db.NewConfig(
 		app,
 		internal.EnvMongoDBClusterMonitorUser,
