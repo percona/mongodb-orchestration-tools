@@ -17,7 +17,7 @@ package api
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
 )
 
 // HTTPScheme is the scheme type to be used for HTTP calls

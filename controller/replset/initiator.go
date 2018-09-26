@@ -20,9 +20,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/controller"
-	"github.com/percona/dcos-mongo-tools/controller/user"
-	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/controller"
+	"github.com/percona/mongodb-orchestration-tools/controller/user"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"

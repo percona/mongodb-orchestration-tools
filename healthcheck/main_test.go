@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
 )
 

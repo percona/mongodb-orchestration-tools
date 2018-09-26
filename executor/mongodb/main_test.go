@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 )
 
 func TestMain(m *testing.M) {

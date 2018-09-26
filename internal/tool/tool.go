@@ -21,8 +21,8 @@ import (
 	"runtime"
 
 	"github.com/alecthomas/kingpin"
-	dcosmongotools "github.com/percona/dcos-mongo-tools"
-	"github.com/percona/dcos-mongo-tools/internal/logger"
+	dcosmongotools "github.com/percona/mongodb-orchestration-tools"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 )
 
 // Author is the author used by kingpin

@@ -18,11 +18,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/executor/config"
-	"github.com/percona/dcos-mongo-tools/executor/metrics"
-	"github.com/percona/dcos-mongo-tools/executor/mocks"
-	"github.com/percona/dcos-mongo-tools/executor/pmm"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/executor/config"
+	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
+	"github.com/percona/mongodb-orchestration-tools/executor/mocks"
+	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 )
 

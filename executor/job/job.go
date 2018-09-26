@@ -17,9 +17,9 @@ package job
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/executor/config"
-	"github.com/percona/dcos-mongo-tools/executor/metrics"
-	"github.com/percona/dcos-mongo-tools/executor/pmm"
+	"github.com/percona/mongodb-orchestration-tools/executor/config"
+	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
+	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"

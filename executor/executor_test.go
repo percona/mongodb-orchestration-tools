@@ -18,7 +18,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/executor/mocks"
+	"github.com/percona/mongodb-orchestration-tools/executor/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

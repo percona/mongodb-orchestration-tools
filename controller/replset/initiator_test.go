@@ -19,11 +19,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/controller"
-	"github.com/percona/dcos-mongo-tools/controller/user"
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/controller"
+	"github.com/percona/mongodb-orchestration-tools/controller/user"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )

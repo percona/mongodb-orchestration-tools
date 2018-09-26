@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
 	"gopkg.in/mgo.v2"
 )
 

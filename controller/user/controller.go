@@ -18,10 +18,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/controller"
-	user_json "github.com/percona/dcos-mongo-tools/controller/user/json"
-	"github.com/percona/dcos-mongo-tools/internal/api"
-	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/controller"
+	user_json "github.com/percona/mongodb-orchestration-tools/controller/user/json"
+	"github.com/percona/mongodb-orchestration-tools/internal/api"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )

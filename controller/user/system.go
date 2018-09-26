@@ -17,7 +17,7 @@ package user
 import (
 	"os"
 
-	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal"
 	"gopkg.in/mgo.v2"
 )
 

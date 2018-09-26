@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -17,10 +17,10 @@ package user
 import (
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/api"
-	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/api"
+	"github.com/percona/mongodb-orchestration-tools/internal/api/mocks"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )

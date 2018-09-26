@@ -17,9 +17,9 @@ package watcher
 import (
 	"sync"
 
-	"github.com/percona/dcos-mongo-tools/internal/pod"
-	"github.com/percona/dcos-mongo-tools/watchdog/config"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	log "github.com/sirupsen/logrus"
 )
 

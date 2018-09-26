@@ -18,13 +18,13 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/dcos-mongo-tools/controller"
-	"github.com/percona/dcos-mongo-tools/controller/replset"
-	"github.com/percona/dcos-mongo-tools/controller/user"
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/api"
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/tool"
+	"github.com/percona/mongodb-orchestration-tools/controller"
+	"github.com/percona/mongodb-orchestration-tools/controller/replset"
+	"github.com/percona/mongodb-orchestration-tools/controller/user"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/api"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/tool"
 	log "github.com/sirupsen/logrus"
 )
 

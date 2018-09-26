@@ -18,8 +18,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/executor/config"
-	"github.com/percona/dcos-mongo-tools/executor/mocks"
+	"github.com/percona/mongodb-orchestration-tools/executor/config"
+	"github.com/percona/mongodb-orchestration-tools/executor/mocks"
 )
 
 var (

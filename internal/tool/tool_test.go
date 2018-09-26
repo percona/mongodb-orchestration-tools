@@ -17,7 +17,7 @@ package tool
 import (
 	"testing"
 
-	dcosmongotools "github.com/percona/dcos-mongo-tools"
+	dcosmongotools "github.com/percona/mongodb-orchestration-tools"
 	"github.com/stretchr/testify/assert"
 )
 

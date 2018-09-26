@@ -19,11 +19,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/executor/metrics"
-	"github.com/percona/dcos-mongo-tools/executor/mongodb"
-	"github.com/percona/dcos-mongo-tools/executor/pmm"
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
+	"github.com/percona/mongodb-orchestration-tools/executor/mongodb"
+	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
 )
 
 const (

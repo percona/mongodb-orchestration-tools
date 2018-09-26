@@ -17,8 +17,8 @@ package watcher
 import (
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal/pod"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"

@@ -19,10 +19,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/pod"
-	"github.com/percona/dcos-mongo-tools/internal/pod/mocks"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod/mocks"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 )
 
