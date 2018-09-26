@@ -29,9 +29,8 @@ import (
 )
 
 var (
-	GitCommit     string
-	GitBranch     string
-	enableSecrets bool
+	GitCommit string
+	GitBranch string
 )
 
 func main() {

@@ -20,9 +20,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/db"
 	"github.com/percona/dcos-mongo-tools/controller"
 	"github.com/percona/dcos-mongo-tools/controller/user"
+	"github.com/percona/dcos-mongo-tools/internal/db"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
@@ -34,10 +34,7 @@ const (
 
 type Initiator struct {
 	config        *controller.Config
-	hostname      string
-	connectTries  uint
 	replInitTries uint
-	usersTries    uint
 }
 
 func NewInitiator(config *controller.Config) *Initiator {
