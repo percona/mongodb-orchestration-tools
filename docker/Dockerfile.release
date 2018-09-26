@@ -11,6 +11,6 @@ RUN apt-get update && \
 
 CMD make test-full && \
     make && \
-    upx bin/mongodb-*-* && \
-    zip -j bin/dcos-mongo-tools_mongod.zip bin/mongodb-executor-linux && \
-    zip -j bin/dcos-mongo-tools_mongod.zip bin/mongodb-healthcheck-linux
+    upx bin/* && \
+    zip -j bin/dcos-mongo-tools_mongod.zip bin/dcos-mongodb-executor && \
+    zip -j bin/dcos-mongo-tools_mongod.zip bin/dcos-mongodb-healthcheck
