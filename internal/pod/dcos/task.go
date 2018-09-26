@@ -19,8 +19,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/pod"
 )
 
@@ -119,7 +119,7 @@ func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
 		Host: task.data.Info.Name + "." + task.frameworkName + "." + AutoIPDNSSuffix,
 	}
-	portStr, err := task.getEnvVar(internal.EnvMongoDBPort)
+	portStr, err := task.getEnvVar(dcos.EnvMongoDBPort)
 	if err != nil {
 		return addr, err
 	}
@@ -128,5 +128,5 @@ func (task *Task) GetMongoAddr() (*db.Addr, error) {
 }
 
 func (task *Task) GetMongoReplsetName() (string, error) {
-	return task.getEnvVar(internal.EnvMongoDBReplset)
+	return task.getEnvVar(dcos.EnvMongoDBReplset)
 }

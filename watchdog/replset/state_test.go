@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
@@ -87,7 +87,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 		Host:          hostPort[0],
 		Port:          port,
 		Replset:       testutils.MongodbReplsetName,
-		FrameworkName: internal.DefaultFrameworkName,
+		FrameworkName: dcos.DefaultFrameworkName,
 		PodName:       "mongo",
 	}
 	config := testState.GetConfig()

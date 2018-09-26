@@ -17,9 +17,9 @@ package user
 import (
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/internal"
-	"github.com/percona/mongodb-orchestration-tools/internal/api"
-	"github.com/percona/mongodb-orchestration-tools/internal/api/mocks"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -29,7 +29,7 @@ func TestControllerUserNew(t *testing.T) {
 	testutils.DoSkipTest(t)
 
 	mockAPI := &mocks.Client{}
-	mockAPI.On("GetEndpoint", internal.DefaultMongoDBMongodEndpointName).Return(&api.Endpoint{
+	mockAPI.On("GetEndpoint", dcos.DefaultMongoDBMongodEndpointName).Return(&api.Endpoint{
 		Address: []string{
 			testutils.MongodbHost + ":" + testutils.MongodbPrimaryPort,
 			testutils.MongodbHost + ":" + testutils.MongodbSecondary1Port,

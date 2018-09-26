@@ -18,9 +18,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
+	dcos "github.com/percona/mongodb-orchestration-tools/internal/dcos"
+	podDcos "github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/pod/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
@@ -34,13 +34,13 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 	podTask := &mocks.Task{}
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
 	podTask.On("GetMongoAddr").Return(&db.Addr{
-		Host: "test." + internal.DefaultFrameworkName + "." + dcos.AutoIPDNSSuffix,
+		Host: "test." + dcos.DefaultFrameworkName + "." + podDcos.AutoIPDNSSuffix,
 		Port: port,
 	}, nil)
 	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
-	testMongod, err = NewMongod(podTask, internal.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)
+	testMongod, err = NewMongod(podTask, dcos.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }
@@ -48,7 +48,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 func TestWatchdogReplsetMongodName(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	expected := "test." + internal.DefaultFrameworkName + "." + dcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
+	expected := "test." + dcos.DefaultFrameworkName + "." + podDcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 

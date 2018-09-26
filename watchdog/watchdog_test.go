@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/api/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/pod"
 	"github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
