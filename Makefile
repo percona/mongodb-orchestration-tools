@@ -114,8 +114,8 @@ release-clean:
 
 docker-build: release
 	docker build -t $(NAME):$(DOCKERHUB_TAG) -f docker/Dockerfile .
-	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-controller-$(PLATFORM) --version
-	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) mongodb-watchdog-$(PLATFORM) --version
+	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) dcos-mongodb-controller --version
+	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) dcos-mongodb-watchdog --version
 
 docker-push:
 	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
