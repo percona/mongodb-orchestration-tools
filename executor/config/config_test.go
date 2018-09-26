@@ -28,11 +28,9 @@ func TestExecutorConfigNodeTypeString(t *testing.T) {
 }
 
 func TestMesosSandboxPathOrFallback(t *testing.T) {
-	err := os.Setenv(internal.EnvMesosSandbox, "/tmp")
-	assert.NoError(t, err)
+	assert.NoError(t, os.Setenv(internal.EnvMesosSandbox, "/tmp"))
 	assert.Equal(t, "/tmp/test", MesosSandboxPathOrFallback("test", "/fallback/path"))
 
-	err = os.Unsetenv(internal.EnvMesosSandbox)
-	assert.NoError(t, err)
+	assert.NoError(t, os.Unsetenv(internal.EnvMesosSandbox))
 	assert.Equal(t, "/fallback/path", MesosSandboxPathOrFallback("test", "/fallback/path"))
 }
