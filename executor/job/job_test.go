@@ -13,3 +13,52 @@
 // limitations under the License.
 
 package job
+
+import (
+	"testing"
+	"time"
+
+	"github.com/percona/dcos-mongo-tools/executor/config"
+	"github.com/percona/dcos-mongo-tools/executor/metrics"
+	"github.com/percona/dcos-mongo-tools/executor/mocks"
+	"github.com/percona/dcos-mongo-tools/executor/pmm"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestExecutorJobAdd(t *testing.T) {
+	mockJob := &mocks.BackgroundJob{}
+	mockJob.On("Name").Return(t.Name())
+	r := &Runner{jobs: make([]BackgroundJob, 0)}
+	assert.Len(t, r.jobs, 0)
+	r.add(mockJob)
+	assert.Len(t, r.jobs, 1)
+}
+
+func TestExecutorJobRun(t *testing.T) {
+	testutils.DoSkipTest(t)
+
+	quit := make(chan bool, 1)
+	config := &config.Config{
+		DelayBackgroundJob: time.Millisecond,
+		Metrics: &metrics.Config{
+			Enabled:  false,
+			Interval: 500 * time.Millisecond,
+		},
+		PMM: &pmm.Config{
+			Enabled: false,
+		},
+	}
+	r := New(config, testDBSession, &quit)
+
+	// run with disabled jobs
+	assert.NotPanics(t, func() { r.Run() })
+	quit <- true
+
+	// run with enabled jobs
+	config.Metrics.Enabled = true
+	config.PMM.Enabled = true
+	r2 := New(config, testDBSession, &quit)
+	assert.NotPanics(t, func() { r2.Run() })
+	quit <- true
+}

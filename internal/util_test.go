@@ -19,6 +19,8 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -79,4 +81,10 @@ func TestInternalStringFromFile(t *testing.T) {
 func TestInternalPasswordFromFile(t *testing.T) {
 	assert.Equal(t, testFileContent, PasswordFromFile("/", testTmpfile.Name(), "test"), ".PasswordFallbackFromFile returned unexpected result")
 	assert.Equal(t, "", PasswordFromFile("/", "is-not-an-existing-file", "test"), ".PasswordFallbackFromFile returned unexpected result")
+}
+
+func TestInternalRelPathToAbs(t *testing.T) {
+	_, filename, _, _ := runtime.Caller(0)
+	assert.Equal(t, filename, RelPathToAbs(filepath.Base(filename)))
+	assert.Equal(t, "", RelPathToAbs("does/not/exist"))
 }

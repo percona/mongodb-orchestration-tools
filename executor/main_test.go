@@ -19,11 +19,12 @@ import (
 	"testing"
 
 	"github.com/percona/dcos-mongo-tools/executor/config"
+	"github.com/percona/dcos-mongo-tools/executor/mocks"
 )
 
 var (
 	testExecutor               *Executor
-	testExecutorDaemon         Daemon
+	testExecutorDaemon         *mocks.Daemon
 	testExecutorDaemonNodeType = config.NodeType("MockDaemon")
 	testExecutorConfig         = &config.Config{
 		NodeType: testExecutorDaemonNodeType,

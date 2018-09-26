@@ -12,25 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package job
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/stretchr/testify/assert"
+	"github.com/percona/dcos-mongo-tools/internal/logger"
+	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"gopkg.in/mgo.v2"
 )
 
-func TestExecutorConfigNodeTypeString(t *testing.T) {
-	assert.Equal(t, "mongod", NodeTypeMongod.String())
-	assert.Equal(t, "mongos", NodeTypeMongos.String())
-}
+var (
+	testLogBuffer = new(bytes.Buffer)
+	testDBSession *mgo.Session
+)
 
-func TestMesosSandboxPathOrFallback(t *testing.T) {
-	assert.NoError(t, os.Setenv(internal.EnvMesosSandbox, "/tmp"))
-	assert.Equal(t, "/tmp/test", MesosSandboxPathOrFallback("test", "/fallback/path"))
-
-	assert.NoError(t, os.Unsetenv(internal.EnvMesosSandbox))
-	assert.Equal(t, "/fallback/path", MesosSandboxPathOrFallback("test", "/fallback/path"))
+func TestMain(m *testing.M) {
+	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
+	if testutils.Enabled() {
+		var err error
+		testDBSession, err = testutils.GetSession(testutils.MongodbPrimaryPort)
+		if err != nil {
+			panic(err)
+		}
+	}
+	exit := m.Run()
+	if testDBSession != nil {
+		testDBSession.Close()
+	}
+	os.Exit(exit)
 }
