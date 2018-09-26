@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"

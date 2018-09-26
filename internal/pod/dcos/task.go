@@ -19,9 +19,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
 )
 
 type TaskState string

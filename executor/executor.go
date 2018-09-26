@@ -15,7 +15,7 @@
 package executor
 
 import (
-	"github.com/percona/dcos-mongo-tools/executor/config"
+	"github.com/percona/mongodb-orchestration-tools/executor/config"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/percona/pmgo"
 	"github.com/percona/pmgo/pmgomock"
 	"github.com/stretchr/testify/assert"

@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 )
 

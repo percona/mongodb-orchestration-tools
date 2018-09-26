@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	"gopkg.in/mgo.v2"
 )

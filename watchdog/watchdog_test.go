@@ -19,13 +19,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/api/mocks"
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/pod"
-	"github.com/percona/dcos-mongo-tools/internal/pod/dcos"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
-	"github.com/percona/dcos-mongo-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/internal/api/mocks"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,4 +1,4 @@
-package: github.com/percona/dcos-mongo-tools
+package: github.com/percona/mongodb-orchestration-tools
 import:
 - package: github.com/sirupsen/logrus
   version: ~v1.0.6

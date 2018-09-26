@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
-	wdConfig "github.com/percona/dcos-mongo-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	wdConfig "github.com/percona/mongodb-orchestration-tools/watchdog/config"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
 )

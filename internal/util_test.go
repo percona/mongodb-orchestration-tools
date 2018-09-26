@@ -33,7 +33,7 @@ var (
 
 func TestMain(m *testing.M) {
 	var err error
-	testTmpfile, err = ioutil.TempFile("", "dcos-mongo-tools")
+	testTmpfile, err = ioutil.TempFile("", "mongodb-orchestration-tools")
 	if err != nil {
 		log.Fatalf("Error setting up test tmpfile: %v", err)
 	}

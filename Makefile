@@ -1,4 +1,4 @@
-NAME?=dcos-mongo-tools
+NAME?=mongodb-orchestration-tools
 PLATFORM?=linux
 BASE_DIR?=$(shell readlink -f $(CURDIR))
 VERSION?=$(shell grep -oP '"\d+\.\d+\.\d+(-\S+)?"' version.go | tr -d \")

@@ -19,11 +19,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/logger"
-	"github.com/percona/dcos-mongo-tools/internal/testutils"
-	"github.com/percona/dcos-mongo-tools/watchdog/config"
-	"github.com/percona/dcos-mongo-tools/watchdog/replset"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/logger"
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 )
 
 var (

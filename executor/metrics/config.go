@@ -17,7 +17,7 @@ package metrics
 import (
 	"time"
 
-	"github.com/percona/dcos-mongo-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
 )
 
 const (

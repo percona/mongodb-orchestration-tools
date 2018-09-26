@@ -17,10 +17,10 @@ package main
 import (
 	"os"
 
-	"github.com/percona/dcos-mongo-tools/healthcheck"
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/db"
-	"github.com/percona/dcos-mongo-tools/internal/tool"
+	"github.com/percona/mongodb-orchestration-tools/healthcheck"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/tool"
 	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 )

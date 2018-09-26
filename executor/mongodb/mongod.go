@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/percona/dcos-mongo-tools/internal"
-	"github.com/percona/dcos-mongo-tools/internal/command"
+	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/command"
 	log "github.com/sirupsen/logrus"
 	mongoConfig "github.com/timvaillancourt/go-mongodb-config/config"
 )

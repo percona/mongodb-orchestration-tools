@@ -1,11 +1,11 @@
-# dcos-mongo-tools
+# mongodb-orchestration-tools
 
-[![](https://godoc.org/github.com/percona/dcos-mongo-tools?status.svg)](http://godoc.org/github.com/percona/dcos-mongo-tools)
-[![Build Status](https://travis-ci.org/percona/dcos-mongo-tools.svg?branch=master)](https://travis-ci.org/percona/dcos-mongo-tools)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/dcos-mongo-tools)](https://goreportcard.com/report/github.com/percona/dcos-mongo-tools)
-[![codecov](https://codecov.io/gh/percona/dcos-mongo-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/percona/dcos-mongo-tools)
+[![](https://godoc.org/github.com/percona/mongodb-orchestration-tools?status.svg)](http://godoc.org/github.com/percona/mongodb-orchestration-tools)
+[![Build Status](https://travis-ci.org/percona/mongodb-orchestration-tools.svg?branch=master)](https://travis-ci.org/percona/mongodb-orchestration-tools)
+[![Go Report Card](https://goreportcard.com/badge/github.com/percona/mongodb-orchestration-tools)](https://goreportcard.com/report/github.com/percona/mongodb-orchestration-tools)
+[![codecov](https://codecov.io/gh/percona/mongodb-orchestration-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/percona/mongodb-orchestration-tools)
 
-Go-based tools for the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/).
+Go-based tools for MongoDB orchestration.
 
 *Note: This code is intended for a specific integration/use case, therefore it is unlikely Issues or Pull Requests will be accepted from the public. Please fork if this is a concern.*
 
