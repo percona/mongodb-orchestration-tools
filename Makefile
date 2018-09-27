@@ -142,11 +142,11 @@ docker-k8s: release
 	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongodb-healthcheck --version
 
 docker-k8s-push:
-	docker tag $(NAME):$(DCOS_DOCKERHUB_TAG) $(DCOS_DOCKERHUB_REPO):$(DCOS_DOCKERHUB_TAG)
-	docker push $(DCOS_DOCKERHUB_REPO):$(DCOS_DOCKERHUB_TAG)
+	docker tag $(NAME):$(K8S_DOCKERHUB_TAG) $(K8S_DOCKERHUB_REPO):$(K8S_DOCKERHUB_TAG)
+	docker push $(K8S_DOCKERHUB_REPO):$(K8S_DOCKERHUB_TAG)
 ifeq ($(GIT_BRANCH), master)
-	docker tag $(NAME):$(DCOS_DOCKERHUB_TAG) $(DCOS_DOCKERHUB_REPO):latest
-	docker push $(DCOS_DOCKERHUB_REPO):latest
+	docker tag $(NAME):$(K8S_DOCKERHUB_TAG) $(K8S_DOCKERHUB_REPO):latest
+	docker push $(K8S_DOCKERHUB_REPO):latest
 endif
 
 mocks:
