@@ -83,13 +83,14 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 		log.WithFields(log.Fields{
 			"pod":   podName,
 			"error": err,
-		}).Error("Error fetching DCOS pod tasks")
+		}).Error("Error fetching pod tasks")
 		return
 	}
 	apiFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
 
 	for _, task := range tasks {
 		if !task.IsTaskType(pod.TaskTypeMongod) {
+			log.WithFields(log.Fields{"task": task.Name()}).Debug("Skipping non-mongod task")
 			continue
 		}
 
@@ -132,26 +133,31 @@ func (w *Watchdog) fetchPods() {
 		log.WithFields(log.Fields{
 			"url":   w.podSource.GetPodURL(),
 			"error": err,
-		}).Error("Error fetching DCOS pod list")
+		}).Error("Error fetching pod list")
 		return
 	}
 	apiFetches.With(prometheus.Labels{"type": "get_pods"}).Inc()
 
 	if pods == nil {
+		log.Debug("Found no pods from source")
 		return
 	}
+	log.WithFields(log.Fields{"pods": pods}).Debug("Found pod list from source")
 	w.activePods.Set(pods)
 
 	// get updated pods list
 	var wg sync.WaitGroup
 	for _, podName := range *w.activePods.Get() {
 		if w.doIgnorePod(podName) {
+			log.WithFields(log.Fields{"pod": podName}).Debug("Pod matches ignorePod list, skipping")
 			continue
 		}
 		wg.Add(1)
 		go w.podMongodFetcher(podName, &wg)
+		log.WithFields(log.Fields{"pod": podName}).Debug("Started pod fetcher")
 	}
 	wg.Wait()
+	log.Debug("Completed all pod fetchers")
 }
 
 func (w *Watchdog) Run() {
