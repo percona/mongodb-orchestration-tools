@@ -118,7 +118,10 @@ release: clean
 release-clean:
 	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
 	docker rmi -f $(NAME)_release 2>/dev/null
+
+docker-clean:
 	docker rmi -f $(NAME):$(DCOS_DOCKERHUB_TAG) 2>/dev/null
+	docker rmi -f $(NAME):$(K8S_DOCKERHUB_TAG) 2>/dev/null
 
 docker-dcos: release
 	docker build -t $(NAME):$(DCOS_DOCKERHUB_TAG) -f docker/dcos/Dockerfile .
