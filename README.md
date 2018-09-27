@@ -25,8 +25,11 @@ These tools were designed/tested for use with [Percona Server for MongoDB](https
 
 ### DC/OS
 The minimum requirements are:
-1. DC/OS 1.10+
-2. DC/OS SDK 0.42.1+
+1. DC/OS 1.10+ *(1.11+ recommended)*
+
+### Kubernetes Operator
+The minimum requirements are:
+1. Kubernetes v1.10+
 
 ## Build
 1. Install go1.10+ and 'make'
