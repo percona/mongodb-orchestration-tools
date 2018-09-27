@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/mongodb-orchestration-tools)](https://goreportcard.com/report/github.com/percona/mongodb-orchestration-tools)
 [![codecov](https://codecov.io/gh/percona/mongodb-orchestration-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/percona/mongodb-orchestration-tools)
 
-Go-based tools for MongoDB orchestration.
+Go-based tools for MongoDB container orchestration.
 
 *Note: This code is intended for a specific integration/use case, therefore it is unlikely Issues or Pull Requests will be accepted from the public. Please fork if this is a concern.*
 
@@ -15,9 +15,15 @@ Go-based tools for MongoDB orchestration.
 - **dcos-mongodb-controller**: tool for controlling the replica set initiation and adding system MongoDB users
 - **dcos-mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
 
-## Use Case / Required
-The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) by using the [DC/OS SDK API](https://mesosphere.github.io/dcos-commons/reference/swagger-api/), etc.
+## Use Case
+The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) by using the [DC/OS SDK API](https://mesosphere.github.io/dcos-commons/reference/swagger-api/) or Kubernetes.
 
+## Required
+
+### MongoDB
+These tools were designed/tested for use with i[Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb) 3.6 and above.
+
+### DC/OS
 The minimum requirements are:
 1. DC/OS 1.10+
 2. DC/OS SDK 0.42.1+
