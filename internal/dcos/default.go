@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package dcos
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+const (
+	DefaultFrameworkName             = "percona-server-mongodb"
+	DefaultMongoDBMongodEndpointName = "mongo-port"
 )
-
-func TestExecutorConfigNodeTypeString(t *testing.T) {
-	assert.Equal(t, "mongod", NodeTypeMongod.String())
-	assert.Equal(t, "mongos", NodeTypeMongos.String())
-}

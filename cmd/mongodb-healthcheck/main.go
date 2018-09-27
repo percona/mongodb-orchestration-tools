@@ -20,6 +20,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/healthcheck"
 	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
 	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
@@ -35,15 +36,15 @@ func main() {
 	app, _ := tool.New("Performs health and readiness checks for MongoDB", GitCommit, GitBranch)
 	app.Flag(
 		"enableSecrets",
-		"enable secrets, this causes passwords to be loaded from files, overridden by env var "+internal.EnvSecretsEnabled,
-	).Envar(internal.EnvSecretsEnabled).BoolVar(&enableSecrets)
+		"enable secrets, this causes passwords to be loaded from files, overridden by env var "+dcos.EnvSecretsEnabled,
+	).Envar(dcos.EnvSecretsEnabled).BoolVar(&enableSecrets)
 
 	health := app.Command("health", "Run MongoDB health check")
 	readiness := app.Command("readiness", "Run MongoDB readiness check").Default()
 	cnf := db.NewConfig(
 		app,
-		internal.EnvMongoDBClusterMonitorUser,
-		internal.EnvMongoDBClusterMonitorPassword,
+		dcos.EnvMongoDBClusterMonitorUser,
+		dcos.EnvMongoDBClusterMonitorPassword,
 	)
 
 	command, err := app.Parse(os.Args[1:])
@@ -52,7 +53,7 @@ func main() {
 	}
 	if enableSecrets {
 		cnf.DialInfo.Password = internal.PasswordFromFile(
-			os.Getenv(internal.EnvMesosSandbox),
+			os.Getenv(dcos.EnvMesosSandbox),
 			cnf.DialInfo.Password,
 			"password",
 		)

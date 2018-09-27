@@ -12,15 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package dcos
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecutorConfigNodeTypeString(t *testing.T) {
-	assert.Equal(t, "mongod", NodeTypeMongod.String())
-	assert.Equal(t, "mongos", NodeTypeMongos.String())
+func TestInternalDCOSMesosSandboxPathOrFallback(t *testing.T) {
+	assert.NoError(t, os.Setenv(EnvMesosSandbox, "/tmp"))
+	assert.Equal(t, "/tmp/test", MesosSandboxPathOrFallback("test", "/fallback/path"))
+
+	assert.NoError(t, os.Unsetenv(EnvMesosSandbox))
+	assert.Equal(t, "/fallback/path", MesosSandboxPathOrFallback("test", "/fallback/path"))
 }

@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +33,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
+	testAPI = New(dcos.DefaultFrameworkName, testAPIConfig)
 	os.Exit(m.Run())
 }
 
@@ -41,12 +41,12 @@ func TestInternalAPINew(t *testing.T) {
 	testAPI = nil
 	assert.Nil(t, testAPI)
 
-	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
+	testAPI = New(dcos.DefaultFrameworkName, testAPIConfig)
 	assert.Equal(t, testAPIConfig, testAPI.config, "api.config is incorrect")
-	assert.Equal(t, internal.DefaultFrameworkName, testAPI.FrameworkName, "api.FrameworkName is incorrect")
+	assert.Equal(t, dcos.DefaultFrameworkName, testAPI.FrameworkName, "api.FrameworkName is incorrect")
 	assert.Equal(t, HTTPSchemeSecure, testAPI.scheme, "api.scheme is incorrect")
 
 	testAPIConfig.Secure = false
-	testAPI = New(internal.DefaultFrameworkName, testAPIConfig)
+	testAPI = New(dcos.DefaultFrameworkName, testAPIConfig)
 	assert.Equal(t, HTTPSchemePlain, testAPI.scheme, "api.scheme is incorrect")
 }

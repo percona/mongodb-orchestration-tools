@@ -25,6 +25,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/controller"
 	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"gopkg.in/mgo.v2"
@@ -49,11 +50,11 @@ var (
 			Database:        SystemUserDatabase,
 			File:            internal.RelPathToAbs(filepath.Join(testDirRelPath, testBase64JSONFile)),
 			Username:        "prodapp",
-			EndpointName:    internal.DefaultMongoDBMongodEndpointName,
+			EndpointName:    dcos.DefaultMongoDBMongodEndpointName,
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		FrameworkName:     internal.DefaultFrameworkName,
+		FrameworkName:     dcos.DefaultFrameworkName,
 		Replset:           testutils.MongodbReplsetName,
 		UserAdminUser:     testutils.MongodbAdminUser,
 		UserAdminPassword: testutils.MongodbAdminPassword,

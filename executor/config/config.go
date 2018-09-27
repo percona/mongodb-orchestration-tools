@@ -15,14 +15,11 @@
 package config
 
 import (
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
 	"github.com/percona/mongodb-orchestration-tools/executor/mongodb"
 	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
-	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 )
 
@@ -52,14 +49,4 @@ type Config struct {
 	DelayBackgroundJob time.Duration
 	ConnectRetrySleep  time.Duration
 	Verbose            bool
-}
-
-func MesosSandboxPathOrFallback(path string, fallback string) string {
-	mesosSandbox := os.Getenv(internal.EnvMesosSandbox)
-	if mesosSandbox != "" {
-		if _, err := os.Stat(mesosSandbox); err == nil {
-			return filepath.Join(mesosSandbox, path)
-		}
-	}
-	return fallback
 }

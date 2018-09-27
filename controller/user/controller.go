@@ -20,8 +20,8 @@ import (
 
 	"github.com/percona/mongodb-orchestration-tools/controller"
 	user_json "github.com/percona/mongodb-orchestration-tools/controller/user/json"
-	"github.com/percona/mongodb-orchestration-tools/internal/api"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 )

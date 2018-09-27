@@ -17,8 +17,8 @@ package controller
 import (
 	"time"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/api"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api"
 )
 
 var (

@@ -19,7 +19,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/valyala/fasthttp"
 )
 
@@ -31,7 +31,7 @@ var SDKClientName = "dcos"
 
 var (
 	DefaultHTTPTimeout   = "5s"
-	DefaultSchedulerHost = "api." + internal.DefaultFrameworkName + ".marathon.l4lb.thisdcos.directory"
+	DefaultSchedulerHost = "api." + dcos.DefaultFrameworkName + ".marathon.l4lb.thisdcos.directory"
 	ErrEmptyBody         = errors.New("got empty body")
 	ErrNonSuccessCode    = errors.New("got non-success code")
 )

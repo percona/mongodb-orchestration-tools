@@ -12,9 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package internal
+package dcos
 
-const (
-	DefaultFrameworkName             = "percona-server-mongodb"
-	DefaultMongoDBMongodEndpointName = "mongo-port"
+import (
+	"os"
+	"path/filepath"
 )
+
+func MesosSandboxPathOrFallback(path string, fallback string) string {
+	mesosSandbox := os.Getenv(EnvMesosSandbox)
+	if mesosSandbox != "" {
+		if _, err := os.Stat(mesosSandbox); err == nil {
+			return filepath.Join(mesosSandbox, path)
+		}
+	}
+	return fallback
+}
