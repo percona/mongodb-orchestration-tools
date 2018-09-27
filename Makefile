@@ -7,10 +7,13 @@ GIT_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 GITHUB_REPO?=percona/$(NAME)
 RELEASE_CACHE_DIR?=/tmp/$(NAME)_release.cache
 
-DOCKERHUB_REPO?=percona/$(NAME)
-DOCKERHUB_TAG?=$(VERSION)
+DCOS_DOCKERHUB_REPO?=perconalab/$(NAME)
+DCOS_DOCKERHUB_TAG?=$(VERSION)-dcos
+MONGOD_DOCKERHUB_REPO?=perconalab/$(NAME)
+MONGOD_DOCKERHUB_TAG?=$(VERSION)-mongod
 ifneq ($(GIT_BRANCH), master)
-	DOCKERHUB_TAG=$(VERSION)-$(GIT_BRANCH)
+	DCOS_DOCKERHUB_TAG=$(VERSION)-dcos_$(GIT_BRANCH)
+	MONGOD_DOCKERHUB_TAG=$(VERSION)-mongod_$(GIT_BRANCH)
 endif
 
 GO_VERSION?=1.11
@@ -112,19 +115,37 @@ release: clean
 release-clean:
 	rm -rf $(RELEASE_CACHE_DIR) 2>/dev/null
 	docker rmi -f $(NAME)_release 2>/dev/null
-	docker rmi -f $(NAME):$(DOCKERHUB_TAG) 2>/dev/null
 
-docker-build: release
-	docker build -t $(NAME):$(DOCKERHUB_TAG) -f docker/Dockerfile .
-	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) dcos-mongodb-controller --version
-	docker run --rm -i $(NAME):$(DOCKERHUB_TAG) dcos-mongodb-watchdog --version
+docker-clean:
+	docker rmi -f $(NAME)_release 2>/dev/null
+	docker rmi -f $(NAME):$(DCOS_DOCKERHUB_TAG) 2>/dev/null
+	docker rmi -f $(NAME):$(MONGOD_DOCKERHUB_TAG) 2>/dev/null
 
-docker-push:
-	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
-	docker push $(DOCKERHUB_REPO):$(DOCKERHUB_TAG)
+docker-dcos: release
+	docker build -t $(NAME):$(DCOS_DOCKERHUB_TAG) -f docker/dcos/Dockerfile .
+	docker run --rm -i $(NAME):$(DCOS_DOCKERHUB_TAG) dcos-mongodb-controller --version
+	docker run --rm -i $(NAME):$(DCOS_DOCKERHUB_TAG) dcos-mongodb-watchdog --version
+
+docker-dcos-push:
+	docker tag $(NAME):$(DCOS_DOCKERHUB_TAG) $(DCOS_DOCKERHUB_REPO):$(DCOS_DOCKERHUB_TAG)
+	docker push $(DCOS_DOCKERHUB_REPO):$(DCOS_DOCKERHUB_TAG)
 ifeq ($(GIT_BRANCH), master)
-	docker tag $(NAME):$(DOCKERHUB_TAG) $(DOCKERHUB_REPO):latest
-	docker push $(DOCKERHUB_REPO):latest
+	docker tag $(NAME):$(DCOS_DOCKERHUB_TAG) $(DCOS_DOCKERHUB_REPO):latest
+	docker push $(DCOS_DOCKERHUB_REPO):latest
+endif
+
+docker-mongod: release
+	docker build -t $(NAME):$(MONGOD_DOCKERHUB_TAG) -f docker/mongod/Dockerfile .
+	docker run --rm -i $(NAME):$(MONGOD_DOCKERHUB_TAG) mongod --version
+	docker run --rm -i $(NAME):$(MONGOD_DOCKERHUB_TAG) mongodb-executor --version
+	docker run --rm -i $(NAME):$(MONGOD_DOCKERHUB_TAG) mongodb-healthcheck --version
+
+docker-mongod-push:
+	docker tag $(NAME):$(MONGOD_DOCKERHUB_TAG) $(MONGOD_DOCKERHUB_REPO):$(MONGOD_DOCKERHUB_TAG)
+	docker push $(MONGOD_DOCKERHUB_REPO):$(MONGOD_DOCKERHUB_TAG)
+ifeq ($(GIT_BRANCH), master)
+	docker tag $(NAME):$(MONGOD_DOCKERHUB_TAG) $(MONGOD_DOCKERHUB_REPO):latest
+	docker push $(MONGOD_DOCKERHUB_REPO):latest
 endif
 
 mocks:

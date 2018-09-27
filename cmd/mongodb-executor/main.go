@@ -155,7 +155,7 @@ func main() {
 			DB:      dbConfig,
 			MongoDB: &pmm.ConfigMongoDB{},
 		},
-		Verbose: verbose,
+		Verbose: *verbose,
 	}
 
 	app.Flag(
