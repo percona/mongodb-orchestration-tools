@@ -138,6 +138,7 @@ endif
 
 docker-k8s: release
 	docker build -t $(NAME):$(K8S_DOCKERHUB_TAG) -f docker/k8s/Dockerfile .
+	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongod --version
 	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongodb-executor --version
 	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongodb-healthcheck --version
 
