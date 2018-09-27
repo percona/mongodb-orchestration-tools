@@ -16,12 +16,12 @@ Go-based tools for MongoDB container orchestration.
 - **dcos-mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
 
 ## Use Case
-The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) by using the [DC/OS SDK API](https://mesosphere.github.io/dcos-commons/reference/swagger-api/) or Kubernetes.
+The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) or the [Kubernetes Operator SDK](https://github.com/operator-framework/operator-sdk).
 
 ## Required
 
 ### MongoDB
-These tools were designed/tested for use with i[Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb) 3.6 and above.
+These tools were designed/tested for use with [Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb) 3.6 and above.
 
 ### DC/OS
 The minimum requirements are:
