@@ -9,11 +9,11 @@ RELEASE_CACHE_DIR?=/tmp/$(NAME)_release.cache
 
 DCOS_DOCKERHUB_REPO?=perconalab/$(NAME)
 DCOS_DOCKERHUB_TAG?=$(VERSION)-dcos
-K8S_DOCKERHUB_REPO?=perconalab/$(NAME)
-K8S_DOCKERHUB_TAG?=$(VERSION)-k8s
+MONGOD_DOCKERHUB_REPO?=perconalab/$(NAME)
+MONGOD_DOCKERHUB_TAG?=$(VERSION)-mongod
 ifneq ($(GIT_BRANCH), master)
 	DCOS_DOCKERHUB_TAG=$(VERSION)-dcos_$(GIT_BRANCH)
-	K8S_DOCKERHUB_TAG=$(VERSION)-k8s_$(GIT_BRANCH)
+	MONGOD_DOCKERHUB_TAG=$(VERSION)-mongod_$(GIT_BRANCH)
 endif
 
 GO_VERSION?=1.11
@@ -117,8 +117,9 @@ release-clean:
 	docker rmi -f $(NAME)_release 2>/dev/null
 
 docker-clean:
+	docker rmi -f $(NAME)_release 2>/dev/null
 	docker rmi -f $(NAME):$(DCOS_DOCKERHUB_TAG) 2>/dev/null
-	docker rmi -f $(NAME):$(K8S_DOCKERHUB_TAG) 2>/dev/null
+	docker rmi -f $(NAME):$(MONGOD_DOCKERHUB_TAG) 2>/dev/null
 
 docker-dcos: release
 	docker build -t $(NAME):$(DCOS_DOCKERHUB_TAG) -f docker/dcos/Dockerfile .
@@ -133,18 +134,18 @@ ifeq ($(GIT_BRANCH), master)
 	docker push $(DCOS_DOCKERHUB_REPO):latest
 endif
 
-docker-k8s: release
-	docker build -t $(NAME):$(K8S_DOCKERHUB_TAG) -f docker/k8s/Dockerfile .
-	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongod --version
-	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongodb-executor --version
-	docker run --rm -i $(NAME):$(K8S_DOCKERHUB_TAG) mongodb-healthcheck --version
+docker-mongod: release
+	docker build -t $(NAME):$(MONGOD_DOCKERHUB_TAG) -f docker/mongod/Dockerfile .
+	docker run --rm -i $(NAME):$(MONGOD_DOCKERHUB_TAG) mongod --version
+	docker run --rm -i $(NAME):$(MONGOD_DOCKERHUB_TAG) mongodb-executor --version
+	docker run --rm -i $(NAME):$(MONGOD_DOCKERHUB_TAG) mongodb-healthcheck --version
 
-docker-k8s-push:
-	docker tag $(NAME):$(K8S_DOCKERHUB_TAG) $(K8S_DOCKERHUB_REPO):$(K8S_DOCKERHUB_TAG)
-	docker push $(K8S_DOCKERHUB_REPO):$(K8S_DOCKERHUB_TAG)
+docker-mongod-push:
+	docker tag $(NAME):$(MONGOD_DOCKERHUB_TAG) $(MONGOD_DOCKERHUB_REPO):$(MONGOD_DOCKERHUB_TAG)
+	docker push $(MONGOD_DOCKERHUB_REPO):$(MONGOD_DOCKERHUB_TAG)
 ifeq ($(GIT_BRANCH), master)
-	docker tag $(NAME):$(K8S_DOCKERHUB_TAG) $(K8S_DOCKERHUB_REPO):latest
-	docker push $(K8S_DOCKERHUB_REPO):latest
+	docker tag $(NAME):$(MONGOD_DOCKERHUB_TAG) $(MONGOD_DOCKERHUB_REPO):latest
+	docker push $(MONGOD_DOCKERHUB_REPO):latest
 endif
 
 mocks:
