@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMesosSandboxPathOrFallback(t *testing.T) {
+func TestInternalDCOSMesosSandboxPathOrFallback(t *testing.T) {
 	assert.NoError(t, os.Setenv(EnvMesosSandbox, "/tmp"))
 	assert.Equal(t, "/tmp/test", MesosSandboxPathOrFallback("test", "/fallback/path"))
 
