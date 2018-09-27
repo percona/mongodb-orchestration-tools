@@ -29,13 +29,16 @@ import (
 const Author = "Percona LLC."
 
 // New sets up a new kingpin.Application
-func New(help, commit, branch string) (*kingpin.Application, bool) {
+func New(help, commit, branch string) (*kingpin.Application, *bool) {
 	app := kingpin.New(filepath.Base(os.Args[0]), help)
 	app.Author(Author)
 	app.Version(fmt.Sprintf(
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
 		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
 	))
-	verbose := logger.SetupLogger(app, logger.GetLogFormatter(app.Name), os.Stdout)
-	return app, verbose
+	return app, logger.SetupLogger(
+		app,
+		logger.GetLogFormatter(app.Name),
+		os.Stdout,
+	)
 }

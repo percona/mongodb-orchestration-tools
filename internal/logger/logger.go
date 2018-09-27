@@ -55,14 +55,14 @@ func GetLogFormatter(progName string) log.Formatter {
 }
 
 // SetupLogger configures github.com/srupsen/logrus for logging
-func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Writer) bool {
+func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Writer) *bool {
 	log.SetOutput(out)
 	log.SetFormatter(formatter)
 	log.SetLevel(log.InfoLevel)
 	if app != nil {
 		var verbose bool
 		app.Flag("verbose", "enable verbose logging").Envar(internal.EnvLogVerbose).Action(enableVerboseLogging).BoolVar(&verbose)
-		return verbose
+		return &verbose
 	}
-	return false
+	return nil
 }

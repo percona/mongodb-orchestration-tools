@@ -125,6 +125,7 @@ func (w *Watchdog) doIgnorePod(podName string) bool {
 
 func (w *Watchdog) fetchPods() {
 	log.WithFields(log.Fields{
+		"source": w.podSource.Name(),
 		"url": w.podSource.GetPodURL(),
 	}).Info("Getting pods from source")
 
