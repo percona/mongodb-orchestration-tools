@@ -23,6 +23,7 @@ import (
 
 	lcf "github.com/Robpol86/logrus-custom-formatter"
 	"github.com/alecthomas/kingpin"
+	"github.com/percona/mongodb-orchestration-tools/internal"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -60,7 +61,7 @@ func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Write
 	log.SetLevel(log.InfoLevel)
 	if app != nil {
 		var verbose bool
-		app.Flag("verbose", "enable verbose logging").Action(enableVerboseLogging).BoolVar(&verbose)
+		app.Flag("verbose", "enable verbose logging").Envar(internal.EnvLogVerbose).Action(enableVerboseLogging).BoolVar(&verbose)
 		return verbose
 	}
 	return false
