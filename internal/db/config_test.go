@@ -49,8 +49,13 @@ func TestInternalDBNewConfig(t *testing.T) {
 	cnf := NewConfig(app, "", "")
 	assert.NotNil(t, cnf)
 
+	os.Setenv(dcos.EnvMongoDBNetSSLEnabled, "true")
+	os.Setenv(dcos.EnvMongoDBPort, "27017")
 	os.Setenv(dcos.EnvMongoDBReplset, t.Name())
+	defer os.Unsetenv(dcos.EnvMongoDBNetSSLEnabled)
+	defer os.Unsetenv(dcos.EnvMongoDBPort)
 	defer os.Unsetenv(dcos.EnvMongoDBReplset)
+
 	_, err := app.Parse([]string{"--username=test", "--password=test"})
 	assert.NoError(t, err)
 	assert.Equal(t, []string{getDefaultMongoDBAddress()}, cnf.DialInfo.Addrs)
