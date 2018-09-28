@@ -16,6 +16,7 @@ package logger
 
 import (
 	"io"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -61,7 +62,14 @@ func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Write
 	log.SetLevel(log.InfoLevel)
 	if app != nil {
 		var verbose bool
-		app.Flag("verbose", "enable verbose logging").Envar(internal.EnvLogVerbose).Action(enableVerboseLogging).BoolVar(&verbose)
+		app.Flag("verbose", "enable verbose logging").Action(enableVerboseLogging).BoolVar(&verbose)
+
+		// fix for kingpin .Envar() being ignored above
+		if strings.TrimSpace(os.Getenv(internal.EnvLogVerbose)) == "true" {
+			_ = enableVerboseLogging(nil)
+			verbose = true
+		}
+
 		return &verbose
 	}
 	return nil
