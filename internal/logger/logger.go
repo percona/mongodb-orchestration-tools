@@ -66,7 +66,7 @@ func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Write
 
 		// fix for kingpin .Envar() being ignored above
 		if strings.TrimSpace(os.Getenv(internal.EnvLogVerbose)) == "true" {
-			enableVerboseLogging(nil)
+			_ = enableVerboseLogging(nil)
 			verbose = true
 		}
 
