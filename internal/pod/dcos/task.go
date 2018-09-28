@@ -110,7 +110,7 @@ func (task *Task) IsRunning() bool {
 
 func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	if task.data.Info != nil && strings.HasSuffix(task.data.Info.Name, "-"+taskType.String()) {
-		return strings.Contains(task.data.Info.Command.Value, "mongodb-executor-")
+		return strings.Contains(task.data.Info.Command.Value, "mongodb-executor")
 	}
 	return false
 }
