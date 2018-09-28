@@ -15,8 +15,11 @@
 package db
 
 import (
+	"os"
 	"testing"
 
+	"github.com/alecthomas/kingpin"
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
@@ -39,4 +42,29 @@ func TestInternalDBUri(t *testing.T) {
 
 	config.DialInfo.ReplicaSetName = "test"
 	assert.Equal(t, "mongodb://admin:123456@test:1234?replicaSet=test&ssl=true", config.Uri(), ".Uri() returned invalid uri")
+}
+
+func TestInternalDBNewConfig(t *testing.T) {
+	app := kingpin.New(t.Name(), t.Name())
+	cnf := NewConfig(app, "", "")
+	assert.NotNil(t, cnf)
+
+	os.Setenv(dcos.EnvMongoDBReplset, t.Name())
+	defer os.Unsetenv(dcos.EnvMongoDBReplset)
+	_, err := app.Parse([]string{"--username=test", "--password=test"})
+	assert.NoError(t, err)
+	assert.Equal(t, []string{getDefaultMongoDBAddress()}, cnf.DialInfo.Addrs)
+	assert.Equal(t, t.Name(), cnf.DialInfo.ReplicaSetName)
+}
+
+func TestInternalDBNewSSLConfig(t *testing.T) {
+	app := kingpin.New(t.Name(), t.Name())
+	cnf := NewConfig(app, "", "")
+	assert.NotNil(t, cnf)
+
+	os.Setenv(dcos.EnvMongoDBNetSSLEnabled, "true")
+	defer os.Unsetenv(dcos.EnvMongoDBNetSSLEnabled)
+	_, err := app.Parse([]string{"--username=test", "--password=test"})
+	assert.NoError(t, err)
+	assert.True(t, cnf.SSL.Enabled)
 }
