@@ -68,18 +68,14 @@ func TestInternalDBConfigureSSLDialInfo(t *testing.T) {
 func TestInternalDBValidateConnection(t *testing.T) {
 	sslCnf := &SSLConfig{
 		Enabled:    true,
-		PEMKeyFile: testSSLPEMKey,
-		CAFile:     testSSLRootCA,
+		PEMKeyFile: sslCertFile,
+		CAFile:     sslCAFile,
 	}
 	roots, err := sslCnf.loadCaCertificate()
-	if err != nil {
-		t.Fatalf("Could not load test root CA cert: %v", err.Error())
-	}
+	assert.NoError(t, err, "Could not load test root CA cert")
 
-	certificates, err := tls.LoadX509KeyPair(testSSLPEMKey, testSSLPEMKey)
-	if err != nil {
-		t.Fatalf("Cannot load key pair from '%s': %v", testSSLPEMKey, err)
-	}
+	certificates, err := tls.LoadX509KeyPair(sslCertFile, sslCertFile)
+	assert.NoErrorf(t, err, "Cannot load key pair from '%s'", sslCertFile)
 
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificates},
@@ -87,19 +83,15 @@ func TestInternalDBValidateConnection(t *testing.T) {
 	}
 	host := testutils.MongodbHost + ":" + testutils.MongodbPrimaryPort
 	conn, err := tls.Dial("tcp", host, tlsConfig)
-	if err != nil {
-		t.Fatalf("Failed to connect to '%s': %v", host, err.Error())
-	}
+	assert.NoErrorf(t, err, "Failed to connect to '%s'", host)
 	defer conn.Close()
 
 	err = validateConnection(conn, tlsConfig, testutils.MongodbHost)
-	if err != nil {
-		t.Fatalf("Failed to run .validateConnection(): %v", err.Error())
-	}
+	assert.NoError(t, err, "Failed to run .validateConnection()")
 
 	err = validateConnection(conn, tlsConfig, "this.should.fail")
 	if err == nil || !(strings.HasPrefix(err.Error(), "x509: certificate is valid for ") && strings.HasSuffix(err.Error(), " not this.should.fail")) {
-		t.Fatalf("Expected an error from .validateConnection(): %v", err.Error())
+		assert.Failf(t, "Expected an error from .validateConnection(): %v", err.Error())
 	}
 }
 
