@@ -15,7 +15,9 @@
 package db
 
 import (
+	"crypto/tls"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -63,6 +65,44 @@ func TestInternalDBConfigureSSLDialInfo(t *testing.T) {
 	assert.NotNil(t, config.DialInfo.DialServer, "config.DialInfo.DialServer should not be nil")
 }
 
+func TestInternalDBValidateConnection(t *testing.T) {
+	sslCnf := &SSLConfig{
+		Enabled:    true,
+		PEMKeyFile: testSSLPEMKey,
+		CAFile:     testSSLRootCA,
+	}
+	roots, err := sslCnf.loadCaCertificate()
+	if err != nil {
+		t.Fatalf("Could not load test root CA cert: %v", err.Error())
+	}
+
+	certificates, err := tls.LoadX509KeyPair(testSSLPEMKey, testSSLPEMKey)
+	if err != nil {
+		t.Fatalf("Cannot load key pair from '%s': %v", testSSLPEMKey, err)
+	}
+
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{certificates},
+		RootCAs:      roots,
+	}
+	host := testutils.MongodbHost + ":" + testutils.MongodbPrimaryPort
+	conn, err := tls.Dial("tcp", host, tlsConfig)
+	if err != nil {
+		t.Fatalf("Failed to connect to '%s': %v", host, err.Error())
+	}
+	defer conn.Close()
+
+	err = validateConnection(conn, tlsConfig, testutils.MongodbHost)
+	if err != nil {
+		t.Fatalf("Failed to run .validateConnection(): %v", err.Error())
+	}
+
+	err = validateConnection(conn, tlsConfig, "this.should.fail")
+	if err == nil || !(strings.HasPrefix(err.Error(), "x509: certificate is valid for ") && strings.HasSuffix(err.Error(), " not this.should.fail")) {
+		t.Fatalf("Expected an error from .validateConnection(): %v", err.Error())
+	}
+}
+
 func TestInternalDBGetSessionSSL(t *testing.T) {
 	testutils.DoSkipTest(t)
 
@@ -73,15 +113,13 @@ func TestInternalDBGetSessionSSL(t *testing.T) {
 		Insecure:   false,
 	}
 
-	// intentionally test for SSL error (due to self-signed SSL certs) in secure mode
+	// test secure mode
 	testLogBuffer.Reset()
 	assert.Nil(t, LastSSLError(), ".LastSSLError() should be nil")
 	testPrimaryDbConfig.DialInfo.Timeout = 100 * time.Millisecond
 	_, err := GetSession(testPrimaryDbConfig)
-	assert.Error(t, err, ".GetSession() should return an error due to self-signed certificates")
-	assert.Error(t, LastSSLError(), ".LastSSLError() should not be nil")
-	assert.Regexp(t, "^x509: cannot validate certificate for", LastSSLError().Error(), ".LastSSLError() has unexpected error message")
-	assert.Contains(t, testLogBuffer.String(), "x509: cannot validate certificate for", ".GetSession() log output should contain ssl error")
+	assert.NoError(t, err, ".GetSession() should return nil")
+	assert.NoError(t, LastSSLError(), ".LastSSLError() should return nil")
 
 	// enable insecure mode (due to self-signed certs) and connect
 	testPrimaryDbConfig.DialInfo.Timeout = testutils.MongodbTimeout

@@ -35,6 +35,8 @@ var (
 		},
 		SSL: &SSLConfig{},
 	}
+	testSSLPEMKey = "../../docker/test/ssl/client.pem"
+	testSSLRootCA = "../../docker/test/ssl/rootCA.crt"
 )
 
 func TestMain(m *testing.M) {
