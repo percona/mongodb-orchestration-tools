@@ -42,11 +42,7 @@ func mkdir(path string, uid int, gid int, mode os.FileMode) error {
 			return err
 		}
 	}
-	err := os.Chown(path, uid, gid)
-	if err != nil {
-		return err
-	}
-	return nil
+	return os.Chown(path, uid, gid)
 }
 
 type Mongod struct {
@@ -169,12 +165,7 @@ func (m *Mongod) Initiate() error {
 	log.WithFields(log.Fields{
 		"dbPath": config.Storage.DbPath,
 	}).Info("Initiating the mongod dbPath")
-	err = mkdir(config.Storage.DbPath, uid, gid, DefaultDirMode)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return mkdir(config.Storage.DbPath, uid, gid, DefaultDirMode)
 }
 
 func (m *Mongod) IsStarted() bool {

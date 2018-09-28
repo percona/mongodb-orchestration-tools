@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -83,7 +84,8 @@ func (cnf *Config) configureSSLDialInfo() error {
 			return nil, err
 		}
 		if !config.InsecureSkipVerify {
-			err = validateConnection(conn, config)
+			dnsName := strings.SplitN(addr.String(), ":", 2)[0]
+			err = validateConnection(conn, config, dnsName)
 			if err != nil {
 				log.Errorf("Could not disable hostname validation. Got: %v", err)
 			}
@@ -93,7 +95,7 @@ func (cnf *Config) configureSSLDialInfo() error {
 	return nil
 }
 
-func validateConnection(conn *tls.Conn, tlsConfig *tls.Config) error {
+func validateConnection(conn *tls.Conn, tlsConfig *tls.Config, dnsName string) error {
 	var err error
 	if err = conn.Handshake(); err != nil {
 		conn.Close()
@@ -103,7 +105,7 @@ func validateConnection(conn *tls.Conn, tlsConfig *tls.Config) error {
 	opts := x509.VerifyOptions{
 		Roots:         tlsConfig.RootCAs,
 		CurrentTime:   time.Now(),
-		DNSName:       "",
+		DNSName:       dnsName,
 		Intermediates: x509.NewCertPool(),
 	}
 
