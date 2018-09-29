@@ -95,51 +95,72 @@ func (m *Mongod) Name() string {
 	return "mongod"
 }
 
-func (m *Mongod) Initiate() error {
-	uid, err := internal.GetUserID(m.config.User)
-	if err != nil {
-		log.Errorf("Could not get user %s UID: %s\n", m.config.User, err)
-		return err
-	}
-
-	gid, err := internal.GetGroupID(m.config.Group)
-	if err != nil {
-		log.Errorf("Could not get group %s GID: %s\n", m.config.Group, err)
-		return err
-	}
-
+func (m *Mongod) loadConfig() (*mongoConfig.Config, error) {
 	log.WithFields(log.Fields{
 		"config": m.configFile,
 	}).Info("Loading mongodb config file")
+
 	config, err := mongoConfig.Load(m.configFile)
 	if err != nil {
 		log.Errorf("Error loading mongodb configuration: %s", err)
-		return err
+		return nil, err
 	}
+	return config, err
+}
+
+func (m *Mongod) processMongodConfig(config *mongoConfig.Config) error {
 	if config.Security == nil || config.Security.KeyFile == "" || config.Storage == nil || config.Storage.DbPath == "" {
 		return errors.New("mongodb config file is not valid, must have security.keyFile and storage.dbPath defined!")
 	}
 
 	if config.Storage.Engine == "wiredTiger" {
-		cacheSizeGB := m.getWiredTigerCacheSizeGB()
-		log.WithFields(log.Fields{
-			"size_gb": cacheSizeGB,
-			"ratio":   m.config.WiredTigerCacheRatio,
-		}).Infof("Setting WiredTiger cache size")
-
-		if config.Storage.WiredTiger == nil {
-			config.Storage.WiredTiger = &mongoConfig.StorageWiredTiger{}
-		}
-		if config.Storage.WiredTiger.EngineConfig == nil {
-			config.Storage.WiredTiger.EngineConfig = &mongoConfig.StorageWiredTigerEngineConfig{}
-		}
-		config.Storage.WiredTiger.EngineConfig.CacheSizeGB = cacheSizeGB
-
-		err = config.Write(m.configFile)
+		err := m.processWiredTigerConfig(config)
 		if err != nil {
-			log.Errorf("Error writing new mongodb configuration: %s", err)
+			log.Errorf("Error processing wiredTiger configuration: %s", err)
 			return err
 		}
+	}
+	return nil
+}
+
+func (m *Mongod) processWiredTigerConfig(config *mongoConfig.Config) error {
+	cacheSizeGB := m.getWiredTigerCacheSizeGB()
+
+	log.WithFields(log.Fields{
+		"size_gb": cacheSizeGB,
+		"ratio":   m.config.WiredTigerCacheRatio,
+	}).Infof("Setting WiredTiger cache size")
+
+	if config.Storage.WiredTiger == nil {
+		config.Storage.WiredTiger = &mongoConfig.StorageWiredTiger{}
+	}
+	if config.Storage.WiredTiger.EngineConfig == nil {
+		config.Storage.WiredTiger.EngineConfig = &mongoConfig.StorageWiredTigerEngineConfig{}
+	}
+	config.Storage.WiredTiger.EngineConfig.CacheSizeGB = cacheSizeGB
+
+	return config.Write(m.configFile)
+}
+
+func (m *Mongod) loadUserIDs() (int, int, error) {
+	uid, err := internal.GetUserID(m.config.User)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	gid, err := internal.GetGroupID(m.config.Group)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return uid, gid, nil
+}
+
+func (m *Mongod) initiateFilePaths(config *mongoConfig.Config) error {
+	uid, gid, err := m.loadUserIDs()
+	if err != nil {
+		log.Errorf("Could not load mongod uid/gid: %v", err)
+		return err
 	}
 
 	log.WithFields(log.Fields{
@@ -165,7 +186,24 @@ func (m *Mongod) Initiate() error {
 	log.WithFields(log.Fields{
 		"dbPath": config.Storage.DbPath,
 	}).Info("Initiating the mongod dbPath")
+
 	return mkdir(config.Storage.DbPath, uid, gid, DefaultDirMode)
+}
+
+func (m *Mongod) Initiate() error {
+	config, err := m.loadConfig()
+	if err != nil {
+		log.Errorf("Could not load mongod config: %v", err)
+		return err
+	}
+
+	err = m.processMongodConfig(config)
+	if err != nil {
+		log.Errorf("Could not process mongod config: %v", err)
+		return err
+	}
+
+	return m.initiateFilePaths(config)
 }
 
 func (m *Mongod) IsStarted() bool {
