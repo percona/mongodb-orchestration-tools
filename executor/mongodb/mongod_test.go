@@ -38,6 +38,7 @@ var (
 		User:      currentUser.Name,
 		Group:     currentGroup.Name,
 	}
+	testMongodConfigFile = "testdata/mongod.conf"
 )
 
 func TestExecutorMongoDBNewMongod(t *testing.T) {
@@ -46,6 +47,22 @@ func TestExecutorMongoDBNewMongod(t *testing.T) {
 	assert.NotNil(t, testMongod, ".NewMongod() should not return nil")
 	assert.Contains(t, testMongod.commandBin, testConfig.BinDir)
 	assert.Contains(t, testMongod.configFile, testConfig.ConfigDir)
+	assert.Equal(t, "mongod", testMongod.Name())
+}
+
+func TestExecutorMongoDBLoadConfig(t *testing.T) {
+	testStateChan := make(chan *os.ProcessState)
+
+	mongod := NewMongod(&Config{ConfigDir: "testdata"}, testStateChan)
+	config, err := mongod.loadConfig()
+	assert.NoError(t, err)
+	assert.NotNil(t, config)
+	assert.Equal(t, 27017, config.Net.Port)
+
+	// test missing config
+	mongod = NewMongod(&Config{ConfigDir: "/does/not/exist"}, testStateChan)
+	_, err = mongod.loadConfig()
+	assert.Error(t, err)
 }
 
 // Test .getWiredTigerCacheSizeGB() mimics the cache-sizing logic described in the documentation:
