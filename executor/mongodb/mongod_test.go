@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	mdbconfig "github.com/timvaillancourt/go-mongodb-config/config"
 	"gopkg.in/mgo.v2"
@@ -136,15 +137,8 @@ func TestExecutorMongoDBMkdir(t *testing.T) {
 	assert.True(t, stat.IsDir())
 }
 
-func TestExecutorMongoDBIsStarted(t *testing.T) {
-	assert.False(t, testMongod.IsStarted())
-}
-
 func TestExecutorMongoDBStart(t *testing.T) {
-	if os.Getenv("TEST_EXECUTOR_MONGODB") != "true" {
-		t.Logf("Skipping test because TEST_EXECUTOR_MONGODB is not 'true'")
-		return
-	}
+	testutils.DoSkipTest(t)
 
 	// get random open TCP port for mongod
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
