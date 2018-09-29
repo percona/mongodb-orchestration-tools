@@ -19,6 +19,7 @@ import (
 	"net"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
@@ -62,6 +63,31 @@ func TestExecutorMongoDBLoadConfig(t *testing.T) {
 	mongod = NewMongod(&Config{ConfigDir: "/does/not/exist"}, testStateChan)
 	_, err = mongod.loadConfig()
 	assert.Error(t, err)
+}
+
+func TestExecutorMongoDBProcessWiredTigerConfig(t *testing.T) {
+	// copy testdata/mongod.conf to a temp dir
+	tempDir, _ := ioutil.TempDir("", t.Name())
+	defer os.RemoveAll(tempDir)
+	src, err := ioutil.ReadFile("testdata/mongod.conf")
+	assert.NoError(t, err)
+	assert.NoError(t, ioutil.WriteFile(filepath.Join(tempDir, "mongod.conf"), src, 0644))
+
+	testStateChan := make(chan *os.ProcessState)
+	config := &Config{
+		ConfigDir:            tempDir,
+		TotalMemoryMB:        8 * 1024,
+		WiredTigerCacheRatio: 0.5,
+	}
+	mongod := NewMongod(config, testStateChan)
+	mongodConfig, err := mongod.loadConfig()
+	assert.NoError(t, err)
+	assert.Nil(t, mongodConfig.Storage.WiredTiger)
+
+	assert.NoError(t, mongod.processWiredTigerConfig(mongodConfig))
+	assert.NotNil(t, mongodConfig.Storage.WiredTiger)
+	assert.NotNil(t, mongodConfig.Storage.WiredTiger.EngineConfig)
+	assert.Equal(t, 3.5, mongodConfig.Storage.WiredTiger.EngineConfig.CacheSizeGB)
 }
 
 // Test .getWiredTigerCacheSizeGB() mimics the cache-sizing logic described in the documentation:
