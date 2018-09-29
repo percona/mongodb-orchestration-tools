@@ -38,7 +38,6 @@ var (
 		User:      currentUser.Name,
 		Group:     currentGroup.Name,
 	}
-	testMongodConfigFile = "testdata/mongod.conf"
 )
 
 func TestExecutorMongoDBNewMongod(t *testing.T) {
