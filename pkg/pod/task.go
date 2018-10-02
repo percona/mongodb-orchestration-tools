@@ -15,7 +15,7 @@
 package pod
 
 import (
-	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	"github.com/percona/mongodb-orchestration-tools/pkg/db"
 )
 
 type TaskType string

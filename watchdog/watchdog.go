@@ -21,7 +21,7 @@ import (
 	"time"
 
 	dcosmongotools "github.com/percona/mongodb-orchestration-tools"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/watcher"

@@ -18,11 +18,12 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/db"
+	db "github.com/percona/mongodb-orchestration-tools/internal/db"
 	dcos "github.com/percona/mongodb-orchestration-tools/internal/dcos"
-	podDcos "github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	pkgDb "github.com/percona/mongodb-orchestration-tools/pkg/db"
+	podDcos "github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/mocks"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
@@ -33,7 +34,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 
 	podTask := &mocks.Task{}
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
-	podTask.On("GetMongoAddr").Return(&db.Addr{
+	podTask.On("GetMongoAddr").Return(&pkgDb.Addr{
 		Host: "test." + dcos.DefaultFrameworkName + "." + podDcos.AutoIPDNSSuffix,
 		Port: port,
 	}, nil)

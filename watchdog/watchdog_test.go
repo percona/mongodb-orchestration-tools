@@ -22,9 +22,9 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
 	"github.com/stretchr/testify/assert"
 )

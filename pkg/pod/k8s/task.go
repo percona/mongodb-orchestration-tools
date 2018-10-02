@@ -15,8 +15,8 @@
 package k8s
 
 import (
-	"github.com/percona/mongodb-orchestration-tools/internal/db"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/db"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 )
 
 type TaskState string

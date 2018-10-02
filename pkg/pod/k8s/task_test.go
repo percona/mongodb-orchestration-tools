@@ -17,7 +17,7 @@ package k8s
 import (
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
 )
 

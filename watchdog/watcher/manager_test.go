@@ -19,9 +19,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/mocks"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	"github.com/stretchr/testify/assert"
 )
