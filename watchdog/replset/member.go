@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"gopkg.in/mgo.v2"
 )
 

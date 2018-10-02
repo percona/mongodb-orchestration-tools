@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package k8s
+package db
 
-import (
-	"testing"
+import "strconv"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
-	"github.com/stretchr/testify/assert"
-)
+type Addr struct {
+	Host string
+	Port int
+}
 
-func TestInternalPodK8STask(t *testing.T) {
-	assert.Implements(t, (*pod.Task)(nil), &Task{})
+func (a Addr) String() string {
+	return a.Host + ":" + strconv.Itoa(a.Port)
 }

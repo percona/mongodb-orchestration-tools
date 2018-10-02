@@ -12,25 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package api
+package pod
 
 import (
-	"testing"
-
-	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
-	"github.com/stretchr/testify/assert"
+	"github.com/percona/mongodb-orchestration-tools/pkg/db"
 )
 
-func TestInternalAPIGetPodURL(t *testing.T) {
-	assert.Equal(t,
-		testAPI.GetPodURL(),
-		testAPI.scheme.String()+testAPI.config.Host+"/"+SDKAPIVersion+"/pod",
-		"api.GetPodURL() is incorrect",
-	)
+type TaskType string
+
+var (
+	TaskTypeMongod TaskType = "mongod"
+	TaskTypeMongos TaskType = "mongos"
+)
+
+func (t TaskType) String() string {
+	return string(t)
 }
 
-func TestInternalAPIPodsHasPod(t *testing.T) {
-	pods := &pod.Pods{"test1"}
-	assert.True(t, pods.HasPod("test1"))
-	assert.False(t, pods.HasPod("not here"))
+type TaskState interface {
+	String() string
+}
+
+type Task interface {
+	Name() string
+	State() TaskState
+	HasState() bool
+	IsRunning() bool
+	IsTaskType(taskType TaskType) bool
+	GetMongoAddr() (*db.Addr, error)
+	GetMongoReplsetName() (string, error)
 }

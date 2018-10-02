@@ -15,8 +15,8 @@
 package api
 
 import (
-	"github.com/percona/mongodb-orchestration-tools/internal/pod"
-	"github.com/percona/mongodb-orchestration-tools/internal/pod/dcos"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
 )
 
 // GetPodURL returns a string representing the full HTTP URI to the 'GET /<version>/pod' API call
