@@ -39,12 +39,14 @@ func main() {
 		GitCommit, GitBranch,
 	)
 	cnf := &config.Config{
-		API: &api.Config{},
+		DCOS: &config.ConfigDCOS{
+			API: &api.Config{},
+		},
 	}
 	app.Flag(
 		"framework",
 		"API framework name, this flag or env var "+dcos.EnvFrameworkName+" is required",
-	).Default(dcos.DefaultFrameworkName).Envar(dcos.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+	).Default(dcos.DefaultFrameworkName).Envar(dcos.EnvFrameworkName).StringVar(&cnf.DCOS.FrameworkName)
 	app.Flag(
 		"username",
 		"MongoDB clusterAdmin username, this flag or env var "+dcos.EnvMongoDBClusterAdminUser+" is required",
@@ -60,11 +62,11 @@ func main() {
 	app.Flag(
 		"apiPoll",
 		"Frequency of DC/OS SDK API polls, overridden by env var WATCHDOG_API_POLL",
-	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.APIPoll)
+	).Default(config.DefaultAPIPoll).Envar("WATCHDOG_API_POLL").DurationVar(&cnf.DCOS.APIPoll)
 	app.Flag(
 		"apiTimeout",
 		"DC/OS SDK API timeout, overridden by env var WATCHDOG_API_TIMEOUT",
-	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.API.Timeout)
+	).Default(api.DefaultHTTPTimeout).Envar("WATCHDOG_API_TIMEOUT").DurationVar(&cnf.DCOS.API.Timeout)
 	app.Flag(
 		"ignoreAPIPods",
 		"DC/OS SDK pods to ignore/exclude from watching",
@@ -80,15 +82,15 @@ func main() {
 	app.Flag(
 		"apiHost",
 		"DC/OS SDK API hostname, overridden by env var "+dcos.EnvSchedulerAPIHost,
-	).Default(api.DefaultSchedulerHost).Envar(dcos.EnvSchedulerAPIHost).StringVar(&cnf.API.Host)
+	).Default(api.DefaultSchedulerHost).Envar(dcos.EnvSchedulerAPIHost).StringVar(&cnf.DCOS.API.Host)
 	app.Flag(
 		"apiSecure",
 		"Use secure connections to DC/OS SDK API",
-	).BoolVar(&cnf.API.Secure)
+	).BoolVar(&cnf.DCOS.API.Secure)
 	app.Flag(
 		"metricsPort",
 		"Prometheus Metrics listen port, overridden by env var "+dcos.EnvWatchdogMetricsPort,
-	).Default(watchdog.DefaultMetricsPort).Envar(dcos.EnvWatchdogMetricsPort).StringVar(&cnf.MetricsPort)
+	).Default(watchdog.DefaultMetricsPort).Envar(dcos.EnvWatchdogMetricsPort).StringVar(&cnf.DCOS.MetricsPort)
 
 	cnf.SSL = db.NewSSLConfig(app)
 
@@ -106,7 +108,7 @@ func main() {
 
 	quit := make(chan bool)
 	watchdog.New(cnf, &quit, api.New(
-		cnf.FrameworkName,
+		cnf.DCOS.FrameworkName,
 		cnf.API,
 	)).Run()
 

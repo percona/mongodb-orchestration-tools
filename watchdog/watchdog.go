@@ -163,19 +163,19 @@ func (w *Watchdog) fetchPods() {
 
 func (w *Watchdog) Run() {
 	log.WithFields(log.Fields{
-		"version":   dcosmongotools.Version,
-		"framework": w.config.FrameworkName,
-		"go":        runtime.Version(),
-		"source":    w.podSource.Name(),
+		"version": dcosmongotools.Version,
+		"go":      runtime.Version(),
+		"source":  w.podSource.Name(),
 	}).Info("Starting watchdog")
 
-	// run the prometheus metrics server
-	prometheus.MustRegister(apiFetches)
-	go w.runPrometheusMetricsServer()
+	if w.config.MetricsPort != "" {
+		prometheus.MustRegister(apiFetches)
+		go w.runPrometheusMetricsServer()
+	}
 
 	w.fetchPods()
 
-	ticker := time.NewTicker(w.config.APIPoll)
+	ticker := time.NewTicker(w.config.SourcePoll)
 	for {
 		select {
 		case <-ticker.C:

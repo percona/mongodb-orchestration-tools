@@ -22,8 +22,8 @@ import (
 )
 
 var (
-	DefaultAPIPoll    = "10s"
-	DefaultIgnorePods = []string{
+	DefaultDCOSAPIPoll    = "10s"
+	DefaultDCOSIgnorePods = []string{
 		"admin-0",
 		"restore-0",
 		"mongodb-consistent-backup-0",
@@ -32,16 +32,21 @@ var (
 	DefaultReplsetTimeout = "3s"
 )
 
+type ConfigDCOS struct {
+	API           *api.Config
+	APIPoll       time.Duration
+	FrameworkName string
+}
+
 // Watchdog Configuration
 type Config struct {
 	Username       string
 	Password       string
-	FrameworkName  string
 	IgnorePods     []string
-	API            *api.Config
-	APIPoll        time.Duration
 	SSL            *db.SSLConfig
 	ReplsetPoll    time.Duration
 	ReplsetTimeout time.Duration
+	SourcePoll     time.Duration
 	MetricsPort    string
+	DCOS           *ConfigDCOS
 }
