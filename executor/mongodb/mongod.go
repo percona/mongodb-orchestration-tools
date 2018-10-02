@@ -143,21 +143,23 @@ func (m *Mongod) processWiredTigerConfig(config *mongoConfig.Config) error {
 }
 
 func (m *Mongod) loadUserIDs() (int, int, error) {
-	uid, err := internal.GetUserID(m.config.User)
+	var err error
+
+	m.uid, err = internal.GetUserID(m.config.User)
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
 
-	gid, err := internal.GetGroupID(m.config.Group)
+	m.gid, err = internal.GetGroupID(m.config.Group)
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
 
-	return uid, gid, nil
+	return nil
 }
 
 func (m *Mongod) initiateFilePaths(config *mongoConfig.Config) error {
-	uid, gid, err := m.loadUserIDs()
+	err := m.loadUserIDs()
 	if err != nil {
 		log.Errorf("Could not load mongod uid/gid: %v", err)
 		return err
@@ -166,7 +168,7 @@ func (m *Mongod) initiateFilePaths(config *mongoConfig.Config) error {
 	log.WithFields(log.Fields{
 		"tmpDir": m.config.TmpDir,
 	}).Info("Initiating the mongod tmp dir")
-	err = mkdir(m.config.TmpDir, uid, gid, DefaultDirMode)
+	err = mkdir(m.config.TmpDir, m.uid, m.gid, DefaultDirMode)
 	if err != nil {
 		return err
 	}
@@ -174,7 +176,7 @@ func (m *Mongod) initiateFilePaths(config *mongoConfig.Config) error {
 	log.WithFields(log.Fields{
 		"keyFile": config.Security.KeyFile,
 	}).Info("Initiating the mongod keyFile")
-	err = os.Chown(config.Security.KeyFile, uid, gid)
+	err = os.Chown(config.Security.KeyFile, m.uid, m.gid)
 	if err != nil {
 		return err
 	}
@@ -187,7 +189,7 @@ func (m *Mongod) initiateFilePaths(config *mongoConfig.Config) error {
 		"dbPath": config.Storage.DbPath,
 	}).Info("Initiating the mongod dbPath")
 
-	return mkdir(config.Storage.DbPath, uid, gid, DefaultDirMode)
+	return mkdir(config.Storage.DbPath, m.uid, m.gid, DefaultDirMode)
 }
 
 func (m *Mongod) Initiate() error {
@@ -220,7 +222,7 @@ func (m *Mongod) Start() error {
 		return err
 	}
 
-	mongodUser, err := user.Lookup(m.config.User)
+	mongodUser, err := user.LookupId(m.config.User)
 	if err != nil {
 		return err
 	}
