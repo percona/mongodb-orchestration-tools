@@ -31,7 +31,7 @@ var (
 	testConfig  = &config.Config{
 		Username:    testutils.MongodbAdminUser,
 		Password:    testutils.MongodbAdminPassword,
-		ReplsetPoll: 350 * time.Millisecond,
+		ReplsetPoll: 500 * time.Millisecond,
 		SSL:         &db.SSLConfig{},
 	}
 	testStopChan = make(chan bool)
