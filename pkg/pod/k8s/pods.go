@@ -15,18 +15,23 @@
 package k8s
 
 import (
+	"sync"
+
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func NewPods(pods []corev1.Pod) *Pods {
+func NewPods(pods []corev1.Pod, portName string) *Pods {
 	return &Pods{
-		pods: pods,
+		pods:     pods,
+		portName: portName,
 	}
 }
 
 type Pods struct {
-	pods []corev1.Pod
+	sync.Mutex
+	pods     []corev1.Pod
+	portName string
 }
 
 func (p *Pods) Name() string {
@@ -37,8 +42,17 @@ func (p *Pods) GetPodURL() string {
 	return "operator-sdk"
 }
 
+func (p *Pods) SetPods(pods []corev1.Pod) {
+	p.Lock()
+	defer p.Unlock()
+	p.pods = pods
+}
+
 func (p *Pods) GetPods() (*pod.Pods, error) {
-	pods := make(pod.Pods, 0)
+	p.Lock()
+	defer p.Unlock()
+
+	pods := make(pod.Pods, len(p.pods)-1)
 	for i, pod := range p.pods {
 		pods[i] = pod.Name
 	}
@@ -46,13 +60,12 @@ func (p *Pods) GetPods() (*pod.Pods, error) {
 }
 
 func (p *Pods) GetPodTasks(podName string) ([]pod.Task, error) {
-	tasks := make([]pod.Task, 0)
-	podNames, err := p.GetPods()
-	if err != nil {
-		return tasks, err
-	}
-	for _, podName := range podNames {
+	p.Lock()
+	defer p.Unlock()
 
+	tasks := make([]pod.Task, 0)
+	for _, pod := range p.pods {
+		tasks = append(tasks, NewTask(pod, p.portName))
 	}
 	return tasks, nil
 }

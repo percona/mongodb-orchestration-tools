@@ -9,8 +9,22 @@ type Source struct {
 	mock.Mock
 }
 
-// GetPodTasks provides a mock function with given fields: podName
-func (_m *Source) GetPodTasks(podName string) ([]pod.Task, error) {
+// Name provides a mock function with given fields:
+func (_m *Source) Name() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// PodTasks provides a mock function with given fields: podName
+func (_m *Source) PodTasks(podName string) ([]pod.Task, error) {
 	ret := _m.Called(podName)
 
 	var r0 []pod.Task
@@ -32,30 +46,16 @@ func (_m *Source) GetPodTasks(podName string) ([]pod.Task, error) {
 	return r0, r1
 }
 
-// GetPodURL provides a mock function with given fields:
-func (_m *Source) GetPodURL() string {
+// Pods provides a mock function with given fields:
+func (_m *Source) Pods() ([]string, error) {
 	ret := _m.Called()
 
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// GetPods provides a mock function with given fields:
-func (_m *Source) GetPods() (*pod.Pods, error) {
-	ret := _m.Called()
-
-	var r0 *pod.Pods
-	if rf, ok := ret.Get(0).(func() *pod.Pods); ok {
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*pod.Pods)
+			r0 = ret.Get(0).([]string)
 		}
 	}
 
@@ -69,8 +69,8 @@ func (_m *Source) GetPods() (*pod.Pods, error) {
 	return r0, r1
 }
 
-// Name provides a mock function with given fields:
-func (_m *Source) Name() string {
+// URL provides a mock function with given fields:
+func (_m *Source) URL() string {
 	ret := _m.Called()
 
 	var r0 string
