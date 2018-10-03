@@ -26,7 +26,7 @@ import (
 func TestInternalPodK8STask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
 
-	task := NewTask(&corev1.Pod{
+	task := NewTask(corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: t.Name(),
 		},

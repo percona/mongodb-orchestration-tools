@@ -61,14 +61,14 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 
 func TestWatchdogRun(t *testing.T) {
 	testAPIClient.On("Name").Return("test")
-	testAPIClient.On("GetPodURL").Return("http://test")
-	testAPIClient.On("GetPods").Return(&pod.Pods{"test"}, nil)
+	testAPIClient.On("URL").Return("http://test")
+	testAPIClient.On("Pods").Return([]string{"test"}, nil)
 
 	tasks := make([]pod.Task, 0)
 	tasks = append(tasks, dcos.NewTask(&dcos.TaskData{
 		Info: &dcos.TaskInfo{},
 	}, "test"))
-	testAPIClient.On("GetPodTasks", "test").Return(tasks, nil)
+	testAPIClient.On("GetTasks", "test").Return(tasks, nil)
 
 	go testWatchdog.Run()
 	time.Sleep(time.Millisecond * 150)

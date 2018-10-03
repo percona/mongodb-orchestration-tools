@@ -19,8 +19,49 @@ import (
 
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestInternalPodK8SPods(t *testing.T) {
 	assert.Implements(t, (*pod.Source)(nil), &Pods{})
+
+	p := NewPods([]corev1.Pod{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: t.Name(),
+			},
+			Status: corev1.PodStatus{
+				Phase: corev1.PodPending,
+			},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Env: []corev1.EnvVar{
+							{
+								Name:  "MONGODB_REPLSET",
+								Value: t.Name(),
+							},
+						},
+						Ports: []corev1.ContainerPort{
+							{
+								Name:     "mongodb",
+								HostIP:   "1.2.3.4",
+								HostPort: int32(27017),
+							},
+						},
+					},
+				},
+			},
+		},
+	}, "mongodb")
+	assert.NotNil(t, p)
+
+	pods, err := p.Pods()
+	assert.NoError(t, err)
+	assert.Len(t, pods, 1)
+	assert.Equal(t, t.Name(), pods[0])
+
+	assert.Equal(t, "k8s", p.Name())
+	assert.Equal(t, "operator-sdk", p.URL())
 }

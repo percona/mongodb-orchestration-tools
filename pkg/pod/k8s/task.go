@@ -39,9 +39,9 @@ type Task struct {
 	portName string
 }
 
-func NewTask(pod *corev1.Pod, portName string) *Task {
+func NewTask(pod corev1.Pod, portName string) *Task {
 	return &Task{
-		pod:      pod,
+		pod:      &pod,
 		portName: portName,
 	}
 }
