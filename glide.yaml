@@ -27,6 +27,17 @@ import:
   version: ~20180529.0.0
 - package: github.com/percona/pmgo
   version: ~0.5.2
+- package: k8s.io/api
+  subpackages:
+  - core/v1
+- package: k8s.io/apimachinery
+  subpackages:
+  - pkg/api/resource
+  - pkg/apis/meta/v1
+  - pkg/runtime
+  - pkg/runtime/schema
+  - pkg/types
+  - pkg/util/intstr
 testImport:
 - package: github.com/stretchr/testify
 - package: github.com/mitchellh/go-ps

@@ -19,8 +19,19 @@ import (
 
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestInternalPodK8STask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
+
+	task := NewTask(&corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: t.Name(),
+		},
+	}, "mongodb")
+
+	assert.NotNil(t, task)
+	assert.Equal(t, t.Name(), task.Name())
 }
