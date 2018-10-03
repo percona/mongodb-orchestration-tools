@@ -38,9 +38,21 @@ func (p *Pods) GetPodURL() string {
 }
 
 func (p *Pods) GetPods() (*pod.Pods, error) {
-	return &pod.Pods{}, nil
+	pods := make(pod.Pods, 0)
+	for i, pod := range p.pods {
+		pods[i] = pod.Name
+	}
+	return &pods, nil
 }
 
 func (p *Pods) GetPodTasks(podName string) ([]pod.Task, error) {
-	return []pod.Task{}, nil
+	tasks := make([]pod.Task, 0)
+	podNames, err := p.GetPods()
+	if err != nil {
+		return tasks, err
+	}
+	for _, podName := range podNames {
+
+	}
+	return tasks, nil
 }
