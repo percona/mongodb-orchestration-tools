@@ -56,9 +56,9 @@ func main() {
 		API: &api.Config{},
 	}
 	app.Flag(
-		"framework",
-		"API framework name, this flag or env var "+dcos.EnvFrameworkName+" is required",
-	).Default(dcos.DefaultFrameworkName).Envar(dcos.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+		"service",
+		"DC/OS SDK service/framework name, this flag or env var "+dcos.EnvServiceName+" is required",
+	).Default(dcos.DefaultServiceName).Envar(dcos.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
 		"username",
 		"MongoDB clusterAdmin username, this flag or env var "+dcos.EnvMongoDBClusterAdminUser+" is required",
@@ -124,7 +124,7 @@ func main() {
 
 	quit := make(chan bool)
 	w := watchdog.New(cnf, &quit, api.New(
-		cnf.FrameworkName,
+		cnf.ServiceName,
 		cnf.API,
 	))
 	if metricsListen != "" {

@@ -35,13 +35,13 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 	podTask := &mocks.Task{}
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
 	podTask.On("GetMongoAddr").Return(&pkgDb.Addr{
-		Host: "test." + dcos.DefaultFrameworkName + "." + podDcos.AutoIPDNSSuffix,
+		Host: "test." + dcos.DefaultServiceName + "." + podDcos.AutoIPDNSSuffix,
 		Port: port,
 	}, nil)
 	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
-	testMongod, err = NewMongod(podTask, dcos.DefaultFrameworkName, "mongo-"+testutils.MongodbReplsetName)
+	testMongod, err = NewMongod(podTask, dcos.DefaultServiceName, "mongo-"+testutils.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }
@@ -49,7 +49,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 func TestWatchdogReplsetMongodName(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	expected := "test." + dcos.DefaultFrameworkName + "." + podDcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
+	expected := "test." + dcos.DefaultServiceName + "." + podDcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 
