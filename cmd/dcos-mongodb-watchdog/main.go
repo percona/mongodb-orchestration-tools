@@ -15,6 +15,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,13 +26,26 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
 	"github.com/percona/mongodb-orchestration-tools/watchdog"
 	config "github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
-	GitCommit string
-	GitBranch string
+	GitCommit     string
+	GitBranch     string
+	metricsListen string
+	metricsPath   string
 )
+
+func runPrometheusMetricsServer() {
+	log.WithFields(log.Fields{
+		"listen": metricsListen,
+		"path":   metricsPath,
+	}).Info("Starting Prometheus metrics server")
+
+	http.Handle(metricsPath, promhttp.Handler())
+	log.Fatal(http.ListenAndServe(metricsListen, nil))
+}
 
 func main() {
 	app, _ := tool.New(
@@ -86,9 +100,13 @@ func main() {
 		"Use secure connections to DC/OS SDK API",
 	).BoolVar(&cnf.API.Secure)
 	app.Flag(
-		"metricsPort",
-		"Prometheus Metrics listen port, overridden by env var "+dcos.EnvWatchdogMetricsPort,
-	).Default(watchdog.DefaultMetricsPort).Envar(dcos.EnvWatchdogMetricsPort).StringVar(&cnf.MetricsPort)
+		"metricsListen",
+		"Prometheus Metrics listen address, overridden by env var "+dcos.EnvWatchdogMetricsListen,
+	).Default(config.DefaultMetricsListen).Envar(dcos.EnvWatchdogMetricsListen).StringVar(&metricsListen)
+	app.Flag(
+		"metricsPath",
+		"Prometheus Metrics http path",
+	).Default(config.DefaultMetricsPath).StringVar(&metricsPath)
 
 	cnf.SSL = db.NewSSLConfig(app)
 
@@ -105,10 +123,14 @@ func main() {
 	//}
 
 	quit := make(chan bool)
-	watchdog.New(cnf, &quit, api.New(
+	w := watchdog.New(cnf, &quit, api.New(
 		cnf.FrameworkName,
 		cnf.API,
-	)).Run()
+	))
+	if metricsListen != "" {
+		go runPrometheusMetricsServer()
+	}
+	go w.Run()
 
 	// wait for signals from the OS
 	signals := make(chan os.Signal, 1)

@@ -21,7 +21,7 @@ import (
 	"runtime"
 
 	"github.com/alecthomas/kingpin"
-	dcosmongotools "github.com/percona/mongodb-orchestration-tools"
+	tools "github.com/percona/mongodb-orchestration-tools"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 )
 
@@ -34,7 +34,7 @@ func New(help, commit, branch string) (*kingpin.Application, *bool) {
 	app.Author(Author)
 	app.Version(fmt.Sprintf(
 		"%s version %s\ngit commit %s, branch %s\ngo version %s",
-		app.Name, dcosmongotools.Version, commit, branch, runtime.Version(),
+		app.Name, tools.Version, commit, branch, runtime.Version(),
 	))
 	return app, logger.SetupLogger(
 		app,

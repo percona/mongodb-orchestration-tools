@@ -38,7 +38,6 @@ var (
 		Password:      testutils.MongodbAdminPassword,
 		APIPoll:       time.Millisecond * 100,
 		ReplsetPoll:   time.Millisecond * 100,
-		MetricsPort:   "65432",
 		SSL:           &db.SSLConfig{},
 	}
 	testAPIClient = &mocks.Client{}
