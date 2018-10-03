@@ -30,8 +30,63 @@ func TestInternalPodK8STask(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: t.Name(),
 		},
+		Status: corev1.PodStatus{},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Env:   []corev1.EnvVar{},
+					Ports: []corev1.ContainerPort{},
+				},
+			},
+		},
 	}, "mongodb")
 
 	assert.NotNil(t, task)
 	assert.Equal(t, t.Name(), task.Name())
+
+	// task types
+	assert.True(t, task.IsTaskType(pod.TaskTypeMongod))
+	assert.False(t, task.IsTaskType(pod.TaskTypeMongos))
+
+	// test empty state
+	assert.False(t, task.HasState())
+
+	// test non-running state
+	task.pod.Status.Phase = corev1.PodPending
+	assert.True(t, task.HasState())
+	assert.False(t, task.IsRunning())
+
+	// test running state
+	task.pod.Status.Phase = corev1.PodRunning
+	assert.True(t, task.IsRunning())
+	assert.Equal(t, "Running", task.State().String())
+
+	// empty mongo addr
+	_, err := task.GetMongoAddr()
+	assert.Error(t, err)
+
+	// set mongo addr
+	task.pod.Spec.Containers[0].Ports = []corev1.ContainerPort{{
+		Name:     "mongodb",
+		HostIP:   "1.2.3.4",
+		HostPort: int32(27017),
+	}}
+	addr, err := task.GetMongoAddr()
+	assert.Equal(t, "1.2.3.4", addr.Host)
+	assert.Equal(t, 27017, addr.Port)
+
+	// empty replset name
+	_, err = task.GetMongoReplsetName()
+	assert.Error(t, err)
+
+	// set replset name
+	task.pod.Spec.Containers[0].Env = []corev1.EnvVar{
+		{
+			Name:  "MONGODB_REPLSET",
+			Value: t.Name(),
+		},
+	}
+	rsName, err := task.GetMongoReplsetName()
+	assert.NoError(t, err)
+	assert.Equal(t, t.Name(), rsName)
 }

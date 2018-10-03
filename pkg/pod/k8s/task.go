@@ -81,5 +81,12 @@ func (t *Task) GetMongoAddr() (*db.Addr, error) {
 }
 
 func (t *Task) GetMongoReplsetName() (string, error) {
-	return "rs", nil
+	for _, container := range t.pod.Spec.Containers {
+		for _, env := range container.Env {
+			if env.Name == "MONGODB_REPLSET" {
+				return env.Value, nil
+			}
+		}
+	}
+	return "", errors.New("could not find mongodb replset name")
 }
