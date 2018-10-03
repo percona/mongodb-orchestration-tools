@@ -62,5 +62,5 @@ func TestInternalPodK8SPods(t *testing.T) {
 	//assert.Equal(t, t.Name(), pods[0])
 
 	assert.Equal(t, "k8s", p.Name())
-	assert.Equal(t, "operator-sdk", p.GetPodURL())
+	assert.Equal(t, "operator-sdk", p.URL())
 }

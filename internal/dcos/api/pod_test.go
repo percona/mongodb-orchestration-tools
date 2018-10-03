@@ -17,20 +17,13 @@ package api
 import (
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInternalAPIGetPodURL(t *testing.T) {
+func TestInternalApiURL(t *testing.T) {
 	assert.Equal(t,
-		testAPI.GetPodURL(),
+		testAPI.URL(),
 		testAPI.scheme.String()+testAPI.config.Host+"/"+SDKAPIVersion+"/pod",
 		"api.GetPodURL() is incorrect",
 	)
-}
-
-func TestInternalAPIPodsHasPod(t *testing.T) {
-	pods := &pod.Pods{"test1"}
-	assert.True(t, pods.HasPod("test1"))
-	assert.False(t, pods.HasPod("not here"))
 }

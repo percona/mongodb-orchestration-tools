@@ -38,7 +38,7 @@ func (p *Pods) Name() string {
 	return "k8s"
 }
 
-func (p *Pods) GetPodURL() string {
+func (p *Pods) URL() string {
 	return "operator-sdk"
 }
 
@@ -48,18 +48,18 @@ func (p *Pods) SetPods(pods []corev1.Pod) {
 	p.pods = pods
 }
 
-func (p *Pods) GetPods() (*pod.Pods, error) {
+func (p *Pods) Pods() ([]string, error) {
 	p.Lock()
 	defer p.Unlock()
 
-	pods := make(pod.Pods, len(p.pods)-1)
+	pods := []string{}
 	for i, pod := range p.pods {
 		pods[i] = pod.Name
 	}
-	return &pods, nil
+	return pods, nil
 }
 
-func (p *Pods) GetPodTasks(podName string) ([]pod.Task, error) {
+func (p *Pods) GetTasks(podName string) ([]pod.Task, error) {
 	p.Lock()
 	defer p.Unlock()
 

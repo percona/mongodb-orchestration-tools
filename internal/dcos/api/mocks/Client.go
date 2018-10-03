@@ -10,6 +10,29 @@ type Client struct {
 	mock.Mock
 }
 
+// Endpoints provides a mock function with given fields:
+func (_m *Client) Endpoints() ([]string, error) {
+	ret := _m.Called()
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetEndpoint provides a mock function with given fields: endpointName
 func (_m *Client) GetEndpoint(endpointName string) (*api.Endpoint, error) {
 	ret := _m.Called(endpointName)
@@ -33,31 +56,8 @@ func (_m *Client) GetEndpoint(endpointName string) (*api.Endpoint, error) {
 	return r0, r1
 }
 
-// GetEndpoints provides a mock function with given fields:
-func (_m *Client) GetEndpoints() (*api.Endpoints, error) {
-	ret := _m.Called()
-
-	var r0 *api.Endpoints
-	if rf, ok := ret.Get(0).(func() *api.Endpoints); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*api.Endpoints)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetPodTasks provides a mock function with given fields: podName
-func (_m *Client) GetPodTasks(podName string) ([]pod.Task, error) {
+// GetTasks provides a mock function with given fields: podName
+func (_m *Client) GetTasks(podName string) ([]pod.Task, error) {
 	ret := _m.Called(podName)
 
 	var r0 []pod.Task
@@ -79,8 +79,8 @@ func (_m *Client) GetPodTasks(podName string) ([]pod.Task, error) {
 	return r0, r1
 }
 
-// GetPodURL provides a mock function with given fields:
-func (_m *Client) GetPodURL() string {
+// Name provides a mock function with given fields:
+func (_m *Client) Name() string {
 	ret := _m.Called()
 
 	var r0 string
@@ -93,16 +93,16 @@ func (_m *Client) GetPodURL() string {
 	return r0
 }
 
-// GetPods provides a mock function with given fields:
-func (_m *Client) GetPods() (*pod.Pods, error) {
+// Pods provides a mock function with given fields:
+func (_m *Client) Pods() ([]string, error) {
 	ret := _m.Called()
 
-	var r0 *pod.Pods
-	if rf, ok := ret.Get(0).(func() *pod.Pods); ok {
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*pod.Pods)
+			r0 = ret.Get(0).([]string)
 		}
 	}
 
@@ -116,8 +116,8 @@ func (_m *Client) GetPods() (*pod.Pods, error) {
 	return r0, r1
 }
 
-// Name provides a mock function with given fields:
-func (_m *Client) Name() string {
+// URL provides a mock function with given fields:
+func (_m *Client) URL() string {
 	ret := _m.Called()
 
 	var r0 string

@@ -33,7 +33,7 @@ func TestGetScaledDownMembers(t *testing.T) {
 	})
 
 	pods := pod.NewActivePods()
-	pods.Set(&pod.Pods{"testPod"})
+	pods.Set([]string{"testPod"})
 	w := &Watcher{
 		activePods: pods,
 		replset:    rs,
@@ -62,7 +62,7 @@ func TestGetScaledDownMembers(t *testing.T) {
 
 	// test scaled down (1 down host AND pod doesnt exist in 'activePods')
 	// this test simulates a scaling-down of replset members/tasks
-	w.activePods.Set(&pod.Pods{})
+	w.activePods.Set([]string{})
 	scaledDown := w.getScaledDownMembers()
 	assert.Len(t, scaledDown, 1)
 	assert.Equal(t, "scaled-down:27017", scaledDown[0].Host)
