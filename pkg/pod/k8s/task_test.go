@@ -72,6 +72,7 @@ func TestInternalPodK8STask(t *testing.T) {
 		HostPort: int32(27017),
 	}}
 	addr, err := task.GetMongoAddr()
+	assert.NoError(t, err)
 	assert.Equal(t, "1.2.3.4", addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 
