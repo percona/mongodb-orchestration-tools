@@ -16,9 +16,18 @@ package k8s
 
 import (
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+	corev1 "k8s.io/api/core/v1"
 )
 
-type Pods struct{}
+func NewPods(pods []corev1.Pod) *Pods {
+	return &Pods{
+		pods: pods,
+	}
+}
+
+type Pods struct {
+	pods []corev1.Pod
+}
 
 func (p *Pods) Name() string {
 	return "k8s"
