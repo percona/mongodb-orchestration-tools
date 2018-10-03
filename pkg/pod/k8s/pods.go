@@ -53,8 +53,8 @@ func (p *Pods) Pods() ([]string, error) {
 	defer p.Unlock()
 
 	pods := []string{}
-	for i, pod := range p.pods {
-		pods[i] = pod.Name
+	for _, pod := range p.pods {
+		pods = append(pods, pod.Name)
 	}
 	return pods, nil
 }

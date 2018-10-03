@@ -57,9 +57,10 @@ func TestInternalPodK8SPods(t *testing.T) {
 	}, "mongodb")
 	assert.NotNil(t, p)
 
-	//pods, err := p.GetPods()
-	//assert.NoError(t, err)
-	//assert.Equal(t, t.Name(), pods[0])
+	pods, err := p.Pods()
+	assert.NoError(t, err)
+	assert.Len(t, pods, 1)
+	assert.Equal(t, t.Name(), pods[0])
 
 	assert.Equal(t, "k8s", p.Name())
 	assert.Equal(t, "operator-sdk", p.URL())
