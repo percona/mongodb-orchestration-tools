@@ -30,6 +30,8 @@ var (
 	}
 	DefaultReplsetPoll    = "5s"
 	DefaultReplsetTimeout = "3s"
+	DefaultMetricsListen  = ":8080"
+	DefaultMetricsPath    = "/metrics"
 )
 
 // Watchdog Configuration
