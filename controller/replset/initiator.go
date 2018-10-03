@@ -51,7 +51,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	config := rsConfig.NewConfig(i.config.Replset)
 	member := rsConfig.NewMember(i.config.ReplsetInit.PrimaryAddr)
 	member.Tags = &rsConfig.ReplsetTags{
-		"dcosFramework": i.config.FrameworkName,
+		"serviceName": i.config.ServiceName,
 	}
 	config.AddMember(member)
 	rsCnfMan.Set(config)
@@ -196,7 +196,7 @@ func (i *Initiator) prepareReplset(session *mgo.Session) error {
 
 func (i *Initiator) Run() error {
 	log.WithFields(log.Fields{
-		"framework": i.config.FrameworkName,
+		"service": i.config.ServiceName,
 	}).Info("Mongod replset initiator started")
 
 	log.WithFields(log.Fields{

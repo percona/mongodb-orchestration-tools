@@ -50,7 +50,7 @@ type ConfigUser struct {
 
 type Config struct {
 	SSL               *db.SSLConfig
-	FrameworkName     string
+	ServiceName       string
 	Replset           string
 	UserAdminUser     string
 	UserAdminPassword string

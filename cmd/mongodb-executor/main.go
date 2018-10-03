@@ -131,8 +131,8 @@ func handlePmm(app *kingpin.Application, cnf *config.Config) {
 	).Envar(dcos.EnvPMMMongoDBMetricsExporterPort).UintVar(&cnf.PMM.MongoDBMetricsExporterPort)
 	app.Flag(
 		"pmm.mongodb.clusterName",
-		"Percona PMM client mongodb cluster name, defaults to "+dcos.EnvFrameworkName+" env var",
-	).Envar(dcos.EnvFrameworkName).StringVar(&cnf.PMM.MongoDB.ClusterName)
+		"Percona PMM client mongodb cluster name, defaults to "+dcos.EnvServiceName+" env var",
+	).Envar(dcos.EnvServiceName).StringVar(&cnf.PMM.MongoDB.ClusterName)
 }
 
 func main() {
@@ -159,9 +159,9 @@ func main() {
 	}
 
 	app.Flag(
-		"framework",
-		"dcos framework name, overridden by env var "+dcos.EnvFrameworkName,
-	).Default(dcos.DefaultFrameworkName).Envar(dcos.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+		"service",
+		"DC/OS SDK service/framework name, overridden by env var "+dcos.EnvServiceName,
+	).Default(dcos.DefaultServiceName).Envar(dcos.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
 		"connectRetrySleep",
 		"duration to wait between retries of the connection/ping to mongodb",

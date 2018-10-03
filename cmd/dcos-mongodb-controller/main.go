@@ -137,9 +137,9 @@ func main() {
 	}
 
 	app.Flag(
-		"framework",
-		"DC/OS SDK framework/service name, overridden by env var "+dcos.EnvFrameworkName,
-	).Default(dcos.DefaultFrameworkName).Envar(dcos.EnvFrameworkName).StringVar(&cnf.FrameworkName)
+		"service",
+		"DC/OS SDK service/framework name, overridden by env var "+dcos.EnvServiceName,
+	).Default(dcos.DefaultServiceName).Envar(dcos.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
 		"replset",
 		"mongodb replica set name, this flag or env var "+dcos.EnvMongoDBReplset+" is required",
@@ -181,7 +181,7 @@ func main() {
 			handleFailed(err)
 		}
 	case cmdUserUpdate.FullCommand():
-		uc, err := user.NewController(cnf, api.New(cnf.FrameworkName, cnf.User.API))
+		uc, err := user.NewController(cnf, api.New(cnf.ServiceName, cnf.User.API))
 		if err != nil {
 			handleFailed(err)
 		}
@@ -192,7 +192,7 @@ func main() {
 			handleFailed(err)
 		}
 	case cmdUserRemove.FullCommand():
-		uc, err := user.NewController(cnf, api.New(cnf.FrameworkName, cnf.User.API))
+		uc, err := user.NewController(cnf, api.New(cnf.ServiceName, cnf.User.API))
 		if err != nil {
 			handleFailed(err)
 		}
@@ -203,7 +203,7 @@ func main() {
 			handleFailed(err)
 		}
 	case cmdUserReloadSys.FullCommand():
-		uc, err := user.NewController(cnf, api.New(cnf.FrameworkName, cnf.User.API))
+		uc, err := user.NewController(cnf, api.New(cnf.ServiceName, cnf.User.API))
 		if err != nil {
 			handleFailed(err)
 		}

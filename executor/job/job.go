@@ -67,7 +67,7 @@ func (r *Runner) handleDCOSMetrics() {
 
 func (r *Runner) handlePMM() {
 	if r.config.PMM.Enabled {
-		pmmJob, err := pmm.New(r.config.PMM, r.config.FrameworkName)
+		pmmJob, err := pmm.New(r.config.PMM, r.config.ServiceName)
 		if err != nil {
 			log.Errorf("Error adding PMM background job: %s", err)
 		} else {

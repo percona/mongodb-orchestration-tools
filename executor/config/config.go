@@ -45,7 +45,7 @@ type Config struct {
 	PMM                *pmm.Config
 	Metrics            *metrics.Config
 	NodeType           NodeType
-	FrameworkName      string
+	ServiceName        string
 	DelayBackgroundJob time.Duration
 	ConnectRetrySleep  time.Duration
 	Verbose            bool

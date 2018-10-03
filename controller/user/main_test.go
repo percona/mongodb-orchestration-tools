@@ -54,7 +54,7 @@ var (
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		FrameworkName:     dcos.DefaultFrameworkName,
+		ServiceName:       dcos.DefaultServiceName,
 		Replset:           testutils.MongodbReplsetName,
 		UserAdminUser:     testutils.MongodbAdminUser,
 		UserAdminPassword: testutils.MongodbAdminPassword,

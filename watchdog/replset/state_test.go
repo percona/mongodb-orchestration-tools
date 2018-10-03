@@ -84,11 +84,11 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
-		Host:          hostPort[0],
-		Port:          port,
-		Replset:       testutils.MongodbReplsetName,
-		FrameworkName: dcos.DefaultFrameworkName,
-		PodName:       "mongo",
+		Host:        hostPort[0],
+		Port:        port,
+		Replset:     testutils.MongodbReplsetName,
+		ServiceName: dcos.DefaultServiceName,
+		PodName:     "mongo",
 	}
 	config := testState.GetConfig()
 	memberCount := len(config.Members)
@@ -100,7 +100,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	assert.Len(t, config.Members, memberCount+1, "config.Members count did not increase")
 	member := config.GetMember(testMemberRemoved.Host)
 	assert.NotNil(t, member, "config.HasMember() returned no member")
-	assert.True(t, member.Tags.HasMatch(frameworkTagName, addMongod.FrameworkName), "member has missing replica set tag")
+	assert.True(t, member.Tags.HasMatch(serviceTagName, addMongod.ServiceName), "member has missing replica set tag")
 }
 
 func TestWatchdogReplsetStateGetMaxIDVotingMember(t *testing.T) {

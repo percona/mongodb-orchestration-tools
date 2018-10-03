@@ -33,12 +33,12 @@ var (
 	testWatchdog *Watchdog
 	testQuitChan = make(chan bool)
 	testConfig   = &config.Config{
-		FrameworkName: "test",
-		Username:      testutils.MongodbAdminUser,
-		Password:      testutils.MongodbAdminPassword,
-		APIPoll:       time.Millisecond * 100,
-		ReplsetPoll:   time.Millisecond * 100,
-		SSL:           &db.SSLConfig{},
+		ServiceName: "test",
+		Username:    testutils.MongodbAdminUser,
+		Password:    testutils.MongodbAdminPassword,
+		APIPoll:     time.Millisecond * 100,
+		ReplsetPoll: time.Millisecond * 100,
+		SSL:         &db.SSLConfig{},
 	}
 	testAPIClient = &mocks.Client{}
 )

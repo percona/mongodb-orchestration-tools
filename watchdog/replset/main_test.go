@@ -41,11 +41,11 @@ var (
 	testReplsetName   = "rs"
 	testReplset       = &Replset{}
 	testReplsetMongod = &Mongod{
-		Host:          "test123",
-		Port:          12345,
-		Replset:       testReplsetName,
-		PodName:       "mongod",
-		FrameworkName: "test",
+		Host:        "test123",
+		Port:        12345,
+		Replset:     testReplsetName,
+		PodName:     "mongod",
+		ServiceName: "test",
 	}
 )
 
