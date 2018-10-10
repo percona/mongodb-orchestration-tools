@@ -27,7 +27,7 @@ import (
 )
 
 func TestWatchdogWatcherNewManager(t *testing.T) {
-	testManager = NewManager(testConfig, &testStopChan, pod.NewActivePods())
+	testManager = NewManager(testConfig, &testStopChan, pod.NewPods())
 	assert.NotNil(t, testManager)
 }
 

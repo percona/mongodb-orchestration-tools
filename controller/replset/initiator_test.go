@@ -76,7 +76,7 @@ func TestControllerReplsetInitiatorInitAdminUser(t *testing.T) {
 func TestControllerReplsetInitiatorInitUsers(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	user.SystemUsers = []*mgo.User{
+	user.SetSystemUsers([]*mgo.User{
 		{
 			Username: "testUser",
 			Password: "testUserPassword",
@@ -84,7 +84,9 @@ func TestControllerReplsetInitiatorInitUsers(t *testing.T) {
 				mgo.RoleReadWrite,
 			},
 		},
-	}
+	})
 	assert.NoError(t, testInitiator.initUsers(testSession))
-	assert.NoError(t, user.RemoveUser(testSession, user.SystemUsers[0].Username, "admin"))
+	users := user.SystemUsers()
+	assert.Len(t, users, 1)
+	assert.NoError(t, user.RemoveUser(testSession, users[0].Username, "admin"))
 }

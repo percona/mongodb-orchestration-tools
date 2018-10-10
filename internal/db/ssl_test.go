@@ -66,6 +66,8 @@ func TestInternalDBConfigureSSLDialInfo(t *testing.T) {
 }
 
 func TestInternalDBValidateConnection(t *testing.T) {
+	testutils.DoSkipTest(t)
+
 	sslCnf := &SSLConfig{
 		Enabled:    true,
 		PEMKeyFile: sslCertFile,
