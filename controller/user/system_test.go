@@ -12,24 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pod
+package user
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/mgo.v2"
 )
 
-func TestPkgPodPods(t *testing.T) {
-	p := NewPods()
-	assert.Len(t, p.Get(), 0)
-	p.Set([]string{"test"})
+func TestControllerUserSystemUsers(t *testing.T) {
+	SetSystemUsers([]*mgo.User{})
+	assert.Len(t, SystemUsers(), 0)
 
-	pods := p.Get()
-	assert.Len(t, pods, 1)
-	assert.Equal(t, "test", pods[0])
+	SetSystemUsers([]*mgo.User{
+		{
+			Username: t.Name(),
+			Password: "",
+			Roles:    []mgo.Role{mgo.RoleRoot},
+		},
+	})
+	assert.Len(t, SystemUsers(), 0)
 
-	assert.True(t, p.Has("test"))
-	p.Set([]string{"false"})
-	assert.False(t, p.Has("test"))
+	SetSystemUsers([]*mgo.User{
+		{
+			Username: t.Name(),
+			Password: "horse battery staple",
+			Roles:    []mgo.Role{},
+		},
+	})
+	assert.Len(t, SystemUsers(), 0)
+
+	SetSystemUsers([]*mgo.User{
+		{
+			Username: t.Name(),
+			Password: "horse battery staple",
+			Roles:    []mgo.Role{mgo.RoleRoot},
+		},
+	})
+	assert.Len(t, SystemUsers(), 1)
 }

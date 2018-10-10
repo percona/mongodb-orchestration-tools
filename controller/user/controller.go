@@ -175,7 +175,7 @@ func (uc *Controller) RemoveUser() error {
 }
 
 func (uc *Controller) ReloadSystemUsers() error {
-	err := UpdateUsers(uc.session, SystemUsers, "admin")
+	err := UpdateUsers(uc.session, SystemUsers(), "admin")
 	if err != nil {
 		return err
 	}

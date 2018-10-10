@@ -93,10 +93,13 @@ func (i *Initiator) initAdminUser(session *mgo.Session) error {
 }
 
 func (i *Initiator) initUsers(session *mgo.Session) error {
-	err := user.UpdateUsers(session, user.SystemUsers, "admin")
-	if err != nil {
-		log.Errorf("Error adding system users: %s", err)
-		return err
+	systemUsers := user.SystemUsers()
+	if len(systemUsers) > 0 {
+		err := user.UpdateUsers(session, systemUsers, "admin")
+		if err != nil {
+			log.Errorf("Error adding system users: %s", err)
+			return err
+		}
 	}
 	return nil
 }

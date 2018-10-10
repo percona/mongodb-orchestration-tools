@@ -23,7 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestInternalPodK8STask(t *testing.T) {
+func TestPkgPodK8STask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
 
 	task := NewTask(corev1.Pod{
@@ -68,12 +68,11 @@ func TestInternalPodK8STask(t *testing.T) {
 	// set mongo addr
 	task.pod.Spec.Containers[0].Ports = []corev1.ContainerPort{{
 		Name:     "mongodb",
-		HostIP:   "1.2.3.4",
 		HostPort: int32(27017),
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
-	assert.Equal(t, "1.2.3.4", addr.Host)
+	assert.Equal(t, t.Name(), addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 
 	// empty replset name

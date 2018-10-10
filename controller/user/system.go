@@ -39,7 +39,7 @@ var (
 			RoleUserAdminAny,
 		},
 	}
-	SystemUsers = []*mgo.User{
+	systemUsers = []*mgo.User{
 		{
 			Username: clusterAdminUsername,
 			Password: clusterAdminPassword,
@@ -71,3 +71,18 @@ var (
 		backupUsername,
 	}
 )
+
+func SystemUsers() []*mgo.User {
+	users := []*mgo.User{}
+	for _, user := range systemUsers {
+		if user.Username == "" || user.Password == "" || len(user.Roles) < 1 {
+			continue
+		}
+		users = append(users, user)
+	}
+	return users
+}
+
+func SetSystemUsers(users []*mgo.User) {
+	systemUsers = users
+}

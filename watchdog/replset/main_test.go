@@ -30,6 +30,7 @@ import (
 var (
 	testDBSession       *mgo.Session
 	testRsConfigManager rsConfig.Manager
+	testRsConfigBefore  *rsConfig.Config
 	testMongod          *Mongod
 	testState           *State
 	testLogBuffer       = new(bytes.Buffer)
@@ -58,9 +59,15 @@ func TestMain(m *testing.M) {
 			panic(err)
 		}
 		testRsConfigManager = rsConfig.New(testDBSession)
+		_ = testRsConfigManager.Load()
+		testRsConfigBefore = testRsConfigManager.Get()
 	}
 	exit := m.Run()
 	if testDBSession != nil {
+		_ = testRsConfigManager.Load()
+		config := testRsConfigManager.Get()
+		testRsConfigBefore.Version = config.Version + 1
+		testRsConfigManager.Set(testRsConfigBefore)
 		testDBSession.Close()
 	}
 	os.Exit(exit)
