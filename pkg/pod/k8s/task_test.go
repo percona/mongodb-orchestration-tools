@@ -45,6 +45,9 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.Equal(t, t.Name(), task.Name())
 
 	// task types
+	task.pod.Spec.Containers[0].Name = ""
+	assert.False(t, task.IsTaskType(pod.TaskTypeMongod))
+	task.pod.Spec.Containers[0].Name = MongodContainerName
 	assert.True(t, task.IsTaskType(pod.TaskTypeMongod))
 	assert.False(t, task.IsTaskType(pod.TaskTypeMongos))
 
