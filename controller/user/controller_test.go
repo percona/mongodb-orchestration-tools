@@ -89,7 +89,7 @@ func TestControllerUserControllerReloadSystemUsers(t *testing.T) {
 		)
 	}
 
-	SystemUsers = testSystemUsers
+	SetSystemUsers(testSystemUsers)
 	assert.NoError(t, testController.ReloadSystemUsers(), ".ReloadSystemUsers() should not return an error")
 	for _, user := range testSystemUsers {
 		assert.NoError(

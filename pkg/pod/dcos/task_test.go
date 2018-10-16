@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInternalPodDCOSTask(t *testing.T) {
+func TestPkgPodDCOSTask(t *testing.T) {
 	task := NewTask(&TaskData{
 		Info: &TaskInfo{
 			Name: t.Name(),
@@ -35,7 +35,7 @@ func TestInternalPodDCOSTask(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestInternalPodDCOSTaskState(t *testing.T) {
+func TestPkgPodDCOSTaskState(t *testing.T) {
 	assert.Implements(t, (*pod.TaskState)(nil), TaskStateRunning)
 	task := NewTask(&TaskData{
 		Status: &TaskStatus{
@@ -51,7 +51,7 @@ func TestInternalPodDCOSTaskState(t *testing.T) {
 	assert.False(t, emptyTask.HasState())
 }
 
-func TestInternalPodDCOSTaskIsTaskType(t *testing.T) {
+func TestPkgPodDCOSTaskIsTaskType(t *testing.T) {
 	task := NewTask(&TaskData{
 		Info: &TaskInfo{
 			Name: "not a mongod",
@@ -66,7 +66,7 @@ func TestInternalPodDCOSTaskIsTaskType(t *testing.T) {
 	assert.True(t, task.IsTaskType(pod.TaskTypeMongod))
 }
 
-func TestInternalPodDCOSTaskGetMongoAddr(t *testing.T) {
+func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
 	task := NewTask(&TaskData{
 		Info: &TaskInfo{
 			Name: t.Name(),
@@ -90,7 +90,7 @@ func TestInternalPodDCOSTaskGetMongoAddr(t *testing.T) {
 	assert.Equal(t, 27017, addr.Port)
 }
 
-func TestInternalPodDCOSTaskGetReplsetName(t *testing.T) {
+func TestPkgPodDCOSTaskGetReplsetName(t *testing.T) {
 	task := NewTask(&TaskData{
 		Info: &TaskInfo{
 			Command: &TaskCommand{

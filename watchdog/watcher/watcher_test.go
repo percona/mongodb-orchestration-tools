@@ -32,7 +32,7 @@ func TestGetScaledDownMembers(t *testing.T) {
 		PodName: "testPod",
 	})
 
-	pods := pod.NewActivePods()
+	pods := pod.NewPods()
 	pods.Set([]string{"testPod"})
 	w := &Watcher{
 		activePods: pods,
