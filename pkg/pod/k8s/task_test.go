@@ -26,20 +26,25 @@ import (
 func TestPkgPodK8STask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
 
-	task := NewTask(corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: t.Name(),
-		},
-		Status: corev1.PodStatus{},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Env:   []corev1.EnvVar{},
-					Ports: []corev1.ContainerPort{},
+	task := NewTask(
+		corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: t.Name(),
+			},
+			Status: corev1.PodStatus{},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Env:   []corev1.EnvVar{},
+						Ports: []corev1.ContainerPort{},
+					},
 				},
 			},
 		},
-	}, "mongodb")
+		"percona-server-mongodb",
+		"default",
+		"mongodb",
+	)
 
 	assert.NotNil(t, task)
 	assert.Equal(t, t.Name(), task.Name())
@@ -62,7 +67,10 @@ func TestPkgPodK8STask(t *testing.T) {
 	// test running state
 	task.pod.Status.Phase = corev1.PodRunning
 	assert.True(t, task.IsRunning())
-	assert.Equal(t, "Running", task.State().String())
+	assert.Equal(t, "RUNNING", task.State().String())
+
+	// test getMongoHost()
+	assert.Equal(t, t.Name()+".percona-server-mongodb.default."+ClusterServiceDNSSuffix, task.getMongoHost())
 
 	// empty mongo addr
 	_, err := task.GetMongoAddr()
@@ -75,7 +83,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
-	assert.Equal(t, t.Name(), addr.Host)
+	assert.Equal(t, t.Name()+".percona-server-mongodb.default."+ClusterServiceDNSSuffix, addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 
 	// empty replset name

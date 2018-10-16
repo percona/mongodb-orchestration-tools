@@ -26,7 +26,17 @@ import (
 func TestInternalPodK8SPods(t *testing.T) {
 	assert.Implements(t, (*pod.Source)(nil), &Pods{})
 
-	p := NewPods([]corev1.Pod{
+	p := NewPods(
+		"percona-server-mongodb",
+		"default",
+		"mongodb",
+	)
+	assert.NotNil(t, p)
+
+	pods, err := p.Pods()
+	assert.NoError(t, err)
+	assert.Len(t, pods, 0)
+	p.SetPods([]corev1.Pod{
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: t.Name(),
@@ -54,11 +64,8 @@ func TestInternalPodK8SPods(t *testing.T) {
 				},
 			},
 		},
-	}, "mongodb")
-	assert.NotNil(t, p)
-
-	pods, err := p.Pods()
-	assert.NoError(t, err)
+	})
+	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
 
