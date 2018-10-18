@@ -78,13 +78,18 @@ func TestPkgPodK8STask(t *testing.T) {
 
 	// set mongo addr
 	task.pod.Spec.Containers[0].Ports = []corev1.ContainerPort{{
-		Name:     "mongodb",
-		HostPort: int32(27017),
+		Name:          "mongodb",
+		HostPort:      int32(27017),
+		ContainerPort: int32(27018),
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
 	assert.Equal(t, t.Name()+".percona-server-mongodb.default."+ClusterServiceDNSSuffix, addr.Host)
 	assert.Equal(t, 27017, addr.Port)
+	task.pod.Spec.Containers[0].Ports[0].HostPort = int32(0)
+	addr, err = task.GetMongoAddr()
+	assert.NoError(t, err)
+	assert.Equal(t, 27018, addr.Port)
 
 	// empty replset name
 	_, err = task.GetMongoReplsetName()
