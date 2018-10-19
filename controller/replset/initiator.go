@@ -44,6 +44,10 @@ func NewInitiator(config *controller.Config) *Initiator {
 	}
 }
 
+func isNotAuthorizedError(err error) bool {
+	return strings.HasPrefix(err.Error(), ErrMsgNotAuthorizedPrefix)
+}
+
 func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	if rsCnfMan.IsInitiated() {
 		log.Warning("Replset already initiated, skipping")
@@ -68,7 +72,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 				"version": config.Version,
 			}).Info("Initiated replset with config:")
 			break
-		} else if strings.HasPrefix(err.Error(), ErrMsgNotAuthorizedPrefix) {
+		} else if isNotAuthorizedError(err) {
 			log.Info("Got mongodb auth error, server appears to be initiated already. Skipping")
 			break
 		} else if err.Error() != ErrMsgDNSNotReady {
@@ -89,7 +93,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 
 func (i *Initiator) initAdminUser(session *mgo.Session) error {
 	err := user.UpdateUser(session, user.UserAdmin, "admin")
-	if err != nil && !strings.HasPrefix(err.Error(), ErrMsgNotAuthorizedPrefix) {
+	if err != nil && !isNotAuthorizedError(err) {
 		return err
 	}
 	return nil
