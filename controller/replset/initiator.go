@@ -45,7 +45,8 @@ func NewInitiator(config *controller.Config) *Initiator {
 
 func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	if rsCnfMan.IsInitiated() {
-		return errors.New("Replset should not be initiated already! Exiting")
+		log.Warning("Replset already initiated, skipping")
+		return nil
 	}
 
 	config := rsConfig.NewConfig(i.config.Replset)
@@ -86,7 +87,6 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 func (i *Initiator) initAdminUser(session *mgo.Session) error {
 	err := user.UpdateUser(session, user.UserAdmin, "admin")
 	if err != nil {
-		log.Errorf("Error adding admin user: %s", err)
 		return err
 	}
 	return nil
@@ -97,7 +97,6 @@ func (i *Initiator) initUsers(session *mgo.Session) error {
 	if len(systemUsers) > 0 {
 		err := user.UpdateUsers(session, systemUsers, "admin")
 		if err != nil {
-			log.Errorf("Error adding system users: %s", err)
 			return err
 		}
 	}
@@ -191,7 +190,6 @@ func (i *Initiator) prepareReplset(session *mgo.Session) error {
 
 	err = i.initAdminUser(session)
 	if err != nil {
-		log.WithError(err).Error("Error adding admin user")
 		return err
 	}
 	return nil
