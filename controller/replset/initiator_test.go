@@ -58,6 +58,7 @@ func TestMain(m *testing.M) {
 func TestIsNotAuthorizedError(t *testing.T) {
 	assert.True(t, isNotAuthorizedError(errors.New(ErrMsgNotAuthorizedPrefix+" some command here")))
 	assert.False(t, isNotAuthorizedError(errors.New("this is not an auth error")))
+	assert.False(t, isNotAuthorizedError(nil))
 }
 
 func TestNewInitiator(t *testing.T) {
