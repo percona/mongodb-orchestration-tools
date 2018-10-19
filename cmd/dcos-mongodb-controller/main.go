@@ -26,6 +26,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api"
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -138,20 +139,20 @@ func main() {
 
 	app.Flag(
 		"service",
-		"DC/OS SDK service/framework name, overridden by env var "+dcos.EnvServiceName,
-	).Default(dcos.DefaultServiceName).Envar(dcos.EnvServiceName).StringVar(&cnf.ServiceName)
+		"DC/OS SDK service/framework name, overridden by env var "+pkg.EnvServiceName,
+	).Default(pkg.DefaultServiceName).Envar(pkg.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
 		"replset",
-		"mongodb replica set name, this flag or env var "+dcos.EnvMongoDBReplset+" is required",
-	).Envar(dcos.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)
+		"mongodb replica set name, this flag or env var "+pkg.EnvMongoDBReplset+" is required",
+	).Envar(pkg.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)
 	app.Flag(
 		"userAdminUser",
-		"mongodb userAdmin username, overridden by env var "+dcos.EnvMongoDBUserAdminUser,
-	).Envar(dcos.EnvMongoDBUserAdminUser).Required().StringVar(&cnf.UserAdminUser)
+		"mongodb userAdmin username, overridden by env var "+pkg.EnvMongoDBUserAdminUser,
+	).Envar(pkg.EnvMongoDBUserAdminUser).Required().StringVar(&cnf.UserAdminUser)
 	app.Flag(
 		"userAdminPassword",
-		"mongodb userAdmin password or path to file containing it, overridden by env var "+dcos.EnvMongoDBUserAdminPassword,
-	).Envar(dcos.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
+		"mongodb userAdmin password or path to file containing it, overridden by env var "+pkg.EnvMongoDBUserAdminPassword,
+	).Envar(pkg.EnvMongoDBUserAdminPassword).Required().StringVar(&cnf.UserAdminPassword)
 	app.Flag(
 		"enableSecrets",
 		"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+dcos.EnvSecretsEnabled,

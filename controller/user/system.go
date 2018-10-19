@@ -17,19 +17,19 @@ package user
 import (
 	"os"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"gopkg.in/mgo.v2"
 )
 
 var (
-	clusterAdminUsername   = os.Getenv(dcos.EnvMongoDBClusterAdminUser)
-	clusterAdminPassword   = os.Getenv(dcos.EnvMongoDBClusterAdminPassword)
-	clusterMonitorUsername = os.Getenv(dcos.EnvMongoDBClusterMonitorUser)
-	clusterMonitorPassword = os.Getenv(dcos.EnvMongoDBClusterMonitorPassword)
-	backupUsername         = os.Getenv(dcos.EnvMongoDBBackupUser)
-	backupPassword         = os.Getenv(dcos.EnvMongoDBBackupPassword)
-	userAdminUsername      = os.Getenv(dcos.EnvMongoDBUserAdminUser)
-	userAdminPassword      = os.Getenv(dcos.EnvMongoDBUserAdminPassword)
+	clusterAdminUsername   = os.Getenv(pkg.EnvMongoDBClusterAdminUser)
+	clusterAdminPassword   = os.Getenv(pkg.EnvMongoDBClusterAdminPassword)
+	clusterMonitorUsername = os.Getenv(pkg.EnvMongoDBClusterMonitorUser)
+	clusterMonitorPassword = os.Getenv(pkg.EnvMongoDBClusterMonitorPassword)
+	backupUsername         = os.Getenv(pkg.EnvMongoDBBackupUser)
+	backupPassword         = os.Getenv(pkg.EnvMongoDBBackupPassword)
+	userAdminUsername      = os.Getenv(pkg.EnvMongoDBUserAdminUser)
+	userAdminPassword      = os.Getenv(pkg.EnvMongoDBUserAdminPassword)
 
 	SystemUserDatabase = "admin"
 	UserAdmin          = &mgo.User{

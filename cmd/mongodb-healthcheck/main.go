@@ -22,6 +22,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/pmgo"
 	log "github.com/sirupsen/logrus"
 )
@@ -43,8 +44,8 @@ func main() {
 	readiness := app.Command("readiness", "Run MongoDB readiness check").Default()
 	cnf := db.NewConfig(
 		app,
-		dcos.EnvMongoDBClusterMonitorUser,
-		dcos.EnvMongoDBClusterMonitorPassword,
+		pkg.EnvMongoDBClusterMonitorUser,
+		pkg.EnvMongoDBClusterMonitorPassword,
 	)
 
 	command, err := app.Parse(os.Args[1:])

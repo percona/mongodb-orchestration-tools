@@ -24,6 +24,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api"
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/watchdog"
 	config "github.com/percona/mongodb-orchestration-tools/watchdog/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -57,16 +58,16 @@ func main() {
 	}
 	app.Flag(
 		"service",
-		"DC/OS SDK service/framework name, this flag or env var "+dcos.EnvServiceName+" is required",
-	).Default(dcos.DefaultServiceName).Envar(dcos.EnvServiceName).StringVar(&cnf.ServiceName)
+		"DC/OS SDK service/framework name, this flag or env var "+pkg.EnvServiceName+" is required",
+	).Default(pkg.DefaultServiceName).Envar(pkg.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
 		"username",
-		"MongoDB clusterAdmin username, this flag or env var "+dcos.EnvMongoDBClusterAdminUser+" is required",
-	).Envar(dcos.EnvMongoDBClusterAdminUser).Required().StringVar(&cnf.Username)
+		"MongoDB clusterAdmin username, this flag or env var "+pkg.EnvMongoDBClusterAdminUser+" is required",
+	).Envar(pkg.EnvMongoDBClusterAdminUser).Required().StringVar(&cnf.Username)
 	app.Flag(
 		"password",
-		"MongoDB clusterAdmin password, this flag or env var "+dcos.EnvMongoDBClusterAdminPassword+" is required",
-	).Envar(dcos.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
+		"MongoDB clusterAdmin password, this flag or env var "+pkg.EnvMongoDBClusterAdminPassword+" is required",
+	).Envar(pkg.EnvMongoDBClusterAdminPassword).Required().StringVar(&cnf.Password)
 	//app.Flag(
 	//	"enableSecrets",
 	//	"enable DC/OS Secrets, this causes passwords to be loaded from files, overridden by env var "+dcos.EnvSecretsEnabled,

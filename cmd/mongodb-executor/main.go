@@ -30,6 +30,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -131,8 +132,8 @@ func handlePmm(app *kingpin.Application, cnf *config.Config) {
 	).Envar(dcos.EnvPMMMongoDBMetricsExporterPort).UintVar(&cnf.PMM.MongoDBMetricsExporterPort)
 	app.Flag(
 		"pmm.mongodb.clusterName",
-		"Percona PMM client mongodb cluster name, defaults to "+dcos.EnvServiceName+" env var",
-	).Envar(dcos.EnvServiceName).StringVar(&cnf.PMM.MongoDB.ClusterName)
+		"Percona PMM client mongodb cluster name, defaults to "+pkg.EnvServiceName+" env var",
+	).Envar(pkg.EnvServiceName).StringVar(&cnf.PMM.MongoDB.ClusterName)
 }
 
 func main() {
@@ -142,8 +143,8 @@ func main() {
 
 	dbConfig := db.NewConfig(
 		app,
-		dcos.EnvMongoDBClusterMonitorUser,
-		dcos.EnvMongoDBClusterMonitorPassword,
+		pkg.EnvMongoDBClusterMonitorUser,
+		pkg.EnvMongoDBClusterMonitorPassword,
 	)
 	cnf := &config.Config{
 		DB:      dbConfig,
@@ -160,8 +161,8 @@ func main() {
 
 	app.Flag(
 		"service",
-		"DC/OS SDK service/framework name, overridden by env var "+dcos.EnvServiceName,
-	).Default(dcos.DefaultServiceName).Envar(dcos.EnvServiceName).StringVar(&cnf.ServiceName)
+		"DC/OS SDK service/framework name, overridden by env var "+pkg.EnvServiceName,
+	).Default(pkg.DefaultServiceName).Envar(pkg.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
 		"connectRetrySleep",
 		"duration to wait between retries of the connection/ping to mongodb",

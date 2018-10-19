@@ -24,7 +24,7 @@ import (
 
 	lcf "github.com/Robpol86/logrus-custom-formatter"
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -65,7 +65,7 @@ func SetupLogger(app *kingpin.Application, formatter log.Formatter, out io.Write
 		app.Flag("verbose", "enable verbose logging").Action(enableVerboseLogging).BoolVar(&verbose)
 
 		// fix for kingpin .Envar() being ignored above
-		if strings.TrimSpace(os.Getenv(internal.EnvLogVerbose)) == "true" {
+		if strings.TrimSpace(os.Getenv(pkg.EnvLogVerbose)) == "true" {
 			_ = enableVerboseLogging(nil)
 			verbose = true
 		}
