@@ -29,7 +29,8 @@ import (
 )
 
 const (
-	ErrMsgDNSNotReady = "No host described in new configuration 1 for replica set rs maps to this node"
+	ErrMsgDNSNotReady         = "No host described in new configuration 1 for replica set rs maps to this node"
+	ErrMsgNotAuthorizedPrefix = "not authorized on admin to execute command"
 )
 
 type Initiator struct {
@@ -41,6 +42,13 @@ func NewInitiator(config *controller.Config) *Initiator {
 	return &Initiator{
 		config: config,
 	}
+}
+
+func isNotAuthorizedError(err error) bool {
+	if err != nil {
+		return strings.HasPrefix(err.Error(), ErrMsgNotAuthorizedPrefix)
+	}
+	return false
 }
 
 func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
@@ -67,8 +75,10 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 				"version": config.Version,
 			}).Info("Initiated replset with config:")
 			break
-		}
-		if err.Error() != ErrMsgDNSNotReady {
+		} else if isNotAuthorizedError(err) {
+			log.Info("Got mongodb auth error, server appears to be initiated already. Skipping")
+			break
+		} else if err.Error() != ErrMsgDNSNotReady {
 			log.WithFields(log.Fields{
 				"replset": i.config.Replset,
 				"error":   err,
@@ -86,7 +96,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 
 func (i *Initiator) initAdminUser(session *mgo.Session) error {
 	err := user.UpdateUser(session, user.UserAdmin, "admin")
-	if err != nil {
+	if err != nil && !isNotAuthorizedError(err) {
 		return err
 	}
 	return nil
