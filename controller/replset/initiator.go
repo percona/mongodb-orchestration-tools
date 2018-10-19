@@ -45,7 +45,10 @@ func NewInitiator(config *controller.Config) *Initiator {
 }
 
 func isNotAuthorizedError(err error) bool {
-	return strings.HasPrefix(err.Error(), ErrMsgNotAuthorizedPrefix)
+	if err != nil {
+		return strings.HasPrefix(err.Error(), ErrMsgNotAuthorizedPrefix)
+	}
+	return false
 }
 
 func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
