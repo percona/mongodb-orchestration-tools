@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/mongodb-orchestration-tools/internal"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,8 +38,8 @@ func TestInternalLoggerSetupLogger(t *testing.T) {
 }
 
 func TestInternalLoggerLogDebug(t *testing.T) {
-	os.Unsetenv(internal.EnvLogVerbose)
-	defer os.Unsetenv(internal.EnvLogVerbose)
+	os.Unsetenv(pkg.EnvLogVerbose)
+	defer os.Unsetenv(pkg.EnvLogVerbose)
 
 	formatter := GetLogFormatter("test")
 	debugStr := strings.ToUpper(log.DebugLevel.String())
@@ -60,7 +60,7 @@ func TestInternalLoggerLogDebug(t *testing.T) {
 	// test verbose env var
 	buf2 := new(bytes.Buffer)
 	app2 := kingpin.New(t.Name(), t.Name())
-	os.Setenv(internal.EnvLogVerbose, "true")
+	os.Setenv(pkg.EnvLogVerbose, "true")
 	verbose2 := SetupLogger(app2, formatter, buf2)
 	_, err2 := app2.Parse([]string{})
 	assert.NoError(t, err2)

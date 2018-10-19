@@ -17,7 +17,7 @@ package dcos
 import (
 	"testing"
 
-	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
 )
@@ -81,7 +81,7 @@ func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
 	assert.Error(t, err)
 
 	task.data.Info.Command.Environment.Variables = []*TaskCommandEnvironmentVariable{{
-		Name:  dcos.EnvMongoDBPort,
+		Name:  pkg.EnvMongoDBPort,
 		Value: "27017",
 	}}
 	addr, err := task.GetMongoAddr()
@@ -97,7 +97,7 @@ func TestPkgPodDCOSTaskGetReplsetName(t *testing.T) {
 				Environment: &TaskCommandEnvironment{
 					Variables: []*TaskCommandEnvironmentVariable{
 						{
-							Name:  dcos.EnvMongoDBReplset,
+							Name:  pkg.EnvMongoDBReplset,
 							Value: "rs",
 						},
 					},

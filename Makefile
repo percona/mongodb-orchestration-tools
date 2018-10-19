@@ -39,7 +39,7 @@ ifeq ($(TEST_CODECOV), true)
 	TEST_GO_EXTRA=-coverprofile=cover.out -covermode=atomic
 endif
 
-all: bin/mongodb-executor bin/mongodb-healthcheck bin/dcos-mongodb-controller bin/dcos-mongodb-watchdog
+all: bin/mongodb-executor bin/mongodb-healthcheck bin/dcos-mongodb-controller bin/dcos-mongodb-watchdog bin/k8s-mongodb-initiator
 
 dcos: bin/dcos-mongodb-controller bin/dcos-mongodb-watchdog
 
@@ -49,17 +49,20 @@ $(GOPATH)/bin/glide:
 vendor: $(GOPATH)/bin/glide glide.yaml glide.lock
 	$(GOPATH)/bin/glide install --strip-vendor
 
-bin/mongodb-healthcheck: vendor cmd/mongodb-healthcheck/main.go healthcheck/*.go internal/*.go internal/*/*.go internal/*/*/*.go
+bin/mongodb-healthcheck: vendor cmd/mongodb-healthcheck/main.go healthcheck/*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/mongodb-healthcheck cmd/mongodb-healthcheck/main.go
 
-bin/mongodb-executor: vendor cmd/mongodb-executor/main.go executor/*.go executor/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go
+bin/mongodb-executor: vendor cmd/mongodb-executor/main.go executor/*.go executor/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/mongodb-executor cmd/mongodb-executor/main.go
 
-bin/dcos-mongodb-controller: vendor cmd/dcos-mongodb-controller/main.go controller/*.go controller/*/*.go controller/*/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go
+bin/dcos-mongodb-controller: vendor cmd/dcos-mongodb-controller/main.go controller/*.go controller/*/*.go controller/*/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/dcos-mongodb-controller cmd/dcos-mongodb-controller/main.go
 
-bin/dcos-mongodb-watchdog: vendor cmd/dcos-mongodb-watchdog/main.go watchdog/*.go watchdog/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*/*.go
+bin/dcos-mongodb-watchdog: vendor cmd/dcos-mongodb-watchdog/main.go watchdog/*.go watchdog/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go pkg/*/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/dcos-mongodb-watchdog cmd/dcos-mongodb-watchdog/main.go
+
+bin/k8s-mongodb-initiator: vendor cmd/k8s-mongodb-initiator/main.go controller/*.go controller/replset/initiator*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go pkg/*/*.go
+	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/k8s-mongodb-initiator cmd/k8s-mongodb-initiator/main.go
 
 test: vendor
 	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v $(TEST_GO_EXTRA) $(GO_TEST_PATH)
