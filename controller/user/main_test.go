@@ -28,6 +28,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -54,7 +55,7 @@ var (
 			MaxConnectTries: 1,
 			RetrySleep:      time.Second,
 		},
-		ServiceName:       dcos.DefaultServiceName,
+		ServiceName:       pkg.DefaultServiceName,
 		Replset:           testutils.MongodbReplsetName,
 		UserAdminUser:     testutils.MongodbAdminUser,
 		UserAdminPassword: testutils.MongodbAdminPassword,

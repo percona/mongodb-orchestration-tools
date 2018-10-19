@@ -36,13 +36,14 @@ func TestInternalPodK8SPods(t *testing.T) {
 	pods, err := p.Pods()
 	assert.NoError(t, err)
 	assert.Len(t, pods, 0)
-	p.SetPods([]corev1.Pod{
+
+	corev1Pod := []corev1.Pod{
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: t.Name(),
 			},
 			Status: corev1.PodStatus{
-				Phase: corev1.PodPending,
+				Phase: corev1.PodRunning,
 			},
 			Spec: corev1.PodSpec{
 				Containers: []corev1.Container{
@@ -64,10 +65,17 @@ func TestInternalPodK8SPods(t *testing.T) {
 				},
 			},
 		},
-	})
+	}
+	p.SetPods(corev1Pod)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
+
+	// test Succeeded pod is not listed by .Pods()
+	corev1Pod[0].Status.Phase = corev1.PodSucceeded
+	p.SetPods(corev1Pod)
+	pods, _ = p.Pods()
+	assert.Len(t, pods, 0)
 
 	assert.Equal(t, "k8s", p.Name())
 	assert.Equal(t, "operator-sdk", p.URL())

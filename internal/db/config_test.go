@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
@@ -49,12 +49,12 @@ func TestInternalDBNewConfig(t *testing.T) {
 	cnf := NewConfig(app, "", "")
 	assert.NotNil(t, cnf)
 
-	os.Setenv(dcos.EnvMongoDBNetSSLEnabled, "true")
-	os.Setenv(dcos.EnvMongoDBPort, "27017")
-	os.Setenv(dcos.EnvMongoDBReplset, t.Name())
-	defer os.Unsetenv(dcos.EnvMongoDBNetSSLEnabled)
-	defer os.Unsetenv(dcos.EnvMongoDBPort)
-	defer os.Unsetenv(dcos.EnvMongoDBReplset)
+	os.Setenv(pkg.EnvMongoDBNetSSLEnabled, "true")
+	os.Setenv(pkg.EnvMongoDBPort, "27017")
+	os.Setenv(pkg.EnvMongoDBReplset, t.Name())
+	defer os.Unsetenv(pkg.EnvMongoDBNetSSLEnabled)
+	defer os.Unsetenv(pkg.EnvMongoDBPort)
+	defer os.Unsetenv(pkg.EnvMongoDBReplset)
 
 	_, err := app.Parse([]string{"--username=test", "--password=test"})
 	assert.NoError(t, err)
@@ -67,8 +67,8 @@ func TestInternalDBNewSSLConfig(t *testing.T) {
 	cnf := NewConfig(app, "", "")
 	assert.NotNil(t, cnf)
 
-	os.Setenv(dcos.EnvMongoDBNetSSLEnabled, "true")
-	defer os.Unsetenv(dcos.EnvMongoDBNetSSLEnabled)
+	os.Setenv(pkg.EnvMongoDBNetSSLEnabled, "true")
+	defer os.Unsetenv(pkg.EnvMongoDBNetSSLEnabled)
 	_, err := app.Parse([]string{"--username=test", "--password=test"})
 	assert.NoError(t, err)
 	assert.True(t, cnf.SSL.Enabled)
