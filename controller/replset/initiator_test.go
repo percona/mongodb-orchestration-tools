@@ -15,6 +15,7 @@
 package replset
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"testing"
@@ -52,6 +53,11 @@ func TestMain(m *testing.M) {
 		testSession.Close()
 	}
 	os.Exit(exit)
+}
+
+func TestIsNotAuthorizedError(t *testing.T) {
+	assert.True(t, isNotAuthorizedError(errors.New(ErrMsgNotAuthorizedPrefix+" some command here")))
+	assert.False(t, isNotAuthorizedError(errors.New("this is not an auth error")))
 }
 
 func TestNewInitiator(t *testing.T) {
