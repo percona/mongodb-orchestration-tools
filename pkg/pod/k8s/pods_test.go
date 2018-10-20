@@ -17,6 +17,7 @@ package k8s
 import (
 	"testing"
 
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -27,8 +28,8 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.Implements(t, (*pod.Source)(nil), &Pods{})
 
 	p := NewPods(
-		"percona-server-mongodb",
-		"default",
+		pkg.DefaultServiceName,
+		DefaultNamespace,
 		"mongodb",
 	)
 	assert.NotNil(t, p)
@@ -50,7 +51,7 @@ func TestInternalPodK8SPods(t *testing.T) {
 					{
 						Env: []corev1.EnvVar{
 							{
-								Name:  "MONGODB_REPLSET",
+								Name:  pkg.EnvMongoDBPort,
 								Value: t.Name(),
 							},
 						},
