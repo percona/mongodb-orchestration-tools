@@ -16,7 +16,6 @@ package main
 
 import (
 	"os"
-	"strconv"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/mongodb-orchestration-tools/controller"
@@ -24,6 +23,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	"github.com/percona/mongodb-orchestration-tools/internal/tool"
 	"github.com/percona/mongodb-orchestration-tools/pkg"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/k8s"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -58,7 +58,12 @@ func handleInitCmd(app *kingpin.Application, cnf *controller.Config) {
 func main() {
 	app, _ := tool.New("Performs replset initiation for percona-server-mongodb-operator", GitCommit, GitBranch)
 
-	mongodPort := 27017
+	var namespace, mongodPort string
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatalf("Could not load hostname: %v", err)
+	}
+
 	cnf := &controller.Config{
 		ReplsetInit: &controller.ConfigReplsetInit{},
 	}
@@ -68,13 +73,17 @@ func main() {
 		"Kubernetes service name, overridden by env var "+pkg.EnvServiceName,
 	).Default(pkg.DefaultServiceName).Envar(pkg.EnvServiceName).StringVar(&cnf.ServiceName)
 	app.Flag(
+		"namespace",
+		"Kubernetes namespace, overridden by env var "+k8s.EnvNamespace,
+	).Default(k8s.DefaultNamespace).Envar(k8s.EnvNamespace).StringVar(&namespace)
+	app.Flag(
 		"replset",
 		"mongodb replica set name, this flag or env var "+pkg.EnvMongoDBReplset+" is required",
 	).Envar(pkg.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)
 	app.Flag(
 		"port",
 		"mongodb port number, this flag or env var "+pkg.EnvMongoDBPort+" is required",
-	).Envar(pkg.EnvMongoDBPort).Required().IntVar(&mongodPort)
+	).Envar(pkg.EnvMongoDBPort).Required().StringVar(&mongodPort)
 	app.Flag(
 		"userAdminUser",
 		"mongodb userAdmin username, overridden by env var "+pkg.EnvMongoDBUserAdminUser,
@@ -95,7 +104,7 @@ func main() {
 
 	switch command {
 	case cmdInit.FullCommand():
-		cnf.ReplsetInit.PrimaryAddr = "127.0.0.1:" + strconv.Itoa(mongodPort)
+		cnf.ReplsetInit.PrimaryAddr = k8s.GetMongoHost(hostname, cnf.ServiceName, namespace) + ":" + mongodPort
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {
 			log.Fatalf("Error initiating replset: %v", err)
