@@ -16,6 +16,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/mongodb-orchestration-tools/controller"
@@ -58,7 +59,8 @@ func handleInitCmd(app *kingpin.Application, cnf *controller.Config) {
 func main() {
 	app, _ := tool.New("Performs replset initiation for percona-server-mongodb-operator", GitCommit, GitBranch)
 
-	var namespace, mongodPort string
+	var namespace string
+	var port int
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Fatalf("Could not load hostname: %v", err)
@@ -83,7 +85,7 @@ func main() {
 	app.Flag(
 		"port",
 		"mongodb port number, this flag or env var "+pkg.EnvMongoDBPort+" is required",
-	).Envar(pkg.EnvMongoDBPort).Required().StringVar(&mongodPort)
+	).Envar(pkg.EnvMongoDBPort).Required().IntVar(&port)
 	app.Flag(
 		"userAdminUser",
 		"mongodb userAdmin username, overridden by env var "+pkg.EnvMongoDBUserAdminUser,
@@ -101,10 +103,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot parse command line: %s", err)
 	}
+	if port <= 1024 {
+		log.Fatalf("Port must be > 1024")
+	}
 
 	switch command {
 	case cmdInit.FullCommand():
-		cnf.ReplsetInit.PrimaryAddr = k8s.GetMongoHost(hostname, cnf.ServiceName, namespace) + ":" + mongodPort
+		host := k8s.GetMongoHost(hostname, cnf.ServiceName, namespace)
+		cnf.ReplsetInit.PrimaryAddr = host + ":" + strconv.Itoa(port)
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {
 			log.Fatalf("Error initiating replset: %v", err)
