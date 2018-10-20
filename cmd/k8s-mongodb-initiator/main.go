@@ -39,20 +39,20 @@ func handleInitCmd(app *kingpin.Application, cnf *controller.Config) {
 	// replset init
 	cmdInit.Flag(
 		"delay",
-		"amount of time to delay the init process, overridden by env var INIT_INITIATE_DELAY",
-	).Default("0s").Envar("INIT_INITIATE_DELAY").DurationVar(&cnf.ReplsetInit.Delay)
+		"amount of time to delay the init process, overridden by env var "+pkg.EnvInitInitiateDelay,
+	).Default(k8s.DefaultInitDelay).Envar(pkg.EnvInitInitiateDelay).DurationVar(&cnf.ReplsetInit.Delay)
 	cmdInit.Flag(
 		"maxConnectTries",
-		"number of times to retry connect to mongodb, overridden by env var INIT_MAX_CONNECT_TRIES",
-	).Default(controller.DefaultMaxConnectTries).Envar("INIT_MAX_CONNECT_TRIES").UintVar(&cnf.ReplsetInit.MaxConnectTries)
+		"number of times to retry connect to mongodb, overridden by env var "+pkg.EnvInitMaxConnectTries,
+	).Default(controller.DefaultMaxConnectTries).Envar(pkg.EnvInitMaxConnectTries).UintVar(&cnf.ReplsetInit.MaxConnectTries)
 	cmdInit.Flag(
 		"maxReplTries",
-		"number of times to retry initiating mongodb replica set, overridden by env var INIT_MAX_INIT_REPLSET_TRIES",
-	).Default(controller.DefaultInitMaxReplTries).Envar("INIT_MAX_INIT_REPLSET_TRIES").UintVar(&cnf.ReplsetInit.MaxReplTries)
+		"number of times to retry initiating mongodb replica set, overridden by env var "+pkg.EnvInitMaxInitReplsetTries,
+	).Default(controller.DefaultInitMaxReplTries).Envar(pkg.EnvInitMaxInitReplsetTries).UintVar(&cnf.ReplsetInit.MaxReplTries)
 	cmdInit.Flag(
 		"retrySleep",
-		"amount of time to wait between retries, overridden by env var INIT_RETRY_SLEEP",
-	).Default(controller.DefaultRetrySleep).Envar("INIT_RETRY_SLEEP").DurationVar(&cnf.ReplsetInit.RetrySleep)
+		"amount of time to wait between retries, overridden by env var "+pkg.EnvInitRetrySleep,
+	).Default(controller.DefaultRetrySleep).Envar(pkg.EnvInitRetrySleep).DurationVar(&cnf.ReplsetInit.RetrySleep)
 }
 
 func main() {

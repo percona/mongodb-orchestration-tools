@@ -16,4 +16,5 @@ package k8s
 
 const (
 	DefaultNamespace = "psmdb"
+	DefaultInitDelay = "0s"
 )

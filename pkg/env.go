@@ -42,4 +42,10 @@ const (
 	EnvMongoDBNetSSLInsecure   = "MONGODB_NET_SSL_INSECURE"
 	EnvMongoDBNetSSLPEMKeyFile = "MONGODB_NET_SSL_PEM_KEY_FILE"
 	EnvMongoDBNetSSLCAFile     = "MONGODB_NET_SSL_CA_FILE"
+
+	// replset init
+	EnvInitInitiateDelay       = "INIT_INITIATE_DELAY"
+	EnvInitMaxConnectTries     = "INIT_MAX_CONNECT_TRIES"
+	EnvInitMaxInitReplsetTries = "INIT_MAX_INIT_REPLSET_TRIES"
+	EnvInitRetrySleep          = "INIT_RETRY_SLEEP"
 )
