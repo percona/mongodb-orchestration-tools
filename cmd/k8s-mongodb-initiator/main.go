@@ -40,7 +40,7 @@ func handleInitCmd(app *kingpin.Application, cnf *controller.Config) {
 	cmdInit.Flag(
 		"delay",
 		"amount of time to delay the init process, overridden by env var INIT_INITIATE_DELAY",
-	).Default(controller.DefaultInitDelay).Envar("INIT_INITIATE_DELAY").DurationVar(&cnf.ReplsetInit.Delay)
+	).Default("0s").Envar("INIT_INITIATE_DELAY").DurationVar(&cnf.ReplsetInit.Delay)
 	cmdInit.Flag(
 		"maxConnectTries",
 		"number of times to retry connect to mongodb, overridden by env var INIT_MAX_CONNECT_TRIES",
