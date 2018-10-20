@@ -102,7 +102,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	// set replset name
 	task.pod.Spec.Containers[0].Env = []corev1.EnvVar{
 		{
-			Name:  "MONGODB_REPLSET",
+			Name:  pkg.EnvMongoDBPort,
 			Value: t.Name(),
 		},
 	}

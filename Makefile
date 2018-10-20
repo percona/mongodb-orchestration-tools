@@ -61,7 +61,7 @@ bin/dcos-mongodb-controller: vendor cmd/dcos-mongodb-controller/main.go controll
 bin/dcos-mongodb-watchdog: vendor cmd/dcos-mongodb-watchdog/main.go watchdog/*.go watchdog/*/*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go pkg/*/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/dcos-mongodb-watchdog cmd/dcos-mongodb-watchdog/main.go
 
-bin/k8s-mongodb-initiator: vendor cmd/k8s-mongodb-initiator/main.go controller/*.go controller/replset/initiator*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go pkg/*/*.go
+bin/k8s-mongodb-initiator: vendor cmd/k8s-mongodb-initiator/main.go controller/*.go controller/replset/initiator*.go internal/*.go internal/*/*.go internal/*/*/*.go pkg/*.go pkg/*/*.go pkg/pod/k8s/*.go
 	CGO_ENABLED=0 GOCACHE=$(GOCACHE) GOOS=$(PLATFORM) GOARCH=386 go build -ldflags=$(GO_LDFLAGS_FULL) -o bin/k8s-mongodb-initiator cmd/k8s-mongodb-initiator/main.go
 
 test: vendor
