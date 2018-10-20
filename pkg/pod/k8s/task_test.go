@@ -17,6 +17,7 @@ package k8s
 import (
 	"testing"
 
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -41,8 +42,8 @@ func TestPkgPodK8STask(t *testing.T) {
 				},
 			},
 		},
-		"percona-server-mongodb",
-		"default",
+		pkg.DefaultServiceName,
+		DefaultNamespace,
 		"mongodb",
 	)
 
@@ -69,8 +70,11 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.True(t, task.IsRunning())
 	assert.Equal(t, "RUNNING", task.State().String())
 
-	// test getMongoHost()
-	assert.Equal(t, t.Name()+".percona-server-mongodb.default."+ClusterServiceDNSSuffix, task.getMongoHost())
+	// test GetMongoHost()
+	assert.Equal(t,
+		t.Name()+"."+pkg.DefaultServiceName+"."+DefaultNamespace+"."+ClusterServiceDNSSuffix,
+		GetMongoHost(t.Name(), pkg.DefaultServiceName, DefaultNamespace),
+	)
 
 	// empty mongo addr
 	_, err := task.GetMongoAddr()
@@ -84,7 +88,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
-	assert.Equal(t, t.Name()+".percona-server-mongodb.default."+ClusterServiceDNSSuffix, addr.Host)
+	assert.Equal(t, t.Name()+"."+pkg.DefaultServiceName+"."+DefaultNamespace+"."+ClusterServiceDNSSuffix, addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 	task.pod.Spec.Containers[0].Ports[0].HostPort = int32(0)
 	addr, err = task.GetMongoAddr()
