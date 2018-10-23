@@ -15,6 +15,7 @@
 package k8s
 
 import (
+	"os"
 	"testing"
 
 	"github.com/percona/mongodb-orchestration-tools/pkg"
@@ -79,5 +80,11 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.Len(t, pods, 0)
 
 	assert.Equal(t, "k8s", p.Name())
-	assert.Equal(t, "operator-sdk", p.URL())
+
+	assert.Equal(t, "", p.URL())
+	os.Setenv(EnvKubernetesHost, t.Name())
+	os.Setenv(EnvKubernetesPort, "443")
+	defer os.Unsetenv(EnvKubernetesHost)
+	defer os.Unsetenv(EnvKubernetesPort)
+	assert.Equal(t, "tcp://"+t.Name()+":443", p.URL())
 }
