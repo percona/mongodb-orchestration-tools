@@ -45,7 +45,7 @@ func main() {
 	dcosCmd.Command("readiness", "Run MongoDB readiness check").Default()
 
 	k8sCmd := app.Command("k8s", "Performs liveness check for MongoDB on Kubernetes")
-	k8sCmd.Command("liveness", "Run a liveness check of MongoDB")
+	k8sCmd.Command("liveness", "Run a liveness check of MongoDB").Default()
 
 	cnf := db.NewConfig(
 		app,
@@ -74,31 +74,31 @@ func main() {
 
 	switch command {
 	case "dcos health":
-		log.Debug("Running health check")
+		log.Debug("Running DC/OS health check")
 		state, memberState, err := healthcheck.HealthCheck(session, healthcheck.OkMemberStates)
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
 			os.Exit(state.ExitCode())
 		}
-		log.Debugf("Member passed health check with replication state: %s", memberState)
+		log.Debugf("Member passed DC/OS health check with replication state: %s", memberState)
 	case "dcos readiness":
-		log.Debug("Running readiness check")
+		log.Debug("Running DC/OS readiness check")
 		state, err := healthcheck.ReadinessCheck(pmgo.NewSessionManager(session))
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
 			os.Exit(state.ExitCode())
 		}
-		log.Debug("Member passed readiness check")
+		log.Debug("Member passed DC/OS readiness check")
 	case "k8s liveness":
-		log.Debug("Running liveness check")
+		log.Debug("Running Kubernetes liveness check")
 		state, memberState, err := healthcheck.HealthCheck(session, healthcheck.OkMemberStates)
 		if err != nil {
 			log.Debug(err.Error())
 			session.Close()
 			os.Exit(state.ExitCode())
 		}
-		log.Debugf("Member passed health check with replication state: %s", memberState)
+		log.Debugf("Member passed Kubernetes liveness check with replication state: %s", memberState)
 	}
 }

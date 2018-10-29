@@ -35,7 +35,7 @@ var (
 )
 
 func handleInitCmd(app *kingpin.Application, cnf *controller.Config) {
-	cmdInit = app.Command("init", "Initiate a MongoDB replica set")
+	cmdInit = app.Command("init", "Initiate a MongoDB replica set").Default()
 
 	// replset init
 	cmdInit.Flag(
