@@ -58,7 +58,6 @@ func isNotAuthorizedError(err error) bool {
 
 func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	if rsCnfMan.IsInitiated() {
-		log.Warning("Replset already initiated, skipping")
 		return ErrReplsetInitiated
 	}
 
@@ -192,7 +191,9 @@ func (i *Initiator) getReplsetSession() (*mgo.Session, error) {
 func (i *Initiator) prepareReplset(session *mgo.Session) error {
 	err := i.initReplset(rsConfig.New(session))
 	if err != nil {
-		if err != ErrReplsetInitiated {
+		if err == ErrReplsetInitiated {
+			log.Warning("Replset already initiated, skipping")
+		} else {
 			log.WithError(err).Error("Error intiating replica set")
 			return err
 		}
