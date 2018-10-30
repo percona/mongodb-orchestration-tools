@@ -33,6 +33,11 @@ const (
 	ErrMsgNotAuthorizedPrefix = "not authorized on admin to execute command"
 )
 
+var (
+	ErrCannotInitReplset = errors.New("could not init replset")
+	ErrReplsetInitiated  = errors.New("replset initiated")
+)
+
 type Initiator struct {
 	config        *controller.Config
 	replInitTries uint
@@ -53,8 +58,7 @@ func isNotAuthorizedError(err error) bool {
 
 func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 	if rsCnfMan.IsInitiated() {
-		log.Warning("Replset already initiated, skipping")
-		return nil
+		return ErrReplsetInitiated
 	}
 
 	config := rsConfig.NewConfig(i.config.Replset)
@@ -88,7 +92,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 		i.replInitTries += 1
 	}
 	if i.replInitTries >= i.config.ReplsetInit.MaxReplTries {
-		return errors.New("Could not init replset")
+		return ErrCannotInitReplset
 	}
 
 	return nil
@@ -187,15 +191,19 @@ func (i *Initiator) getReplsetSession() (*mgo.Session, error) {
 func (i *Initiator) prepareReplset(session *mgo.Session) error {
 	err := i.initReplset(rsConfig.New(session))
 	if err != nil {
-		log.WithError(err).Error("Error intiating replica set")
-		return err
-	}
-
-	log.Info("Waiting for host to become primary")
-	err = db.WaitForPrimary(session, i.config.ReplsetInit.MaxConnectTries, i.config.ReplsetInit.RetrySleep)
-	if err != nil {
-		log.WithError(err).Error("Error getting waiting for primary session")
-		return err
+		if err == ErrReplsetInitiated {
+			log.Warning("Replset already initiated, skipping")
+		} else {
+			log.WithError(err).Error("Error intiating replica set")
+			return err
+		}
+	} else {
+		log.Info("Waiting for host to become primary")
+		err = db.WaitForPrimary(session, i.config.ReplsetInit.MaxConnectTries, i.config.ReplsetInit.RetrySleep)
+		if err != nil {
+			log.WithError(err).Error("Error getting waiting for primary session")
+			return err
+		}
 	}
 
 	err = i.initAdminUser(session)
