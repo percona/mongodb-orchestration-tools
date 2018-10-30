@@ -36,8 +36,25 @@ func TestWatchdogReplsetHasMemberFalse(t *testing.T) {
 }
 
 func TestWatchdogReplsetUpdateMember(t *testing.T) {
-	testReplset.UpdateMember(testReplsetMongod)
+	assert.Len(t, testReplset.members, 0, "replset.members length is not 0")
+	assert.NoError(t, testReplset.UpdateMember(testReplsetMongod))
 	assert.Len(t, testReplset.members, 1, "replset.members length is not 1")
+
+	// test that an error is returned if the MaxMembers is reached
+	replset := New(testWatchdogConfig, testReplsetName)
+	mongod := &Mongod{
+		Host:        t.Name(),
+		Port:        27017,
+		Replset:     testReplsetName,
+		PodName:     "mongod",
+		ServiceName: "test",
+	}
+	for len(replset.members) < MaxMembers {
+		assert.NoError(t, replset.UpdateMember(mongod))
+		mongod.Port++
+	}
+	mongod.Port++
+	assert.Error(t, replset.UpdateMember(mongod))
 }
 
 func TestWatchdogReplsetGetMember(t *testing.T) {
@@ -69,7 +86,8 @@ func TestWatchdogReplsetGetReplsetDBConfig(t *testing.T) {
 }
 
 func TestWatchdogReplsetRemoveMember(t *testing.T) {
-	testReplset.RemoveMember(testReplsetMongod.Name())
+	assert.Error(t, testReplset.RemoveMember("does not exist"))
+	assert.NoError(t, testReplset.RemoveMember(testReplsetMongod.Name()))
 	assert.False(t, testReplset.HasMember(testReplsetMongod.Name()), "replset.HasMember() returned unexpected result after replset.RemoveMember()")
 	assert.Len(t, testReplset.GetMembers(), 0, "replset.GetMembers() returned unexpected result after replset.RemoveMember()")
 }

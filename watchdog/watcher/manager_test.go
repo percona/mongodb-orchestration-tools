@@ -48,15 +48,15 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 		Port: port,
 		Task: apiTask,
 	}
-	testWatchRs.UpdateMember(mongod)
+	assert.NoError(t, testWatchRs.UpdateMember(mongod))
 
 	// secondary1
 	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary1Port)
-	testWatchRs.UpdateMember(mongod)
+	assert.NoError(t, testWatchRs.UpdateMember(mongod))
 
 	// secondary2
 	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary2Port)
-	testWatchRs.UpdateMember(mongod)
+	assert.NoError(t, testWatchRs.UpdateMember(mongod))
 
 	go testManager.Watch(testWatchRs)
 
