@@ -10,13 +10,14 @@ Go-based tools for MongoDB container orchestration.
 *Note: This code is intended for a specific integration/use case, therefore it is unlikely Issues or Pull Requests will be accepted from the public. Please fork if this is a concern.*
 
 **Tools**:
-- **mongodb-executor**: tool for executing tasks on the local mongod/mongos container
-- **mongodb-healthcheck**: tool for running MongoDB health and readiness checks
-- **dcos-mongodb-controller**: tool for controlling the replica set initiation and adding system MongoDB users
-- **dcos-mongodb-watchdog**: daemon to monitor dcos pod status and manage mongodb replica set membership
+- **mongodb-executor**: a tool for executing tasks on the local mongod/mongos container
+- **mongodb-healthcheck**: a tool for running MongoDB DC/OS health+readiness checks or Kubernetes liveness check
+- **dcos-mongodb-controller**: a tool for controlling the replica set initiation and adding system MongoDB users
+- **dcos-mongodb-watchdog**: a daemon to monitor dcos pod status and manage mongodb replica set membership
+- **k8s-mongodb-initiator**: a tool for replica set initiation and adding system MongoDB users
 
 ## Use Case
-The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) or the [Kubernetes Operator SDK](https://github.com/operator-framework/operator-sdk).
+The tools in this repository are designed to be used specifically within the [DC/OS 'percona-server-mongodb' service](https://docs.mesosphere.com/services/percona-server-mongodb/) or the [Percona Server for MongoDB Operator](https://github.com/Percona-Lab/percona-server-mongodb-operator).
 
 ## Required
 
