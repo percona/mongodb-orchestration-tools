@@ -1,5 +1,5 @@
-hash: 3205bc7343fdb26b2c11c081f886f4d01317ece537937dc3c6a400c1759084d6
-updated: 2018-10-03T18:31:04.232843186+02:00
+hash: 38a678986ebe0c881aeebbc67cffd7f952f4d760af444409ed801e679ccbf839
+updated: 2018-10-31T00:47:59.446446542+01:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -152,11 +152,11 @@ imports:
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 - name: k8s.io/api
-  version: a191abe0b71e00ce4cde58af8002aa4c1a8bb068
+  version: 37c5ce6f2f592fbbd798bb86a8814d0918b3abe1
   subpackages:
   - core/v1
 - name: k8s.io/apimachinery
-  version: 5ae511e0ed34ac0fbf6e17340df5605372591d00
+  version: 8ee1a638bafa4ae9691077e690cb45dd54f45111
   subpackages:
   - pkg/api/resource
   - pkg/apis/meta/v1
@@ -171,12 +171,12 @@ imports:
   - pkg/util/errors
   - pkg/util/intstr
   - pkg/util/json
-  - pkg/util/naming
   - pkg/util/net
   - pkg/util/runtime
   - pkg/util/sets
   - pkg/util/validation
   - pkg/util/validation/field
+  - pkg/util/wait
   - pkg/watch
   - third_party/forked/golang/reflect
 testImports:
