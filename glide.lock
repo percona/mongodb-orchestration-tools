@@ -1,5 +1,5 @@
-hash: d1facec60251df7fdd45b6c53889337064b79c7db2e4019b359c4c21239dbacd
-updated: 2018-10-31T14:39:23.569111945+01:00
+hash: cd6d1b07ea34544d4f4049399e2022f85c0b6561ec057079a885bb1b27ccd7c9
+updated: 2018-10-31T14:43:28.487840798+01:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -110,7 +110,7 @@ imports:
 - name: github.com/valyala/bytebufferpool
   version: cdfbe9377474227bb42120c1e22fd4433e7f69bf
 - name: github.com/valyala/fasthttp
-  version: 4087354082e1ab9a610705ec9f7949603d3c46ab
+  version: e5f51c11919d4f66400334047b897ef0a94c6f3c
   subpackages:
   - fasthttputil
   - stackless
