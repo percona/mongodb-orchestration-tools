@@ -1,7 +1,7 @@
 package: github.com/percona/mongodb-orchestration-tools
 import:
 - package: github.com/sirupsen/logrus
-  version: ~v1.0.6
+  version: ~v1.1.1
 - package: github.com/Robpol86/logrus-custom-formatter
   repo: https://github.com/timvaillancourt/logrus-custom-formatter
 - package: github.com/alecthomas/kingpin
@@ -19,27 +19,18 @@ import:
   subpackages:
   - config
 - package: github.com/prometheus/client_golang
-  version: ~0.8.0
+  version: ~0.9.0
 - package: github.com/scullxbones/mgo-statsd
   subpackages:
   - .
 - package: github.com/valyala/fasthttp
-  version: ~20180529.0.0
+  version: ~v1.0.0
 - package: github.com/percona/pmgo
   version: ~0.5.2
 - package: k8s.io/api
   version: kubernetes-1.11.4
   subpackages:
   - core/v1
-- package: k8s.io/apimachinery
-  version: kubernetes-1.11.4
-  subpackages:
-  - pkg/api/resource
-  - pkg/apis/meta/v1
-  - pkg/runtime
-  - pkg/runtime/schema
-  - pkg/types
-  - pkg/util/intstr
 testImport:
 - package: github.com/stretchr/testify
 - package: github.com/mitchellh/go-ps
