@@ -1,5 +1,5 @@
-hash: 38a678986ebe0c881aeebbc67cffd7f952f4d760af444409ed801e679ccbf839
-updated: 2018-10-31T00:47:59.446446542+01:00
+hash: cd6d1b07ea34544d4f4049399e2022f85c0b6561ec057079a885bb1b27ccd7c9
+updated: 2018-10-31T14:43:28.487840798+01:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -14,7 +14,7 @@ imports:
   subpackages:
   - quantile
 - name: github.com/cactus/go-statsd-client
-  version: 5e3c483eb9321a69283f0bb517894e46c108b88b
+  version: 23713bd9ff66e6949ab5c578ed8de1646631eee3
   subpackages:
   - statsd
 - name: github.com/davecgh/go-spew
@@ -29,11 +29,11 @@ imports:
 - name: github.com/golang/glog
   version: 44145f04b68cf362d9c4df2182967c2275eaefed
 - name: github.com/golang/mock
-  version: 600781dde9cca80734169b9e969d9054ccc57937
+  version: 8a44ef6e8be577e050008c7886f24fc705d709fb
   subpackages:
   - gomock
 - name: github.com/golang/protobuf
-  version: b27b920f9e71b439b873b17bf99f56467623814a
+  version: 1918e1ff6ffd2be7bed0553df8650672c3bfe80d
   subpackages:
   - proto
 - name: github.com/google/gofuzz
@@ -46,6 +46,8 @@ imports:
   - zlib
 - name: github.com/klauspost/cpuid
   version: e7e905edc00ea8827e58662220139109efea09db
+- name: github.com/konsorten/go-windows-terminal-sequences
+  version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
 - name: github.com/matttproud/golang_protobuf_extensions
   version: c12348ce28de40eed0136aa2b644d0ee0650e56c
   subpackages:
@@ -59,22 +61,23 @@ imports:
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: c5b7fccd204277076155f10851dad72b76a49317
+  version: 1cafe34db7fdec6022e17e00e1c1ea501022f3e4
   subpackages:
   - prometheus
+  - prometheus/internal
   - prometheus/promhttp
 - name: github.com/prometheus/client_model
   version: 5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: c7de2306084e37d54b8be01f3541a8464345e9a5
+  version: 7e9e6cabbd393fc208072eedef99188d0ce788b6
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 05ee40e3a273f7245e8777337fc7b46e533a9a92
+  version: 185b4288413d2a0dd0806f78c90dde719829e5ae
   subpackages:
   - internal/util
   - nfs
@@ -87,11 +90,11 @@ imports:
   subpackages:
   - .
 - name: github.com/sirupsen/logrus
-  version: 3e01752db0189b9157070a0e1668a620f9a85da2
+  version: ad15b42461921f1fb3529b058c6786c6a45d5162
 - name: github.com/stretchr/objx
   version: ef50b0de28773081167c97fc27cf29a0bf8b8c71
 - name: github.com/stretchr/testify
-  version: f35b8ab0b5a2cef36673838d662e249dd9c94686
+  version: 04af85275a5c7ac09d16bb3b9b2e751ed45154e5
   subpackages:
   - assert
   - mock
@@ -105,7 +108,7 @@ imports:
   - config
   - status
 - name: github.com/valyala/bytebufferpool
-  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
+  version: cdfbe9377474227bb42120c1e22fd4433e7f69bf
 - name: github.com/valyala/fasthttp
   version: e5f51c11919d4f66400334047b897ef0a94c6f3c
   subpackages:
@@ -114,7 +117,7 @@ imports:
 - name: github.com/vharitonsky/iniflags
   version: a33cd0b5f3de9ef5e89c90ab2f1ebe3f71ad1ece
 - name: golang.org/x/crypto
-  version: 182538f80094b6a8efaade63a8fd8e0d9d5843dd
+  version: 4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
@@ -126,7 +129,7 @@ imports:
   - idna
   - lex/httplex
 - name: golang.org/x/sys
-  version: fa5fdf94c78965f1aa8423f0cc50b8b8d728b05a
+  version: 7e31e0c00fa05cb5fbf4347b585621d6709e19a4
   subpackages:
   - unix
   - windows
