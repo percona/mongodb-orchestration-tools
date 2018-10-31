@@ -28,9 +28,11 @@ import:
 - package: github.com/percona/pmgo
   version: ~0.5.2
 - package: k8s.io/api
+  version: kubernetes-1.11.4
   subpackages:
   - core/v1
 - package: k8s.io/apimachinery
+  version: kubernetes-1.11.4
   subpackages:
   - pkg/api/resource
   - pkg/apis/meta/v1
