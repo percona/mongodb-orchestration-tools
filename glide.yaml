@@ -31,6 +31,9 @@ import:
   version: kubernetes-1.11.4
   subpackages:
   - core/v1
+- package: k8s.io/apimachinery
+  subpackages:
+  - pkg/apis/meta/v1
 testImport:
 - package: github.com/stretchr/testify
 - package: github.com/mitchellh/go-ps

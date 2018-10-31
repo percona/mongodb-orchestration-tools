@@ -1,5 +1,5 @@
-hash: e387999634f58800727ce52d4045613717fdcff64de0a9622b119ed896e9129d
-updated: 2018-10-31T04:44:32.749712115+01:00
+hash: d1facec60251df7fdd45b6c53889337064b79c7db2e4019b359c4c21239dbacd
+updated: 2018-10-31T14:39:23.569111945+01:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -161,32 +161,17 @@ imports:
 - name: k8s.io/apimachinery
   version: 8ee1a638bafa4ae9691077e690cb45dd54f45111
   subpackages:
-  - pkg/api/equality
-  - pkg/api/meta
   - pkg/api/resource
-  - pkg/api/testing
-  - pkg/api/testing/fuzzer
-  - pkg/api/testing/roundtrip
-  - pkg/apis/meta/fuzzer
   - pkg/apis/meta/v1
-  - pkg/apis/meta/v1/unstructured
-  - pkg/apis/meta/v1beta1
   - pkg/conversion
   - pkg/conversion/queryparams
   - pkg/fields
   - pkg/labels
   - pkg/runtime
   - pkg/runtime/schema
-  - pkg/runtime/serializer
-  - pkg/runtime/serializer/json
-  - pkg/runtime/serializer/protobuf
-  - pkg/runtime/serializer/recognizer
-  - pkg/runtime/serializer/versioning
   - pkg/selection
   - pkg/types
-  - pkg/util/diff
   - pkg/util/errors
-  - pkg/util/framer
   - pkg/util/intstr
   - pkg/util/json
   - pkg/util/net
@@ -195,7 +180,6 @@ imports:
   - pkg/util/validation
   - pkg/util/validation/field
   - pkg/util/wait
-  - pkg/util/yaml
   - pkg/watch
   - third_party/forked/golang/reflect
 testImports:
