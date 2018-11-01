@@ -44,7 +44,6 @@ func TestPkgPodK8STask(t *testing.T) {
 		},
 		pkg.DefaultServiceName,
 		DefaultNamespace,
-		"mongodb",
 	)
 
 	assert.NotNil(t, task)
@@ -53,7 +52,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	// task types
 	task.pod.Spec.Containers[0].Name = ""
 	assert.False(t, task.IsTaskType(pod.TaskTypeMongod))
-	task.pod.Spec.Containers[0].Name = MongodContainerName
+	task.pod.Spec.Containers[0].Name = mongodContainerName
 	assert.True(t, task.IsTaskType(pod.TaskTypeMongod))
 	assert.False(t, task.IsTaskType(pod.TaskTypeMongos))
 
@@ -70,14 +69,29 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.True(t, task.IsRunning())
 	assert.Equal(t, "RUNNING", task.State().String())
 
+	// test empty replset name
+	_, err := task.GetMongoReplsetName()
+	assert.Error(t, err)
+
+	// test set replset name
+	task.pod.Spec.Containers[0].Env = []corev1.EnvVar{
+		{
+			Name:  pkg.EnvMongoDBReplset,
+			Value: "rs",
+		},
+	}
+	rsName, err := task.GetMongoReplsetName()
+	assert.NoError(t, err)
+	assert.Equal(t, "rs", rsName)
+
 	// test GetMongoHost()
 	assert.Equal(t,
-		t.Name()+"."+pkg.DefaultServiceName+"."+DefaultNamespace+"."+ClusterServiceDNSSuffix,
-		GetMongoHost(t.Name(), pkg.DefaultServiceName, DefaultNamespace),
+		t.Name()+"."+pkg.DefaultServiceName+"-"+rsName+"."+DefaultNamespace+"."+clusterServiceDNSSuffix,
+		GetMongoHost(t.Name(), pkg.DefaultServiceName, rsName, DefaultNamespace),
 	)
 
 	// empty mongo addr
-	_, err := task.GetMongoAddr()
+	_, err = task.GetMongoAddr()
 	assert.Error(t, err)
 
 	// set mongo addr
@@ -88,25 +102,10 @@ func TestPkgPodK8STask(t *testing.T) {
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
-	assert.Equal(t, t.Name()+"."+pkg.DefaultServiceName+"."+DefaultNamespace+"."+ClusterServiceDNSSuffix, addr.Host)
+	assert.Equal(t, t.Name()+"."+pkg.DefaultServiceName+"-"+rsName+"."+DefaultNamespace+"."+clusterServiceDNSSuffix, addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 	task.pod.Spec.Containers[0].Ports[0].HostPort = int32(0)
 	addr, err = task.GetMongoAddr()
 	assert.NoError(t, err)
 	assert.Equal(t, 27018, addr.Port)
-
-	// empty replset name
-	_, err = task.GetMongoReplsetName()
-	assert.Error(t, err)
-
-	// set replset name
-	task.pod.Spec.Containers[0].Env = []corev1.EnvVar{
-		{
-			Name:  pkg.EnvMongoDBReplset,
-			Value: t.Name(),
-		},
-	}
-	rsName, err := task.GetMongoReplsetName()
-	assert.NoError(t, err)
-	assert.Equal(t, t.Name(), rsName)
 }

@@ -28,11 +28,7 @@ import (
 func TestInternalPodK8SPods(t *testing.T) {
 	assert.Implements(t, (*pod.Source)(nil), &Pods{})
 
-	p := NewPods(
-		pkg.DefaultServiceName,
-		DefaultNamespace,
-		"mongodb",
-	)
+	p := NewPods(pkg.DefaultServiceName, DefaultNamespace)
 	assert.NotNil(t, p)
 
 	pods, err := p.Pods()
