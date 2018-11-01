@@ -109,7 +109,7 @@ func main() {
 
 	switch command {
 	case cmdInit.FullCommand():
-		host := k8s.GetMongoHost(hostname, cnf.ServiceName, namespace)
+		host := k8s.GetMongoHost(hostname, cnf.ServiceName, cnf.Replset, namespace)
 		cnf.ReplsetInit.PrimaryAddr = host + ":" + strconv.Itoa(port)
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {
