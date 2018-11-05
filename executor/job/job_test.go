@@ -53,7 +53,6 @@ func TestExecutorJobRun(t *testing.T) {
 
 	// run with enabled jobs
 	config.Metrics.Enabled = true
-	config.PMM.Enabled = true
 	r2 := New(config, testDBSession, &quit)
 	assert.NotPanics(t, func() { r2.Run() })
 	quit <- true
