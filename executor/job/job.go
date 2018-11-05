@@ -19,7 +19,6 @@ import (
 
 	"github.com/percona/mongodb-orchestration-tools/executor/config"
 	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
-	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
 	mgostatsd "github.com/scullxbones/mgo-statsd"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
@@ -65,19 +64,6 @@ func (r *Runner) handleDCOSMetrics() {
 	}
 }
 
-func (r *Runner) handlePMM() {
-	if r.config.PMM.Enabled {
-		pmmJob, err := pmm.New(r.config.PMM, r.config.ServiceName)
-		if err != nil {
-			log.Errorf("Error adding PMM background job: %s", err)
-		} else {
-			r.add(pmmJob)
-		}
-	} else {
-		log.Info("Skipping Percona PMM client executor")
-	}
-}
-
 // runJob runs a single BackgroundJob
 func (r *Runner) runJob(backgroundJob BackgroundJob) {
 	log.Infof("Starting background job: %s", backgroundJob.Name())
@@ -98,9 +84,6 @@ func (r *Runner) Run() {
 		"delay": r.config.DelayBackgroundJob,
 	}).Info("Delaying the start of the background job runner")
 	time.Sleep(r.config.DelayBackgroundJob)
-
-	// Percona PMM
-	r.handlePMM()
 
 	// DC/OS Metrics
 	r.handleDCOSMetrics()

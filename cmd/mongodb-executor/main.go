@@ -25,7 +25,6 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/executor/job"
 	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
 	"github.com/percona/mongodb-orchestration-tools/executor/mongodb"
-	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
 	"github.com/percona/mongodb-orchestration-tools/internal"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
@@ -93,49 +92,6 @@ func handleMetrics(app *kingpin.Application, cnf *config.Config) {
 	).Envar(dcos.EnvMetricsStatsdPort).IntVar(&cnf.Metrics.StatsdPort)
 }
 
-func handlePmm(app *kingpin.Application, cnf *config.Config) {
-	app.Flag(
-		"pmm.configDir",
-		"Directory containing the PMM client config file (pmm.yml), defaults to "+dcos.EnvMesosSandbox+" env var",
-	).Envar(dcos.EnvMesosSandbox).StringVar(&cnf.PMM.ConfigDir)
-	app.Flag(
-		"pmm.enable",
-		"Enable Percona PMM monitoring for OS and MongoDB, defaults to "+dcos.EnvPMMEnabled+" env var",
-	).Envar(dcos.EnvPMMEnabled).BoolVar(&cnf.PMM.Enabled)
-	app.Flag(
-		"pmm.enableQueryAnalytics",
-		"Enable Percona PMM query analytics (QAN) client/agent, defaults to "+dcos.EnvPMMEnableQueryAnalytics+" env var",
-	).Envar(dcos.EnvPMMEnableQueryAnalytics).BoolVar(&cnf.PMM.EnableQueryAnalytics)
-	app.Flag(
-		"pmm.serverAddress",
-		"Percona PMM server address, defaults to "+dcos.EnvPMMServerAddress+" env var",
-	).Envar(dcos.EnvPMMServerAddress).StringVar(&cnf.PMM.ServerAddress)
-	app.Flag(
-		"pmm.clientName",
-		"Percona PMM client address, defaults to "+dcos.EnvTaskName+" env var",
-	).Envar(dcos.EnvTaskName).StringVar(&cnf.PMM.ClientName)
-	app.Flag(
-		"pmm.serverSSL",
-		"Enable SSL communication between Percona PMM client and server, defaults to "+dcos.EnvPMMServerSSL+" env var",
-	).Envar(dcos.EnvPMMServerSSL).BoolVar(&cnf.PMM.ServerSSL)
-	app.Flag(
-		"pmm.serverInsecureSSL",
-		"Enable insecure SSL communication between Percona PMM client and server, defaults to "+dcos.EnvPMMServerInsecureSSL+" env var",
-	).Envar(dcos.EnvPMMServerInsecureSSL).BoolVar(&cnf.PMM.ServerInsecureSSL)
-	app.Flag(
-		"pmm.linuxMetricsExporterPort",
-		"Port number for bind Percona PMM Linux Metrics exporter to, defaults to "+dcos.EnvPMMLinuxMetricsExporterPort+" env var",
-	).Envar(dcos.EnvPMMLinuxMetricsExporterPort).UintVar(&cnf.PMM.LinuxMetricsExporterPort)
-	app.Flag(
-		"pmm.mongodbMetricsExporterPort",
-		"Port number for bind Percona PMM MongoDB Metrics exporter to, defaults to "+dcos.EnvPMMMongoDBMetricsExporterPort+" env var",
-	).Envar(dcos.EnvPMMMongoDBMetricsExporterPort).UintVar(&cnf.PMM.MongoDBMetricsExporterPort)
-	app.Flag(
-		"pmm.mongodb.clusterName",
-		"Percona PMM client mongodb cluster name, defaults to "+pkg.EnvServiceName+" env var",
-	).Envar(pkg.EnvServiceName).StringVar(&cnf.PMM.MongoDB.ClusterName)
-}
-
 func main() {
 	app, verbose := tool.New("Handles running MongoDB instances and various in-container background tasks", GitCommit, GitBranch)
 	app.Command("mongod", "run a mongod instance")
@@ -151,10 +107,6 @@ func main() {
 		MongoDB: &mongodb.Config{},
 		Metrics: &metrics.Config{
 			DB: dbConfig,
-		},
-		PMM: &pmm.Config{
-			DB:      dbConfig,
-			MongoDB: &pmm.ConfigMongoDB{},
 		},
 		Verbose: *verbose,
 	}
@@ -178,7 +130,6 @@ func main() {
 
 	handleMongoDB(app, cnf)
 	handleMetrics(app, cnf)
-	handlePmm(app, cnf)
 
 	nodeType, err := app.Parse(os.Args[1:])
 	if err != nil {
