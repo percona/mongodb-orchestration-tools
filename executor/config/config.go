@@ -19,7 +19,6 @@ import (
 
 	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
 	"github.com/percona/mongodb-orchestration-tools/executor/mongodb"
-	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
 )
 
@@ -42,7 +41,6 @@ func (t NodeType) String() string {
 type Config struct {
 	DB                 *db.Config
 	MongoDB            *mongodb.Config
-	PMM                *pmm.Config
 	Metrics            *metrics.Config
 	NodeType           NodeType
 	ServiceName        string

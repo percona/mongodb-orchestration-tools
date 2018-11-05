@@ -21,7 +21,6 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/executor/config"
 	"github.com/percona/mongodb-orchestration-tools/executor/job/mocks"
 	"github.com/percona/mongodb-orchestration-tools/executor/metrics"
-	"github.com/percona/mongodb-orchestration-tools/executor/pmm"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,9 +43,6 @@ func TestExecutorJobRun(t *testing.T) {
 		Metrics: &metrics.Config{
 			Enabled:  false,
 			Interval: 500 * time.Millisecond,
-		},
-		PMM: &pmm.Config{
-			Enabled: false,
 		},
 	}
 	r := New(config, testDBSession, &quit)
