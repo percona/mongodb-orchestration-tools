@@ -22,39 +22,30 @@ import (
 	tools "github.com/percona/mongodb-orchestration-tools"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/metrics"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/watcher"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	sourceFetches = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Subsystem: "source",
-		Name:      "fetches_total",
-		Help:      "API fetches",
-	}, []string{"type"})
-)
-
-func init() {
-	prometheus.MustRegister(sourceFetches)
-}
-
 type Watchdog struct {
 	config         *config.Config
 	podSource      pod.Source
+	metrics        *metrics.Collector
 	watcherManager watcher.Manager
 	quit           *chan bool
 	activePods     *pod.Pods
 }
 
-func New(config *config.Config, quit *chan bool, podSource pod.Source) *Watchdog {
+func New(config *config.Config, podSource pod.Source, metricCollector *metrics.Collector, quit *chan bool) *Watchdog {
 	activePods := pod.NewPods()
 	return &Watchdog{
 		config:         config,
 		podSource:      podSource,
-		watcherManager: watcher.NewManager(config, quit, activePods),
+		metrics:        metricCollector,
 		quit:           quit,
+		watcherManager: watcher.NewManager(config, quit, activePods),
 		activePods:     activePods,
 	}
 }
@@ -74,7 +65,6 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 		}).Error("Error fetching pod tasks")
 		return
 	}
-	sourceFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
 
 	for _, task := range tasks {
 		if !task.IsTaskType(pod.TaskTypeMongod) {
@@ -117,15 +107,20 @@ func (w *Watchdog) fetchPods() {
 		"url":    w.podSource.URL(),
 	}).Info("Getting pods from source")
 
+	metricLabels := prometheus.Labels{
+		"source": w.podSource.Name(),
+	}
+
 	pods, err := w.podSource.Pods()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"url":   w.podSource.URL(),
 			"error": err,
 		}).Error("Error fetching pod list")
+		w.metrics.PodSourceErrorsTotal.With(metricLabels).Add(1)
 		return
 	}
-	sourceFetches.WithLabelValues("get_pods").Inc()
+	w.metrics.PodSourceGetsTotal.With(metricLabels).Add(1)
 
 	if pods == nil {
 		log.Debug("Found no pods from source")

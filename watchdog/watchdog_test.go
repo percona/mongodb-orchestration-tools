@@ -26,6 +26,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/metrics"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -49,7 +50,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestWatchdogNew(t *testing.T) {
-	testWatchdog = New(testConfig, &testQuitChan, testAPIClient)
+	wMetrics := metrics.NewCollector()
+	testWatchdog = New(testConfig, testAPIClient, wMetrics, &testQuitChan)
 	assert.NotNil(t, testWatchdog, ".New() returned nil")
 }
 

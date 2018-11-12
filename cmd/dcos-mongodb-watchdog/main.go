@@ -27,6 +27,8 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/watchdog"
 	config "github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/metrics"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
@@ -38,11 +40,13 @@ var (
 	metricsPath   string
 )
 
-func runPrometheusMetricsServer() {
+func runPrometheusMetricsServer(collector prometheus.Collector) {
 	log.WithFields(log.Fields{
 		"listen": metricsListen,
 		"path":   metricsPath,
 	}).Info("Starting Prometheus metrics server")
+
+	prometheus.MustRegister(collector)
 
 	http.Handle(metricsPath, promhttp.Handler())
 	log.Fatal(http.ListenAndServe(metricsListen, nil))
@@ -123,15 +127,15 @@ func main() {
 	//	)
 	//}
 
+	apiClient := api.New(cnf.ServiceName, cnf.API)
+	wMetrics := metrics.NewCollector()
 	quit := make(chan bool)
-	w := watchdog.New(cnf, &quit, api.New(
-		cnf.ServiceName,
-		cnf.API,
-	))
+	watchdog := watchdog.New(cnf, apiClient, wMetrics, &quit)
+	go watchdog.Run()
+
 	if metricsListen != "" {
-		go runPrometheusMetricsServer()
+		go runPrometheusMetricsServer(wMetrics)
 	}
-	go w.Run()
 
 	// wait for signals from the OS
 	signals := make(chan os.Signal, 1)
@@ -140,5 +144,5 @@ func main() {
 	log.Infof("Received %s signal, killing watchdog", sig)
 
 	// send quit to all goroutines
-	quit <- true
+	close(quit)
 }
