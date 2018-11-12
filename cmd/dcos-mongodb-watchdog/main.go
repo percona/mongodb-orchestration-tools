@@ -127,10 +127,10 @@ func main() {
 	//	)
 	//}
 
-	quit := make(chan bool)
 	apiClient := api.New(cnf.ServiceName, cnf.API)
 	wMetrics := metrics.NewCollector()
-	watchdog := watchdog.New(cnf, &quit, apiClient, wMetrics)
+	quit := make(chan bool)
+	watchdog := watchdog.New(cnf, apiClient, wMetrics, &quit)
 	go watchdog.Run()
 
 	if metricsListen != "" {

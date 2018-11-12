@@ -38,14 +38,14 @@ type Watchdog struct {
 	activePods     *pod.Pods
 }
 
-func New(config *config.Config, quit *chan bool, podSource pod.Source, metricCollector *metrics.Collector) *Watchdog {
+func New(config *config.Config, podSource pod.Source, metricCollector *metrics.Collector, quit *chan bool) *Watchdog {
 	activePods := pod.NewPods()
 	return &Watchdog{
 		config:         config,
 		podSource:      podSource,
 		metrics:        metricCollector,
-		watcherManager: watcher.NewManager(config, quit, activePods),
 		quit:           quit,
+		watcherManager: watcher.NewManager(config, quit, activePods),
 		activePods:     activePods,
 	}
 }
