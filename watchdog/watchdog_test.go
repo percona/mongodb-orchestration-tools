@@ -23,6 +23,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
+	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
@@ -67,9 +68,32 @@ func TestWatchdogRun(t *testing.T) {
 	testAPIClient.On("Pods").Return([]string{"test"}, nil)
 
 	tasks := make([]pod.Task, 0)
-	tasks = append(tasks, dcos.NewTask(&dcos.TaskData{
-		Info: &dcos.TaskInfo{},
-	}, "test"))
+	tasks = append(tasks,
+		dcos.NewTask(
+			&dcos.TaskData{
+				Info: &dcos.TaskInfo{
+					Name: "test-mongod",
+					Command: &dcos.TaskCommand{
+						Environment: &dcos.TaskCommandEnvironment{
+							Variables: []*dcos.TaskCommandEnvironmentVariable{
+								{
+									Name:  pkg.EnvMongoDBPort,
+									Value: testutils.MongodbPrimaryPort,
+								},
+								{
+									Name:  pkg.EnvMongoDBReplset,
+									Value: testutils.MongodbReplsetName,
+								},
+							},
+						},
+						Value: "mongodb-executor",
+					},
+				},
+				Status: &dcos.TaskStatus{},
+			},
+			t.Name(),
+		),
+	)
 	testAPIClient.On("GetTasks", "test").Return(tasks, nil)
 
 	go testWatchdog.Run()
