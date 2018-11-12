@@ -23,7 +23,7 @@ func NewCollector() *Collector {
 			Namespace: namespace,
 			Subsystem: "pod_source",
 			Name:      "gets_total",
-			Help:      "The total number of times the watchdog has polled a pod source",
+			Help:      "The total number of successful times the watchdog has polled a pod source",
 		}, []string{"source"}),
 	}
 }
