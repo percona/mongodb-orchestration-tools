@@ -22,37 +22,28 @@ import (
 	tools "github.com/percona/mongodb-orchestration-tools"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
+	"github.com/percona/mongodb-orchestration-tools/watchdog/metrics"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/replset"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/watcher"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	sourceFetches = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Subsystem: "source",
-		Name:      "fetches_total",
-		Help:      "API fetches",
-	}, []string{"type"})
-)
-
-func init() {
-	prometheus.MustRegister(sourceFetches)
-}
-
 type Watchdog struct {
 	config         *config.Config
 	podSource      pod.Source
+	metrics        *metrics.Collector
 	watcherManager watcher.Manager
 	quit           *chan bool
 	activePods     *pod.Pods
 }
 
-func New(config *config.Config, quit *chan bool, podSource pod.Source) *Watchdog {
+func New(config *config.Config, quit *chan bool, podSource pod.Source, metricCollector *metrics.Collector) *Watchdog {
 	activePods := pod.NewPods()
 	return &Watchdog{
 		config:         config,
 		podSource:      podSource,
+		metrics:        metricCollector,
 		watcherManager: watcher.NewManager(config, quit, activePods),
 		quit:           quit,
 		activePods:     activePods,
@@ -66,15 +57,20 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 		"pod": podName,
 	}).Info("Getting tasks for pod")
 
+	metricsLabels := prometheus.Labels{
+		"source": w.podSource.Name(),
+	}
+
 	tasks, err := w.podSource.GetTasks(podName)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"pod":   podName,
 			"error": err,
 		}).Error("Error fetching pod tasks")
+		w.metrics.PodSourceErrorsTotal.With(metricsLabels).Add(1)
 		return
 	}
-	sourceFetches.With(prometheus.Labels{"type": "get_pod_tasks"}).Inc()
+	w.metrics.PodSourceGetsTotal.With(metricsLabels).Add(1)
 
 	for _, task := range tasks {
 		if !task.IsTaskType(pod.TaskTypeMongod) {
@@ -125,7 +121,6 @@ func (w *Watchdog) fetchPods() {
 		}).Error("Error fetching pod list")
 		return
 	}
-	sourceFetches.WithLabelValues("get_pods").Inc()
 
 	if pods == nil {
 		log.Debug("Found no pods from source")
