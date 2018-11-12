@@ -29,9 +29,11 @@ func NewCollector() *Collector {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
+	c.PodSourceErrorsTotal.Collect(ch)
 	c.PodSourceGetsTotal.Collect(ch)
 }
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
+	c.PodSourceErrorsTotal.Describe(ch)
 	c.PodSourceGetsTotal.Describe(ch)
 }

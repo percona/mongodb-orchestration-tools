@@ -57,20 +57,14 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 		"pod": podName,
 	}).Info("Getting tasks for pod")
 
-	metricsLabels := prometheus.Labels{
-		"source": w.podSource.Name(),
-	}
-
 	tasks, err := w.podSource.GetTasks(podName)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"pod":   podName,
 			"error": err,
 		}).Error("Error fetching pod tasks")
-		w.metrics.PodSourceErrorsTotal.With(metricsLabels).Add(1)
 		return
 	}
-	w.metrics.PodSourceGetsTotal.With(metricsLabels).Add(1)
 
 	for _, task := range tasks {
 		if !task.IsTaskType(pod.TaskTypeMongod) {
@@ -113,14 +107,20 @@ func (w *Watchdog) fetchPods() {
 		"url":    w.podSource.URL(),
 	}).Info("Getting pods from source")
 
+	metricLabels := prometheus.Labels{
+		"source": w.podSource.Name(),
+	}
+
 	pods, err := w.podSource.Pods()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"url":   w.podSource.URL(),
 			"error": err,
 		}).Error("Error fetching pod list")
+		w.metrics.PodSourceErrorsTotal.With(metricLabels).Add(1)
 		return
 	}
+	w.metrics.PodSourceGetsTotal.With(metricLabels).Add(1)
 
 	if pods == nil {
 		log.Debug("Found no pods from source")
