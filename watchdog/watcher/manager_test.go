@@ -28,8 +28,8 @@ import (
 
 func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	testutils.DoSkipTest(t)
-
-	testManager = NewManager(testConfig, &testStopChan, pod.NewPods())
+	pods := pod.NewPods()
+	testManager = NewManager(testConfig, &testStopChan, pods)
 	assert.NotNil(t, testManager)
 
 	apiTask := &mocks.Task{}
@@ -64,12 +64,28 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	tries := 0
 	for tries < 20 {
 		if testManager.HasWatcher(rsName) && testManager.Get(rsName).IsRunning() {
-			return
+			break
 		}
 		time.Sleep(time.Second)
 		tries++
 	}
-	assert.FailNow(t, "failed to start watcher after 20 tries")
+	if tries >= 20 {
+		assert.FailNow(t, "failed to start watcher after 20 tries")
+	}
+
+	state := testManager.Get(rsName).state
+	tries = 0
+	for tries < 100 {
+		status := state.GetStatus()
+		if status != nil && len(status.Members) == 3 {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+		tries++
+	}
+	if tries >= 100 {
+		assert.FailNow(t, "failed to run fetch in watcher after 20 tries")
+	}
 }
 
 func TestWatchdogWatcherManagerClose(t *testing.T) {
