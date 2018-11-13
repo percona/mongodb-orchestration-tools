@@ -50,8 +50,8 @@ func getLogCallerInfo(e *log.Entry, f *lcf.CustomFormatter) (interface{}, error)
 }
 
 // GetLogFormatter returns a configured logrus.Formatter for logging
-func GetLogFormatter(progName string) log.Formatter {
-	template := "%[ascTime]s " + progName + "  %-16[caller]s %-6[levelName]s %[message]s %[fields]s\n"
+func GetLogFormatter() log.Formatter {
+	template := "%[ascTime]s %-16[caller]s %-6[levelName]s %[message]s %[fields]s\n"
 	return lcf.NewFormatter(template, lcf.CustomHandlers{"caller": getLogCallerInfo})
 }
 

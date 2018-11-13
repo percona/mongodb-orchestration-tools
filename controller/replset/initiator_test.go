@@ -38,7 +38,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
+	logger.SetupLogger(nil, logger.GetLogFormatter(), os.Stdout)
 
 	if testutils.Enabled() {
 		var err error

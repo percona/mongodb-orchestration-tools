@@ -45,7 +45,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
+	logger.SetupLogger(nil, logger.GetLogFormatter(), os.Stdout)
 	os.Exit(m.Run())
 }
 

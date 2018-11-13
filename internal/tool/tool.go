@@ -38,7 +38,7 @@ func New(help, commit, branch string) (*kingpin.Application, *bool) {
 	))
 	return app, logger.SetupLogger(
 		app,
-		logger.GetLogFormatter(app.Name),
+		logger.GetLogFormatter(),
 		os.Stdout,
 	)
 }
