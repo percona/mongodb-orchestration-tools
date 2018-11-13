@@ -96,6 +96,8 @@ func (rw *Watcher) connectReplsetSession() error {
 				if session != nil {
 					session.Close()
 				}
+			} else {
+				return errors.New("no addresses for dial info")
 			}
 		case <-*rw.quit:
 			return errors.New("received quit")
@@ -141,10 +143,10 @@ func (rw *Watcher) logReplsetState() {
 	rsPrimary := rw.replset.GetMember(primary.Name)
 
 	log.WithFields(log.Fields{
-		"replset":    rw.replset.Name,
-		"host":       primary.Name,
-		"task":       rsPrimary.Task.Name(),
-		"task_state": rsPrimary.Task.State(),
+		"replset": rw.replset.Name,
+		"host":    primary.Name,
+		"task":    rsPrimary.Task.Name(),
+		"state":   rsPrimary.Task.State(),
 	}).Infof("Replset %s", primary.State)
 
 	for _, member := range status.Members {
@@ -156,10 +158,10 @@ func (rw *Watcher) logReplsetState() {
 			continue
 		}
 		log.WithFields(log.Fields{
-			"replset":    rw.replset.Name,
-			"host":       member.Name,
-			"task":       rsMember.Task.Name(),
-			"task_state": rsMember.Task.State(),
+			"replset": rw.replset.Name,
+			"host":    member.Name,
+			"task":    rsMember.Task.Name(),
+			"state":   rsMember.Task.State(),
 		}).Infof("Replset %s", member.State)
 	}
 }
@@ -289,6 +291,10 @@ func (rw *Watcher) setRunning(running bool) {
 	rw.running = running
 }
 
+func (rw *Watcher) State() *replset.State {
+	return rw.state
+}
+
 func (rw *Watcher) IsRunning() bool {
 	rw.Lock()
 	defer rw.Unlock()
@@ -296,18 +302,21 @@ func (rw *Watcher) IsRunning() bool {
 }
 
 func (rw *Watcher) Run() {
-	log.WithFields(log.Fields{
-		"replset":  rw.replset.Name,
-		"interval": rw.config.ReplsetPoll,
-	}).Info("Watching replset")
-
 	err := rw.connectReplsetSession()
 	if err != nil {
-		log.WithError(err).Fatal("Cannot connect to replset")
+		if err.Error() != "received quit" {
+			log.WithError(err).Error("Cannot connect to replset")
+		}
+		return
 	}
 
 	rw.setRunning(true)
 	defer rw.setRunning(false)
+
+	log.WithFields(log.Fields{
+		"replset":  rw.replset.Name,
+		"interval": rw.config.ReplsetPoll,
+	}).Info("Watching replset")
 
 	ticker := time.NewTicker(rw.config.ReplsetPoll)
 	for {
@@ -315,6 +324,7 @@ func (rw *Watcher) Run() {
 		case <-ticker.C:
 			session := rw.getReplsetSession()
 			if session == nil {
+				log.Error("got nil replset session")
 				continue
 			}
 
@@ -326,6 +336,7 @@ func (rw *Watcher) Run() {
 			}
 
 			if rw.state.GetStatus() == nil {
+				log.Error("got nil replset status")
 				continue
 			}
 

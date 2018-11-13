@@ -16,16 +16,16 @@ package watchdog
 
 import (
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/percona/mongodb-orchestration-tools/internal/db"
-	"github.com/percona/mongodb-orchestration-tools/internal/dcos/api/mocks"
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
-	"github.com/percona/mongodb-orchestration-tools/pkg"
+	pkgDb "github.com/percona/mongodb-orchestration-tools/pkg/db"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
-	"github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/mocks"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/config"
 	"github.com/percona/mongodb-orchestration-tools/watchdog/metrics"
 	"github.com/stretchr/testify/assert"
@@ -38,22 +38,15 @@ var (
 		ServiceName: "test",
 		Username:    testutils.MongodbAdminUser,
 		Password:    testutils.MongodbAdminPassword,
-		APIPoll:     time.Millisecond * 100,
+		APIPoll:     time.Millisecond * 75,
 		ReplsetPoll: time.Millisecond * 100,
 		SSL:         &db.SSLConfig{},
 	}
-	testAPIClient = &mocks.Client{}
 )
 
 func TestMain(m *testing.M) {
 	logger.SetupLogger(nil, logger.GetLogFormatter("test"), os.Stdout)
 	os.Exit(m.Run())
-}
-
-func TestWatchdogNew(t *testing.T) {
-	wMetrics := metrics.NewCollector()
-	testWatchdog = New(testConfig, testAPIClient, wMetrics, &testQuitChan)
-	assert.NotNil(t, testWatchdog, ".New() returned nil")
 }
 
 func TestWatchdogDoIgnorePod(t *testing.T) {
@@ -63,40 +56,81 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 }
 
 func TestWatchdogRun(t *testing.T) {
-	testAPIClient.On("Name").Return("test")
-	testAPIClient.On("URL").Return("http://test")
-	testAPIClient.On("Pods").Return([]string{"test"}, nil)
+	testPodSource := &mocks.Source{}
+	wMetrics := metrics.NewCollector()
+	testWatchdog = New(testConfig, testPodSource, wMetrics, &testQuitChan)
+	assert.NotNil(t, testWatchdog, ".New() returned nil")
+
+	testPodSource.On("Name").Return("test")
+	testPodSource.On("URL").Return("http://test")
+	testPodSource.On("Pods").Return([]string{"testPod"}, nil)
 
 	tasks := make([]pod.Task, 0)
-	tasks = append(tasks,
-		dcos.NewTask(
-			&dcos.TaskData{
-				Info: &dcos.TaskInfo{
-					Name: "test-mongod",
-					Command: &dcos.TaskCommand{
-						Environment: &dcos.TaskCommandEnvironment{
-							Variables: []*dcos.TaskCommandEnvironmentVariable{
-								{
-									Name:  pkg.EnvMongoDBPort,
-									Value: testutils.MongodbPrimaryPort,
-								},
-								{
-									Name:  pkg.EnvMongoDBReplset,
-									Value: testutils.MongodbReplsetName,
-								},
-							},
-						},
-						Value: "mongodb-executor",
-					},
-				},
-				Status: &dcos.TaskStatus{},
-			},
-			t.Name(),
-		),
-	)
-	testAPIClient.On("GetTasks", "test").Return(tasks, nil)
+	for i, portStr := range []string{testutils.MongodbPrimaryPort, testutils.MongodbSecondary1Port, testutils.MongodbSecondary2Port} {
+		port, _ := strconv.Atoi(portStr)
 
+		mockTask := &mocks.Task{}
+		mockTask.On("GetMongoAddr").Return(&pkgDb.Addr{
+			Host: testutils.MongodbHost,
+			Port: port,
+		}, nil)
+		mockTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
+		mockTask.On("IsRunning").Return(true)
+		mockTask.On("IsTaskType", pod.TaskTypeMongod).Return(true)
+		mockTask.On("Name").Return(t.Name() + "-" + strconv.Itoa(i))
+
+		mockTaskState := &mocks.TaskState{}
+		mockTaskState.On("String").Return("RUNNING")
+		mockTask.On("State").Return(mockTaskState)
+
+		tasks = append(tasks, mockTask)
+	}
+	testPodSource.On("GetTasks", "testPod").Return(tasks, nil)
+
+	// start watchdog
 	go testWatchdog.Run()
-	time.Sleep(time.Millisecond * 150)
+	tries := 0
+	for tries < 100 {
+		if testWatchdog.getRunning() {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+		tries++
+	}
+	if tries >= 100 {
+		assert.FailNow(t, "could not start watchdog after 100 tries")
+	}
+
+	// test watchdog started a watcher and fetched data
+	watcher := testWatchdog.watcherManager.Get(testutils.MongodbReplsetName)
+	assert.NotNil(t, watcher)
+	tries = 0
+	for tries < 100 {
+		state := watcher.State()
+		if watcher.IsRunning() && state != nil && state.GetStatus() != nil {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+		tries++
+	}
+	if tries >= 100 {
+		assert.FailNow(t, "could not start watchdog after 100 tries")
+	}
+	state := watcher.State()
+	assert.NotNil(t, state)
+	assert.NotNil(t, state.GetStatus())
+
+	// stop watchdog
 	close(testQuitChan)
+	tries = 0
+	for tries < 100 {
+		if !testWatchdog.getRunning() {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+		tries++
+	}
+	if tries >= 100 {
+		assert.FailNow(t, "could not stop watchdog after 100 tries")
+	}
 }

@@ -30,12 +30,14 @@ import (
 )
 
 type Watchdog struct {
+	sync.Mutex
 	config         *config.Config
 	podSource      pod.Source
 	metrics        *metrics.Collector
 	watcherManager watcher.Manager
 	quit           *chan bool
 	activePods     *pod.Pods
+	running        bool
 }
 
 func New(config *config.Config, podSource pod.Source, metricCollector *metrics.Collector, quit *chan bool) *Watchdog {
@@ -48,6 +50,18 @@ func New(config *config.Config, podSource pod.Source, metricCollector *metrics.C
 		watcherManager: watcher.NewManager(config, quit, activePods),
 		activePods:     activePods,
 	}
+}
+
+func (w *Watchdog) getRunning() bool {
+	w.Lock()
+	defer w.Unlock()
+	return w.running
+}
+
+func (w *Watchdog) setRunning(running bool) {
+	w.Lock()
+	defer w.Unlock()
+	w.running = running
 }
 
 func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
@@ -145,6 +159,8 @@ func (w *Watchdog) fetchPods() {
 }
 
 func (w *Watchdog) Run() {
+	w.setRunning(true)
+
 	log.WithFields(log.Fields{
 		"version": tools.Version,
 		"service": w.config.ServiceName,
@@ -163,6 +179,7 @@ func (w *Watchdog) Run() {
 			log.Info("Stopping watchers")
 			ticker.Stop()
 			w.watcherManager.Close()
+			w.setRunning(false)
 			return
 		}
 	}
