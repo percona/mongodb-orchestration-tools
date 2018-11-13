@@ -324,7 +324,6 @@ func (rw *Watcher) Run() {
 		case <-ticker.C:
 			session := rw.getReplsetSession()
 			if session == nil {
-				log.Error("got nil replset session")
 				continue
 			}
 
@@ -336,7 +335,6 @@ func (rw *Watcher) Run() {
 			}
 
 			if rw.state.GetStatus() == nil {
-				log.Error("got nil replset status")
 				continue
 			}
 
