@@ -38,7 +38,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	logger.SetupLogger(nil, logger.GetLogFormatter("test"), testLogBuffer)
+	logger.SetupLogger(nil, logger.GetLogFormatter(), testLogBuffer)
 	exit := m.Run()
 	if testPrimarySession != nil {
 		testPrimarySession.Close()
