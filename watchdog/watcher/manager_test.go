@@ -86,15 +86,11 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	if tries >= 100 {
 		assert.FailNow(t, "failed to run fetch in watcher after 20 tries")
 	}
-}
-
-func TestWatchdogWatcherManagerClose(t *testing.T) {
-	testutils.DoSkipTest(t)
 
 	assert.Contains(t, testManager.watchers, rsName)
 	testManager.Close()
 
-	tries := 0
+	tries = 0
 	for tries < 20 {
 		if !testManager.Get(rsName).IsRunning() {
 			return
