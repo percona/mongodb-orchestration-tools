@@ -51,14 +51,15 @@ func TestMain(m *testing.M) {
 
 func TestWatchdogDoIgnorePod(t *testing.T) {
 	testConfig.IgnorePods = []string{"ignore-me"}
-	assert.True(t, testWatchdog.doIgnorePod("ignore-me"))
-	assert.False(t, testWatchdog.doIgnorePod("dont-ignore-me"))
+	watchdog := &Watchdog{config: testConfig}
+	assert.True(t, watchdog.doIgnorePod("ignore-me"))
+	assert.False(t, watchdog.doIgnorePod("dont-ignore-me"))
 }
 
 func TestWatchdogRun(t *testing.T) {
 	testPodSource := &mocks.Source{}
 	wMetrics := metrics.NewCollector()
-	testWatchdog = New(testConfig, testPodSource, wMetrics, &testQuitChan)
+	testWatchdog := New(testConfig, testPodSource, wMetrics, &testQuitChan)
 	assert.NotNil(t, testWatchdog, ".New() returned nil")
 
 	testPodSource.On("Name").Return("test")
