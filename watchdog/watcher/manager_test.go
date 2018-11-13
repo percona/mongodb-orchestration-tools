@@ -26,13 +26,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWatchdogWatcherNewManager(t *testing.T) {
-	testManager = NewManager(testConfig, &testStopChan, pod.NewPods())
-	assert.NotNil(t, testManager)
-}
-
 func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	testutils.DoSkipTest(t)
+	pods := pod.NewPods()
+	testManager = NewManager(testConfig, &testStopChan, pods)
+	assert.NotNil(t, testManager)
 
 	apiTask := &mocks.Task{}
 	apiTask.On("Name").Return("test")
@@ -58,37 +56,41 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary2Port)
 	assert.NoError(t, testWatchRs.UpdateMember(mongod))
 
+	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
+	assert.False(t, testManager.HasWatcher(rsName))
+
 	go testManager.Watch(testWatchRs)
 
 	tries := 0
 	for tries < 20 {
 		if testManager.HasWatcher(rsName) && testManager.Get(rsName).IsRunning() {
-			return
+			break
 		}
 		time.Sleep(time.Second)
 		tries++
 	}
-	assert.FailNow(t, "failed to start watcher after 20 tries")
-}
+	if tries >= 20 {
+		assert.FailNow(t, "failed to start watcher after 20 tries")
+	}
 
-func TestWatchdogWatcherManagerHasWatcher(t *testing.T) {
-	testutils.DoSkipTest(t)
+	state := testManager.Get(rsName).state
+	tries = 0
+	for tries < 100 {
+		status := state.GetStatus()
+		if status != nil && len(status.Members) == 3 {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+		tries++
+	}
+	if tries >= 100 {
+		assert.FailNow(t, "failed to run fetch in watcher after 20 tries")
+	}
 
-	assert.True(t, testManager.HasWatcher(rsName))
-}
+	assert.Contains(t, testManager.watchers, rsName)
+	testManager.Close()
 
-func TestWatchdogWatcherManagerGet(t *testing.T) {
-	testutils.DoSkipTest(t)
-
-	assert.NotNil(t, testManager.Get(rsName), ".Get() returned nil for existing watcher")
-	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
-}
-
-func TestWatchdogWatcherManagerStop(t *testing.T) {
-	testutils.DoSkipTest(t)
-
-	testManager.Stop(rsName)
-	tries := 0
+	tries = 0
 	for tries < 20 {
 		if !testManager.Get(rsName).IsRunning() {
 			return
@@ -96,5 +98,7 @@ func TestWatchdogWatcherManagerStop(t *testing.T) {
 		time.Sleep(time.Second)
 		tries++
 	}
-	assert.FailNow(t, "Failed to stop watcher after 20 tries")
+	assert.FailNow(t, "Failed to close watcher manager after 20 tries")
+
+	assert.NotContains(t, testManager.watchers, rsName)
 }
