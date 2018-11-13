@@ -28,7 +28,7 @@ import (
 
 func TestInternalLoggerSetupLogger(t *testing.T) {
 	assert.Equal(t, log.InfoLevel, log.GetLevel(), "logrus.GetLevel() should return info level")
-	formatter := GetLogFormatter("test")
+	formatter := GetLogFormatter()
 
 	// nil *kingpin.Application
 	assert.Nil(t, SetupLogger(nil, formatter, os.Stdout))
@@ -41,7 +41,7 @@ func TestInternalLoggerLogDebug(t *testing.T) {
 	os.Unsetenv(pkg.EnvLogVerbose)
 	defer os.Unsetenv(pkg.EnvLogVerbose)
 
-	formatter := GetLogFormatter("test")
+	formatter := GetLogFormatter()
 	debugStr := strings.ToUpper(log.DebugLevel.String())
 
 	// test --verbose flag
@@ -55,7 +55,7 @@ func TestInternalLoggerLogDebug(t *testing.T) {
 
 	log.Debug("test123")
 	logged1 := buf1.String()
-	assert.Contains(t, strings.TrimSpace(logged1), "test  logger_test.go:56 "+debugStr+"  test123", ".Debug() log output unexpected")
+	assert.Contains(t, strings.TrimSpace(logged1), "logger_test.go:56 "+debugStr+"  test123", ".Debug() log output unexpected")
 
 	// test verbose env var
 	buf2 := new(bytes.Buffer)
@@ -69,11 +69,11 @@ func TestInternalLoggerLogDebug(t *testing.T) {
 
 func TestInternalLoggerLogInfo(t *testing.T) {
 	buf := new(bytes.Buffer)
-	formatter := GetLogFormatter("test")
+	formatter := GetLogFormatter()
 	assert.Nil(t, SetupLogger(nil, formatter, buf))
 	log.Info("test123")
 
 	infoStr := strings.ToUpper(log.InfoLevel.String())
 	logged := buf.String()
-	assert.Contains(t, strings.TrimSpace(logged), "test  logger_test.go:74 "+infoStr+"   test123", ".Info() log output unexpected")
+	assert.Contains(t, strings.TrimSpace(logged), "logger_test.go:74 "+infoStr+"   test123", ".Info() log output unexpected")
 }
