@@ -22,7 +22,7 @@ The tools in this repository are designed to be used specifically within the [DC
 ## Required
 
 ### MongoDB
-These tools were designed/tested for use with [Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb) 3.6 and above.
+These tools were designed/tested for use with [Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb) 3.6 and above with [Replication](https://docs.mongodb.com/manual/replication/) and [Authentication](https://docs.mongodb.com/manual/core/authentication/) enabled.
 
 ### DC/OS
 The minimum requirements are:
