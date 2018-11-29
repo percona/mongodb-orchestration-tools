@@ -20,6 +20,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -27,8 +28,13 @@ import (
 func TestPkgPodK8STask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
 
+	statefulset := &appsv1.StatefulSet{
+		Spec: appsv1.StatefulSetSpec{
+			ServiceName: "testRs",
+		},
+	}
 	task := NewTask(
-		corev1.Pod{
+		&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: t.Name(),
 			},
@@ -42,6 +48,7 @@ func TestPkgPodK8STask(t *testing.T) {
 				},
 			},
 		},
+		statefulset,
 		pkg.DefaultServiceName,
 		DefaultNamespace,
 	)
@@ -108,4 +115,31 @@ func TestPkgPodK8STask(t *testing.T) {
 	addr, err = task.GetMongoAddr()
 	assert.NoError(t, err)
 	assert.Equal(t, 27018, addr.Port)
+
+	// test .IsUpdating() is false
+	statefulset.Status = appsv1.StatefulSetStatus{
+		CurrentRevision: "abc123",
+		UpdateRevision:  "abc123",
+		ReadyReplicas:   int32(3),
+		CurrentReplicas: int32(3),
+	}
+	assert.False(t, task.IsUpdating())
+
+	// test .IsUpdating() is true if revisions are different
+	statefulset.Status = appsv1.StatefulSetStatus{
+		CurrentRevision: "abc123",
+		UpdateRevision:  "abc123456",
+		ReadyReplicas:   int32(3),
+		CurrentReplicas: int32(3),
+	}
+	assert.True(t, task.IsUpdating())
+
+	// test .IsUpdating() is true if replica #s are different
+	statefulset.Status = appsv1.StatefulSetStatus{
+		CurrentRevision: "abc123",
+		UpdateRevision:  "abc123",
+		ReadyReplicas:   int32(2),
+		CurrentReplicas: int32(3),
+	}
+	assert.True(t, task.IsUpdating())
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -38,6 +39,11 @@ func TestInternalPodK8SPods(t *testing.T) {
 	corev1Pod := []corev1.Pod{
 		{
 			ObjectMeta: metav1.ObjectMeta{
+				Name: "not-" + t.Name(),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: t.Name(),
 			},
 			Status: corev1.PodStatus{
@@ -47,6 +53,10 @@ func TestInternalPodK8SPods(t *testing.T) {
 				Containers: []corev1.Container{
 					{
 						Env: []corev1.EnvVar{
+							{
+								Name:  pkg.EnvMongoDBReplset,
+								Value: "testRs",
+							},
 							{
 								Name:  pkg.EnvMongoDBPort,
 								Value: t.Name(),
@@ -64,14 +74,26 @@ func TestInternalPodK8SPods(t *testing.T) {
 			},
 		},
 	}
-	p.SetPods(corev1Pod)
+	statefulsets := []appsv1.StatefulSet{
+		{
+			Spec: appsv1.StatefulSetSpec{
+				ServiceName: pkg.DefaultServiceName + "-testRs",
+			},
+		},
+	}
+	p.Update(corev1Pod, statefulsets)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
 
+	// test .GetTasks()
+	tasks, err := p.GetTasks(t.Name())
+	assert.NoError(t, err)
+	assert.Len(t, tasks, 1)
+
 	// test Succeeded pod is not listed by .Pods()
-	corev1Pod[0].Status.Phase = corev1.PodSucceeded
-	p.SetPods(corev1Pod)
+	corev1Pod[1].Status.Phase = corev1.PodSucceeded
+	p.Update(corev1Pod, nil)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 0)
 

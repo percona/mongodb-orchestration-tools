@@ -244,10 +244,18 @@ func (rw *Watcher) replsetConfigRemover(remove []*rsConfig.Member) error {
 	session := rw.getReplsetSession()
 	if session != nil {
 		for _, member := range remove {
-			log.WithFields(log.Fields{
+			lf := log.Fields{
 				"replset": rw.replset.Name,
 				"host":    member.Host,
-			}).Info("Removing removed/scaled-down replset member")
+			}
+
+			rsMember := rw.replset.GetMember(member.Host)
+			if rsMember == nil || rsMember.Task.IsUpdating() {
+				log.WithFields(lf).Debug("Skipping remove on updating host")
+				continue
+			}
+
+			log.WithFields(lf).Info("Removing removed/scaled-down replset member")
 			err := rw.replset.RemoveMember(member.Host)
 			if err != nil {
 				return err
