@@ -38,6 +38,11 @@ func TestInternalPodK8SPods(t *testing.T) {
 	corev1Pod := []corev1.Pod{
 		{
 			ObjectMeta: metav1.ObjectMeta{
+				Name: "not-" + t.Name(),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: t.Name(),
 			},
 			Status: corev1.PodStatus{
@@ -69,8 +74,13 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
 
+	// test .GetTasks()
+	tasks, err := p.GetTasks(t.Name())
+	assert.NoError(t, err)
+	assert.Len(t, tasks, 1)
+
 	// test Succeeded pod is not listed by .Pods()
-	corev1Pod[0].Status.Phase = corev1.PodSucceeded
+	corev1Pod[1].Status.Phase = corev1.PodSucceeded
 	p.Update(corev1Pod, nil)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 0)
