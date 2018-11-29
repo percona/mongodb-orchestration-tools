@@ -101,8 +101,10 @@ func (rw *Watcher) connectReplsetSession() error {
 			}
 		case <-*rw.quit:
 			return errors.New("received quit")
+		case <-time.After(time.Minute):
+			log.Errorf("Timeout while connecting to mongodb replset: %s", rw.replset.Name)
+			return errors.New("timed out connecting to mongodb replset")
 		}
-		break
 	}
 
 	rw.Lock()
