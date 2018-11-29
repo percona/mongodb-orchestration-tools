@@ -1,5 +1,5 @@
 hash: cd6d1b07ea34544d4f4049399e2022f85c0b6561ec057079a885bb1b27ccd7c9
-updated: 2018-11-13T14:56:50.417846246+01:00
+updated: 2018-11-29T19:09:32.990094183+01:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -157,6 +157,7 @@ imports:
 - name: k8s.io/api
   version: 37c5ce6f2f592fbbd798bb86a8814d0918b3abe1
   subpackages:
+  - apps/v1
   - core/v1
 - name: k8s.io/apimachinery
   version: 8ee1a638bafa4ae9691077e690cb45dd54f45111
