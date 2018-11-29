@@ -97,8 +97,9 @@ func (p *Pods) getStatefulSetFromPod(pod *corev1.Pod) *appsv1.StatefulSet {
 	if err != nil {
 		return nil
 	}
+	setServiceName := p.serviceName + "-" + replsetName
 	for i, statefulset := range p.statefulsets {
-		if statefulset.Spec.ServiceName != replsetName {
+		if statefulset.Spec.ServiceName != setServiceName {
 			continue
 		}
 		return &p.statefulsets[i]
@@ -115,9 +116,13 @@ func (p *Pods) GetTasks(podName string) ([]pod.Task, error) {
 		if pod.Name != podName {
 			continue
 		}
+		statefulset := p.getStatefulSetFromPod(&pod)
+		if statefulset == nil {
+			return tasks, errors.New("cannot find statefulset for pod")
+		}
 		tasks = append(
 			tasks,
-			NewTask(&pod, p.getStatefulSetFromPod(&pod), p.serviceName, p.namespace),
+			NewTask(&pod, statefulset, p.serviceName, p.namespace),
 		)
 	}
 	return tasks, nil

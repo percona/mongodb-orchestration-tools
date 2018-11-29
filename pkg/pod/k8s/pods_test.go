@@ -21,6 +21,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -53,6 +54,10 @@ func TestInternalPodK8SPods(t *testing.T) {
 					{
 						Env: []corev1.EnvVar{
 							{
+								Name:  pkg.EnvMongoDBReplset,
+								Value: "testRs",
+							},
+							{
 								Name:  pkg.EnvMongoDBPort,
 								Value: t.Name(),
 							},
@@ -69,7 +74,14 @@ func TestInternalPodK8SPods(t *testing.T) {
 			},
 		},
 	}
-	p.Update(corev1Pod, nil)
+	statefulsets := []appsv1.StatefulSet{
+		{
+			Spec: appsv1.StatefulSetSpec{
+				ServiceName: pkg.DefaultServiceName + "-testRs",
+			},
+		},
+	}
+	p.Update(corev1Pod, statefulsets)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
