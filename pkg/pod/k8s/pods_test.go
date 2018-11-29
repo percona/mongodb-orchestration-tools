@@ -64,14 +64,14 @@ func TestInternalPodK8SPods(t *testing.T) {
 			},
 		},
 	}
-	p.SetPods(corev1Pod)
+	p.Update(corev1Pod, nil)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
 
 	// test Succeeded pod is not listed by .Pods()
 	corev1Pod[0].Status.Phase = corev1.PodSucceeded
-	p.SetPods(corev1Pod)
+	p.Update(corev1Pod, nil)
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 0)
 
