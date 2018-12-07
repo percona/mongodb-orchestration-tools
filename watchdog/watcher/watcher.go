@@ -30,7 +30,8 @@ import (
 )
 
 var (
-	replsetReadPreference              = mgo.PrimaryPreferred
+	connectReplsetTimeout              = time.Minute * 3
+	replsetReadPreference              = mgo.Primary
 	waitForMongodAvailableRetries uint = 10
 )
 
@@ -99,6 +100,8 @@ func (rw *Watcher) connectReplsetSession() error {
 			} else {
 				return errors.New("no addresses for dial info")
 			}
+		case <-time.After(connectReplsetTimeout):
+			return errors.New("timeout getting replset connection")
 		case <-*rw.quit:
 			return errors.New("received quit")
 		}
