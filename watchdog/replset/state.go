@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"sync"
 
+	//"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
@@ -240,6 +241,11 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 			}
 			member.Votes = 0
 		}
+		//if mongod.Task.IsTaskType(pod.TaskTypeArbiter) {
+		//	log.Infof("Adding replset arbiter node: %s", mongod.Name())
+		//	member.ArbiterOnly = true
+		//		member.Priority = 0
+		//	}
 		configManager.AddMember(member)
 		s.doUpdate = true
 	}

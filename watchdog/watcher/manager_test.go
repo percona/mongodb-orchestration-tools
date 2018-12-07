@@ -34,6 +34,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 
 	apiTask := &mocks.Task{}
 	apiTask.On("Name").Return("test")
+	apiTask.On("IsUpdating").Return(false)
 
 	apiTaskState := &mocks.TaskState{}
 	apiTaskState.On("String").Return("OK")

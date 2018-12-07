@@ -21,6 +21,8 @@ import (
 
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/percona/mongodb-orchestration-tools/pkg"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod/mocks"
 	"github.com/stretchr/testify/assert"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 )
@@ -81,6 +83,9 @@ func TestWatchdogReplsetStateRemoveConfigMembers(t *testing.T) {
 func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	testutils.DoSkipTest(t)
 
+	podTask := &mocks.Task{}
+	podTask.On("IsTaskType", pod.TaskTypeArbiter).Return(true).Once()
+
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
@@ -89,6 +94,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 		Replset:     testutils.MongodbReplsetName,
 		ServiceName: pkg.DefaultServiceName,
 		PodName:     "mongo",
+		Task:        podTask,
 	}
 	config := testState.GetConfig()
 	memberCount := len(config.Members)

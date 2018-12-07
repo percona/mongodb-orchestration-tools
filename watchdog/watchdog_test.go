@@ -77,6 +77,8 @@ func TestWatchdogRun(t *testing.T) {
 		}, nil)
 		mockTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 		mockTask.On("IsRunning").Return(true)
+		mockTask.On("IsUpdating").Return(false)
+		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false).Once()
 		mockTask.On("IsTaskType", pod.TaskTypeMongod).Return(true)
 		mockTask.On("Name").Return(t.Name() + "-" + strconv.Itoa(i))
 
