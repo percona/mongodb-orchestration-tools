@@ -116,13 +116,9 @@ func (p *Pods) GetTasks(podName string) ([]pod.Task, error) {
 		if pod.Name != podName {
 			continue
 		}
-		statefulset := p.getStatefulSetFromPod(&pod)
-		if statefulset == nil {
-			return tasks, errors.New("cannot find statefulset for pod")
-		}
 		tasks = append(
 			tasks,
-			NewTask(&pod, statefulset, p.serviceName, p.namespace),
+			NewTask(&pod, p.getStatefulSetFromPod(&pod), p.serviceName, p.namespace),
 		)
 	}
 	return tasks, nil
