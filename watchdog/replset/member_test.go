@@ -53,18 +53,6 @@ func TestWatchdogReplsetMongodName(t *testing.T) {
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 
-func TestWatchdogReplsetMongodIsBackupNode(t *testing.T) {
-	testutils.DoSkipTest(t)
-
-	assert.False(t, testMongod.IsBackupNode(), "mongod.IsBackupNode() should be false")
-	mongod := &Mongod{
-		Host:    "test1234",
-		Port:    123456,
-		PodName: backupPodNamePrefix + "-something",
-	}
-	assert.True(t, mongod.IsBackupNode(), "mongod.IsBackupNode() should be true")
-}
-
 func TestWatchdogReplsetMongodDBConfig(t *testing.T) {
 	testutils.DoSkipTest(t)
 
