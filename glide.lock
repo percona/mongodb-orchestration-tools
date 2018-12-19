@@ -1,5 +1,5 @@
 hash: cd6d1b07ea34544d4f4049399e2022f85c0b6561ec057079a885bb1b27ccd7c9
-updated: 2018-11-29T19:09:32.990094183+01:00
+updated: 2018-12-12T21:29:27.046967+01:00
 imports:
 - name: github.com/alecthomas/kingpin
   version: 947dcec5ba9c011838740e680966fd7087a71d0d
@@ -29,23 +29,23 @@ imports:
 - name: github.com/golang/glog
   version: 44145f04b68cf362d9c4df2182967c2275eaefed
 - name: github.com/golang/mock
-  version: 8a44ef6e8be577e050008c7886f24fc705d709fb
+  version: 3b08ada96ed40e57fe7a70f2e4d5858e8dfd9af2
   subpackages:
   - gomock
 - name: github.com/golang/protobuf
-  version: 1918e1ff6ffd2be7bed0553df8650672c3bfe80d
+  version: 1d3f30b51784bec5aad268e59fd3c2fc1c2fe73f
   subpackages:
   - proto
 - name: github.com/google/gofuzz
   version: 44d81051d367757e1c7c6a5a86423ece9afcf63c
 - name: github.com/klauspost/compress
-  version: b50017755d442260d792c34c7c43216d9ba7ffc7
+  version: 30be6041bed523c18e269a700ebd9c2ea9328574
   subpackages:
   - flate
   - gzip
   - zlib
 - name: github.com/klauspost/cpuid
-  version: e7e905edc00ea8827e58662220139109efea09db
+  version: c640019ed4bda023bac884990967336803e39e3a
 - name: github.com/konsorten/go-windows-terminal-sequences
   version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
 - name: github.com/matttproud/golang_protobuf_extensions
@@ -61,7 +61,7 @@ imports:
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: abad2d1bd44235a26707c172eab6bca5bf2dbad3
+  version: 505eaef017263e299324067d40ca2c48f6a2cf50
   subpackages:
   - prometheus
   - prometheus/internal
@@ -71,13 +71,13 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 7e9e6cabbd393fc208072eedef99188d0ce788b6
+  version: 4724e9255275ce38f7179b2478abeae4e28c904f
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 185b4288413d2a0dd0806f78c90dde719829e5ae
+  version: 1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4
   subpackages:
   - internal/util
   - nfs
@@ -94,7 +94,7 @@ imports:
 - name: github.com/stretchr/objx
   version: ef50b0de28773081167c97fc27cf29a0bf8b8c71
 - name: github.com/stretchr/testify
-  version: 04af85275a5c7ac09d16bb3b9b2e751ed45154e5
+  version: 5b93e2dc01fd8fbf32aa74a198b0ebe78f6f6b6f
   subpackages:
   - assert
   - mock
@@ -117,7 +117,7 @@ imports:
 - name: github.com/vharitonsky/iniflags
   version: a33cd0b5f3de9ef5e89c90ab2f1ebe3f71ad1ece
 - name: golang.org/x/crypto
-  version: 4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06
+  version: 505ab145d0a99da450461ae2c1a9f6cd10d1f447
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
@@ -129,7 +129,7 @@ imports:
   - idna
   - lex/httplex
 - name: golang.org/x/sys
-  version: 7e31e0c00fa05cb5fbf4347b585621d6709e19a4
+  version: b05ddf57801d2239d6ab0ee35f9d981e0420f4ac
   subpackages:
   - unix
   - windows
@@ -153,7 +153,7 @@ imports:
 - name: gopkg.in/tomb.v2
   version: d5d1b5820637886def9eef33e03a27a9f166942c
 - name: gopkg.in/yaml.v2
-  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
+  version: 51d6538a90f86fe93ac480b35f37b2be17fef232
 - name: k8s.io/api
   version: 37c5ce6f2f592fbbd798bb86a8814d0918b3abe1
   subpackages:

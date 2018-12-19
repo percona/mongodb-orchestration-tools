@@ -36,6 +36,7 @@ func NewPods(serviceName, namespace string) *Pods {
 		serviceName:  serviceName,
 		pods:         make([]corev1.Pod, 0),
 		statefulsets: make([]appsv1.StatefulSet, 0),
+		services:     make([]corev1.Service, 0),
 	}
 }
 
@@ -45,6 +46,7 @@ type Pods struct {
 	serviceName  string
 	pods         []corev1.Pod
 	statefulsets []appsv1.StatefulSet
+	services     []corev1.Service
 }
 
 func getPodReplsetName(pod *corev1.Pod) (string, error) {
@@ -71,18 +73,19 @@ func (p *Pods) URL() string {
 	return "tcp://" + host + ":" + port
 }
 
-func (p *Pods) Update(pods []corev1.Pod, statefulsets []appsv1.StatefulSet) {
+func (p *Pods) Update(pods []corev1.Pod, statefulsets []appsv1.StatefulSet, services []corev1.Service) {
 	p.Lock()
 	defer p.Unlock()
 	p.pods = pods
 	p.statefulsets = statefulsets
+	p.services = services
 }
 
 func (p *Pods) Pods() ([]string, error) {
 	p.Lock()
 	defer p.Unlock()
 
-	pods := []string{}
+	pods := make([]string, 0)
 	for _, pod := range p.pods {
 		if pod.Status.Phase != corev1.PodRunning && pod.Status.Phase != corev1.PodPending {
 			continue
