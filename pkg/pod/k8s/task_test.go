@@ -49,6 +49,7 @@ func TestPkgPodK8STask(t *testing.T) {
 			},
 		},
 		statefulset,
+		nil,
 		pkg.DefaultServiceName,
 		DefaultNamespace,
 	)
