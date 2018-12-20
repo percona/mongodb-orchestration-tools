@@ -110,6 +110,10 @@ func (p *Pods) getStatefulSetFromPod(pod *corev1.Pod) *appsv1.StatefulSet {
 	return nil
 }
 
+func (p *Pods) getServiceFromPod(pod *corev1.Pod) *corev1.Service {
+	return nil
+}
+
 func (p *Pods) GetTasks(podName string) ([]pod.Task, error) {
 	p.Lock()
 	defer p.Unlock()
@@ -122,7 +126,7 @@ func (p *Pods) GetTasks(podName string) ([]pod.Task, error) {
 		}
 		tasks = append(
 			tasks,
-			NewTask(pod, p.getStatefulSetFromPod(pod), p.serviceName, p.namespace),
+			NewTask(pod, p.getStatefulSetFromPod(pod), p.getServiceFromPod(pod), p.serviceName, p.namespace),
 		)
 	}
 	return tasks, nil
