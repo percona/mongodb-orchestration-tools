@@ -181,7 +181,13 @@ func (t *Task) getServiceAddr() (*db.Addr, error) {
 		return addr, nil
 
 	case corev1.ServiceTypeNodePort:
-		//TODO get the ip of node where pod is running
+		addr.Host = t.pod.Status.HostIP
+		for _, p := range t.service.Spec.Ports {
+			if p.Name != mongodbPortName {
+				continue
+			}
+			addr.Port = int(p.NodePort)
+		}
 	}
 
 	return nil, fmt.Errorf("could not find mongodb service address")
