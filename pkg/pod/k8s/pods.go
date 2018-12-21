@@ -111,6 +111,13 @@ func (p *Pods) getStatefulSetFromPod(pod *corev1.Pod) *appsv1.StatefulSet {
 }
 
 func (p *Pods) getServiceFromPod(pod *corev1.Pod) *corev1.Service {
+	serviceName := pod.Name
+	for i, svc := range p.services {
+		if svc.Name != serviceName {
+			continue
+		}
+		return &p.services[i]
+	}
 	return nil
 }
 
