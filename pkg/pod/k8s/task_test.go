@@ -49,6 +49,7 @@ func TestPkgPodK8STask(t *testing.T) {
 			},
 		},
 		statefulset,
+		nil,
 		pkg.DefaultServiceName,
 		DefaultNamespace,
 	)
@@ -62,6 +63,9 @@ func TestPkgPodK8STask(t *testing.T) {
 	task.pod.Spec.Containers[0].Name = mongodContainerName
 	assert.True(t, task.IsTaskType(pod.TaskTypeMongod))
 	assert.False(t, task.IsTaskType(pod.TaskTypeMongos))
+	task.pod.Spec.Containers[0].Name = mongodBackupContainerName
+	assert.True(t, task.IsTaskType(pod.TaskTypeMongodBackup))
+	assert.False(t, task.IsTaskType(pod.TaskTypeMongod))
 
 	// test empty state
 	assert.False(t, task.HasState())

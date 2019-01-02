@@ -83,8 +83,9 @@ func TestWatchdogReplsetStateRemoveConfigMembers(t *testing.T) {
 func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	podTask := &mocks.Task{}
-	podTask.On("IsTaskType", pod.TaskTypeArbiter).Return(true).Once()
+	mockTask := &mocks.Task{}
+	mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(true).Once()
+	mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false).Once()
 
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
@@ -94,7 +95,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 		Replset:     testutils.MongodbReplsetName,
 		ServiceName: pkg.DefaultServiceName,
 		PodName:     "mongo",
-		Task:        podTask,
+		Task:        mockTask,
 	}
 	config := testState.GetConfig()
 	memberCount := len(config.Members)

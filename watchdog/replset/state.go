@@ -18,7 +18,8 @@ import (
 	"fmt"
 	"sync"
 
-	//"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
+
 	log "github.com/sirupsen/logrus"
 	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	rsStatus "github.com/timvaillancourt/go-mongodb-replset/status"
@@ -115,7 +116,7 @@ func (s *State) getMaxIDVotingMember() *rsConfig.Member {
 func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
 	var minIDMember *rsConfig.Member
 	for _, member := range s.Config.Members {
-		if member.Votes == 1 {
+		if member.Votes == 1 || member.Hidden {
 			continue
 		}
 		if minIDMember == nil || member.Id < minIDMember.Id {
@@ -126,7 +127,14 @@ func (s *State) getMinIDNonVotingMember() *rsConfig.Member {
 }
 
 func (s *State) resetConfigVotes() {
-	totalMembers := len(s.Config.Members)
+	totalMembers := 0
+	totalVoteable := 0
+	for _, member := range s.Config.Members {
+		if !member.Hidden {
+			totalVoteable++
+		}
+		totalMembers++
+	}
 	votingMembers := s.VotingMembers()
 
 	if !isEven(votingMembers) && votingMembers <= MaxVotingMembers && votingMembers >= MinVotingMembers {
@@ -135,12 +143,13 @@ func (s *State) resetConfigVotes() {
 
 	log.WithFields(log.Fields{
 		"total_members":  totalMembers,
-		"voting_members": votingMembers,
+		"total_voteable": totalVoteable,
+		"voting":         votingMembers,
 		"voting_max":     MaxVotingMembers,
 	}).Info("Adjusting replica set votes")
 
 	for isEven(votingMembers) || votingMembers > MaxVotingMembers {
-		if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalMembers > votingMembers {
+		if isEven(votingMembers) && votingMembers < MaxVotingMembers && totalVoteable > votingMembers {
 			member := s.getMinIDNonVotingMember()
 			if member != nil && votingMembers < MaxVotingMembers {
 				log.Infof("Adding replica set vote to member: %s", member.Host)
@@ -231,7 +240,7 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 			member.Priority = 0
 			member.Votes = 0
 		}
-		if mongod.IsBackupNode() {
+		if mongod.Task.IsTaskType(pod.TaskTypeMongodBackup) {
 			log.Infof("Adding dedicated backup mongod as a hidden-secondary: %s", mongod.Name())
 			member.Hidden = true
 			member.Priority = 0
@@ -240,12 +249,11 @@ func (s *State) AddConfigMembers(session *mgo.Session, configManager rsConfig.Ma
 				serviceTagName: mongod.ServiceName,
 			}
 			member.Votes = 0
+		} else if mongod.Task.IsTaskType(pod.TaskTypeArbiter) {
+			log.Infof("Adding replset arbiter node: %s", mongod.Name())
+			member.ArbiterOnly = true
+			member.Priority = 0
 		}
-		//if mongod.Task.IsTaskType(pod.TaskTypeArbiter) {
-		//	log.Infof("Adding replset arbiter node: %s", mongod.Name())
-		//	member.ArbiterOnly = true
-		//		member.Priority = 0
-		//	}
 		configManager.AddMember(member)
 		s.doUpdate = true
 	}

@@ -27,7 +27,7 @@ func TestPkgPodDCOSTask(t *testing.T) {
 		Info: &TaskInfo{
 			Name: t.Name(),
 		},
-	}, "test")
+	}, "test", "testPod")
 	assert.Implements(t, (*pod.Task)(nil), task)
 	assert.Equal(t, t.Name(), task.Name())
 
@@ -41,7 +41,7 @@ func TestPkgPodDCOSTaskState(t *testing.T) {
 		Status: &TaskStatus{
 			State: &TaskStateRunning,
 		},
-	}, "test")
+	}, "test", "testPod")
 	assert.NotNil(t, task.State())
 	assert.Equal(t, string(TaskStateRunning), task.State().String())
 	assert.True(t, task.IsRunning())
@@ -59,7 +59,7 @@ func TestPkgPodDCOSTaskIsTaskType(t *testing.T) {
 				Value: "mongodb-executor-linux",
 			},
 		},
-	}, "test")
+	}, "test", "testPod")
 	assert.False(t, task.IsTaskType(pod.TaskTypeMongod))
 
 	task.data.Info.Name = "mongodb-rs-mongod"
@@ -76,7 +76,7 @@ func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
 				},
 			},
 		},
-	}, "test")
+	}, "test", "testPod")
 	_, err := task.GetMongoAddr()
 	assert.Error(t, err)
 
@@ -104,7 +104,7 @@ func TestPkgPodDCOSTaskGetReplsetName(t *testing.T) {
 				},
 			},
 		},
-	}, "test")
+	}, "test", "testPod")
 	rsName, err := task.GetMongoReplsetName()
 	assert.NoError(t, err)
 	assert.Equal(t, "rs", rsName)
