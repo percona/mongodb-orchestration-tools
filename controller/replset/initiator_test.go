@@ -26,6 +26,7 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
+	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
 )
 
@@ -96,4 +97,23 @@ func TestControllerReplsetInitiatorInitUsers(t *testing.T) {
 	users := user.SystemUsers()
 	assert.Len(t, users, 1)
 	assert.NoError(t, user.RemoveUser(testSession, users[0].Username, "admin"))
+}
+
+func TestControllerReplsetInitiatorInitReplset(t *testing.T) {
+	testutils.DoSkipTest(t)
+
+	// load replset config from session
+	i := &Initiator{}
+	rsCnfMan := rsConfig.New(testSession)
+	err := rsCnfMan.Load()
+	if err != nil {
+		t.Fatalf("Failed to get replset config: %v", err)
+	}
+
+	// test initReplset() returns error ErrReplsetInitiated if the replset
+	// is already initiated. The test replset is initiated before running
+	// tests so this will always return ErrReplsetInitiated.
+	//
+	// https://jira.percona.com/browse/CLOUD-46
+	assert.Equal(t, i.initReplset(rsCnfMan), ErrReplsetInitiated)
 }
