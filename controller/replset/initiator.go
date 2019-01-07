@@ -78,7 +78,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager, out io.Writer) error 
 				"version": config.Version,
 			}).Info("Initiated replset with config:")
 			break
-		} else if isError(err, ErrMsgRsInitRequiresAuth) {
+		} else if isError(err, ErrMsgRsInitRequiresAuth) || isError(err, ErrMsgNotAuthorizedPrefix) {
 			return err
 		} else if !isError(err, ErrMsgDNSNotReady) {
 			log.WithFields(log.Fields{

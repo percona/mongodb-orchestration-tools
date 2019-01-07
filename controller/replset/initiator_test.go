@@ -112,6 +112,7 @@ func TestControllerReplsetInitiatorPrepareReplset(t *testing.T) {
 			},
 		},
 	}
+	defer user.RemoveUser(testSession, user.UserAdmin.Username, "admin")
 
 	// test prepareReplset passes when using the Primary connection
 	// on an already-initiated replset
@@ -129,11 +130,22 @@ func TestControllerReplsetInitiatorPrepareReplset(t *testing.T) {
 	}
 	defer testSecondarySession.Close()
 
+	buildInfo, err := testSecondarySession.BuildInfo()
+	if err != nil {
+		t.Fatalf("cannot get secondary session build info: %v", err)
+	}
+
 	// test prepareReplset fails gracefully on a Secondary that is
 	// part of an already-initiated replset
 	//
 	// https://jira.percona.com/browse/CLOUD-46
 	err = i.prepareReplset(testSecondarySession, &out)
 	assert.Error(t, err)
-	assert.True(t, isError(err, ErrMsgRsInitRequiresAuth))
+
+	// Check error msg based on version (error changes in 4.x)
+	if buildInfo.VersionAtLeast(4) {
+		assert.True(t, isError(err, ErrMsgRsInitRequiresAuth))
+	} else {
+		assert.True(t, isError(err, ErrMsgNotAuthorizedPrefix))
+	}
 }

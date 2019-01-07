@@ -82,6 +82,10 @@ func TestControllerUserControllerReloadSystemUsers(t *testing.T) {
 	testutils.DoSkipTest(t)
 
 	for _, user := range testSystemUsers {
+		if user.Username == testutils.MongodbAdminUser {
+			continue
+		}
+		t.Logf("user: %v, admin user: %v\n", user.Username, testutils.MongodbAdminUser)
 		assert.Error(
 			t,
 			checkUserExists(testSession, user.Username, SystemUserDatabase),
