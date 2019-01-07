@@ -39,7 +39,6 @@ const (
 
 var (
 	ErrCannotInitReplset = errors.New("could not init replset")
-	ErrReplsetInitiated  = errors.New("already initiated")
 )
 
 type Initiator struct {
@@ -131,7 +130,7 @@ func (i *Initiator) getLocalhostNoAuthSession() (*mgo.Session, error) {
 		&db.Config{
 			DialInfo: &mgo.DialInfo{
 				Addrs:    []string{localhostHost},
-				Direct:   false,
+				Direct:   true,
 				FailFast: true,
 				Timeout:  db.DefaultMongoDBTimeoutDuration,
 			},
