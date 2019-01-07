@@ -75,7 +75,7 @@ func (i *Initiator) initReplset(rsCnfMan rsConfig.Manager) error {
 				"version": config.Version,
 			}).Info("Initiated replset with config:")
 			break
-		} else if isError(err, ErrMsgDNSNotReady) {
+		} else if !isError(err, ErrMsgDNSNotReady) {
 			log.WithFields(log.Fields{
 				"replset": i.config.Replset,
 				"error":   err,
