@@ -15,6 +15,7 @@
 package replset
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -26,7 +27,6 @@ import (
 	"github.com/percona/mongodb-orchestration-tools/internal/logger"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	rsConfig "github.com/timvaillancourt/go-mongodb-replset/config"
 	"gopkg.in/mgo.v2"
 )
 
@@ -56,10 +56,10 @@ func TestMain(m *testing.M) {
 	os.Exit(exit)
 }
 
-func TestIsNotAuthorizedError(t *testing.T) {
-	assert.True(t, isNotAuthorizedError(errors.New(ErrMsgNotAuthorizedPrefix+" some command here")))
-	assert.False(t, isNotAuthorizedError(errors.New("this is not an auth error")))
-	assert.False(t, isNotAuthorizedError(nil))
+func TestIsError(t *testing.T) {
+	assert.True(t, isError(errors.New(ErrMsgNotAuthorizedPrefix+" some command here"), ErrMsgNotAuthorizedPrefix))
+	assert.False(t, isError(errors.New("this is not an auth error"), ErrMsgNotAuthorizedPrefix))
+	assert.False(t, isError(nil, ErrMsgNotAuthorizedPrefix))
 }
 
 func TestNewInitiator(t *testing.T) {
@@ -99,21 +99,41 @@ func TestControllerReplsetInitiatorInitUsers(t *testing.T) {
 	assert.NoError(t, user.RemoveUser(testSession, users[0].Username, "admin"))
 }
 
-func TestControllerReplsetInitiatorInitReplset(t *testing.T) {
+func TestControllerReplsetInitiatorPrepareReplset(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	// load replset config from session
-	i := &Initiator{}
-	rsCnfMan := rsConfig.New(testSession)
-	err := rsCnfMan.Load()
-	if err != nil {
-		t.Fatalf("Failed to get replset config: %v", err)
+	i := &Initiator{
+		replInitTries: 0,
+		config: &controller.Config{
+			Replset: testutils.MongodbReplsetName,
+			ReplsetInit: &controller.ConfigReplsetInit{
+				PrimaryAddr:  testutils.MongodbHost + ":" + testutils.MongodbPrimaryPort,
+				MaxReplTries: 1,
+			},
+		},
 	}
 
-	// test initReplset() returns error ErrReplsetInitiated if the replset
-	// is already initiated. The test replset is initiated before running
-	// tests so this will always return ErrReplsetInitiated.
+	// test prepareReplset passes when using the Primary connection
+	// on an already-initiated replset
 	//
 	// https://jira.percona.com/browse/CLOUD-46
-	assert.Equal(t, i.initReplset(rsCnfMan), ErrReplsetInitiated)
+	var out bytes.Buffer
+	assert.NoError(t, i.prepareReplset(testSession, &out))
+
+	// test using a Secondary node
+	i.replInitTries = 0
+	i.config.ReplsetInit.PrimaryAddr = testutils.MongodbHost + ":" + testutils.MongodbSecondary1Port
+	testSecondarySession, err := i.getLocalhostNoAuthSession()
+	if err != nil {
+		t.Fatalf("cannot get secondary session: %v", err)
+	}
+	defer testSecondarySession.Close()
+
+	// test prepareReplset fails gracefully on a Secondary that is
+	// part of an already-initiated replset
+	//
+	// https://jira.percona.com/browse/CLOUD-46
+	err = i.prepareReplset(testSecondarySession, &out)
+	assert.Error(t, err)
+	assert.True(t, isError(err, ErrMsgRsInitRequiresAuth))
 }
