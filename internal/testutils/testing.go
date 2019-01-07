@@ -51,8 +51,8 @@ func Enabled() bool {
 	return enableDBTests == "true"
 }
 
-// GetDialInfo returns a *mgo.DialInfo configured for testing
-func GetDialInfo(host, port string) (*mgo.DialInfo, error) {
+// getDialInfo returns a *mgo.DialInfo configured for testing
+func getDialInfo(host, port string) (*mgo.DialInfo, error) {
 	if !Enabled() {
 		return nil, nil
 	}
@@ -79,7 +79,7 @@ func GetDialInfo(host, port string) (*mgo.DialInfo, error) {
 
 // GetSession returns a *mgo.Session configured for testing against a MongoDB Primary
 func GetSession(port string) (*mgo.Session, error) {
-	dialInfo, err := GetDialInfo(MongodbHost, port)
+	dialInfo, err := getDialInfo(MongodbHost, port)
 	if err != nil {
 		return nil, err
 	}
