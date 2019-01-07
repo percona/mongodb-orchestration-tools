@@ -112,7 +112,6 @@ func TestControllerReplsetInitiatorPrepareReplset(t *testing.T) {
 			},
 		},
 	}
-	defer user.RemoveUser(testSession, user.UserAdmin.Username, "admin")
 
 	// test prepareReplset passes when using the Primary connection
 	// on an already-initiated replset
@@ -148,4 +147,6 @@ func TestControllerReplsetInitiatorPrepareReplset(t *testing.T) {
 	} else {
 		assert.True(t, isError(err, ErrMsgNotAuthorizedPrefix))
 	}
+
+	assert.NoError(t, user.RemoveUser(testSession, user.UserAdmin.Username, "admin"))
 }
