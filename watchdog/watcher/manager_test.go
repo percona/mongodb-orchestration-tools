@@ -28,25 +28,34 @@ import (
 
 func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	testutils.DoSkipTest(t)
+
 	pods := pod.NewPods()
+	pods.Set([]string{t.Name()})
 	testManager = NewManager(testConfig, &testStopChan, pods)
 	assert.NotNil(t, testManager)
 
 	apiTask := &mocks.Task{}
 	apiTask.On("Name").Return("test")
+	apiTask.On("IsUpdating").Return(false)
 
 	apiTaskState := &mocks.TaskState{}
 	apiTaskState.On("String").Return("OK")
 	apiTask.On("State").Return(apiTaskState)
 
+	go testManager.Watch(testWatchRs)
+
 	// primary
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
 	mongod := &replset.Mongod{
-		Host: testutils.MongodbHost,
-		Port: port,
-		Task: apiTask,
+		Host:    testutils.MongodbHost,
+		Port:    port,
+		Task:    apiTask,
+		PodName: t.Name(),
 	}
 	assert.NoError(t, testWatchRs.UpdateMember(mongod))
+
+	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
+	assert.False(t, testManager.HasWatcher(rsName))
 
 	// secondary1
 	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary1Port)
@@ -55,11 +64,6 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	// secondary2
 	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary2Port)
 	assert.NoError(t, testWatchRs.UpdateMember(mongod))
-
-	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
-	assert.False(t, testManager.HasWatcher(rsName))
-
-	go testManager.Watch(testWatchRs)
 
 	tries := 0
 	for tries < 20 {
