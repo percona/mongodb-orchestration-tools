@@ -15,6 +15,7 @@
 package replset
 
 import (
+	"bytes"
 	"strconv"
 	"strings"
 	"testing"
@@ -28,11 +29,13 @@ import (
 )
 
 var testMemberRemoved *rsConfig.Member
+var stdoutBuffer bytes.Buffer
 
 func TestWatchdogReplsetNewState(t *testing.T) {
 	testutils.DoSkipTest(t)
 
 	testState = NewState(testutils.MongodbReplsetName)
+	testState.configOut = &stdoutBuffer
 	assert.Equal(t, testState.Replset, testutils.MongodbReplsetName, "replset.NewState() returned State struct with incorrect 'Replset' name")
 	assert.False(t, testState.doUpdate, "replset.NewState() returned State struct with 'doUpdate' set to true")
 }
@@ -83,10 +86,6 @@ func TestWatchdogReplsetStateRemoveConfigMembers(t *testing.T) {
 func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	mockTask := &mocks.Task{}
-	mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(true).Once()
-	mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false).Once()
-
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
@@ -94,14 +93,71 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 		Port:        port,
 		Replset:     testutils.MongodbReplsetName,
 		ServiceName: pkg.DefaultServiceName,
-		PodName:     "mongo",
-		Task:        mockTask,
+		PodName:     t.Name(),
 	}
 	config := testState.GetConfig()
 	memberCount := len(config.Members)
-	testState.AddConfigMembers(testDBSession, testRsConfigManager, []*Mongod{addMongod})
-	assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
 
+	// test add/remove of backup node
+	t.Run("BackupMongod", func(t *testing.T) {
+		mockTask := &mocks.Task{}
+		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(true)
+		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false)
+		addMongod.Task = mockTask
+
+		// add backup node
+		assert.NoError(t, testState.AddConfigMembers(testDBSession, testRsConfigManager, []*Mongod{addMongod}))
+		assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
+
+		// test backup node config after add
+		assert.NoError(t, testState.Fetch(testDBSession, testRsConfigManager))
+		config = testState.GetConfig()
+		addedMember := config.GetMember(addMongod.Name())
+		assert.NotNil(t, addedMember)
+		assert.Truef(t, addedMember.Hidden, "backup node must have Hidden set to true")
+		assert.Falsef(t, addedMember.ArbiterOnly, "backup node must have ArbiterOnly set to false")
+		assert.Equalf(t, addedMember.Votes, 0, "backup node must have zero Votes")
+
+		// remove backup node
+		assert.NoError(t, testState.RemoveConfigMembers(testDBSession, testRsConfigManager, []*rsConfig.Member{{Host: addMongod.Name()}}))
+	})
+
+	// test add/remove of arbiter node
+	t.Run("ArbiterMongod", func(t *testing.T) {
+		mockTask := &mocks.Task{}
+		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false)
+		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(true)
+		addMongod.Task = mockTask
+
+		// add arbiter
+		assert.NoError(t, testState.AddConfigMembers(testDBSession, testRsConfigManager, []*Mongod{addMongod}))
+		assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
+
+		// test arbiter member config after add
+		assert.NoError(t, testState.Fetch(testDBSession, testRsConfigManager))
+		config = testState.GetConfig()
+		addedMember := config.GetMember(addMongod.Name())
+		assert.NotNil(t, addedMember)
+		assert.Truef(t, addedMember.ArbiterOnly, "arbiter node must have ArbiterOnly set to true")
+		assert.Equalf(t, addedMember.Priority, 0, "arbiter node must have zero Votes")
+
+		// remove arbiter
+		assert.NoError(t, testState.RemoveConfigMembers(testDBSession, testRsConfigManager, []*rsConfig.Member{{Host: addMongod.Name()}}))
+	})
+
+	// test add/remove of plain-mongod node
+	t.Run("Mongod", func(t *testing.T) {
+		mockTask := &mocks.Task{}
+		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false)
+		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false)
+		addMongod.Task = mockTask
+
+		assert.NoError(t, testState.AddConfigMembers(testDBSession, testRsConfigManager, []*Mongod{addMongod}))
+		assert.Falsef(t, testState.doUpdate, "testState.doUpdate is true after testState.AddConfigMembers()")
+	})
+
+	// test config after adding plain-mongod
+	assert.NoError(t, testState.Fetch(testDBSession, testRsConfigManager))
 	config = testState.GetConfig()
 	assert.NotNil(t, config, ".GetConfig() should not return nil")
 	assert.Len(t, config.Members, memberCount+1, "config.Members count did not increase")
