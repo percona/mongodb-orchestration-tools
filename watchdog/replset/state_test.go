@@ -99,7 +99,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	memberCount := len(config.Members)
 
 	// test add/remove of backup node
-	t.Run("BackupMongod", func(t *testing.T) {
+	t.Run("backup", func(t *testing.T) {
 		mockTask := &mocks.Task{}
 		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(true)
 		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false)
@@ -123,7 +123,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	})
 
 	// test add/remove of arbiter node
-	t.Run("ArbiterMongod", func(t *testing.T) {
+	t.Run("arbiter", func(t *testing.T) {
 		mockTask := &mocks.Task{}
 		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false)
 		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(true)
@@ -146,7 +146,7 @@ func TestWatchdogReplsetStateAddConfigMembers(t *testing.T) {
 	})
 
 	// test add/remove of plain-mongod node
-	t.Run("Mongod", func(t *testing.T) {
+	t.Run("mongod", func(t *testing.T) {
 		mockTask := &mocks.Task{}
 		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false)
 		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false)
