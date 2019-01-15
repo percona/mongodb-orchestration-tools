@@ -91,6 +91,37 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
 
+	// test several PSMDB CRs (https://jira.percona.com/browse/CLOUD-76)
+	p2 := NewPods(DefaultNamespace)
+	p2.Update(&CustomResourceState{
+		Name: "test-cluster1",
+		pods: []corev1.Pod{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: t.Name() + "-1",
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+			},
+		},
+	})
+	p2.Update(&CustomResourceState{
+		Name: "test-cluster2",
+		pods: []corev1.Pod{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: t.Name() + "-2",
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+			},
+		},
+	})
+	pods, _ = p2.Pods()
+	assert.Len(t, pods, 2, "expected 2 pods (1 pod per updated CR)")
+
 	// test .GetTasks()
 	tasks, err := p.GetTasks(t.Name())
 	assert.NoError(t, err)
@@ -99,7 +130,7 @@ func TestInternalPodK8SPods(t *testing.T) {
 	// test Succeeded pod is not listed by .Pods()
 	corev1Pods[1].Status.Phase = corev1.PodSucceeded
 	p.Update(&CustomResourceState{
-		Name: "test-clusteR",
+		Name: "test-cluster",
 		pods: corev1Pods,
 	})
 	pods, _ = p.Pods()
