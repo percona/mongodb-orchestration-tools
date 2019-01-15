@@ -102,6 +102,13 @@ func (p *Pods) URL() string {
 	return "tcp://" + host + ":" + port
 }
 
+// Delete deletes the state of a single PSMDB CR
+func (p *Pods) Delete(crState *CustomResourceState) {
+	p.Lock()
+	defer p.Unlock()
+	delete(p.crs, crState.Name)
+}
+
 // Update updates the state of a single PSMDB CR
 func (p *Pods) Update(crState *CustomResourceState) {
 	p.Lock()

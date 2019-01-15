@@ -157,6 +157,13 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.NotNil(t, addr)
 	assert.Equal(t, "TestInternalPodK8SPods-1.test-cluster1-rs.psmdb.svc.cluster.local:27017", addr.String())
 
+	// test .Delete() of CR
+	p2.Delete(&CustomResourceState{
+		Name: "test-cluster2",
+	})
+	pods, _ = p2.Pods()
+	assert.Len(t, pods, 1, "expected 1 pods after delete of 2nd CR")
+
 	// test Succeeded pod is not listed by .Pods()
 	corev1Pods[1].Status.Phase = corev1.PodSucceeded
 	p.Update(&CustomResourceState{
