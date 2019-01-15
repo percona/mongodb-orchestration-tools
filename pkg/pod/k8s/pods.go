@@ -138,7 +138,7 @@ func (p *Pods) GetTasks(podName string) ([]pod.Task, error) {
 			if pod.Name != podName {
 				continue
 			}
-			tasks = append(tasks, NewTask(p.namespace, cr, pod)) //, cr.getStatefulSetFromPod(pod), cr.getServiceFromPod(pod), cr.Name, p.namespace),
+			tasks = append(tasks, NewTask(p.namespace, cr, pod))
 		}
 	}
 	return tasks, nil
