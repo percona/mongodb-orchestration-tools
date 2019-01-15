@@ -32,13 +32,6 @@ func TestPkgPodK8STask(t *testing.T) {
 		DefaultNamespace,
 		&CustomResourceState{
 			Name: pkg.DefaultServiceName,
-			statefulsets: []appsv1.StatefulSet{
-				{
-					Spec: appsv1.StatefulSetSpec{
-						ServiceName: pkg.DefaultServiceName + "-" + pkg.EnvMongoDBReplset,
-					},
-				},
-			},
 		},
 		&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
