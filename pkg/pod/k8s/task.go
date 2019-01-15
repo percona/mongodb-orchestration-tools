@@ -50,15 +50,15 @@ func (ts TaskState) String() string {
 }
 
 type Task struct {
-	pod       *corev1.Pod
 	namespace string
+	pod       *corev1.Pod
 	cr        *CustomResourceState
 }
 
 func NewTask(namespace string, cr *CustomResourceState, pod *corev1.Pod) *Task {
 	return &Task{
-		pod:       pod,
 		namespace: namespace,
+		pod:       pod,
 		cr:        cr,
 	}
 }
