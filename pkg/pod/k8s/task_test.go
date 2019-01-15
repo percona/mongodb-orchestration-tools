@@ -28,12 +28,18 @@ import (
 func TestPkgPodK8STask(t *testing.T) {
 	assert.Implements(t, (*pod.Task)(nil), &Task{})
 
-	statefulset := &appsv1.StatefulSet{
-		Spec: appsv1.StatefulSetSpec{
-			ServiceName: "testRs",
-		},
-	}
 	task := NewTask(
+		DefaultNamespace,
+		&CustomResourceState{
+			Name: pkg.DefaultServiceName,
+			statefulsets: []appsv1.StatefulSet{
+				{
+					Spec: appsv1.StatefulSetSpec{
+						ServiceName: pkg.DefaultServiceName + "-" + pkg.EnvMongoDBReplset,
+					},
+				},
+			},
+		},
 		&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: t.Name(),
@@ -48,10 +54,6 @@ func TestPkgPodK8STask(t *testing.T) {
 				},
 			},
 		},
-		statefulset,
-		nil,
-		pkg.DefaultServiceName,
-		DefaultNamespace,
 	)
 
 	assert.NotNil(t, task)
@@ -121,29 +123,50 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.Equal(t, 27018, addr.Port)
 
 	// test .IsUpdating() is false
-	statefulset.Status = appsv1.StatefulSetStatus{
-		CurrentRevision: "abc123",
-		UpdateRevision:  "abc123",
-		ReadyReplicas:   int32(3),
-		CurrentReplicas: int32(3),
+	task.cr.statefulsets = []appsv1.StatefulSet{
+		{
+			Spec: appsv1.StatefulSetSpec{
+				ServiceName: pkg.DefaultServiceName + "-rs",
+			},
+			Status: appsv1.StatefulSetStatus{
+				CurrentRevision: "abc123",
+				UpdateRevision:  "abc123",
+				ReadyReplicas:   int32(3),
+				CurrentReplicas: int32(3),
+			},
+		},
 	}
 	assert.False(t, task.IsUpdating())
 
 	// test .IsUpdating() is true if revisions are different
-	statefulset.Status = appsv1.StatefulSetStatus{
-		CurrentRevision: "abc123",
-		UpdateRevision:  "abc123456",
-		ReadyReplicas:   int32(3),
-		CurrentReplicas: int32(3),
+	task.cr.statefulsets = []appsv1.StatefulSet{
+		{
+			Spec: appsv1.StatefulSetSpec{
+				ServiceName: pkg.DefaultServiceName + "-rs",
+			},
+			Status: appsv1.StatefulSetStatus{
+				CurrentRevision: "abc123",
+				UpdateRevision:  "abc123456",
+				ReadyReplicas:   int32(3),
+				CurrentReplicas: int32(3),
+			},
+		},
 	}
 	assert.True(t, task.IsUpdating())
 
 	// test .IsUpdating() is true if replica #s are different
-	statefulset.Status = appsv1.StatefulSetStatus{
-		CurrentRevision: "abc123",
-		UpdateRevision:  "abc123",
-		ReadyReplicas:   int32(2),
-		CurrentReplicas: int32(3),
+	task.cr.statefulsets = []appsv1.StatefulSet{
+		{
+			Spec: appsv1.StatefulSetSpec{
+				ServiceName: pkg.DefaultServiceName + "-rs",
+			},
+			Status: appsv1.StatefulSetStatus{
+				CurrentRevision: "abc123",
+				UpdateRevision:  "abc123",
+				ReadyReplicas:   int32(2),
+				CurrentReplicas: int32(3),
+			},
+		},
 	}
 	assert.True(t, task.IsUpdating())
 }

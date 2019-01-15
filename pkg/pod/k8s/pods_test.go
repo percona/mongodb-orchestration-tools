@@ -29,14 +29,14 @@ import (
 func TestInternalPodK8SPods(t *testing.T) {
 	assert.Implements(t, (*pod.Source)(nil), &Pods{})
 
-	p := NewPods(pkg.DefaultServiceName, DefaultNamespace)
+	p := NewPods(DefaultNamespace)
 	assert.NotNil(t, p)
 
 	pods, err := p.Pods()
 	assert.NoError(t, err)
 	assert.Len(t, pods, 0)
 
-	corev1Pod := []corev1.Pod{
+	corev1Pods := []corev1.Pod{
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "not-" + t.Name(),
@@ -81,7 +81,12 @@ func TestInternalPodK8SPods(t *testing.T) {
 			},
 		},
 	}
-	p.Update(corev1Pod, statefulsets, nil)
+
+	p.Update(&CustomResourceState{
+		Name:         "test-cluster",
+		pods:         corev1Pods,
+		statefulsets: statefulsets,
+	})
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
@@ -92,8 +97,11 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.Len(t, tasks, 1)
 
 	// test Succeeded pod is not listed by .Pods()
-	corev1Pod[1].Status.Phase = corev1.PodSucceeded
-	p.Update(corev1Pod, nil, nil)
+	corev1Pods[1].Status.Phase = corev1.PodSucceeded
+	p.Update(&CustomResourceState{
+		Name: "test-clusteR",
+		pods: corev1Pods,
+	})
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 0)
 
