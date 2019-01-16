@@ -29,14 +29,14 @@ import (
 func TestInternalPodK8SPods(t *testing.T) {
 	assert.Implements(t, (*pod.Source)(nil), &Pods{})
 
-	p := NewPods(pkg.DefaultServiceName, DefaultNamespace)
+	p := NewPods(DefaultNamespace)
 	assert.NotNil(t, p)
 
 	pods, err := p.Pods()
 	assert.NoError(t, err)
 	assert.Len(t, pods, 0)
 
-	corev1Pod := []corev1.Pod{
+	corev1Pods := []corev1.Pod{
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "not-" + t.Name(),
@@ -64,7 +64,7 @@ func TestInternalPodK8SPods(t *testing.T) {
 						},
 						Ports: []corev1.ContainerPort{
 							{
-								Name:     "mongodb",
+								Name:     mongodbPortName,
 								HostIP:   "1.2.3.4",
 								HostPort: int32(27017),
 							},
@@ -81,7 +81,12 @@ func TestInternalPodK8SPods(t *testing.T) {
 			},
 		},
 	}
-	p.Update(corev1Pod, statefulsets, nil)
+
+	p.Update(&CustomResourceState{
+		Name:         "test-cluster",
+		pods:         corev1Pods,
+		statefulsets: statefulsets,
+	})
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
 	assert.Equal(t, t.Name(), pods[0])
@@ -91,9 +96,80 @@ func TestInternalPodK8SPods(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, tasks, 1)
 
+	// test several PSMDB CRs
+	// https://jira.percona.com/browse/CLOUD-76
+	p2 := NewPods(DefaultNamespace)
+	p2.Update(&CustomResourceState{
+		Name: "test-cluster1",
+		pods: []corev1.Pod{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: t.Name() + "-1",
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Env: []corev1.EnvVar{
+								{
+									Name:  pkg.EnvMongoDBReplset,
+									Value: "rs",
+								},
+							},
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          mongodbPortName,
+									ContainerPort: int32(27017),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+	p2.Update(&CustomResourceState{
+		Name: "test-cluster2",
+		pods: []corev1.Pod{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: t.Name() + "-2",
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+			},
+		},
+	})
+	pods, _ = p2.Pods()
+	assert.Len(t, pods, 2, "expected 2 pods (1 pod per updated CR)")
+	tasks, err = p2.GetTasks(t.Name() + "-1")
+	assert.NoError(t, err)
+	assert.Len(t, tasks, 1)
+	assert.Equal(t, t.Name()+"-1", tasks[0].Name())
+
+	// test .GetMongoAddr() is correct for 1 multi-CR task
+	// https://jira.percona.com/browse/CLOUD-76
+	addr, err := tasks[0].GetMongoAddr()
+	assert.NoError(t, err)
+	assert.NotNil(t, addr)
+	assert.Equal(t, "TestInternalPodK8SPods-1.test-cluster1-rs.psmdb.svc.cluster.local:27017", addr.String())
+
+	// test .Delete() of CR
+	p2.Delete(&CustomResourceState{
+		Name: "test-cluster2",
+	})
+	pods, _ = p2.Pods()
+	assert.Len(t, pods, 1, "expected 1 pods after delete of 2nd CR")
+
 	// test Succeeded pod is not listed by .Pods()
-	corev1Pod[1].Status.Phase = corev1.PodSucceeded
-	p.Update(corev1Pod, nil, nil)
+	corev1Pods[1].Status.Phase = corev1.PodSucceeded
+	p.Update(&CustomResourceState{
+		Name: "test-cluster",
+		pods: corev1Pods,
+	})
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 0)
 
