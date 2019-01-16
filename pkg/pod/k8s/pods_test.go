@@ -84,8 +84,8 @@ func TestInternalPodK8SPods(t *testing.T) {
 
 	p.Update(&CustomResourceState{
 		Name:         "test-cluster",
-		pods:         corev1Pods,
-		statefulsets: statefulsets,
+		Pods:         corev1Pods,
+		Statefulsets: statefulsets,
 	})
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 1)
@@ -101,7 +101,7 @@ func TestInternalPodK8SPods(t *testing.T) {
 	p2 := NewPods(DefaultNamespace)
 	p2.Update(&CustomResourceState{
 		Name: "test-cluster1",
-		pods: []corev1.Pod{
+		Pods: []corev1.Pod{
 			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: t.Name() + "-1",
@@ -132,7 +132,7 @@ func TestInternalPodK8SPods(t *testing.T) {
 	})
 	p2.Update(&CustomResourceState{
 		Name: "test-cluster2",
-		pods: []corev1.Pod{
+		Pods: []corev1.Pod{
 			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: t.Name() + "-2",
@@ -168,7 +168,7 @@ func TestInternalPodK8SPods(t *testing.T) {
 	corev1Pods[1].Status.Phase = corev1.PodSucceeded
 	p.Update(&CustomResourceState{
 		Name: "test-cluster",
-		pods: corev1Pods,
+		Pods: corev1Pods,
 	})
 	pods, _ = p.Pods()
 	assert.Len(t, pods, 0)

@@ -116,7 +116,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.Equal(t, 27018, addr.Port)
 
 	// test .IsUpdating() is false
-	task.cr.statefulsets = []appsv1.StatefulSet{
+	task.cr.Statefulsets = []appsv1.StatefulSet{
 		{
 			Spec: appsv1.StatefulSetSpec{
 				ServiceName: pkg.DefaultServiceName + "-rs",
@@ -132,7 +132,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.False(t, task.IsUpdating())
 
 	// test .IsUpdating() is true if revisions are different
-	task.cr.statefulsets = []appsv1.StatefulSet{
+	task.cr.Statefulsets = []appsv1.StatefulSet{
 		{
 			Spec: appsv1.StatefulSetSpec{
 				ServiceName: pkg.DefaultServiceName + "-rs",
@@ -148,7 +148,7 @@ func TestPkgPodK8STask(t *testing.T) {
 	assert.True(t, task.IsUpdating())
 
 	// test .IsUpdating() is true if replica #s are different
-	task.cr.statefulsets = []appsv1.StatefulSet{
+	task.cr.Statefulsets = []appsv1.StatefulSet{
 		{
 			Spec: appsv1.StatefulSetSpec{
 				ServiceName: pkg.DefaultServiceName + "-rs",
