@@ -184,12 +184,16 @@ func (rw *Watcher) getMissingReplsetMembers() []*replset.Mongod {
 }
 
 func (rw *Watcher) getScaledDownMembers() []*rsConfig.Member {
+	if rw.activePods == nil {
+		return nil
+	}
+
 	scaledDown := make([]*rsConfig.Member, 0)
 	status := rw.state.GetStatus()
 	config := rw.state.GetConfig()
 	for _, member := range status.GetMembersByState(rsStatus.MemberStateDown, 0) {
 		rsMember := rw.replset.GetMember(member.Name)
-		if !rw.activePods.Has(rsMember.PodName) {
+		if rsMember != nil && !rw.activePods.Has(rsMember.PodName) {
 			scaledDown = append(scaledDown, config.GetMember(member.Name))
 		}
 	}
