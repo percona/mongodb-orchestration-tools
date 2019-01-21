@@ -31,16 +31,18 @@ const (
 
 type Replset struct {
 	sync.Mutex
-	Name    string
-	config  *config.Config
-	members map[string]*Mongod
+	Name        string
+	ServiceName string
+	config      *config.Config
+	members     map[string]*Mongod
 }
 
-func New(config *config.Config, name string) *Replset {
+func New(config *config.Config, serviceName, rsName string) *Replset {
 	return &Replset{
-		Name:    name,
-		config:  config,
-		members: make(map[string]*Mongod),
+		Name:        rsName,
+		ServiceName: serviceName,
+		config:      config,
+		members:     make(map[string]*Mongod),
 	}
 }
 
