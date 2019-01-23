@@ -42,12 +42,12 @@ type Watcher struct {
 	dbConfig      *db.Config
 	replset       *replset.Replset
 	state         *replset.State
-	quit          *chan bool
+	quit          chan bool
 	running       bool
 	activePods    *pod.Pods
 }
 
-func New(rs *replset.Replset, config *config.Config, quit *chan bool, activePods *pod.Pods) *Watcher {
+func New(rs *replset.Replset, config *config.Config, quit chan bool, activePods *pod.Pods) *Watcher {
 	return &Watcher{
 		config:     config,
 		replset:    rs,
@@ -102,7 +102,7 @@ func (rw *Watcher) connectReplsetSession() error {
 			}
 		case <-time.After(connectReplsetTimeout):
 			return errors.New("timeout getting replset connection")
-		case <-*rw.quit:
+		case <-rw.quit:
 			return errors.New("received quit")
 		}
 		break
@@ -366,7 +366,7 @@ func (rw *Watcher) Run() {
 			}
 
 			rw.logReplsetState()
-		case <-*rw.quit:
+		case <-rw.quit:
 			log.WithFields(log.Fields{
 				"replset": rw.replset.Name,
 			}).Info("Stopping watcher for replset")
