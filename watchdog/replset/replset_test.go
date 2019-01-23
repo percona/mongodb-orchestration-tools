@@ -43,11 +43,10 @@ func TestWatchdogReplsetUpdateMember(t *testing.T) {
 	// test that an error is returned if the MaxMembers is reached
 	replset := New(testWatchdogConfig, testReplsetName)
 	mongod := &Mongod{
-		Host:        t.Name(),
-		Port:        27017,
-		Replset:     testReplsetName,
-		PodName:     "mongod",
-		ServiceName: "test",
+		Host:    t.Name(),
+		Port:    27017,
+		Replset: testReplsetName,
+		PodName: "mongod",
 	}
 	for len(replset.members) < MaxMembers {
 		assert.NoError(t, replset.UpdateMember(mongod))

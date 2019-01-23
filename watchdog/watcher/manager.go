@@ -60,26 +60,28 @@ func (wm *WatcherManager) HasWatcher(serviceName, rsName string) bool {
 }
 
 func (wm *WatcherManager) Watch(serviceName string, rs *replset.Replset) {
-	if !wm.HasWatcher(serviceName, rs.Name) {
-		log.WithFields(log.Fields{
-			"replset": rs.Name,
-			"service": serviceName,
-		}).Info("Starting replset watcher")
-
-		wm.Lock()
-
-		quitChan := make(chan bool)
-		w := &watcherState{
-			rsName:      rs.Name,
-			serviceName: serviceName,
-			quit:        quitChan,
-			watcher:     New(rs, wm.config, &quitChan, wm.activePods),
-		}
-		go w.watcher.Run()
-		wm.watchers = append(wm.watchers, w)
-
-		wm.Unlock()
+	if wm.HasWatcher(serviceName, rs.Name) {
+		return
 	}
+
+	log.WithFields(log.Fields{
+		"replset": rs.Name,
+		"service": serviceName,
+	}).Info("Starting replset watcher")
+
+	wm.Lock()
+	defer wm.Unlock()
+
+	quitChan := make(chan bool)
+	w := &watcherState{
+		rsName:      rs.Name,
+		serviceName: serviceName,
+		quit:        quitChan,
+		watcher:     New(rs, wm.config, &quitChan, wm.activePods),
+	}
+	go w.watcher.Run()
+
+	wm.watchers = append(wm.watchers, w)
 }
 
 func (wm *WatcherManager) getState(serviceName, rsName string) *watcherState {

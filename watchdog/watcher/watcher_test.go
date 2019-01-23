@@ -25,7 +25,7 @@ import (
 )
 
 func TestGetScaledDownMembers(t *testing.T) {
-	rs := replset.New(nil, testWatchRsService, "test")
+	rs := replset.New(nil, "test")
 	rs.UpdateMember(&replset.Mongod{
 		Host:    "scaled-down",
 		Port:    27017,

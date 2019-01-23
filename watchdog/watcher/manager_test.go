@@ -26,6 +26,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testWatchRsService = "testService"
+
 func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	testutils.DoSkipTest(t)
 
@@ -42,7 +44,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	apiTaskState.On("String").Return("OK")
 	apiTask.On("State").Return(apiTaskState)
 
-	go testManager.Watch(testWatchRs)
+	go testManager.Watch(testWatchRsService, testWatchRs)
 
 	// primary
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
@@ -91,7 +93,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 		assert.FailNow(t, "failed to run fetch in watcher after 20 tries")
 	}
 
-	assert.Contains(t, testManager.watchers, rsName)
+	assert.True(t, testManager.HasWatcher(testWatchRsService, rsName))
 	testManager.Close()
 
 	tries = 0
