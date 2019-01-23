@@ -36,7 +36,6 @@ var (
 	}
 	testStopChan = make(chan bool)
 	testWatchRs  = replset.New(testConfig, testutils.MongodbReplsetName)
-	rsName       = testutils.MongodbReplsetName
 )
 
 func TestMain(m *testing.M) {

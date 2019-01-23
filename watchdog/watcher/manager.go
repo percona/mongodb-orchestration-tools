@@ -105,19 +105,27 @@ func (wm *WatcherManager) Get(serviceName, rsName string) *Watcher {
 	return state.watcher
 }
 
+func (wm *WatcherManager) stopWatcher(serviceName, rsName string) {
+	for i, state := range wm.watchers {
+		if state.serviceName != serviceName || state.rsName != rsName {
+			continue
+		}
+		close(state.quit)
+		wm.watchers = append(wm.watchers[:i], wm.watchers[i+1:]...)
+	}
+}
+
 func (wm *WatcherManager) Stop(serviceName, rsName string) {
 	wm.Lock()
 	defer wm.Unlock()
-
-	state := wm.getState(serviceName, rsName)
-	if state == nil {
-		return
-	}
-	close(state.quit)
+	wm.stopWatcher(serviceName, rsName)
 }
 
 func (wm *WatcherManager) Close() {
+	wm.Lock()
+	defer wm.Unlock()
+
 	for _, state := range wm.watchers {
-		wm.Stop(state.serviceName, state.rsName)
+		wm.stopWatcher(state.serviceName, state.rsName)
 	}
 }
