@@ -88,7 +88,7 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 			continue
 		}
 
-		mongod, err := replset.NewMongod(task, w.config.ServiceName, podName)
+		mongod, err := replset.NewMongod(task, podName)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"task":  task.Name(),

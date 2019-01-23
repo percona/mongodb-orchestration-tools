@@ -54,8 +54,8 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	}
 	assert.NoError(t, testWatchRs.UpdateMember(mongod))
 
-	assert.Nil(t, testManager.Get("does-not-exist"), ".Get() returned data for non-existing watcher")
-	assert.False(t, testManager.HasWatcher(rsName))
+	assert.Nil(t, testManager.Get(testWatchRsService, "does-not-exist"), ".Get() returned data for non-existing watcher")
+	assert.False(t, testManager.HasWatcher(testWatchRsService, rsName))
 
 	// secondary1
 	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary1Port)
@@ -67,7 +67,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 
 	tries := 0
 	for tries < 20 {
-		if testManager.HasWatcher(rsName) && testManager.Get(rsName).IsRunning() {
+		if testManager.HasWatcher(testWatchRsService, rsName) && testManager.Get(testWatchRsService, rsName).IsRunning() {
 			break
 		}
 		time.Sleep(time.Second)
@@ -77,7 +77,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 		assert.FailNow(t, "failed to start watcher after 20 tries")
 	}
 
-	state := testManager.Get(rsName).state
+	state := testManager.Get(testWatchRsService, rsName).state
 	tries = 0
 	for tries < 100 {
 		status := state.GetStatus()
@@ -96,7 +96,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 
 	tries = 0
 	for tries < 20 {
-		if !testManager.Get(rsName).IsRunning() {
+		if !testManager.Get(testWatchRsService, rsName).IsRunning() {
 			return
 		}
 		time.Sleep(time.Second)
