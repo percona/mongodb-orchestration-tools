@@ -92,6 +92,8 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 		assert.FailNow(t, "failed to run fetch in watcher after 20 tries")
 	}
 	assert.True(t, testManager.HasWatcher(testWatchRsService, testutils.MongodbReplsetName))
+	rs := testManager.Get(testWatchRsService, testutils.MongodbReplsetName).replset
+	assert.Len(t, rs.GetMembers(), 3)
 
 	// Test 2 x clusters with one watchdog, both with the same replset name
 	// https://jira.percona.com/browse/CLOUD-97
@@ -125,6 +127,8 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 		assert.FailNow(t, "failed to start watcher after 20 tries")
 	}
 	assert.True(t, testManager.HasWatcher(testWatchRsService+"2", testutils.MongodbReplsetName))
+	rs = testManager.Get(testWatchRsService+"2", testutils.MongodbReplsetName).replset
+	assert.Len(t, rs.GetMembers(), 1)
 
 	// test closing manager
 	testManager.Close()
