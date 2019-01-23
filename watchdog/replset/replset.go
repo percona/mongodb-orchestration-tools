@@ -36,9 +36,9 @@ type Replset struct {
 	members map[string]*Mongod
 }
 
-func New(config *config.Config, rsName string) *Replset {
+func New(config *config.Config, name string) *Replset {
 	return &Replset{
-		Name:    rsName,
+		Name:    name,
 		config:  config,
 		members: make(map[string]*Mongod),
 	}
