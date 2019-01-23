@@ -98,15 +98,16 @@ func (w *Watchdog) podMongodFetcher(podName string, wg *sync.WaitGroup) {
 		}
 
 		// ensure the replset has a watcher started
-		if !w.watcherManager.HasWatcher(mongod.ServiceName, mongod.Replset) {
-			rs := replset.New(w.config, mongod.ServiceName, mongod.Replset)
-			w.watcherManager.Watch(rs)
+		serviceName := mongod.Task.Service()
+		if !w.watcherManager.HasWatcher(serviceName, mongod.Replset) {
+			rs := replset.New(w.config, mongod.Replset)
+			w.watcherManager.Watch(serviceName, rs)
 		}
 
 		// send the update to the watcher for the given replset
-		watcher := w.watcherManager.Get(mongod.ServiceName, mongod.Replset)
+		watcher := w.watcherManager.Get(serviceName, mongod.Replset)
 		if watcher == nil {
-			log.Errorf("Cannot find replset watcher for service %s, replset %s", mongod.ServiceName, mongod.Replset)
+			log.Errorf("Cannot find replset watcher for service %s, replset %s", serviceName, mongod.Replset)
 			continue
 		}
 		watcher.UpdateMongod(mongod)
@@ -177,7 +178,6 @@ func (w *Watchdog) Run() {
 
 	log.WithFields(log.Fields{
 		"version": tools.Version,
-		"service": w.config.ServiceName,
 		"go":      runtime.Version(),
 		"source":  w.podSource.Name(),
 	}).Info("Starting watchdog")

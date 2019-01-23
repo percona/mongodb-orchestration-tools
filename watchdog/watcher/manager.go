@@ -28,7 +28,7 @@ type Manager interface {
 	Get(serviceName, rsName string) *Watcher
 	HasWatcher(serviceName, rsName string) bool
 	Stop(serviceName, rsName string)
-	Watch(rs *replset.Replset)
+	Watch(serviceName string, rs *replset.Replset)
 }
 
 type watcherState struct {
@@ -59,11 +59,11 @@ func (wm *WatcherManager) HasWatcher(serviceName, rsName string) bool {
 	return wm.Get(serviceName, rsName) != nil
 }
 
-func (wm *WatcherManager) Watch(rs *replset.Replset) {
-	if !wm.HasWatcher(rs.ServiceName, rs.Name) {
+func (wm *WatcherManager) Watch(serviceName string, rs *replset.Replset) {
+	if !wm.HasWatcher(serviceName, rs.Name) {
 		log.WithFields(log.Fields{
 			"replset": rs.Name,
-			"service": rs.ServiceName,
+			"service": serviceName,
 		}).Info("Starting replset watcher")
 
 		wm.Lock()
@@ -71,7 +71,7 @@ func (wm *WatcherManager) Watch(rs *replset.Replset) {
 		quitChan := make(chan bool)
 		w := &watcherState{
 			rsName:      rs.Name,
-			serviceName: rs.ServiceName,
+			serviceName: serviceName,
 			quit:        quitChan,
 			watcher:     New(rs, wm.config, &quitChan, wm.activePods),
 		}
