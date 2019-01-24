@@ -31,13 +31,6 @@ type Manager interface {
 	Watch(serviceName string, rs *replset.Replset)
 }
 
-type watcherState struct {
-	rsName      string
-	serviceName string
-	watcher     *Watcher
-	quit        chan bool
-}
-
 type WatcherManager struct {
 	sync.Mutex
 	config     *config.Config
