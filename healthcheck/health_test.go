@@ -71,7 +71,7 @@ func TestHealthcheckHealthCheck(t *testing.T) {
 
 	state, _, err = HealthCheck(testDBSession, []status.MemberState{status.MemberStateRemoved})
 	assert.EqualError(t, err,
-		"Member has unhealthy replication state: "+status.MemberStatePrimary.String(),
+		"member has unhealthy replication state: "+status.MemberStatePrimary.String(),
 		"healthcheck.HealthCheck() returned an expected error",
 	)
 	assert.NotEqual(t, state, StateOk, "healthcheck.HealthCheck() returned an unexpected ok state")
