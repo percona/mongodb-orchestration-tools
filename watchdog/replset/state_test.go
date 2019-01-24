@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
-	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod/mocks"
 	"github.com/stretchr/testify/assert"
@@ -123,11 +122,10 @@ func TestWatchdogReplsetStateAddRemoveConfigMembers(t *testing.T) {
 	hostPort := strings.SplitN(testMemberRemoved.Host, ":", 2)
 	port, _ := strconv.Atoi(hostPort[1])
 	addMongod := &Mongod{
-		Host:        hostPort[0],
-		Port:        port,
-		Replset:     testutils.MongodbReplsetName,
-		ServiceName: pkg.DefaultServiceName,
-		PodName:     t.Name(),
+		Host:    hostPort[0],
+		Port:    port,
+		Replset: testutils.MongodbReplsetName,
+		PodName: t.Name(),
 	}
 	config := getRsConfig()
 	memberCount := len(config.Members)
@@ -137,6 +135,7 @@ func TestWatchdogReplsetStateAddRemoveConfigMembers(t *testing.T) {
 		mockTask := &mocks.Task{}
 		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(true)
 		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false)
+		mockTask.On("Service").Return("testService")
 		addMongod.Task = mockTask
 
 		// add backup node
@@ -216,6 +215,7 @@ func TestWatchdogReplsetStateAddRemoveConfigMembers(t *testing.T) {
 		mockTask := &mocks.Task{}
 		mockTask.On("IsTaskType", pod.TaskTypeMongodBackup).Return(false)
 		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false)
+		mockTask.On("Service").Return("testService")
 		addMongod.Task = mockTask
 
 		assert.NoError(t, testState.AddConfigMembers(testDBSession, testRsConfigManager, []*Mongod{addMongod}))
@@ -231,7 +231,7 @@ func TestWatchdogReplsetStateAddRemoveConfigMembers(t *testing.T) {
 	assert.Len(t, config.Members, memberCount+1, "config.Members count did not increase")
 	member := config.GetMember(testMemberRemoved.Host)
 	assert.NotNil(t, member, "config.HasMember() returned no member")
-	assert.True(t, member.Tags.HasMatch(serviceTagName, addMongod.ServiceName), "member has missing replica set tag")
+	assert.True(t, member.Tags.HasMatch(serviceTagName, "testService"), "member has missing replica set tag")
 }
 
 func TestWatchdogReplsetStateGetMaxIDVotingMember(t *testing.T) {

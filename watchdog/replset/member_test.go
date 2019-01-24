@@ -41,7 +41,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
 
 	var err error
-	testMongod, err = NewMongod(podTask, pkg.DefaultServiceName, "mongo-"+testutils.MongodbReplsetName)
+	testMongod, err = NewMongod(podTask, "mongo-"+testutils.MongodbReplsetName)
 	assert.NoError(t, err, "replset.NewMongod() returned unexpected error")
 	assert.NotNil(t, testMongod, "replset.NewMongod() should not return a nil Mongod")
 }

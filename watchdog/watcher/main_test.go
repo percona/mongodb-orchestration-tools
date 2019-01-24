@@ -34,9 +34,7 @@ var (
 		ReplsetPoll: 500 * time.Millisecond,
 		SSL:         &db.SSLConfig{},
 	}
-	testStopChan = make(chan bool)
-	testWatchRs  = replset.New(testConfig, testutils.MongodbReplsetName)
-	rsName       = testutils.MongodbReplsetName
+	testWatchRs = replset.New(testConfig, testutils.MongodbReplsetName)
 )
 
 func TestMain(m *testing.M) {

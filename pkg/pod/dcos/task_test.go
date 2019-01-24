@@ -15,6 +15,7 @@
 package dcos
 
 import (
+	"os"
 	"testing"
 
 	"github.com/percona/mongodb-orchestration-tools/pkg"
@@ -27,7 +28,7 @@ func TestPkgPodDCOSTask(t *testing.T) {
 		Info: &TaskInfo{
 			Name: t.Name(),
 		},
-	}, "test", "testPod")
+	}, "testPod")
 	assert.Implements(t, (*pod.Task)(nil), task)
 	assert.Equal(t, t.Name(), task.Name())
 
@@ -41,7 +42,7 @@ func TestPkgPodDCOSTaskState(t *testing.T) {
 		Status: &TaskStatus{
 			State: &TaskStateRunning,
 		},
-	}, "test", "testPod")
+	}, "testPod")
 	assert.NotNil(t, task.State())
 	assert.Equal(t, string(TaskStateRunning), task.State().String())
 	assert.True(t, task.IsRunning())
@@ -59,7 +60,7 @@ func TestPkgPodDCOSTaskIsTaskType(t *testing.T) {
 				Value: "mongodb-executor-linux",
 			},
 		},
-	}, "test", "testPod")
+	}, "testPod")
 	assert.False(t, task.IsTaskType(pod.TaskTypeMongod))
 
 	task.data.Info.Name = "mongodb-rs-mongod"
@@ -67,6 +68,9 @@ func TestPkgPodDCOSTaskIsTaskType(t *testing.T) {
 }
 
 func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
+	os.Setenv(pkg.EnvServiceName, "testService")
+	defer os.Unsetenv(pkg.EnvServiceName)
+
 	task := NewTask(&TaskData{
 		Info: &TaskInfo{
 			Name: t.Name(),
@@ -76,7 +80,7 @@ func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
 				},
 			},
 		},
-	}, "test", "testPod")
+	}, "testPod")
 	_, err := task.GetMongoAddr()
 	assert.Error(t, err)
 
@@ -86,7 +90,7 @@ func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
-	assert.Equal(t, t.Name()+".test."+AutoIPDNSSuffix, addr.Host)
+	assert.Equal(t, t.Name()+".testService."+AutoIPDNSSuffix, addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 }
 
@@ -104,7 +108,7 @@ func TestPkgPodDCOSTaskGetReplsetName(t *testing.T) {
 				},
 			},
 		},
-	}, "test", "testPod")
+	}, "testPod")
 	rsName, err := task.GetMongoReplsetName()
 	assert.NoError(t, err)
 	assert.Equal(t, "rs", rsName)

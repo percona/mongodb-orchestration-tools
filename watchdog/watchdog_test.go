@@ -35,7 +35,6 @@ var (
 	testWatchdog *Watchdog
 	testQuitChan = make(chan bool)
 	testConfig   = &config.Config{
-		ServiceName: "test",
 		Username:    testutils.MongodbAdminUser,
 		Password:    testutils.MongodbAdminPassword,
 		APIPoll:     time.Millisecond * 75,
@@ -59,7 +58,7 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 func TestWatchdogRun(t *testing.T) {
 	testPodSource := &mocks.Source{}
 	wMetrics := metrics.NewCollector()
-	testWatchdog := New(testConfig, testPodSource, wMetrics, &testQuitChan)
+	testWatchdog := New(testConfig, testPodSource, wMetrics, testQuitChan)
 	assert.NotNil(t, testWatchdog, ".New() returned nil")
 
 	testPodSource.On("Name").Return("test")
@@ -81,6 +80,7 @@ func TestWatchdogRun(t *testing.T) {
 		mockTask.On("IsTaskType", pod.TaskTypeArbiter).Return(false).Once()
 		mockTask.On("IsTaskType", pod.TaskTypeMongod).Return(true)
 		mockTask.On("Name").Return(t.Name() + "-" + strconv.Itoa(i))
+		mockTask.On("Service").Return("testService")
 
 		mockTaskState := &mocks.TaskState{}
 		mockTaskState.On("String").Return("RUNNING")
@@ -105,7 +105,7 @@ func TestWatchdogRun(t *testing.T) {
 	}
 
 	// test watchdog started a watcher and fetched data
-	watcher := testWatchdog.watcherManager.Get(testutils.MongodbReplsetName)
+	watcher := testWatchdog.watcherManager.Get("testService", testutils.MongodbReplsetName)
 	assert.NotNil(t, watcher)
 	tries = 0
 	for tries < 100 {
