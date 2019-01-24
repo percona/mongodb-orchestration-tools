@@ -41,7 +41,8 @@ type watcherState struct {
 type WatcherManager struct {
 	sync.Mutex
 	config     *config.Config
-	watchers   []*watcherState
+	quitChans  map[string]chan bool
+	watchers   map[string]*Watcher
 	activePods *pod.Pods
 }
 
@@ -49,7 +50,8 @@ func NewManager(config *config.Config, activePods *pod.Pods) *WatcherManager {
 	return &WatcherManager{
 		config:     config,
 		activePods: activePods,
-		watchers:   make([]*watcherState, 0),
+		quitChans:  make(map[string]chan bool),
+		watchers:   make(map[string]*Watcher),
 	}
 }
 
@@ -71,59 +73,47 @@ func (wm *WatcherManager) Watch(serviceName string, rs *replset.Replset) {
 	defer wm.Unlock()
 
 	quitChan := make(chan bool)
-	w := &watcherState{
-		rsName:      rs.Name,
-		serviceName: serviceName,
-		quit:        quitChan,
-		watcher:     New(rs, wm.config, quitChan, wm.activePods),
-	}
-	go w.watcher.Run()
+	watcherName := serviceName + "-" + rs.Name
+	wm.quitChans[watcherName] = quitChan
+	wm.watchers[watcherName] = New(rs, wm.config, quitChan, wm.activePods)
 
-	wm.watchers = append(wm.watchers, w)
-}
-
-func (wm *WatcherManager) getState(serviceName, rsName string) *watcherState {
-	for _, state := range wm.watchers {
-		if state.serviceName != serviceName || state.rsName != rsName {
-			continue
-		}
-		return state
-	}
-	return nil
+	go wm.watchers[watcherName].Run()
 }
 
 func (wm *WatcherManager) Get(serviceName, rsName string) *Watcher {
 	wm.Lock()
 	defer wm.Unlock()
 
-	state := wm.getState(serviceName, rsName)
-	if state == nil || state.watcher == nil {
-		return nil
+	for watcherName, watcher := range wm.watchers {
+		if watcherName == serviceName+"-"+rsName {
+			return watcher
+		}
 	}
-	return state.watcher
+
+	return nil
 }
 
-func (wm *WatcherManager) stopWatcher(serviceName, rsName string) {
-	for i, state := range wm.watchers {
-		if state.serviceName != serviceName || state.rsName != rsName {
-			continue
+func (wm *WatcherManager) stopWatcher(name string) {
+	for watcherName := range wm.watchers {
+		if watcherName == name {
+			close(wm.quitChans[watcherName])
+			delete(wm.quitChans, watcherName)
+			delete(wm.watchers, watcherName)
 		}
-		close(state.quit)
-		wm.watchers = append(wm.watchers[:i], wm.watchers[i+1:]...)
 	}
 }
 
 func (wm *WatcherManager) Stop(serviceName, rsName string) {
 	wm.Lock()
 	defer wm.Unlock()
-	wm.stopWatcher(serviceName, rsName)
+	wm.stopWatcher(serviceName + "-" + rsName)
 }
 
 func (wm *WatcherManager) Close() {
 	wm.Lock()
 	defer wm.Unlock()
 
-	for _, state := range wm.watchers {
-		wm.stopWatcher(state.serviceName, state.rsName)
+	for watcherName := range wm.watchers {
+		wm.stopWatcher(watcherName)
 	}
 }
