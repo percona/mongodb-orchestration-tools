@@ -41,12 +41,12 @@ type watcherState struct {
 type WatcherManager struct {
 	sync.Mutex
 	config     *config.Config
-	stop       *chan bool
+	stop       chan bool
 	watchers   []*watcherState
 	activePods *pod.Pods
 }
 
-func NewManager(config *config.Config, stop *chan bool, activePods *pod.Pods) *WatcherManager {
+func NewManager(config *config.Config, stop chan bool, activePods *pod.Pods) *WatcherManager {
 	return &WatcherManager{
 		config:     config,
 		activePods: activePods,
@@ -77,7 +77,7 @@ func (wm *WatcherManager) Watch(serviceName string, rs *replset.Replset) {
 		rsName:      rs.Name,
 		serviceName: serviceName,
 		quit:        quitChan,
-		watcher:     New(rs, wm.config, &quitChan, wm.activePods),
+		watcher:     New(rs, wm.config, quitChan, wm.activePods),
 	}
 	go w.watcher.Run()
 

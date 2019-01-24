@@ -35,12 +35,12 @@ type Watchdog struct {
 	podSource      pod.Source
 	metrics        *metrics.Collector
 	watcherManager watcher.Manager
-	quit           *chan bool
+	quit           chan bool
 	activePods     *pod.Pods
 	running        bool
 }
 
-func New(config *config.Config, podSource pod.Source, metricCollector *metrics.Collector, quit *chan bool) *Watchdog {
+func New(config *config.Config, podSource pod.Source, metricCollector *metrics.Collector, quit chan bool) *Watchdog {
 	activePods := pod.NewPods()
 	return &Watchdog{
 		config:         config,
@@ -174,8 +174,6 @@ func (w *Watchdog) StopWatcher(serviceName, rsName string) {
 }
 
 func (w *Watchdog) Run() {
-	w.setRunning(true)
-
 	log.WithFields(log.Fields{
 		"version": tools.Version,
 		"go":      runtime.Version(),
@@ -189,11 +187,10 @@ func (w *Watchdog) Run() {
 		select {
 		case <-ticker.C:
 			w.fetchPods()
-		case <-*w.quit:
+		case <-w.quit:
 			log.Info("Stopping watchers")
 			ticker.Stop()
 			w.watcherManager.Close()
-			w.setRunning(false)
 			return
 		}
 	}
