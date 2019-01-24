@@ -33,7 +33,7 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 
 	pods := pod.NewPods()
 	pods.Set([]string{t.Name()})
-	testManager = NewManager(testConfig, &testStopChan, pods)
+	testManager = NewManager(testConfig, pods)
 	assert.NotNil(t, testManager)
 
 	apiTask := &mocks.Task{}

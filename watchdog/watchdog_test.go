@@ -58,7 +58,7 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 func TestWatchdogRun(t *testing.T) {
 	testPodSource := &mocks.Source{}
 	wMetrics := metrics.NewCollector()
-	testWatchdog := New(testConfig, testPodSource, wMetrics, &testQuitChan)
+	testWatchdog := New(testConfig, testPodSource, wMetrics, testQuitChan)
 	assert.NotNil(t, testWatchdog, ".New() returned nil")
 
 	testPodSource.On("Name").Return("test")

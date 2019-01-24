@@ -47,7 +47,7 @@ func New(config *config.Config, podSource pod.Source, metricCollector *metrics.C
 		podSource:      podSource,
 		metrics:        metricCollector,
 		quit:           quit,
-		watcherManager: watcher.NewManager(config, quit, activePods),
+		watcherManager: watcher.NewManager(config, activePods),
 		activePods:     activePods,
 	}
 }
@@ -174,6 +174,8 @@ func (w *Watchdog) StopWatcher(serviceName, rsName string) {
 }
 
 func (w *Watchdog) Run() {
+	w.setRunning(true)
+
 	log.WithFields(log.Fields{
 		"version": tools.Version,
 		"go":      runtime.Version(),
@@ -190,6 +192,7 @@ func (w *Watchdog) Run() {
 		case <-w.quit:
 			log.Info("Stopping watchers")
 			ticker.Stop()
+			w.setRunning(false)
 			w.watcherManager.Close()
 			return
 		}

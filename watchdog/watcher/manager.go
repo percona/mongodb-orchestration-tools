@@ -41,16 +41,14 @@ type watcherState struct {
 type WatcherManager struct {
 	sync.Mutex
 	config     *config.Config
-	stop       chan bool
 	watchers   []*watcherState
 	activePods *pod.Pods
 }
 
-func NewManager(config *config.Config, stop chan bool, activePods *pod.Pods) *WatcherManager {
+func NewManager(config *config.Config, activePods *pod.Pods) *WatcherManager {
 	return &WatcherManager{
 		config:     config,
 		activePods: activePods,
-		stop:       stop,
 		watchers:   make([]*watcherState, 0),
 	}
 }
