@@ -135,9 +135,9 @@ func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
-// frameworkHost returns the service/framework host suffix from the
-// FRAMEWORK_HOST environment variable. This was added to fix
-// https://jira.percona.com/browse/PMDCOS-5
+// frameworkHost returns the service/framework host suffix using
+// the FRAMEWORK_HOST environment variable.
+// Added to fix https://jira.percona.com/browse/PMDCOS-5
 func (task *Task) frameworkHost() string {
 	return os.Getenv(dcos.EnvFrameworkHost)
 }
@@ -148,7 +148,7 @@ func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	}
 	portStr, err := task.getEnvVar(pkg.EnvMongoDBPort)
 	if err != nil {
-		return addr, err
+		return nil, err
 	}
 	addr.Port, err = strconv.Atoi(portStr)
 	return addr, err

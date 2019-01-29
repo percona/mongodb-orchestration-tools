@@ -105,7 +105,6 @@ func (rw *Watcher) connectReplsetSession() error {
 		case <-rw.quit:
 			return errors.New("received quit")
 		}
-		break
 	}
 
 	rw.Lock()
