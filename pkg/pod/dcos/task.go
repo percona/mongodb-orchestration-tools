@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/db"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
@@ -138,7 +139,7 @@ func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 // FRAMEWORK_HOST environment variable. This was added to fix
 // https://jira.percona.com/browse/PMDCOS-5
 func (task *Task) frameworkHost() string {
-	return os.Getenv(pkg.EnvFrameworkHost)
+	return os.Getenv(dcos.EnvFrameworkHost)
 }
 
 func (task *Task) GetMongoAddr() (*db.Addr, error) {

@@ -138,10 +138,6 @@ func main() {
 	}
 
 	app.Flag(
-		"service",
-		"DC/OS SDK service/framework name, overridden by env var "+pkg.EnvServiceName,
-	).Default(pkg.DefaultServiceName).Envar(pkg.EnvServiceName).StringVar(&cnf.ServiceName)
-	app.Flag(
 		"replset",
 		"mongodb replica set name, this flag or env var "+pkg.EnvMongoDBReplset+" is required",
 	).Envar(pkg.EnvMongoDBReplset).Required().StringVar(&cnf.Replset)

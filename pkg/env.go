@@ -17,7 +17,6 @@ package pkg
 const (
 	// general
 	EnvLogVerbose     = "LOG_VERBOSE"
-	EnvFrameworkHost  = "FRAMEWORK_HOST"
 	EnvServiceName    = "SERVICE_NAME"
 	EnvMongoDBPort    = "MONGODB_PORT"
 	EnvMongoDBIp      = "MONGODB_IP"
