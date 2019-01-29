@@ -56,6 +56,8 @@ func TestWatchdogDoIgnorePod(t *testing.T) {
 }
 
 func TestWatchdogRun(t *testing.T) {
+	testutils.DoSkipTest(t)
+
 	testPodSource := &mocks.Source{}
 	wMetrics := metrics.NewCollector()
 	testWatchdog := New(testConfig, testPodSource, wMetrics, testQuitChan)
