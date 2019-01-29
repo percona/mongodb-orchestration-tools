@@ -20,9 +20,7 @@ import (
 
 	db "github.com/percona/mongodb-orchestration-tools/internal/db"
 	"github.com/percona/mongodb-orchestration-tools/internal/testutils"
-	"github.com/percona/mongodb-orchestration-tools/pkg"
 	pkgDb "github.com/percona/mongodb-orchestration-tools/pkg/db"
-	podDcos "github.com/percona/mongodb-orchestration-tools/pkg/pod/dcos"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod/mocks"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -35,7 +33,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 	podTask := &mocks.Task{}
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
 	podTask.On("GetMongoAddr").Return(&pkgDb.Addr{
-		Host: "test." + pkg.DefaultServiceName + "." + podDcos.AutoIPDNSSuffix,
+		Host: "test.percona-server-mongodb.autoip.dcos.thisdcos.directory",
 		Port: port,
 	}, nil)
 	podTask.On("GetMongoReplsetName").Return(testutils.MongodbReplsetName, nil)
@@ -49,7 +47,7 @@ func TestWatchdogReplsetNewMongod(t *testing.T) {
 func TestWatchdogReplsetMongodName(t *testing.T) {
 	testutils.DoSkipTest(t)
 
-	expected := "test." + pkg.DefaultServiceName + "." + podDcos.AutoIPDNSSuffix + ":" + testutils.MongodbPrimaryPort
+	expected := "test.percona-server-mongodb.autoip.dcos.thisdcos.directory:" + testutils.MongodbPrimaryPort
 	assert.Equal(t, expected, testMongod.Name(), ".Name() has unexpected output")
 }
 

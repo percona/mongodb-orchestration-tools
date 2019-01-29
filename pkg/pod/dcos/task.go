@@ -30,7 +30,6 @@ const backupPodNamePrefix = "backup-"
 type TaskState string
 
 var (
-	AutoIPDNSSuffix   string    = "autoip.dcos.thisdcos.directory"
 	TaskStateError    TaskState = "TASK_ERROR"
 	TaskStateFailed   TaskState = "TASK_FAILED"
 	TaskStateFinished TaskState = "TASK_FINISHED"
@@ -135,9 +134,16 @@ func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
+// frameworkHost returns the service/framework host suffix from the
+// FRAMEWORK_HOST environment variable. This was added to fix
+// https://jira.percona.com/browse/PMDCOS-5
+func (task *Task) frameworkHost() string {
+	return os.Getenv(pkg.EnvFrameworkHost)
+}
+
 func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
-		Host: task.data.Info.Name + "." + task.Service() + "." + AutoIPDNSSuffix,
+		Host: task.data.Info.Name + "." + task.frameworkHost(),
 	}
 	portStr, err := task.getEnvVar(pkg.EnvMongoDBPort)
 	if err != nil {
