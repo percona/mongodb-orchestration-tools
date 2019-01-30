@@ -100,7 +100,7 @@ func (task *Task) Name() string {
 }
 
 func (task *Task) Service() string {
-	return os.Getenv(pkg.EnvServiceName)
+	return os.Getenv(dcos.EnvFrameworkName)
 }
 
 func (task *Task) HasState() bool {
