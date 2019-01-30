@@ -47,24 +47,39 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 
 	// primary
 	port, _ := strconv.Atoi(testutils.MongodbPrimaryPort)
-	mongod := &replset.Mongod{
-		Host:    testutils.MongodbHost,
-		Port:    port,
-		Task:    apiTask,
-		PodName: t.Name(),
-	}
-	assert.NoError(t, testWatchRs.UpdateMember(mongod))
+	assert.NoError(t, testWatchRs.UpdateMember(
+		&replset.Mongod{
+			Host:    testutils.MongodbHost,
+			Port:    port,
+			Task:    apiTask,
+			PodName: t.Name(),
+		},
+	))
 
 	assert.Nil(t, testManager.Get(testWatchRsService, "does-not-exist"), ".Get() returned data for non-existing watcher")
 	assert.False(t, testManager.HasWatcher(testWatchRsService, testutils.MongodbReplsetName))
 
 	// secondary1
-	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary1Port)
-	assert.NoError(t, testWatchRs.UpdateMember(mongod))
+	port, _ = strconv.Atoi(testutils.MongodbSecondary1Port)
+	assert.NoError(t, testWatchRs.UpdateMember(
+		&replset.Mongod{
+			Host:    testutils.MongodbHost,
+			Port:    port,
+			Task:    apiTask,
+			PodName: t.Name(),
+		},
+	))
 
 	// secondary2
-	mongod.Port, _ = strconv.Atoi(testutils.MongodbSecondary2Port)
-	assert.NoError(t, testWatchRs.UpdateMember(mongod))
+	port, _ = strconv.Atoi(testutils.MongodbSecondary2Port)
+	assert.NoError(t, testWatchRs.UpdateMember(
+		&replset.Mongod{
+			Host:    testutils.MongodbHost,
+			Port:    port,
+			Task:    apiTask,
+			PodName: t.Name(),
+		},
+	))
 
 	tries := 0
 	for tries < 20 {
@@ -107,13 +122,14 @@ func TestWatchdogWatcherManagerWatch(t *testing.T) {
 	apiTaskState2.On("String").Return("OK")
 	apiTask2.On("State").Return(apiTaskState2)
 
-	mongod2 := &replset.Mongod{
-		Host:    testutils.MongodbHost,
-		Port:    port,
-		Task:    apiTask2,
-		PodName: t.Name() + "2",
-	}
-	assert.NoError(t, testWatchRs2.UpdateMember(mongod2))
+	assert.NoError(t, testWatchRs2.UpdateMember(
+		&replset.Mongod{
+			Host:    testutils.MongodbHost,
+			Port:    port,
+			Task:    apiTask2,
+			PodName: t.Name() + "2",
+		},
+	))
 
 	tries = 0
 	for tries < 20 {
