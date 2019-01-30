@@ -135,17 +135,9 @@ func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
-// frameworkHost returns the service/framework host/DNS suffix using
-// the FRAMEWORK_HOST environment variable that is set automatically
-// by DC/OS.
-// Added to resolve https://jira.percona.com/browse/PMDCOS-5
-func (task *Task) frameworkHost() string {
-	return os.Getenv(dcos.EnvFrameworkHost)
-}
-
 func (task *Task) GetMongoAddr() (*db.Addr, error) {
 	addr := &db.Addr{
-		Host: task.data.Info.Name + "." + task.frameworkHost(),
+		Host: task.data.Info.Name + "." + dcos.FrameworkHost(),
 	}
 	portStr, err := task.getEnvVar(pkg.EnvMongoDBPort)
 	if err != nil {
