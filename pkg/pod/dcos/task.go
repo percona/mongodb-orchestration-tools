@@ -135,9 +135,10 @@ func (task *Task) IsTaskType(taskType pod.TaskType) bool {
 	return false
 }
 
-// frameworkHost returns the service/framework host suffix using
-// the FRAMEWORK_HOST environment variable.
-// Added to fix https://jira.percona.com/browse/PMDCOS-5
+// frameworkHost returns the service/framework host/DNS suffix using
+// the FRAMEWORK_HOST environment variable that is set automatically
+// by DC/OS.
+// Added to resolve https://jira.percona.com/browse/PMDCOS-5
 func (task *Task) frameworkHost() string {
 	return os.Getenv(dcos.EnvFrameworkHost)
 }
