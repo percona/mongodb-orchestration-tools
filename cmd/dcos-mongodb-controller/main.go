@@ -49,8 +49,8 @@ func handleReplsetCmd(app *kingpin.Application, cnf *controller.Config) {
 	// replset init
 	cmdInit.Flag(
 		"primaryAddr",
-		"mongodb primary (host:port) to use to initiate the replset, overridden by env var "+dcos.EnvMongoDBPrimaryAddr,
-	).Envar(dcos.EnvMongoDBPrimaryAddr).Required().StringVar(&cnf.ReplsetInit.PrimaryAddr)
+		"override mongodb primary (host:port) to be used to initiate the replset, default is mongo-<MONGODB_REPLSET>-0-mongod.<FRAMEWORK_HOST>",
+	).StringVar(&cnf.ReplsetInit.PrimaryAddr)
 	cmdInit.Flag(
 		"delay",
 		"amount of time to delay the init process, overridden by env var "+pkg.EnvInitInitiateDelay,
@@ -177,6 +177,9 @@ func main() {
 
 	switch command {
 	case cmdInit.FullCommand():
+		if cnf.ReplsetInit.PrimaryAddr == "" {
+			cnf.ReplsetInit.PrimaryAddr = "mongo-" + cnf.Replset + "-0-mongod" + dcos.FrameworkHost()
+		}
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {
 			handleFailed(err)
