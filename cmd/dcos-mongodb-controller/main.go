@@ -16,6 +16,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/percona/mongodb-orchestration-tools/controller"
@@ -128,6 +129,7 @@ func handleFailed(err error) {
 }
 
 func main() {
+	var mongoDBPort int
 	app, _ := tool.New("Performs administrative tasks for MongoDB on behalf of DC/OS", GitCommit, GitBranch)
 
 	cnf := &controller.Config{
@@ -141,6 +143,10 @@ func main() {
 		"service",
 		"DC/OS SDK service/framework name, overridden by env var "+dcos.EnvFrameworkName,
 	).Default(pkg.DefaultServiceName).Envar(dcos.EnvFrameworkName).StringVar(&cnf.ServiceName)
+	app.Flag(
+		"port",
+		"mongodb port number, this flag or env var "+pkg.EnvMongoDBPort+" is required",
+	).Envar(pkg.EnvMongoDBPort).Required().IntVar(&mongoDBPort)
 	app.Flag(
 		"replset",
 		"mongodb replica set name, this flag or env var "+pkg.EnvMongoDBReplset+" is required",
@@ -178,7 +184,8 @@ func main() {
 	switch command {
 	case cmdInit.FullCommand():
 		if cnf.ReplsetInit.PrimaryAddr == "" {
-			cnf.ReplsetInit.PrimaryAddr = "mongo-" + cnf.Replset + "-0-mongod" + dcos.FrameworkHost()
+			host := "mongo-" + cnf.Replset + "-0-mongod" + dcos.FrameworkHost()
+			cnf.ReplsetInit.PrimaryAddr = host + ":" + strconv.Itoa(mongoDBPort)
 		}
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {

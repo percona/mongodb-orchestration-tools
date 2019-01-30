@@ -40,11 +40,11 @@ ifeq ($(TEST_CODECOV), true)
 	TEST_GO_EXTRA=-coverprofile=cover.out -covermode=atomic
 endif
 
+all: dcos k8s
+
 dcos: bin/mongodb-executor bin/mongodb-healthcheck bin/dcos-mongodb-controller bin/dcos-mongodb-watchdog
 
 k8s: bin/k8s-mongodb-initiator
-
-all: dcos k8s
 
 $(GOPATH)/bin/glide:
 	go get github.com/Masterminds/glide
