@@ -44,7 +44,7 @@ all: dcos k8s
 
 dcos: bin/mongodb-executor bin/mongodb-healthcheck bin/dcos-mongodb-controller bin/dcos-mongodb-watchdog
 
-k8s: bin/k8s-mongodb-initiator
+k8s: bin/k8s-mongodb-initiator bin/mongodb-healthcheck
 
 $(GOPATH)/bin/glide:
 	go get github.com/Masterminds/glide
