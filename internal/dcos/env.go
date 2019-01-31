@@ -15,8 +15,8 @@
 package dcos
 
 const (
-	EnvFrameworkName    = "FRAMEWORK_NAME"
 	EnvFrameworkHost    = "FRAMEWORK_HOST"
+	EnvFrameworkName    = "FRAMEWORK_NAME"
 	EnvPodName          = "POD_NAME"
 	EnvTaskName         = "TASK_NAME"
 	EnvMesosSandbox     = "MESOS_SANDBOX"
