@@ -39,7 +39,7 @@ func TestControllerUserUpdateUser(t *testing.T) {
 		Password: "123456",
 		Roles:    []mgo.Role{},
 		OtherDBRoles: map[string][]mgo.Role{
-			"products": []mgo.Role{
+			"products": {
 				mgo.RoleReadWrite,
 			},
 		},
