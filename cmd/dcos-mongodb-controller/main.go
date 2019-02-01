@@ -184,7 +184,7 @@ func main() {
 	switch command {
 	case cmdInit.FullCommand():
 		if cnf.ReplsetInit.PrimaryAddr == "" {
-			primaryHost := "mongo-" + cnf.Replset + "-0-mongod" + dcos.FrameworkHost()
+			primaryHost := "mongo-" + cnf.Replset + "-0-mongod." + dcos.FrameworkHost()
 			cnf.ReplsetInit.PrimaryAddr = primaryHost + ":" + strconv.Itoa(mongoDBPort)
 		}
 		err := replset.NewInitiator(cnf).Run()
