@@ -186,6 +186,7 @@ func main() {
 		if cnf.ReplsetInit.PrimaryAddr == "" {
 			primaryHost := "mongo-" + cnf.Replset + "-0-mongod." + dcos.FrameworkHost()
 			cnf.ReplsetInit.PrimaryAddr = primaryHost + ":" + strconv.Itoa(mongoDBPort)
+			log.Debugf("Using primary address %q for replset init", cnf.ReplsetInit.PrimaryAddr)
 		}
 		err := replset.NewInitiator(cnf).Run()
 		if err != nil {
