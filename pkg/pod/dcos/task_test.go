@@ -18,6 +18,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/percona/mongodb-orchestration-tools/internal/dcos"
 	"github.com/percona/mongodb-orchestration-tools/pkg"
 	"github.com/percona/mongodb-orchestration-tools/pkg/pod"
 	"github.com/stretchr/testify/assert"
@@ -68,8 +69,8 @@ func TestPkgPodDCOSTaskIsTaskType(t *testing.T) {
 }
 
 func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
-	os.Setenv(pkg.EnvServiceName, "testService")
-	defer os.Unsetenv(pkg.EnvServiceName)
+	os.Setenv(dcos.EnvFrameworkHost, "percona-server-mongodb.autoip.dcos.thisdcos.directory")
+	defer os.Unsetenv(dcos.EnvFrameworkHost)
 
 	task := NewTask(&TaskData{
 		Info: &TaskInfo{
@@ -90,7 +91,7 @@ func TestPkgPodDCOSTaskGetMongoAddr(t *testing.T) {
 	}}
 	addr, err := task.GetMongoAddr()
 	assert.NoError(t, err)
-	assert.Equal(t, t.Name()+".testService."+AutoIPDNSSuffix, addr.Host)
+	assert.Equal(t, t.Name()+".percona-server-mongodb.autoip.dcos.thisdcos.directory", addr.Host)
 	assert.Equal(t, 27017, addr.Port)
 }
 
