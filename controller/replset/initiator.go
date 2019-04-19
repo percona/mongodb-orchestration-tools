@@ -115,6 +115,61 @@ func (i *Initiator) initUsers(session *mgo.Session) error {
 	return nil
 }
 
+func (i *Initiator) getSession() (*mgo.Session, error) {
+	session, err := i.getLocalhostSession(true)
+	if err != nil {
+		log.Info("ssl connection error: " + err.Error())
+	}
+	if session == nil {
+		session, err = i.getLocalhostSession(false)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return session, nil
+}
+
+func (i Initiator) getLocalhostSession(secure bool) (*mgo.Session, error) {
+	sslCnf := db.SSLConfig{}
+	if i.config.SSL != nil {
+		if secure {
+			sslCnf = *i.config.SSL
+		} else {
+			sslCnf = *i.config.SSL
+			sslCnf.Insecure = true
+		}
+	}
+
+	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
+	localhostHost := "localhost:" + split[1]
+	session, err := db.WaitForSession(
+		&db.Config{
+			DialInfo: &mgo.DialInfo{
+				Addrs:    []string{localhostHost},
+				Direct:   true,
+				FailFast: true,
+				Timeout:  db.DefaultMongoDBTimeoutDuration,
+			},
+			SSL: &sslCnf,
+		},
+		i.config.ReplsetInit.MaxConnectTries,
+		i.config.ReplsetInit.RetrySleep,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	log.WithFields(log.Fields{
+		"host":       localhostHost,
+		"auth":       secure,
+		"replset":    "",
+		"ssl":        sslCnf.Enabled,
+		"ssl_secure": sslCnf.Insecure,
+	}).Info("Connected to MongoDB")
+
+	return session, nil
+}
+
 func (i *Initiator) getLocalhostNoAuthSession() (*mgo.Session, error) {
 	// if enabled, use an insecure SSL connection to avoid hostname validation error
 	// for the server hostname, only for the first connection.
@@ -220,14 +275,14 @@ func (i *Initiator) Run() error {
 	// First we must use a localhost, no-authentication session
 	// so that we can use the MongoDB Localhost Exception:
 	// https://docs.mongodb.com/manual/core/security-users/#localhost-exception
-	localhostNoAuthSession, err := i.getLocalhostNoAuthSession()
+	localhostSession, err := i.getSession()
 	if err != nil {
 		log.WithError(err).Error("Error getting localhost no-auth session")
 		return err
 	}
-	defer localhostNoAuthSession.Close()
+	defer localhostSession.Close()
 
-	err = i.prepareReplset(localhostNoAuthSession, os.Stdout)
+	err = i.prepareReplset(localhostSession, os.Stdout)
 	if err != nil {
 		if isError(err, ErrMsgNotAuthorizedPrefix) || isError(err, ErrMsgNotPrimary) || isError(err, ErrMsgRsInitRequiresAuth) {
 			log.Warning("Replset already initiated, skipping initiation")
@@ -238,7 +293,7 @@ func (i *Initiator) Run() error {
 	}
 
 	log.Info("Closing localhost connection, reconnecting with a replset+auth connection")
-	localhostNoAuthSession.Close()
+	localhostSession.Close()
 
 	replsetAuthSession, err := i.getReplsetSession()
 	if err != nil {

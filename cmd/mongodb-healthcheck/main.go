@@ -64,12 +64,24 @@ func main() {
 			"password",
 		)
 	}
+	sslConf := db.SSLConfig{}
+	cnf.SSL = &sslConf
 
 	session, err := db.GetSession(cnf)
 	if err != nil {
-		log.Fatalf("Error connecting to mongodb: %s", err)
-		return
+		log.Info("ssl connection error: " + err.Error())
 	}
+
+	if session == nil {
+		cnf.SSL.Insecure = true
+		session, err = db.GetSession(cnf)
+		if err != nil {
+			log.Fatalf("Error connecting to mongodb: %s", err)
+			return
+		}
+
+	}
+
 	defer session.Close()
 
 	switch command {
