@@ -130,28 +130,27 @@ func (i *Initiator) getSession() (*mgo.Session, error) {
 }
 
 func (i Initiator) getLocalhostSession(secure bool) (*mgo.Session, error) {
-	sslCnf := db.SSLConfig{}
-	if i.config.SSL != nil {
-		if secure {
-			sslCnf = *i.config.SSL
-		} else {
-			sslCnf = *i.config.SSL
-			sslCnf.Insecure = true
-		}
-	}
-
 	split := strings.SplitN(i.config.ReplsetInit.PrimaryAddr, ":", 2)
 	localhostHost := "localhost:" + split[1]
-	session, err := db.WaitForSession(
-		&db.Config{
-			DialInfo: &mgo.DialInfo{
-				Addrs:    []string{localhostHost},
-				Direct:   true,
-				FailFast: true,
-				Timeout:  db.DefaultMongoDBTimeoutDuration,
-			},
-			SSL: &sslCnf,
+	sslCnf := db.SSLConfig{}
+	dbConf := db.Config{
+		DialInfo: &mgo.DialInfo{
+			Addrs:    []string{localhostHost},
+			Direct:   true,
+			FailFast: true,
+			Timeout:  db.DefaultMongoDBTimeoutDuration,
 		},
+	}
+	if secure {
+		if i.config.SSL != nil {
+			sslCnf = *i.config.SSL
+		}
+		sslCnf.Insecure = true
+		dbConf.SSL = &sslCnf
+	}
+
+	session, err := db.WaitForSession(
+		&dbConf,
 		i.config.ReplsetInit.MaxConnectTries,
 		i.config.ReplsetInit.RetrySleep,
 	)
