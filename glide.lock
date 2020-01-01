@@ -83,14 +83,13 @@ imports:
   - nfs
   - xfs
 - name: github.com/Robpol86/logrus-custom-formatter
-  version: 9eff901af4a98a8b64de31b7d0a01ff7dd12b6c7
-  repo: https://github.com/timvaillancourt/logrus-custom-formatter
+  version: ba99911cd0e4ade6bf41bf080e923bde0ed46b98
 - name: github.com/scullxbones/mgo-statsd
   version: 80350e71822057dec1b2f7a63276e2da510c7384
   subpackages:
   - .
 - name: github.com/sirupsen/logrus
-  version: ad15b42461921f1fb3529b058c6786c6a45d5162
+  version: 202f25545ea4cf9b191ff7f846df5d87c9382c2b
 - name: github.com/stretchr/objx
   version: ef50b0de28773081167c97fc27cf29a0bf8b8c71
 - name: github.com/stretchr/testify
