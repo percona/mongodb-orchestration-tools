@@ -15,19 +15,21 @@
 package healthcheck
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/timvaillancourt/go-mongodb-replset/status"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // OkMemberStates is a slice of acceptable replication member states
 var OkMemberStates = []status.MemberState{
 	status.MemberStatePrimary,
 	status.MemberStateSecondary,
-	status.MemberStateArbiter,
 	status.MemberStateRecovering,
 	status.MemberStateStartup2,
+	status.MemberStateRollback,
 }
 
 // getSelfMemberState returns the replication state of the local MongoDB member
@@ -51,6 +53,10 @@ func isStateOk(memberState *status.MemberState, okMemberStates []status.MemberSt
 
 // HealthCheck checks the replication member state of the local MongoDB member
 func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (State, *status.MemberState, error) {
+	if err := checkServerStatus(session); err != nil {
+		return StateFailed, nil, err
+	}
+
 	rsStatus, err := status.New(session)
 	if err != nil {
 		return StateFailed, nil, fmt.Errorf("error getting replica set status: %s", err)
@@ -65,4 +71,21 @@ func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (Sta
 	}
 
 	return StateFailed, state, fmt.Errorf("member has unhealthy replication state: %s", state)
+}
+
+func checkServerStatus(session *mgo.Session) error {
+	status := &ServerStatus{}
+	err := session.DB("admin").Run(bson.D{{Name: "serverStatus", Value: 1}}, status)
+	if err != nil {
+		return err
+	}
+	if status.Ok == 0 {
+		return errors.New(status.Errmsg)
+	}
+	return nil
+}
+
+type ServerStatus struct {
+	Errmsg string `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
+	Ok     int    `bson:"ok" json:"ok"`
 }
