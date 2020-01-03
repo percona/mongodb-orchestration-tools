@@ -28,6 +28,7 @@ var OkMemberStates = []status.MemberState{
 	status.MemberStatePrimary,
 	status.MemberStateSecondary,
 	status.MemberStateRecovering,
+	status.MemberStateArbiter,
 	status.MemberStateStartup2,
 	status.MemberStateRollback,
 }
