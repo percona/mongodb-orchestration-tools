@@ -74,6 +74,41 @@ func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (Sta
 	return StateFailed, state, fmt.Errorf("member has unhealthy replication state: %s", state)
 }
 
+func HealthCheckLiveness(session *mgo.Session, okMemberStates []status.MemberState, startupDelaySeconds int64) (State, *status.MemberState, error) {
+	isMasterResp := IsMasterResp{}
+	err := session.Run(bson.D{{Name: "isMaster", Value: 1}}, &isMasterResp)
+	if err != nil {
+		return StateFailed, nil, fmt.Errorf("isMaster returned error %v", err)
+	}
+	if isMasterResp.Ok == 0 {
+		return StateFailed, nil, errors.New(isMasterResp.Errmsg)
+	}
+
+	info, err := session.BuildInfo()
+	if err != nil {
+		return StateFailed, nil, fmt.Errorf("failed to get mongo build info: %v", err)
+	}
+
+	replSetStatusCommand := bson.D{{Name: "replSetGetStatus", Value: 1}}
+	if info.Version < "4.2.1" {
+		// https://docs.mongodb.com/manual/reference/command/replSetGetStatus/#syntax
+		replSetStatusCommand = append(replSetStatusCommand, bson.DocElem{Name: "initialSync", Value: 1})
+	}
+
+	replSetGetStatusResp := ReplSetStatus{}
+	err = session.Run(replSetStatusCommand, &replSetGetStatusResp)
+	if err != nil {
+		return StateFailed, nil, fmt.Errorf("replSetGetStatus returned error %v", err)
+	}
+
+	err = replSetGetStatusResp.CheckState(startupDelaySeconds)
+	if err != nil {
+		return StateFailed, &replSetGetStatusResp.MyState, err
+	}
+
+	return StateOk, nil, nil
+}
+
 func checkServerStatus(session *mgo.Session) error {
 	status := &ServerStatus{}
 	err := session.DB("admin").Run(bson.D{{Name: "serverStatus", Value: 1}}, status)
@@ -87,6 +122,47 @@ func checkServerStatus(session *mgo.Session) error {
 }
 
 type ServerStatus struct {
-	Errmsg string `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
 	Ok     int    `bson:"ok" json:"ok"`
+	Errmsg string `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
+}
+
+type IsMasterResp struct {
+	IsMaster bool `bson:"ismaster" json:"ismaster"`
+
+	Ok     int    `bson:"ok" json:"ok"`
+	Errmsg string `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
+}
+
+type ReplSetStatus struct {
+	status.Status     `bson:",inline"`
+	InitialSyncStatus InitialSyncStatus `bson:"initialSyncStatus" json:"initialSyncStatus"`
+}
+
+type InitialSyncStatus interface{}
+
+func (rs ReplSetStatus) CheckState(startupDelaySeconds int64) error {
+	if rs.Ok == 0 {
+		return errors.New(rs.Errmsg)
+	}
+
+	uptime := rs.GetSelf().Uptime
+
+	switch rs.MyState {
+	case status.MemberStatePrimary, status.MemberStateSecondary, status.MemberStateArbiter:
+		return nil
+	case status.MemberStateStartup, status.MemberStateStartup2:
+		if (rs.InitialSyncStatus == nil && uptime > 30) || (rs.InitialSyncStatus != nil && uptime > startupDelaySeconds) {
+			return fmt.Errorf("state is %s and uptime is %d", rs.MyState, uptime)
+		}
+	case status.MemberStateRecovering:
+		if uptime > startupDelaySeconds {
+			return fmt.Errorf("state is %s and uptime is %d", rs.MyState, uptime)
+		}
+	case status.MemberStateUnknown, status.MemberStateDown, status.MemberStateRollback, status.MemberStateRemoved:
+		return fmt.Errorf("invalid state %s", rs.MyState)
+	default:
+		return fmt.Errorf("state is unknown %s", rs.MyState)
+	}
+
+	return nil
 }
