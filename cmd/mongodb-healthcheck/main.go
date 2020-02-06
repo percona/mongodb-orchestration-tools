@@ -45,7 +45,8 @@ func main() {
 	dcosCmd.Command("readiness", "Run MongoDB readiness check").Default()
 
 	k8sCmd := app.Command("k8s", "Performs liveness check for MongoDB on Kubernetes")
-	k8sCmd.Command("liveness", "Run a liveness check of MongoDB").Default()
+	livenessCmd := k8sCmd.Command("liveness", "Run a liveness check of MongoDB").Default()
+	startupDelaySeconds := livenessCmd.Flag("startupDelaySeconds", "").Default("7200").Uint64()
 
 	cnf := db.NewConfig(
 		app,
@@ -106,9 +107,9 @@ func main() {
 		log.Debug("Member passed DC/OS readiness check")
 	case "k8s liveness":
 		log.Debug("Running Kubernetes liveness check")
-		state, memberState, err := healthcheck.HealthCheck(session, healthcheck.OkMemberStates)
+		state, memberState, err := healthcheck.HealthCheckLiveness(session, healthcheck.OkMemberStates, int64(*startupDelaySeconds))
 		if err != nil {
-			log.Debug(err.Error())
+			log.Error(err.Error())
 			session.Close()
 			os.Exit(state.ExitCode())
 		}
