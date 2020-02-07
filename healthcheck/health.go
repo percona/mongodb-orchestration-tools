@@ -106,7 +106,7 @@ func HealthCheckLiveness(session *mgo.Session, okMemberStates []status.MemberSta
 		return StateFailed, &replSetGetStatusResp.MyState, err
 	}
 
-	return StateOk, nil, nil
+	return StateOk, &replSetGetStatusResp.MyState, nil
 }
 
 func checkServerStatus(session *mgo.Session) error {

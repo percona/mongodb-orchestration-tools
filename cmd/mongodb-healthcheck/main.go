@@ -106,13 +106,13 @@ func main() {
 		}
 		log.Debug("Member passed DC/OS readiness check")
 	case "k8s liveness":
-		log.Debug("Running Kubernetes liveness check")
+		log.Info("Running Kubernetes liveness check")
 		state, memberState, err := healthcheck.HealthCheckLiveness(session, healthcheck.OkMemberStates, int64(*startupDelaySeconds))
 		if err != nil {
 			log.Error(err.Error())
 			session.Close()
 			os.Exit(state.ExitCode())
 		}
-		log.Debugf("Member passed Kubernetes liveness check with replication state: %s", memberState)
+		log.Infof("Member passed Kubernetes liveness check with replication state: %s", memberState)
 	}
 }
