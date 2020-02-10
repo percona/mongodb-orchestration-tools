@@ -74,7 +74,7 @@ func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (Sta
 	return StateFailed, state, fmt.Errorf("member has unhealthy replication state: %s", state)
 }
 
-func HealthCheckLiveness(session *mgo.Session, okMemberStates []status.MemberState, startupDelaySeconds int64) (State, *status.MemberState, error) {
+func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (State, *status.MemberState, error) {
 	isMasterResp := IsMasterResp{}
 	err := session.Run(bson.D{{Name: "isMaster", Value: 1}}, &isMasterResp)
 	if err != nil {
