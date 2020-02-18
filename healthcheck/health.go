@@ -76,8 +76,7 @@ func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (Sta
 
 func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (State, *status.MemberState, error) {
 	isMasterResp := IsMasterResp{}
-	err := session.Run(bson.D{{Name: "isMaster", Value: 1}}, &isMasterResp)
-	if err != nil {
+	if err := session.Run(bson.D{{Name: "isMaster", Value: 1}}, &isMasterResp); err != nil {
 		return StateFailed, nil, fmt.Errorf("isMaster returned error %v", err)
 	}
 	if isMasterResp.Ok == 0 {
@@ -96,13 +95,22 @@ func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (State
 	}
 
 	replSetGetStatusResp := ReplSetStatus{}
-	err = session.Run(replSetStatusCommand, &replSetGetStatusResp)
-	if err != nil {
+	if err := session.Run(replSetStatusCommand, &replSetGetStatusResp); err != nil {
 		return StateFailed, nil, fmt.Errorf("replSetGetStatus returned error %v", err)
 	}
 
-	err = replSetGetStatusResp.CheckState(startupDelaySeconds)
-	if err != nil {
+	oplogRs := OplogRs{}
+	if err := session.DB("local").Run(bson.D{
+		{Name: "collStats", Value: "oplog.rs"},
+		{Name: "scale", Value: 1024 * 1024 * 1024}, // scale size to gigabytes
+	}, &oplogRs); err != nil {
+		return StateFailed, nil, fmt.Errorf("failed to get oplog.rs info: %v", err)
+	}
+	if oplogRs.Ok == 0 {
+		return StateFailed, nil, errors.New(oplogRs.Errmsg)
+	}
+
+	if err := replSetGetStatusResp.CheckState(startupDelaySeconds, oplogRs.StorageSize); err != nil {
 		return StateFailed, &replSetGetStatusResp.MyState, err
 	}
 
@@ -133,6 +141,13 @@ type IsMasterResp struct {
 	Errmsg string `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
 }
 
+type OplogRs struct {
+	StorageSize int64 `bson:"storageSize" json:"storageSize"`
+
+	Ok     int    `bson:"ok" json:"ok"`
+	Errmsg string `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
+}
+
 type ReplSetStatus struct {
 	status.Status     `bson:",inline"`
 	InitialSyncStatus InitialSyncStatus `bson:"initialSyncStatus" json:"initialSyncStatus"`
@@ -140,7 +155,7 @@ type ReplSetStatus struct {
 
 type InitialSyncStatus interface{}
 
-func (rs ReplSetStatus) CheckState(startupDelaySeconds int64) error {
+func (rs ReplSetStatus) CheckState(startupDelaySeconds int64, oplogSize int64) error {
 	if rs.Ok == 0 {
 		return errors.New(rs.Errmsg)
 	}
@@ -151,7 +166,8 @@ func (rs ReplSetStatus) CheckState(startupDelaySeconds int64) error {
 	case status.MemberStatePrimary, status.MemberStateSecondary, status.MemberStateArbiter:
 		return nil
 	case status.MemberStateStartup, status.MemberStateStartup2:
-		if (rs.InitialSyncStatus == nil && uptime > 30) || (rs.InitialSyncStatus != nil && uptime > startupDelaySeconds) {
+		if (rs.InitialSyncStatus == nil && uptime > 30+oplogSize*60) || // give 60 seconds to each 1Gb of oplog
+			(rs.InitialSyncStatus != nil && uptime > startupDelaySeconds) {
 			return fmt.Errorf("state is %s and uptime is %d", rs.MyState, uptime)
 		}
 	case status.MemberStateRecovering:
