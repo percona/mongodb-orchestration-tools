@@ -74,18 +74,18 @@ func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (Sta
 	return StateFailed, state, fmt.Errorf("member has unhealthy replication state: %s", state)
 }
 
-func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (State, *status.MemberState, error) {
+func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (*status.MemberState, error) {
 	isMasterResp := IsMasterResp{}
 	if err := session.Run(bson.D{{Name: "isMaster", Value: 1}}, &isMasterResp); err != nil {
-		return StateFailed, nil, fmt.Errorf("isMaster returned error %v", err)
+		return nil, fmt.Errorf("isMaster returned error %v", err)
 	}
 	if isMasterResp.Ok == 0 {
-		return StateFailed, nil, errors.New(isMasterResp.Errmsg)
+		return nil, errors.New(isMasterResp.Errmsg)
 	}
 
 	info, err := session.BuildInfo()
 	if err != nil {
-		return StateFailed, nil, fmt.Errorf("failed to get mongo build info: %v", err)
+		return nil, fmt.Errorf("failed to get mongo build info: %v", err)
 	}
 
 	replSetStatusCommand := bson.D{{Name: "replSetGetStatus", Value: 1}}
@@ -96,7 +96,7 @@ func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (State
 
 	replSetGetStatusResp := ReplSetStatus{}
 	if err := session.Run(replSetStatusCommand, &replSetGetStatusResp); err != nil {
-		return StateFailed, nil, fmt.Errorf("replSetGetStatus returned error %v", err)
+		return nil, fmt.Errorf("replSetGetStatus returned error %v", err)
 	}
 
 	oplogRs := OplogRs{}
@@ -104,17 +104,17 @@ func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (State
 		{Name: "collStats", Value: "oplog.rs"},
 		{Name: "scale", Value: 1024 * 1024 * 1024}, // scale size to gigabytes
 	}, &oplogRs); err != nil {
-		return StateFailed, nil, fmt.Errorf("failed to get oplog.rs info: %v", err)
+		return nil, fmt.Errorf("failed to get oplog.rs info: %v", err)
 	}
 	if oplogRs.Ok == 0 {
-		return StateFailed, nil, errors.New(oplogRs.Errmsg)
+		return nil, errors.New(oplogRs.Errmsg)
 	}
 
 	if err := replSetGetStatusResp.CheckState(startupDelaySeconds, oplogRs.StorageSize); err != nil {
-		return StateFailed, &replSetGetStatusResp.MyState, err
+		return &replSetGetStatusResp.MyState, err
 	}
 
-	return StateOk, &replSetGetStatusResp.MyState, nil
+	return &replSetGetStatusResp.MyState, nil
 }
 
 func checkServerStatus(session *mgo.Session) error {
