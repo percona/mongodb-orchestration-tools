@@ -54,10 +54,6 @@ func isStateOk(memberState *status.MemberState, okMemberStates []status.MemberSt
 
 // HealthCheck checks the replication member state of the local MongoDB member
 func HealthCheck(session *mgo.Session, okMemberStates []status.MemberState) (State, *status.MemberState, error) {
-	if err := checkServerStatus(session); err != nil {
-		return StateFailed, nil, err
-	}
-
 	rsStatus, err := status.New(session)
 	if err != nil {
 		return StateFailed, nil, fmt.Errorf("error getting replica set status: %s", err)
@@ -115,18 +111,6 @@ func HealthCheckLiveness(session *mgo.Session, startupDelaySeconds int64) (*stat
 	}
 
 	return &replSetGetStatusResp.MyState, nil
-}
-
-func checkServerStatus(session *mgo.Session) error {
-	status := &ServerStatus{}
-	err := session.DB("admin").Run(bson.D{{Name: "serverStatus", Value: 1}}, status)
-	if err != nil {
-		return err
-	}
-	if status.Ok == 0 {
-		return errors.New(status.Errmsg)
-	}
-	return nil
 }
 
 type ServerStatus struct {
