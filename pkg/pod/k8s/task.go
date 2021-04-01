@@ -29,11 +29,10 @@ const (
 	mongodBackupContainerName  = "mongod-backup"
 	mongosContainerName        = "mongos"
 	mongodbPortName            = "mongodb"
-	clusterServiceDNSSuffix    = "svc.cluster.local"
 )
 
 func GetMongoHost(pod, service, replset, namespace string) string {
-	return strings.Join([]string{pod, service + "-" + replset, namespace, clusterServiceDNSSuffix}, ".")
+	return strings.Join([]string{pod, service + "-" + replset, namespace}, ".")
 }
 
 type TaskState struct {
